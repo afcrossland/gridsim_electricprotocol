@@ -1,0 +1,35 @@
+/* Eastman Grotesque */
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Thin.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Thin.woff') format('woff'); font-weight: 100; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Thin-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Thin-Italic.woff') format('woff'); font-weight: 100; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Extralight.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Extralight.woff') format('woff'); font-weight: 200; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Extralight-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Extralight-Italic.woff') format('woff'); font-weight: 200; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Light.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Light.woff') format('woff'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Light-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Light-Italic.woff') format('woff'); font-weight: 300; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Regular.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Regular.woff') format('woff'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Italic.woff') format('woff'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Medium.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Medium.woff') format('woff'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Medium-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Medium-Italic.woff') format('woff'); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Demi-Bold.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Demi-Bold.woff') format('woff'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Demi-Bold-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Demi-Bold-Italic.woff') format('woff'); font-weight: 600; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Bold.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Bold.woff') format('woff'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Bold-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Bold-Italic.woff') format('woff'); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Extrabold.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Extrabold.woff') format('woff'); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Extrabold-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Extrabold-Italic.woff') format('woff'); font-weight: 800; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Black.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Black.woff') format('woff'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('./assets/fonts/Eastman-Grotesque-Black-Italic.woff2') format('woff2'), url('./assets/fonts/Eastman-Grotesque-Black-Italic.woff') format('woff'); font-weight: 900; font-style: italic; font-display: swap; }
+
+:root {
+  font-family: 'Eastman Grotesque', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}

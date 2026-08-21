@@ -1,0 +1,1101 @@
+{
+  "README": "Researched answers, keyed by the question's row in the source spreadsheet so each entry can be checked against it. Every entry must cite a source; nothing is scored on inference alone. `basis` is 'national' where the evidence is specific to that country, or 'directive-baseline' where an EU instrument creates the right and national transposition has not been individually verified.",
+  "sources": {
+    "eu-2019-944-art11": {
+      "title": "Directive (EU) 2019/944, Article 11 — Entitlement to a dynamic electricity price contract",
+      "url": "https://eur-lex.europa.eu/eli/dir/2019/944/oj/eng"
+    },
+    "eu-2019-944-annex1": {
+      "title": "Directive (EU) 2019/944, Annex I — Minimum requirements for billing, with the three price components defined by Regulation (EU) 2016/1952",
+      "url": "https://eur-lex.europa.eu/eli/dir/2019/944/oj/eng"
+    },
+    "eu-2019-944-art23": {
+      "title": "Directive (EU) 2019/944, Articles 20–23 — Smart metering functionality and access to metering and consumption data",
+      "url": "https://eur-lex.europa.eu/eli/dir/2019/944/oj/eng"
+    },
+    "eu-2019-944-art17": {
+      "title": "Directive (EU) 2019/944, Article 17 — Demand response through aggregation",
+      "url": "https://lexparency.org/eu/32019L0944/ART_17/"
+    },
+    "eu-2019-944-art32": {
+      "title": "Directive (EU) 2019/944, Article 32 — Incentives for the use of flexibility in distribution networks",
+      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX%3A32019L0944"
+    },
+    "ceer-art32-derogations": {
+      "title": "CEER — NRAs' approach to DSO flexibility procurement, justifications for derogations from Article 32",
+      "url": "https://www.ceer.eu/publication/nras-approach-to-dso-flexibility-procurement-justifications-for-derogations-from-article-32/"
+    },
+    "eu-red2-art21": {
+      "title": "Directive (EU) 2018/2001 (RED II), Article 21 — Renewables self-consumers",
+      "url": "https://lexparency.org/eu/32018L2001/ART_21/"
+    },
+    "eu-red2-art17": {
+      "title": "Directive (EU) 2018/2001 (RED II), Article 17 — Simple-notification procedure for grid connections",
+      "url": "https://lexparency.org/eu/32018L2001/ART_17/"
+    },
+    "eu-red2-art18": {
+      "title": "Directive (EU) 2018/2001 (RED II), Article 18(3) and Annex IV — Certification schemes for installers of small-scale renewable systems",
+      "url": "https://eur-lex.europa.eu/eli/dir/2018/2001/oj/eng"
+    },
+    "eu-customs-cer": {
+      "title": "EU Common Customs Tariff — 0% duty on photovoltaic modules; 2.7% on lithium-ion batteries",
+      "url": "https://dutify.com/duty-rates-for-lithium-ion-battery"
+    },
+    "au-aemc-smart-meters": {
+      "title": "AEMC — Accelerating smart meter deployment: final rule, 28 November 2024, universal deployment across the NEM by 2030",
+      "url": "https://www.aemc.gov.au/news-centre/media-releases/aemc-smart-meters-100-2030-new-customer-information-real-time-data-and-protections"
+    },
+    "au-cheaper-home-batteries": {
+      "title": "DCCEEW — Cheaper Home Batteries Program, delivered through the Small-scale Renewable Energy Scheme from 1 July 2025",
+      "url": "https://www.dcceew.gov.au/energy/programs/cheaper-home-batteries"
+    },
+    "au-aemc-export-tariffs": {
+      "title": "AEMC — Access, pricing and incentive arrangements for distributed energy resources, final determination 12 August 2021; AER Export Tariff Guidelines",
+      "url": "https://www.aemc.gov.au/rule-changes/access-pricing-and-incentive-arrangements-distributed-energy-resources"
+    },
+    "au-saa-accreditation": {
+      "title": "Solar Accreditation Australia — installer and designer accreditation scheme operator under the SRES since 29 February 2024, enforcing AS/NZS 4777.2:2020",
+      "url": "https://saaustralia.com.au/about-accreditation/"
+    },
+    "au-cer-installers": {
+      "title": "Clean Energy Regulator — rooftop solar installers and designers must hold SAA accreditation to create certificates under the SRES",
+      "url": "https://cer.gov.au/schemes/renewable-energy-target/renewable-energy-target-participants-and-industry/rooftop-solar-installers-and-designers"
+    },
+    "au-aemo-dashboard": {
+      "title": "AEMO — NEM data dashboard: five-minute dispatch and FCAS prices, demand, generation and interconnector flows, published free and publicly since the five-minute settlement start on 1 October 2021",
+      "url": "https://www.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/data-nem/data-dashboard-nem"
+    },
+    "au-aemo-ancillary": {
+      "title": "AEMO — Ancillary services: eight separate FCAS markets in the NEM, accessible to aggregated small resources through registered aggregators",
+      "url": "https://www.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/system-operations/ancillary-services"
+    },
+    "au-aemo-rert": {
+      "title": "AEMO — Reliability and Emergency Reserve Trader: availability and activation payments for curtailable load, including aggregated smaller loads, procured through a pre-qualified panel",
+      "url": "https://www.aemo.com.au/energy-systems/electricity/emergency-management/reliability-and-emergency-reserve-trader-rert"
+    },
+    "au-aer-ringfencing": {
+      "title": "AER — Electricity Distribution Ring-fencing Guideline version 3 (3 November 2021): distributors prohibited from providing contestable services with a battery absent a waiver",
+      "url": "https://www.aer.gov.au/system/files/AER%20-%20Ring-fencing%20Guideline%20Version%203%20-%20(electricity%20distribution)%20%20-%203%20November%202021.pdf"
+    },
+    "au-csip-aus": {
+      "title": "CSIP-AUS — Common Smart Inverter Profile Australia, an IEEE 2030.5 based DER communications profile developed by the DER Integration API Technical Working Group, with CEC-certified inverters",
+      "url": "https://arena.gov.au/knowledge-bank/common-smart-inverter-profile-australia/"
+    },
+    "au-aemo-sa-demand": {
+      "title": "AEMO — South Australian Electricity Report: record minimum operational demand of −209 MW on 19 October 2024, with rooftop PV meeting 64% of SA demand",
+      "url": "https://www.aemo.com.au/-/media/files/electricity/nem/planning_and_forecasting/sa_advisory/2025/2025-south-australian-electricity-report.pdf"
+    },
+    "au-saa-pathways": {
+      "title": "Solar Accreditation Australia — accreditation pathways built on nationally recognised UEE units (UEERE0054, UEERE0061, UEERE0080, UEERE0081), delivered by registered training organisations across Australia",
+      "url": "https://saaustralia.com.au/accreditation-pathways/"
+    },
+    "au-import-tariffs": {
+      "title": "Australia — 0% import duty on solar panels and photovoltaic modules (GST applies separately); US ITA country commercial guide on Australian import tariffs",
+      "url": "https://www.trade.gov/country-commercial-guides/australia-import-tariffs"
+    },
+    "us-ferc-2222": {
+      "title": "FERC Order No. 2222 — requires RTOs/ISOs to let DER aggregations provide all wholesale services they are technically capable of; FERC explainer",
+      "url": "https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy"
+    },
+    "us-ferc-2222-tracker": {
+      "title": "FERC Order 2222 DER policy and implementation tracker, January 2026 — PJM energy and ancillary services implementation 1 February 2028, SPP Q2 2030, ISO-NE capacity from FCA 19 in February 2026",
+      "url": "https://cuswebsite.blob.core.windows.net/2222tracker/Tracker-Report-January-2026.pdf"
+    },
+    "us-irs-obbba": {
+      "title": "IRS — FAQs on modification of sections 25C, 25D and others under Public Law 119-21 (One Big Beautiful Bill, 4 July 2025): section 25D terminated for expenditures after 31 December 2025",
+      "url": "https://www.irs.gov/newsroom/faqs-for-modification-of-sections-25c-25d-25e-30c-30d-45l-45w-and-179d-under-public-law-119-21-139-stat-72-july-4-2025-commonly-known-as-the-one-big-beautiful-bill-obbb"
+    },
+    "us-doe-trade": {
+      "title": "US Department of Energy — Overview of trade and policy measures for US solar manufacturing (Section 201, Section 301 and AD/CVD orders)",
+      "url": "https://www.energy.gov/cmei/systems/overview-trade-and-policy-measures-us-solar-manufacturing"
+    },
+    "us-section201-expiry": {
+      "title": "Solar Power World — Section 201 safeguard tariffs on imported solar panels expired 6 February 2026, having stepped down to 14% for 2025; AD/CVD orders on Cambodia, Malaysia, Thailand and Vietnam imposed 24 June 2025 remain",
+      "url": "https://www.solarpowerworldonline.com/2026/02/end-of-an-era-sec-201-tariffs-on-imported-solar-panels-expire/"
+    },
+    "us-irec-1547": {
+      "title": "IREC — IEEE 1547-2018 adoption tracker: state-by-state dates for requiring UL 1741 SB certified inverters in new interconnection applications",
+      "url": "https://irecusa.org/resources/ieee-1547-2018-adoption-tracker/"
+    },
+    "us-nrel-1547": {
+      "title": "NREL — Overview of distributed energy resource interconnection: IEEE 1547-2018 and UL 1741 certification of inverters",
+      "url": "https://www.nrel.gov/grid/ieee-standard-1547/overview-distributed-energy-resource-interconnection"
+    },
+    "ca-nem3": {
+      "title": "California Net Billing Tariff (NEM 3.0) — approved by the CPUC 15 December 2022, effective 15 April 2023, replacing retail-rate net metering with hourly avoided-cost export compensation for PG&E, SCE and SDG&E customers (secondary source)",
+      "url": "https://enphase.com/blog/homeowners/understanding-nem-30-and-future-net-energy-metering"
+    },
+    "ca-sgip": {
+      "title": "California Self-Generation Incentive Program (SGIP) — CPUC-administered storage rebates of $200–$1,000/kWh; as of April 2026 the residential budgets are fully reserved and new applications are waitlisted (secondary source)",
+      "url": "https://sunsolarpros.com/blog/california-sgip-battery-rebate-2026/"
+    },
+    "ca-rule21-ica": {
+      "title": "IREC — California adopts first interconnection rules to use hosting capacity results: Integration Capacity Analysis built into Rule 21, with monthly-updated public ICA maps from PG&E, SCE and SDG&E",
+      "url": "https://irecusa.org/blog/regulatory-engagement/california-adopts-first-interconnection-rules-to-utilize-hosting-capacity-results/"
+    },
+    "ny-vder": {
+      "title": "NYSERDA — Value of Distributed Energy Resources (VDER) Value Stack: compensation by when and where a DER delivers, comprising energy, capacity, environmental, demand reduction and locational system relief value",
+      "url": "https://www.nyserda.ny.gov/All-Programs/NY-Sun/Contractors/Value-of-Distributed-Energy-Resources"
+    },
+    "ny-sir": {
+      "title": "NY Department of Public Service — New York State Standardized Interconnection Requirements, effective 1 August 2025: a single statewide process for distributed generation and storage up to 5 MW",
+      "url": "https://dps.ny.gov/system/files/documents/2025/08/nys-standardized-interconnection-requirements-effective-080125.pdf"
+    },
+    "ny-sun": {
+      "title": "NYSERDA — NY-Sun megawatt block incentive: regional blocks of capacity funded at declining rates, available until each block is fully subscribed",
+      "url": "https://www.nyserda.ny.gov/All-Programs/NY-Sun/Contractors/Dashboards-and-incentives"
+    },
+    "us-irec-hca": {
+      "title": "IREC — The evolution of hosting capacity analysis as a grid modernization tool: California, Nevada, Minnesota, New York, Maryland, New Jersey and Connecticut require utilities to publish solar hosting capacity maps; Hawaii also mandates hosting capacity analyses",
+      "url": "https://irecusa.org/blog/regulatory-engagement/the-evolution-of-hosting-capacity-analysis-as-a-grid-modernization-tool/"
+    },
+    "tx-ercot-ader": {
+      "title": "ERCOT — Aggregate Distributed Energy Resource (ADER) pilot project, in Phase 3 as of 2025, letting aggregated distribution-level resources respond to ERCOT dispatch",
+      "url": "https://www.ercot.com/mktrules/pilots/ader"
+    },
+    "tx-no-net-metering": {
+      "title": "pv magazine USA — no Texas utility offers statewide net metering for rooftop solar; some retailers offer lower-value buyback and Denton Municipal Electric is a lone exception",
+      "url": "https://pv-magazine-usa.com/2022/10/24/distributed-resources-to-earn-compensation-from-texas-grid-operator-ercot/"
+    },
+    "hi-smart-der": {
+      "title": "Hawaiian Electric — Smart Renewable Energy (Smart DER) export programme approved by the Hawaii PUC, with Customer Grid Supply, CGS Plus and Smart Export customers transitioning to Smart DER export tracks from 1 October 2024",
+      "url": "https://www.hawaiianelectric.com/products-and-services/smart-renewable-energy-programs/smart-renewable-energy-export"
+    },
+    "hi-byod": {
+      "title": "Hawaiian Electric — Bring Your Own Device and BYOD Plus (from 15 May 2025) pay solar-plus-storage customers to discharge at peak; the earlier Battery Bonus programme closed to new participants on 1 July 2024",
+      "url": "https://www.hawaiianelectric.com/products-and-services/customer-incentive-programs/battery-bonus"
+    },
+    "ma-smart": {
+      "title": "Massachusetts SMART (Solar Massachusetts Renewable Target) programme — per-kWh incentive paid for 20 years on top of net metering (secondary source)",
+      "url": "https://www.energysage.com/local-data/solar-rebates-incentives/ma/"
+    },
+    "ma-connectedsolutions": {
+      "title": "Mass Save ConnectedSolutions — performance-based battery demand response paying roughly $225/kW of average summer performance across 30–60 dispatch events (secondary source)",
+      "url": "https://www.bostonsolar.us/solar-blog-resource-center/blog/what-is-mass-save-connectedsolutions-the-battery-incentive-program-explained/"
+    },
+    "in-surya-ghar": {
+      "title": "PM Surya Ghar Muft Bijli Yojana — announced 15 February 2024: ₹30,000/kW up to 2 kW and ₹18,000/kW above, capped at ₹78,000 for residential rooftop solar, with DISCOM approval and net metering (secondary source)",
+      "url": "https://cleartax.in/s/rooftop-solar-scheme"
+    },
+    "in-customs": {
+      "title": "Energetica India — Union Budget 2025-26 cut basic customs duty on solar cells and modules to 20%, effective 2 February 2025; a 20% AIDC applies on top, and DGTR recommended anti-dumping duties of up to 30% on Chinese cells and modules in September 2025",
+      "url": "https://www.energetica-india.net/news/union-budget-2025-26-solar-cells-and-modules-duty-cut-to-20-percent"
+    },
+    "pk-nepra": {
+      "title": "NEPRA (Alternative & Renewable Energy) Distributed Generation and Net Metering Regulations 2015, revised December 2025: new prosumers move to net billing at a fixed Rs11/unit export rate against Rs22 for existing seven-year agreements, with agreement terms cut to five years",
+      "url": "https://profit.pakistantoday.com.pk/2025/12/17/how-will-the-net-metering-regulations-change-if-nepras-draft-prosumer-regulations-2025-get-approved/"
+    },
+    "bd-net-metering": {
+      "title": "Bangladesh Net Metering Guidelines 2018 (amended 2019) — SREDA framework requiring bi-directional, time-of-use capable meters and SREDA-approved equipment meeting Bangladesh Standards and equivalent IEC standards",
+      "url": "https://policy.asiapacificenergy.org/sites/default/files/Net%20metering%20Guidelines%20-%202018.pdf"
+    },
+    "lk-soorya-bala": {
+      "title": "Soorya Bala Sangramaya (Battle for Solar Energy) — Ministry of Power and Renewable Energy with SLSEA, CEB and LECO, offering rooftop customers a choice of Net Metering, Net Accounting or Net Plus",
+      "url": "https://policy.asiapacificenergy.org/node/3206"
+    },
+    "hi-shift-and-save": {
+      "title": "Hawaiian Electric — Shift and Save time-of-use rates (daytime, evening peak and overnight priced roughly 1:2:3), launched as a 16,000-customer pilot on Oʻahu and Hawaiʻi Island and closed to new enrolments from 1 February 2025",
+      "url": "https://www.hawaiianelectric.com/hawaiian-electric-to-close-shift-and-save-time-of-use-rates-program-to-new-enrollments-as-of-feb-1"
+    },
+    "ma-interconnection": {
+      "title": "Commonwealth of Massachusetts — utility interconnection: the DPU requires all investor-owned distribution companies to interconnect distributed generation under a common Model DG Interconnection Tariff with Simplified and Expedited processes",
+      "url": "https://www.mass.gov/info-details/utility-interconnection-in-massachusetts"
+    },
+    "acer-ceer-retail-2024": {
+      "title": "ACER/CEER — 2024 Market Monitoring Report on Energy Retail and Consumer Protection: fewer than 30% of households can access dynamic price contracts in 10 member states, and fixed or regulated contracts still dominate at household level in 15",
+      "url": "https://www.ceer.eu/publication/acer-ceer-2024-market-monitoring-report-energy-retail-and-consumer-protection/"
+    },
+    "de-kfw-270": {
+      "title": "KfW programme 270 'Erneuerbare Energien – Standard' — promotional loan covering 100% of PV and battery investment, terms to 30 years, rates from about 3.98% effective (secondary source)",
+      "url": "https://checkeverything.de/en/kfw-270-solar-loan-rates-2026-guide/"
+    },
+    "de-eeg-fit": {
+      "title": "Germany EEG feed-in tariff — remuneration fixed for 20 years from commissioning, with separate rates for surplus feed-in and full feed-in; pv magazine on the August 2025 revision",
+      "url": "https://www.pv-magazine.com/2025/08/04/germany-reduces-feed-in-tariffs-for-solar-up-to-1-mw/"
+    },
+    "de-mastr": {
+      "title": "Bundesnetzagentur — Marktstammdatenregister (core energy market data register): free online registration of every generating installation, required within one month of commissioning under §71 EEG 2023 and a precondition for EEG remuneration",
+      "url": "https://www.bundesnetzagentur.de/EN/Areas/Energy/CoreEnergyMarketDataRegister/start.html"
+    },
+    "fr-autoconsommation": {
+      "title": "France — the prime à l'autoconsommation was abolished for new surplus-sale installations in early June 2026, and EDF OA surplus buyback fell to 1.1 c€/kWh HT from 5 June 2026 (previously 4 c€/kWh); photovoltaic panels are not covered by MaPrimeRénov' (secondary source)",
+      "url": "https://selectra.info/energie/solaire/autoconsommation-prime"
+    },
+    "it-detrazione": {
+      "title": "Italy — 50% income tax deduction on photovoltaic installation up to €96,000 for a first home through 31 December 2026, 36% for other properties, spread over ten annual instalments (secondary source)",
+      "url": "https://quifinanza.it/fisco-tasse/bonus-fiscali/bonus-fotovoltaico-2026/962611/"
+    },
+    "it-ritiro-dedicato": {
+      "title": "Italy — Scambio sul Posto closed to plants commissioned from 29 May 2025; Ritiro Dedicato with the GSE is the route for new installations, with a 2026 minimum guaranteed price of 4.75 c€/kWh (secondary source)",
+      "url": "https://www.enpal.com/it/fotovoltaico/scambio-sul-posto"
+    },
+    "es-rd244": {
+      "title": "Spain — Real Decreto 244/2019 self-consumption framework: simplified surplus compensation nets exports against imports within a billing period for renewable installations up to 100 kW, with registration in the self-consumption registry and notification to the distributor; IDAE grants cover 15–40% of cost (secondary source)",
+      "url": "https://selectra.es/autoconsumo/normativa"
+    },
+    "nl-saldering": {
+      "title": "Rijksoverheid — the salderingsregeling ends on 1 January 2027 in a single step; households net exports against consumption until 31 December 2026, after which suppliers must pay a feed-in compensation of at least 50% of the basic supply tariff until 2030",
+      "url": "https://www.rijksoverheid.nl/themas/klimaat-milieu-en-natuur/energie-thuis/salderingsregeling"
+    },
+    "pl-moj-prad": {
+      "title": "Mój Prąd — NFOŚiGW prosumer support programme: up to 7,000 PLN for a 2–10 kWp PV system and up to 16,000 PLN for storage under edition 6.0, with settlement under net-billing a condition of the grant",
+      "url": "https://mojprad.gov.pl/"
+    },
+    "pl-net-billing": {
+      "title": "Poland net-billing — prosumers sell surplus at the market price published by URE and buy at the retail price, replacing the earlier net-metering discount system (secondary source)",
+      "url": "https://www.gramwzielone.pl/magazynowanie-energii/20343921/moj-prad-w-2026-z-budzetem-przynajmniej-500-mln-zl"
+    }
+  },
+  "groups": {
+    "NEM": [
+      "AU-NSW",
+      "AU-QLD",
+      "AU-VIC",
+      "AU-SA",
+      "AU-TAS",
+      "AU-ACT"
+    ],
+    "WEM": [
+      "AU-WA"
+    ],
+    "EU27": [
+      "AT",
+      "BE",
+      "BG",
+      "HR",
+      "CY",
+      "CZ",
+      "DK",
+      "EE",
+      "FI",
+      "FR",
+      "DE",
+      "GR",
+      "HU",
+      "IE",
+      "IT",
+      "LV",
+      "LT",
+      "LU",
+      "MT",
+      "NL",
+      "PL",
+      "PT",
+      "RO",
+      "SK",
+      "SI",
+      "ES",
+      "SE"
+    ]
+  },
+  "answers": [
+    {
+      "group": "EU27",
+      "row": 16,
+      "score": 1,
+      "basis": "directive-baseline",
+      "sourceId": "acer-ceer-retail-2024",
+      "note": "Article 11 of Directive (EU) 2019/944 gives every final customer the right to a dynamic price contract from any supplier with more than 200,000 customers, but only once a smart meter is installed. ACER and CEER's 2024 retail monitoring confirms the score of 1 with market evidence rather than legal inference: fewer than 30% of households can access dynamic contracts in 10 member states, and fixed or regulated contracts still dominate in 15. Availability is real but far from universal."
+    },
+    {
+      "group": "EU27",
+      "row": 18,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-2019-944-annex1",
+      "note": "Annex I requires bills to break the price into energy/supply, network, and taxes/levies/fees, using the common definitions in Regulation (EU) 2016/1952 across the Union."
+    },
+    {
+      "group": "EU27",
+      "row": 19,
+      "score": 1,
+      "basis": "directive-baseline",
+      "sourceId": "eu-2019-944-art23",
+      "note": "Articles 20–23 require smart meters to provide validated historical consumption data and non-discriminatory electronic access to it. Scored 1 because entitlement follows smart meter installation, and rollout is incomplete in most member states."
+    },
+    {
+      "group": "EU27",
+      "row": 22,
+      "score": 1,
+      "basis": "directive-baseline",
+      "sourceId": "eu-2019-944-art17",
+      "note": "Article 17 requires member states to allow demand response through aggregation to participate in all electricity markets alongside producers, and lets independent aggregators enter without other participants' consent. Scored 1 rather than 2 because the share of markets genuinely open to aggregated CERs depends on national prequalification rules that have not been checked country by country."
+    },
+    {
+      "group": "EU27",
+      "row": 24,
+      "score": 1,
+      "basis": "directive-baseline",
+      "sourceId": "eu-2019-944-art32",
+      "note": "Article 32 requires a regulatory framework incentivising DSOs to procure flexibility, including from distributed generation and storage, where it defers network reinforcement. Scored 1 because regulators may derogate where procurement is not economically efficient, and CEER records derogations in practice, so this is not yet business as usual everywhere."
+    },
+    {
+      "group": "EU27",
+      "row": 35,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-red2-art21",
+      "note": "Article 21(2)(a) entitles renewables self-consumers to be free of any charges or fees on self-generated renewable electricity that remains within their premises. Charges may only fall on electricity fed into or taken from the grid."
+    },
+    {
+      "group": "EU27",
+      "row": 36,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-red2-art21",
+      "note": "Article 21(1) requires member states to ensure consumers are entitled to become renewables self-consumers, free of discriminatory or disproportionate procedures."
+    },
+    {
+      "group": "EU27",
+      "row": 38,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-red2-art17",
+      "note": "Article 17 requires a simple-notification procedure for self-consumer installations of 10.8 kW or less: notify the DSO, and connect if there is no reasoned refusal within one month. That is fit-and-inform."
+    },
+    {
+      "group": "EU27",
+      "row": 41,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-red2-art17",
+      "note": "Same simple-notification procedure. Connection follows a notification rather than an application, with deemed approval after one month; refusal is only permitted on justified safety or technical-incompatibility grounds."
+    },
+    {
+      "group": "EU27",
+      "row": 54,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-customs-cer",
+      "note": "The EU applies 0% duty to photovoltaic modules and 2.7% to lithium-ion batteries, both below the 10% threshold for full marks. Applies union-wide as the Common Customs Tariff, so this is not really a per-country judgement."
+    },
+    {
+      "group": "EU27",
+      "row": 57,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-red2-art18",
+      "note": "Article 18(3) requires certification or equivalent qualification schemes for installers of small-scale solar PV, based on the criteria in Annex IV, with mutual recognition between member states."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-cheaper-home-batteries",
+      "note": "The Cheaper Home Batteries Program cuts roughly 30% off the upfront cost of small-scale batteries from 1 July 2025, delivered through the Small-scale Renewable Energy Scheme that already underwrites rooftop solar. Available to households and small businesses nationally, so it meets the 'available to all CPs' test."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 16,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-aemc-smart-meters",
+      "note": "Time-of-use retail tariffs are widely offered, but depend on a smart meter. The AEMC's 28 November 2024 final rule targets 100% smart meter deployment across the NEM by 2030, which is an explicit acknowledgement that coverage is not yet universal. Scored 1 until it is."
+    },
+    {
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-aemc-export-tariffs",
+      "note": "The AEMC's August 2021 DER determination removed the prohibition on export tariffs and required networks to provide a free basic export level, with the AER's Export Tariff Guidelines governing two-way pricing. Export pricing therefore exists, but is not a time-of-day market open on equal terms to both solar and storage, so scored 1.",
+      "group": "NEM"
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 19,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-aemc-smart-meters",
+      "note": "The same rule package introduces customer access to real-time and historical smart meter data. Scored 1 because access follows smart meter installation, and the rollout runs to 2030."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-saa-accreditation",
+      "note": "AS/NZS 4777.2:2020 sets national inverter and installation requirements, enforced through SAA accreditation and periodically revised."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-saa-accreditation",
+      "note": "SAA compliance procedures audit installations against Australian Standards and scheme guidelines as a condition of accreditation."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 57,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-cer-installers",
+      "note": "Solar Accreditation Australia has operated the national installer and designer accreditation scheme under the SRES since 29 February 2024, covering grid-connected PV, battery storage and stand-alone systems. Accreditation is mandatory to create certificates under the scheme."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 14,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-aer-ringfencing",
+      "note": "The AER's ring-fencing guideline prohibits distributors from providing contestable services with a battery unless they obtain a waiver, so network businesses cannot freely own CERs. They remain able to contract with and incentivise third-party CERs for network support, so this is 'some barriers' rather than significant ones."
+    },
+    {
+      "row": 21,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-aemo-dashboard",
+      "note": "AEMO publishes dispatch prices for energy and all FCAS markets every five minutes, free and public, alongside demand, generation, bids and interconnector flows. Fully transparent and in real time, which is the test for full marks.",
+      "group": "NEM"
+    },
+    {
+      "row": 26,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-aemo-ancillary",
+      "note": "AEMO operates eight separate FCAS markets covering regulation and contingency raise and lower services. Small resources reach them through registered aggregators, and third-party aggregators are established participants.",
+      "group": "NEM"
+    },
+    {
+      "row": 28,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-aemo-rert",
+      "note": "The RERT pays availability and activation payments for demand reduction, and aggregated smaller loads are explicitly eligible. Scored 1 because it is a last-resort emergency mechanism procured through a pre-qualified panel rather than a market open to all consumer participants.",
+      "group": "NEM"
+    },
+    {
+      "row": 31,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-aemo-rert",
+      "note": "Demand reduction is compensated through the RERT panel, but access runs through tender and pre-agreed contracts rather than being open to all CPs.",
+      "group": "NEM"
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 47,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-aemo-sa-demand",
+      "note": "South Australia set a record minimum operational demand of −209 MW on 19 October 2024, with rooftop PV meeting 64% of demand — regionally past the 70% test at times. Scored 1 for Australia as a whole because the NEM-wide distributed share remains well below that level, and this is exactly the divergence a national score conceals."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 48,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-csip-aus",
+      "note": "CSIP-AUS provides a national DER communications profile built on the IEEE 2030.5 international standard, with Clean Energy Council inverter certification against it. Scored 1 rather than 2 because it was developed by an industry working group rather than set by the system operator, and DNSP adoption is uneven — Queensland has offered dynamic connections since late 2022 while other networks lag."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 49,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "au-csip-aus",
+      "note": "The same profile governs DER data exchange, including dynamic operating envelope extensions. Uneven network adoption keeps this at partially national rather than universal."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-import-tariffs",
+      "note": "Australia applies 0% import duty to solar panels and photovoltaic modules, well below the 10% threshold. GST applies but is a consumption tax, not a border tariff."
+    },
+    {
+      "countries": [
+        "AU"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-saa-pathways",
+      "note": "Accreditation rests on nationally recognised UEE units of competency delivered by registered training organisations in multiple states, offered continuously rather than to an occasional schedule."
+    },
+    {
+      "countries": [
+        "AU-SA"
+      ],
+      "row": 47,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "au-aemo-sa-demand",
+      "note": "South Australia reached a record minimum operational demand of −209 MW on 19 October 2024, with rooftop PV meeting 64% of demand and AEMO projecting 84%. AEMO is already operating this region beyond the 70% behind-the-meter threshold, which is why South Australia scores 2 where Australia as a whole scores 1."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 20,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "us-ferc-2222-tracker",
+      "note": "FERC Order 2222 requires every RTO/ISO to open all wholesale services to DER aggregations regardless of size. Scored 1 rather than 2 because it is largely not yet operational: PJM's energy and ancillary services implementation is set for February 2028 and SPP's for Q2 2030, so in most of the country the barrier is scheduled to fall rather than fallen."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 22,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "us-ferc-2222",
+      "note": "Order 2222 establishes the right of DER aggregations — the US equivalent of a VPP — to participate in wholesale markets. Scored 1 because access depends on each RTO's compliance tariff, and most implementation dates are still in the future."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 48,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "us-irec-1547",
+      "note": "IEEE 1547-2018 is a national technical standard with UL 1741 SB certification behind it, but it binds only where a state regulator or ISO has adopted it, and IREC tracks adoption dates state by state. National standard, localised force — so partially rather than universally adopted."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 49,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "us-irec-1547",
+      "note": "The same standard governs DER communications and interoperability, with the same state-by-state adoption pattern."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "us-nrel-1547",
+      "note": "Inverters are certified to UL 1741, which incorporates IEEE 1547/1547.1 testing. Both are maintained national standards aligned to international practice."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "us-nrel-1547",
+      "note": "UL 1741 listing is a safety certification requirement for grid-connected inverters nationwide, revised alongside IEEE 1547."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 54,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "us-section201-expiry",
+      "note": "Section 201 safeguard tariffs expired on 6 February 2026, but antidumping and countervailing duty orders imposed on Cambodia, Malaysia, Thailand and Vietnam in June 2025 remain, at rates from 9% to 292% depending on origin and producer. Since those four countries supply most imported cells and modules, the effective border cost sits well above the 25% mark."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 55,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "us-irs-obbba",
+      "note": "The One Big Beautiful Bill Act terminated the section 25D residential clean energy credit for expenditures after 31 December 2025, so a household installing solar or storage in 2026 gets no federal credit, while utility-scale technology retains its own credits. Consumer-side incentives no longer match utility-scale ones."
+    },
+    {
+      "countries": [
+        "US-CA"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ca-sgip",
+      "note": "The Self-Generation Incentive Program pays $200–$1,000/kWh toward storage, but as of April 2026 the residential budgets are fully reserved and new applications go on a waitlist. Available, but not universally accessible."
+    },
+    {
+      "countries": [
+        "US-CA"
+      ],
+      "row": 17,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ca-nem3",
+      "note": "The Net Billing Tariff compensates exports at hourly avoided cost rather than a flat retail credit, so export value varies by time of day. It applies to all new PG&E, SCE and SDG&E customers and to both solar and paired storage."
+    },
+    {
+      "countries": [
+        "US-CA"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ca-rule21-ica",
+      "note": "Rule 21 requires an interconnection application, but Integration Capacity Analysis results now feed the Fast Track process and support automation. Simple and online rather than fit-and-inform."
+    },
+    {
+      "countries": [
+        "US-CA"
+      ],
+      "row": 42,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ca-rule21-ica",
+      "note": "PG&E, SCE and SDG&E each publish interactive ICA maps showing DER hosting capacity across thousands of distribution circuits, updated monthly, and the published values are the ones used to evaluate an application."
+    },
+    {
+      "countries": [
+        "US-NY"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ny-sun",
+      "note": "NY-Sun pays a declining megawatt-block incentive by region, but each block closes once fully subscribed, so support depends on where and when a household applies rather than being universally available."
+    },
+    {
+      "countries": [
+        "US-NY"
+      ],
+      "row": 17,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ny-vder",
+      "note": "The VDER Value Stack compensates exports by when and where they are delivered, stacking energy, capacity, environmental, demand reduction and locational system relief value. That is time-varying export pricing rather than a flat credit, and it is open to storage as well as solar."
+    },
+    {
+      "countries": [
+        "US-NY"
+      ],
+      "row": 24,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ny-vder",
+      "note": "The Locational System Relief Value pays DERs extra for siting in grid-constrained areas, and the Demand Reduction Value pays for cutting peak load. Both are standing tariff components rather than trials, which is what deferring network reinforcement through a market signal looks like in practice."
+    },
+    {
+      "countries": [
+        "US-NY"
+      ],
+      "row": 27,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ny-vder",
+      "note": "The Demand Reduction Value component of the Value Stack compensates peak demand reduction as part of the standard tariff."
+    },
+    {
+      "countries": [
+        "US-NY"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ny-sir",
+      "note": "The Standardized Interconnection Requirements give one statewide process and application for distributed generation and storage up to 5 MW, most recently revised effective 1 August 2025. An application is still required, so this is simple and standardised rather than fit-and-inform."
+    },
+    {
+      "countries": [
+        "US-NY"
+      ],
+      "row": 42,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "us-irec-hca",
+      "note": "New York is one of the states that mandate utility hosting capacity analyses, published as maps by the Joint Utilities and refined under commission direction."
+    },
+    {
+      "countries": [
+        "US-TX"
+      ],
+      "row": 17,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "tx-no-net-metering",
+      "note": "Texas has no statewide net metering requirement. Some retailers offer buyback at below retail value and Denton Municipal Electric is a lone exception, but there is no general entitlement to be paid for exports."
+    },
+    {
+      "countries": [
+        "US-TX"
+      ],
+      "row": 22,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "tx-ercot-ader",
+      "note": "ERCOT's Aggregate DER pilot, in Phase 3 as of 2025, lets aggregated distribution-level resources follow ERCOT dispatch through retail electricity providers. Still a pilot with capacity caps rather than open market access."
+    },
+    {
+      "countries": [
+        "US-TX"
+      ],
+      "row": 42,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "us-irec-hca",
+      "note": "Texas is not among the states requiring utilities to publish solar hosting capacity maps."
+    },
+    {
+      "countries": [
+        "US-HI"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "hi-byod",
+      "note": "Battery Bonus closed to new participants on 1 July 2024 and was replaced by Bring Your Own Device and BYOD Plus from 15 May 2025. Incentives exist but run in capacity-capped tranches rather than being open to all customers continuously."
+    },
+    {
+      "countries": [
+        "US-HI"
+      ],
+      "row": 17,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "hi-smart-der",
+      "note": "The Smart DER export programme, approved by the Hawaii PUC, pays for exports on time-differentiated tracks, with legacy Customer Grid Supply, CGS Plus and Smart Export customers transitioning onto it from 1 October 2024. Open to solar and paired storage."
+    },
+    {
+      "countries": [
+        "US-HI"
+      ],
+      "row": 27,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "hi-byod",
+      "note": "BYOD pays solar-plus-storage customers to discharge during the evening peak, which is peak demand reduction compensated as standard programme design."
+    },
+    {
+      "countries": [
+        "US-HI"
+      ],
+      "row": 31,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "hi-byod",
+      "note": "BYOD Plus dispatches customer batteries in response to system need, compensating demand reduction as business as usual."
+    },
+    {
+      "countries": [
+        "US-HI"
+      ],
+      "row": 42,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "us-irec-hca",
+      "note": "Hawaii mandates utility hosting capacity analyses, among the earliest states to do so."
+    },
+    {
+      "countries": [
+        "US-MA"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-smart",
+      "note": "The SMART programme pays a per-kWh incentive for 20 years on top of net metering, available statewide to residential solar owners rather than rationed by block or waitlist."
+    },
+    {
+      "countries": [
+        "US-MA"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ma-smart",
+      "note": "Exports are credited through net metering at retail value with a flat SMART adder. Compensation exists and is open to all, but it does not vary by time of day."
+    },
+    {
+      "countries": [
+        "US-MA"
+      ],
+      "row": 27,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-connectedsolutions",
+      "note": "ConnectedSolutions pays roughly $225/kW of average summer performance for battery discharge across 30–60 peak events, open to any customer with a qualifying battery."
+    },
+    {
+      "countries": [
+        "US-MA"
+      ],
+      "row": 31,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-connectedsolutions",
+      "note": "The same programme compensates dispatched demand reduction as an ongoing offer rather than a trial."
+    },
+    {
+      "countries": [
+        "US-MA"
+      ],
+      "row": 42,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "us-irec-hca",
+      "note": "Massachusetts is not among the states mandating utility hosting capacity maps, though IREC records active proceedings elsewhere on the same question."
+    },
+    {
+      "countries": [
+        "IN"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "in-surya-ghar",
+      "note": "PM Surya Ghar Muft Bijli Yojana, announced 15 February 2024, pays ₹30,000/kW up to 2 kW and ₹18,000/kW above that, capped at ₹78,000. A national residential scheme open to households generally, which meets the test for reducing upfront cost for all CPs."
+    },
+    {
+      "countries": [
+        "IN"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "in-surya-ghar",
+      "note": "Net metering is available through the local DISCOM as part of the scheme, offsetting imports against exports each billing cycle. It is a volumetric offset rather than time-of-day export pricing, and availability depends on DISCOM approval."
+    },
+    {
+      "countries": [
+        "IN"
+      ],
+      "row": 54,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "in-customs",
+      "note": "Basic customs duty on modules fell to 20% from 2 February 2025, but a 20% AIDC applies on top, putting the combined rate at about 40%, with anti-dumping duties of up to 30% recommended on Chinese cells and modules in September 2025. Well above the 25% threshold."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "pk-nepra",
+      "note": "Net metering has operated under the NEPRA 2015 distributed generation regulations, but the December 2025 revision moves new prosumers to net billing at a fixed Rs11/unit against Rs22 for existing agreements, and cuts agreement terms from seven years to five. Export compensation exists but is being narrowed and is not time-of-day."
+    },
+    {
+      "countries": [
+        "BD"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bd-net-metering",
+      "note": "The Net Metering Guidelines 2018, amended in 2019 to cover all three-phase consumers, allow rooftop exports against consumption. Meters must be bi-directional and time-of-use capable, but compensation is a volumetric offset rather than time-varying export pricing."
+    },
+    {
+      "countries": [
+        "BD"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "bd-net-metering",
+      "note": "All equipment including modules and inverters must be SREDA-approved and meet Bangladesh Standards and equivalent IEC standards, so a national standard aligned to international norms is in force."
+    },
+    {
+      "countries": [
+        "LK"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "lk-soorya-bala",
+      "note": "Soorya Bala Sangramaya promotes rooftop solar across households, religious premises, hotels and industry through SLSEA with CEB and LECO. It provides a route to installation but is a promotion programme rather than a universal low-cost finance or rebate entitlement."
+    },
+    {
+      "countries": [
+        "LK"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "lk-soorya-bala",
+      "note": "Customers choose between Net Metering, Net Accounting — where CEB or LECO buys surplus at a set feed-in tariff — and Net Plus. Export compensation is available to all rooftop customers but is not time-of-day priced."
+    },
+    {
+      "countries": [
+        "US-HI"
+      ],
+      "row": 16,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "hi-shift-and-save",
+      "note": "Shift and Save prices daytime, overnight and evening peak at roughly 1:2:3, but it ran as a 16,000-customer pilot on two islands and closed to new enrolments on 1 February 2025. Existing participants keep the rate, so time-of-use pricing reaches some customers rather than all."
+    },
+    {
+      "countries": [
+        "US-MA"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ma-interconnection",
+      "note": "The DPU requires every investor-owned distribution company to interconnect under a common Model DG Interconnection Tariff, with Simplified and Expedited paths for smaller facilities. Standardised statewide and application-based rather than fit-and-inform."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-kfw-270",
+      "note": "KfW programme 270 lends up to 100% of the cost of a PV system or battery over terms up to 30 years, is open nationally rather than rationed by block or waitlist, and can be combined with regional grants and the EEG tariff."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 12,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-kfw-270",
+      "note": "KfW 270 starts at roughly 3.98% effective per year, below the 5% threshold for full marks. This replaces the World Bank lending-rate proxy, which has no figure for Germany in any case: euro-area countries largely do not report that indicator."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-eeg-fit",
+      "note": "The EEG pays a feed-in tariff fixed for 20 years from commissioning, with distinct rates for surplus feed-in and full feed-in. Available to every rooftop operator and to storage-paired systems, but a fixed rate rather than time-of-day export pricing."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-mastr",
+      "note": "The Marktstammdatenregister is a single national online register. Registration is free, takes 15–30 minutes, and is required within a month of commissioning under §71 EEG 2023."
+    },
+    {
+      "countries": [
+        "FR"
+      ],
+      "row": 10,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "fr-autoconsommation",
+      "note": "The prime à l'autoconsommation — the only state subsidy toward the cost of a PV installation — was abolished in early June 2026 for new self-consumption-with-surplus installations. Photovoltaic panels are not covered by MaPrimeRénov', and the zero-rate eco-loan and 5.5% VAT reach solar thermal rather than PV. Installations connected before 5 June 2026 keep the old terms for 20 years."
+    },
+    {
+      "countries": [
+        "FR"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "fr-autoconsommation",
+      "note": "EDF OA buys surplus under the obligation d'achat, but the rate for new installations fell to 1.1 c€/kWh HT on 5 June 2026 from 4 c€/kWh. Export compensation is available to all, at a fixed rate rather than by time of day."
+    },
+    {
+      "countries": [
+        "IT"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "it-detrazione",
+      "note": "A 50% income tax deduction on installation costs up to €96,000 applies to a first home through 31 December 2026, and 36% to other properties, recovered over ten annual instalments. Open to households generally rather than capped by a subscription block."
+    },
+    {
+      "countries": [
+        "IT"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "it-ritiro-dedicato",
+      "note": "Scambio sul Posto closed to plants commissioned from 29 May 2025, so new installations use Ritiro Dedicato, under which the GSE buys surplus at a set price with a 2026 minimum guaranteed price of 4.75 c€/kWh. Available to all, but not time-of-day pricing."
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-rd244",
+      "note": "IDAE grants cover 15–40% of installation cost, but are administered through the autonomous communities against limited budgets rather than being continuously available to every consumer."
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-rd244",
+      "note": "Simplified surplus compensation under RD 244/2019 credits exports against imports within the same billing period for renewable installations up to 100 kW, applied by the supplier as a bill discount. No producer registration is needed, but it is a netting mechanism rather than time-of-day export pricing."
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 45,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-rd244",
+      "note": "Installations must be notified to the distributor and, in cases including self-consumption without surplus, entered in the autonomous or state self-consumption registry. A registration process exists but runs through regional administration rather than one national digital register."
+    },
+    {
+      "countries": [
+        "NL"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "nl-saldering",
+      "note": "Households net exports against consumption under the salderingsregeling until 31 December 2026. From 1 January 2027 the scheme ends in a single step and suppliers must pay at least 50% of the basic supply tariff for exports until 2030. Compensation is universal but not time-of-day priced, and is about to fall sharply."
+    },
+    {
+      "countries": [
+        "PL"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "pl-moj-prad",
+      "note": "Mój Prąd pays up to 7,000 PLN toward a 2–10 kWp system and up to 16,000 PLN toward storage, but runs in time-limited editions: edition 6.0 covers investments completed by 31 October 2025, and the 2026 round is expected to focus on storage with PV funded only in transitional tenders or as part of a storage package."
+    },
+    {
+      "countries": [
+        "PL"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "pl-net-billing",
+      "note": "Prosumers settle under net-billing, selling surplus at the market price published by URE and buying at the retail price. Market-linked export compensation open to all prosumers, though it tracks a published market price rather than offering a time-of-day tariff choice."
+    }
+  ]
+}

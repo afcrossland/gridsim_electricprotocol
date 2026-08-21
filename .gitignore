@@ -1,0 +1,12 @@
+node_modules
+dist
+*.local
+.DS_Store
+tsconfig*.tsbuildinfo
+
+# MapTiler key lives here
+.env
+.env.dev
+.env.prod
+.env.*.local
+.cache

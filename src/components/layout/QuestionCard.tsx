@@ -1,0 +1,234 @@
+import { useState } from "react";
+import {
+  Box,
+  Button,
+  Chip,
+  Collapse,
+  IconButton,
+  Paper,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/DeleteOutline";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+
+import type { Question, Response, Role } from "../../lib/types";
+import { useProtocolStore } from "../../stores/protocolStore";
+
+interface Props {
+  question: Question;
+  response: Response | undefined;
+  code: string;
+  role: Role;
+}
+
+/**
+ * One question as a compact card.
+ *
+ * The rubric tiers run horizontally rather than stacked — three short columns
+ * instead of three full-width rows is most of the difference between a section
+ * that fits on screen and one that takes four scrolls. Source and notes stay
+ * collapsed until wanted, with their state shown on the toggle so nothing
+ * important hides behind it.
+ */
+export default function QuestionCard({ question, response, code, role }: Props) {
+  const setResponse = useProtocolStore((s) => s.setResponse);
+  const deleteResponse = useProtocolStore((s) => s.deleteResponse);
+  const updateQuestion = useProtocolStore((s) => s.updateQuestion);
+  const deleteQuestion = useProtocolStore((s) => s.deleteQuestion);
+  const isAdmin = role === "admin";
+
+  const [showEvidence, setShowEvidence] = useState(false);
+
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 2,
+        borderColor: response ? "divider" : "warning.light",
+        borderLeft: "3px solid",
+        borderLeftColor: response ? "primary.main" : "warning.main",
+      }}
+    >
+      <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start", mb: 1.5 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          {question.subsection && (
+            <Typography variant="overline" sx={{ display: "block" }}>
+              {question.subsection}
+            </Typography>
+          )}
+          {isAdmin ? (
+            <TextField
+              fullWidth
+              multiline
+              size="small"
+              variant="standard"
+              value={question.text}
+              onChange={(e) => updateQuestion(question.id, { text: e.target.value })}
+            />
+          ) : (
+            <Typography variant="body1">{question.text}</Typography>
+          )}
+        </Box>
+
+        {isAdmin ? (
+          <TextField
+            size="small"
+            type="number"
+            label="Weight"
+            variant="standard"
+            value={question.weight}
+            onChange={(e) => {
+              const weight = Number(e.target.value);
+              if (Number.isFinite(weight) && weight >= 0) {
+                updateQuestion(question.id, { weight });
+              }
+            }}
+            sx={{ width: 76, flexShrink: 0 }}
+          />
+        ) : (
+          <Chip size="small" variant="outlined" label={`Weight ${question.weight}`} />
+        )}
+
+        {isAdmin && (
+          <Tooltip title="Delete question">
+            <IconButton size="small" onClick={() => deleteQuestion(question.id)}>
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
+
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: `repeat(${question.rubric.length}, 1fr)`,
+          },
+          gap: 1,
+        }}
+      >
+        {question.rubric.map((tier, i) => {
+          const selected = response?.score === tier.score;
+          return (
+            <Box
+              key={tier.score}
+              onClick={() => setResponse(code, question.id, { score: tier.score })}
+              sx={{
+                p: 1.25,
+                borderRadius: 1.5,
+                cursor: "pointer",
+                border: "2px solid",
+                borderColor: selected ? "primary.main" : "divider",
+                bgcolor: selected ? "action.selected" : "transparent",
+                "&:hover": { borderColor: selected ? "primary.main" : "primary.light" },
+                display: "flex",
+                flexDirection: "column",
+                gap: 0.75,
+              }}
+            >
+              <Chip
+                size="small"
+                label={tier.score}
+                color={selected ? "primary" : "default"}
+                sx={{ width: 30, alignSelf: "flex-start" }}
+              />
+              {isAdmin ? (
+                <TextField
+                  fullWidth
+                  multiline
+                  size="small"
+                  variant="standard"
+                  value={tier.label}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    const rubric = question.rubric.slice();
+                    rubric[i] = { ...tier, label: e.target.value };
+                    updateQuestion(question.id, { rubric });
+                  }}
+                />
+              ) : (
+                <Typography variant="body2" sx={{ color: selected ? "text.primary" : undefined }}>
+                  {tier.label}
+                </Typography>
+              )}
+            </Box>
+          );
+        })}
+      </Box>
+
+      {response && (
+        <>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5, flexWrap: "wrap" }}>
+            <Button
+              size="small"
+              onClick={() => setShowEvidence((v) => !v)}
+              endIcon={
+                <ExpandMoreIcon
+                  fontSize="small"
+                  sx={{
+                    transform: showEvidence ? "rotate(180deg)" : "none",
+                    transition: "transform 150ms",
+                  }}
+                />
+              }
+            >
+              Evidence
+            </Button>
+
+            {response.basis === "directive-baseline" && (
+              <Chip size="small" color="warning" variant="outlined" label="EU directive baseline" />
+            )}
+            {response.basis === "national" && (
+              <Chip size="small" color="success" variant="outlined" label="National evidence" />
+            )}
+            {response.basis === "proxy-indicator" && (
+              <Chip size="small" color="warning" variant="outlined" label="Statistical proxy" />
+            )}
+            {response.seeded && !response.basis && (
+              <Chip size="small" variant="outlined" label="From spreadsheet" />
+            )}
+            {!response.source && (
+              <Chip size="small" color="warning" variant="outlined" label="No source" />
+            )}
+
+            <Box sx={{ flex: 1 }} />
+            {isAdmin && (
+              <Tooltip title="Clear this response">
+                <IconButton size="small" onClick={() => deleteResponse(code, question.id)}>
+                  <RestartAltIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+
+          <Collapse in={showEvidence}>
+            <Stack spacing={1} sx={{ mt: 1 }}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Source"
+                placeholder="Link, statute or document supporting this score"
+                value={response.source}
+                onChange={(e) => setResponse(code, question.id, { source: e.target.value })}
+              />
+              <TextField
+                fullWidth
+                multiline
+                minRows={2}
+                size="small"
+                label="Notes"
+                value={response.note}
+                onChange={(e) => setResponse(code, question.id, { note: e.target.value })}
+              />
+            </Stack>
+          </Collapse>
+        </>
+      )}
+    </Paper>
+  );
+}

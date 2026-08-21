@@ -1,0 +1,2370 @@
+[
+  {
+    "code": "AD",
+    "name": "Andorra",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "AE",
+    "name": "United Arab Emirates",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "AF",
+    "name": "Afghanistan",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "AG",
+    "name": "Antigua and Barbuda",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "AI",
+    "name": "Anguilla",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "AL",
+    "name": "Albania",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "AM",
+    "name": "Armenia",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "AO",
+    "name": "Angola",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "AQ",
+    "name": "Antarctica",
+    "level": "country",
+    "parent": null,
+    "region": "Antarctica",
+    "mappable": true
+  },
+  {
+    "code": "AR",
+    "name": "Argentina",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "AS",
+    "name": "American Samoa",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "AT",
+    "name": "Austria",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "AU",
+    "name": "Australia",
+    "level": "country",
+    "parent": null,
+    "region": "Australia and New Zealand",
+    "mappable": false
+  },
+  {
+    "code": "AW",
+    "name": "Aruba",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "AX",
+    "name": "\u00c5land Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "AZ",
+    "name": "Azerbaijan",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "BA",
+    "name": "Bosnia and Herzegovina",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "BB",
+    "name": "Barbados",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "BD",
+    "name": "Bangladesh",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "BE",
+    "name": "Belgium",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "BF",
+    "name": "Burkina Faso",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "BG",
+    "name": "Bulgaria",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "BH",
+    "name": "Bahrain",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "BI",
+    "name": "Burundi",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "BJ",
+    "name": "Benin",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "BL",
+    "name": "Saint-Barth\u00e9lemy",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "BM",
+    "name": "Bermuda",
+    "level": "country",
+    "parent": null,
+    "region": "Northern America",
+    "mappable": true
+  },
+  {
+    "code": "BN",
+    "name": "Brunei Darussalam",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "BO",
+    "name": "Bolivia",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "BR",
+    "name": "Brazil",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "BS",
+    "name": "Bahamas",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "BT",
+    "name": "Bhutan",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "BW",
+    "name": "Botswana",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Africa",
+    "mappable": true
+  },
+  {
+    "code": "BY",
+    "name": "Belarus",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "BZ",
+    "name": "Belize",
+    "level": "country",
+    "parent": null,
+    "region": "Central America",
+    "mappable": true
+  },
+  {
+    "code": "CA",
+    "name": "Canada",
+    "level": "country",
+    "parent": null,
+    "region": "Northern America",
+    "mappable": true
+  },
+  {
+    "code": "CD",
+    "name": "Democratic Republic of the Congo",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "CF",
+    "name": "Central African Republic",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "CG",
+    "name": "Republic of the Congo",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "CH",
+    "name": "Switzerland",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "CI",
+    "name": "C\u00f4te d'Ivoire",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "CK",
+    "name": "Cook Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "CL",
+    "name": "Chile",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "CM",
+    "name": "Cameroon",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "CN",
+    "name": "China",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "CO",
+    "name": "Colombia",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "CR",
+    "name": "Costa Rica",
+    "level": "country",
+    "parent": null,
+    "region": "Central America",
+    "mappable": true
+  },
+  {
+    "code": "CU",
+    "name": "Cuba",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "CV",
+    "name": "Republic of Cabo Verde",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "CW",
+    "name": "Cura\u00e7ao",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "CY",
+    "name": "Cyprus",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "CZ",
+    "name": "Czech Republic",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "DE",
+    "name": "Germany",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "DJ",
+    "name": "Djibouti",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "DK",
+    "name": "Denmark",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "DM",
+    "name": "Dominica",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "DO",
+    "name": "Dominican Republic",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "DZ",
+    "name": "Algeria",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Africa",
+    "mappable": true
+  },
+  {
+    "code": "EC",
+    "name": "Ecuador",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "EE",
+    "name": "Estonia",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "EG",
+    "name": "Egypt",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Africa",
+    "mappable": true
+  },
+  {
+    "code": "EH",
+    "name": "Western Sahara",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Africa",
+    "mappable": true
+  },
+  {
+    "code": "ER",
+    "name": "Eritrea",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "ES",
+    "name": "Spain",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "ET",
+    "name": "Ethiopia",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "FI",
+    "name": "Finland",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "FJ",
+    "name": "Fiji",
+    "level": "country",
+    "parent": null,
+    "region": "Melanesia",
+    "mappable": true
+  },
+  {
+    "code": "FK",
+    "name": "Falkland Islands / Malvinas",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "FM",
+    "name": "Federated States of Micronesia",
+    "level": "country",
+    "parent": null,
+    "region": "Micronesia",
+    "mappable": true
+  },
+  {
+    "code": "FO",
+    "name": "Faeroe Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "FR",
+    "name": "France",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "GA",
+    "name": "Gabon",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "GB",
+    "name": "United Kingdom",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "GD",
+    "name": "Grenada",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "GE",
+    "name": "Georgia",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "GG",
+    "name": "Guernsey",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "GH",
+    "name": "Ghana",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "GL",
+    "name": "Greenland",
+    "level": "country",
+    "parent": null,
+    "region": "Northern America",
+    "mappable": true
+  },
+  {
+    "code": "GM",
+    "name": "The Gambia",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "GN",
+    "name": "Guinea",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "GQ",
+    "name": "Equatorial Guinea",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "GR",
+    "name": "Greece",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "GS",
+    "name": "South Georgia and the Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Seven seas (open ocean)",
+    "mappable": true
+  },
+  {
+    "code": "GT",
+    "name": "Guatemala",
+    "level": "country",
+    "parent": null,
+    "region": "Central America",
+    "mappable": true
+  },
+  {
+    "code": "GU",
+    "name": "Guam",
+    "level": "country",
+    "parent": null,
+    "region": "Micronesia",
+    "mappable": true
+  },
+  {
+    "code": "GW",
+    "name": "Guinea-Bissau",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "GY",
+    "name": "Guyana",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "HK",
+    "name": "Hong Kong",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "HM",
+    "name": "Heard I. and McDonald Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Seven seas (open ocean)",
+    "mappable": true
+  },
+  {
+    "code": "HN",
+    "name": "Honduras",
+    "level": "country",
+    "parent": null,
+    "region": "Central America",
+    "mappable": true
+  },
+  {
+    "code": "HR",
+    "name": "Croatia",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "HT",
+    "name": "Haiti",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "HU",
+    "name": "Hungary",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "ID",
+    "name": "Indonesia",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "IE",
+    "name": "Ireland",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "IL",
+    "name": "Israel",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "IM",
+    "name": "Isle of Man",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "IN",
+    "name": "India",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "IO",
+    "name": "British Indian Ocean Territory",
+    "level": "country",
+    "parent": null,
+    "region": "Seven seas (open ocean)",
+    "mappable": true
+  },
+  {
+    "code": "IQ",
+    "name": "Iraq",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "IR",
+    "name": "Iran",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "IS",
+    "name": "Iceland",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "IT",
+    "name": "Italy",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "JE",
+    "name": "Jersey",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "JM",
+    "name": "Jamaica",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "JO",
+    "name": "Jordan",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "JP",
+    "name": "Japan",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "KE",
+    "name": "Kenya",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "KG",
+    "name": "Kyrgyzstan",
+    "level": "country",
+    "parent": null,
+    "region": "Central Asia",
+    "mappable": true
+  },
+  {
+    "code": "KH",
+    "name": "Cambodia",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "KI",
+    "name": "Kiribati",
+    "level": "country",
+    "parent": null,
+    "region": "Micronesia",
+    "mappable": true
+  },
+  {
+    "code": "KM",
+    "name": "Comoros",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "KN",
+    "name": "Saint Kitts and Nevis",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "KP",
+    "name": "Dem. Rep. Korea",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "KR",
+    "name": "Republic of Korea",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "KW",
+    "name": "Kuwait",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "KY",
+    "name": "Cayman Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "KZ",
+    "name": "Kazakhstan",
+    "level": "country",
+    "parent": null,
+    "region": "Central Asia",
+    "mappable": true
+  },
+  {
+    "code": "LA",
+    "name": "Lao PDR",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "LB",
+    "name": "Lebanon",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "LC",
+    "name": "Saint Lucia",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "LI",
+    "name": "Liechtenstein",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "LK",
+    "name": "Sri Lanka",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "LR",
+    "name": "Liberia",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "LS",
+    "name": "Lesotho",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Africa",
+    "mappable": true
+  },
+  {
+    "code": "LT",
+    "name": "Lithuania",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "LU",
+    "name": "Luxembourg",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "LV",
+    "name": "Latvia",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "LY",
+    "name": "Libya",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Africa",
+    "mappable": true
+  },
+  {
+    "code": "MA",
+    "name": "Morocco",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Africa",
+    "mappable": true
+  },
+  {
+    "code": "MC",
+    "name": "Monaco",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "MD",
+    "name": "Moldova",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "ME",
+    "name": "Montenegro",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "MF",
+    "name": "Saint-Martin",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "MG",
+    "name": "Madagascar",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "MH",
+    "name": "Marshall Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Micronesia",
+    "mappable": true
+  },
+  {
+    "code": "MK",
+    "name": "North Macedonia",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "ML",
+    "name": "Mali",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "MM",
+    "name": "Myanmar",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "MN",
+    "name": "Mongolia",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "MO",
+    "name": "Macao",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "MP",
+    "name": "Northern Mariana Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Micronesia",
+    "mappable": true
+  },
+  {
+    "code": "MR",
+    "name": "Mauritania",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "MS",
+    "name": "Montserrat",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "MT",
+    "name": "Malta",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "MU",
+    "name": "Mauritius",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "MV",
+    "name": "Maldives",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "MW",
+    "name": "Malawi",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "MX",
+    "name": "Mexico",
+    "level": "country",
+    "parent": null,
+    "region": "Central America",
+    "mappable": true
+  },
+  {
+    "code": "MY",
+    "name": "Malaysia",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "MZ",
+    "name": "Mozambique",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "NA",
+    "name": "Namibia",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Africa",
+    "mappable": true
+  },
+  {
+    "code": "NC",
+    "name": "New Caledonia",
+    "level": "country",
+    "parent": null,
+    "region": "Melanesia",
+    "mappable": true
+  },
+  {
+    "code": "NE",
+    "name": "Niger",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "NF",
+    "name": "Norfolk Island",
+    "level": "country",
+    "parent": null,
+    "region": "Australia and New Zealand",
+    "mappable": true
+  },
+  {
+    "code": "NG",
+    "name": "Nigeria",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "NI",
+    "name": "Nicaragua",
+    "level": "country",
+    "parent": null,
+    "region": "Central America",
+    "mappable": true
+  },
+  {
+    "code": "NL",
+    "name": "Netherlands",
+    "level": "country",
+    "parent": null,
+    "region": "Western Europe",
+    "mappable": true
+  },
+  {
+    "code": "NO",
+    "name": "Norway",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "NP",
+    "name": "Nepal",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "NR",
+    "name": "Nauru",
+    "level": "country",
+    "parent": null,
+    "region": "Micronesia",
+    "mappable": true
+  },
+  {
+    "code": "NU",
+    "name": "Niue",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "NZ",
+    "name": "New Zealand",
+    "level": "country",
+    "parent": null,
+    "region": "Australia and New Zealand",
+    "mappable": true
+  },
+  {
+    "code": "OM",
+    "name": "Oman",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "PA",
+    "name": "Panama",
+    "level": "country",
+    "parent": null,
+    "region": "Central America",
+    "mappable": true
+  },
+  {
+    "code": "PE",
+    "name": "Peru",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "PF",
+    "name": "French Polynesia",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "PG",
+    "name": "Papua New Guinea",
+    "level": "country",
+    "parent": null,
+    "region": "Melanesia",
+    "mappable": true
+  },
+  {
+    "code": "PH",
+    "name": "Philippines",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "PK",
+    "name": "Pakistan",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Asia",
+    "mappable": true
+  },
+  {
+    "code": "PL",
+    "name": "Poland",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "PM",
+    "name": "Saint Pierre and Miquelon",
+    "level": "country",
+    "parent": null,
+    "region": "Northern America",
+    "mappable": true
+  },
+  {
+    "code": "PN",
+    "name": "Pitcairn Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "PR",
+    "name": "Puerto Rico",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "PS",
+    "name": "Palestine",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "PT",
+    "name": "Portugal",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "PW",
+    "name": "Palau",
+    "level": "country",
+    "parent": null,
+    "region": "Micronesia",
+    "mappable": true
+  },
+  {
+    "code": "PY",
+    "name": "Paraguay",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "QA",
+    "name": "Qatar",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "RO",
+    "name": "Romania",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "RS",
+    "name": "Serbia",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "RU",
+    "name": "Russian Federation",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "RW",
+    "name": "Rwanda",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "SA",
+    "name": "Saudi Arabia",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "SB",
+    "name": "Solomon Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Melanesia",
+    "mappable": true
+  },
+  {
+    "code": "SC",
+    "name": "Seychelles",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "SD",
+    "name": "Sudan",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Africa",
+    "mappable": true
+  },
+  {
+    "code": "SE",
+    "name": "Sweden",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Europe",
+    "mappable": true
+  },
+  {
+    "code": "SG",
+    "name": "Singapore",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "SH",
+    "name": "Saint Helena",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "SI",
+    "name": "Slovenia",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "SK",
+    "name": "Slovakia",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "SL",
+    "name": "Sierra Leone",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "SM",
+    "name": "San Marino",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "SN",
+    "name": "Senegal",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "SO",
+    "name": "Somalia",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "SR",
+    "name": "Suriname",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "SS",
+    "name": "South Sudan",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "ST",
+    "name": "S\u00e3o Tom\u00e9 and Principe",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "SV",
+    "name": "El Salvador",
+    "level": "country",
+    "parent": null,
+    "region": "Central America",
+    "mappable": true
+  },
+  {
+    "code": "SX",
+    "name": "Sint Maarten",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "SY",
+    "name": "Syria",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "SZ",
+    "name": "Kingdom of eSwatini",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Africa",
+    "mappable": true
+  },
+  {
+    "code": "TC",
+    "name": "Turks and Caicos Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "TD",
+    "name": "Chad",
+    "level": "country",
+    "parent": null,
+    "region": "Middle Africa",
+    "mappable": true
+  },
+  {
+    "code": "TF",
+    "name": "French Southern and Antarctic Lands",
+    "level": "country",
+    "parent": null,
+    "region": "Seven seas (open ocean)",
+    "mappable": true
+  },
+  {
+    "code": "TG",
+    "name": "Togo",
+    "level": "country",
+    "parent": null,
+    "region": "Western Africa",
+    "mappable": true
+  },
+  {
+    "code": "TH",
+    "name": "Thailand",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "TJ",
+    "name": "Tajikistan",
+    "level": "country",
+    "parent": null,
+    "region": "Central Asia",
+    "mappable": true
+  },
+  {
+    "code": "TL",
+    "name": "Timor-Leste",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "TM",
+    "name": "Turkmenistan",
+    "level": "country",
+    "parent": null,
+    "region": "Central Asia",
+    "mappable": true
+  },
+  {
+    "code": "TN",
+    "name": "Tunisia",
+    "level": "country",
+    "parent": null,
+    "region": "Northern Africa",
+    "mappable": true
+  },
+  {
+    "code": "TO",
+    "name": "Tonga",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "TR",
+    "name": "Turkey",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "TT",
+    "name": "Trinidad and Tobago",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "TV",
+    "name": "Tuvalu",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "TW",
+    "name": "Taiwan",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "TZ",
+    "name": "Tanzania",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "UA",
+    "name": "Ukraine",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Europe",
+    "mappable": true
+  },
+  {
+    "code": "UG",
+    "name": "Uganda",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "US",
+    "name": "United States",
+    "level": "country",
+    "parent": null,
+    "region": "Northern America",
+    "mappable": false
+  },
+  {
+    "code": "UY",
+    "name": "Uruguay",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "UZ",
+    "name": "Uzbekistan",
+    "level": "country",
+    "parent": null,
+    "region": "Central Asia",
+    "mappable": true
+  },
+  {
+    "code": "VA",
+    "name": "Vatican",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "VC",
+    "name": "Saint Vincent and the Grenadines",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "VE",
+    "name": "Venezuela",
+    "level": "country",
+    "parent": null,
+    "region": "South America",
+    "mappable": true
+  },
+  {
+    "code": "VG",
+    "name": "British Virgin Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "VI",
+    "name": "United States Virgin Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Caribbean",
+    "mappable": true
+  },
+  {
+    "code": "VN",
+    "name": "Vietnam",
+    "level": "country",
+    "parent": null,
+    "region": "South-Eastern Asia",
+    "mappable": true
+  },
+  {
+    "code": "VU",
+    "name": "Vanuatu",
+    "level": "country",
+    "parent": null,
+    "region": "Melanesia",
+    "mappable": true
+  },
+  {
+    "code": "WF",
+    "name": "Wallis and Futuna Islands",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "WS",
+    "name": "Samoa",
+    "level": "country",
+    "parent": null,
+    "region": "Polynesia",
+    "mappable": true
+  },
+  {
+    "code": "XK",
+    "name": "Kosovo",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Europe",
+    "mappable": true
+  },
+  {
+    "code": "YE",
+    "name": "Yemen",
+    "level": "country",
+    "parent": null,
+    "region": "Western Asia",
+    "mappable": true
+  },
+  {
+    "code": "ZA",
+    "name": "South Africa",
+    "level": "country",
+    "parent": null,
+    "region": "Southern Africa",
+    "mappable": true
+  },
+  {
+    "code": "ZM",
+    "name": "Zambia",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "ZW",
+    "name": "Zimbabwe",
+    "level": "country",
+    "parent": null,
+    "region": "Eastern Africa",
+    "mappable": true
+  },
+  {
+    "code": "AU-ACT",
+    "name": "Australian Capital Territory",
+    "level": "subnational",
+    "parent": "AU",
+    "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "AU-NSW",
+    "name": "New South Wales",
+    "level": "subnational",
+    "parent": "AU",
+    "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "AU-NT",
+    "name": "Northern Territory",
+    "level": "subnational",
+    "parent": "AU",
+    "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "AU-QLD",
+    "name": "Queensland",
+    "level": "subnational",
+    "parent": "AU",
+    "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "AU-SA",
+    "name": "South Australia",
+    "level": "subnational",
+    "parent": "AU",
+    "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "AU-TAS",
+    "name": "Tasmania",
+    "level": "subnational",
+    "parent": "AU",
+    "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "AU-VIC",
+    "name": "Victoria",
+    "level": "subnational",
+    "parent": "AU",
+    "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "AU-WA",
+    "name": "Western Australia",
+    "level": "subnational",
+    "parent": "AU",
+    "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "US-AK",
+    "name": "Alaska",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-AL",
+    "name": "Alabama",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-AR",
+    "name": "Arkansas",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-AZ",
+    "name": "Arizona",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-CA",
+    "name": "California",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-CO",
+    "name": "Colorado",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-CT",
+    "name": "Connecticut",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-DC",
+    "name": "District of Columbia",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-DE",
+    "name": "Delaware",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-FL",
+    "name": "Florida",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-GA",
+    "name": "Georgia",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-HI",
+    "name": "Hawaii",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-IA",
+    "name": "Iowa",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-ID",
+    "name": "Idaho",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-IL",
+    "name": "Illinois",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-IN",
+    "name": "Indiana",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-KS",
+    "name": "Kansas",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-KY",
+    "name": "Kentucky",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-LA",
+    "name": "Louisiana",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-MA",
+    "name": "Massachusetts",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-MD",
+    "name": "Maryland",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-ME",
+    "name": "Maine",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-MI",
+    "name": "Michigan",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-MN",
+    "name": "Minnesota",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-MO",
+    "name": "Missouri",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-MS",
+    "name": "Mississippi",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-MT",
+    "name": "Montana",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-NC",
+    "name": "North Carolina",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-ND",
+    "name": "North Dakota",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-NE",
+    "name": "Nebraska",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-NH",
+    "name": "New Hampshire",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-NJ",
+    "name": "New Jersey",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-NM",
+    "name": "New Mexico",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-NV",
+    "name": "Nevada",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-NY",
+    "name": "New York",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-OH",
+    "name": "Ohio",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-OK",
+    "name": "Oklahoma",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-OR",
+    "name": "Oregon",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-PA",
+    "name": "Pennsylvania",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-RI",
+    "name": "Rhode Island",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-SC",
+    "name": "South Carolina",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-SD",
+    "name": "South Dakota",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-TN",
+    "name": "Tennessee",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-TX",
+    "name": "Texas",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-UT",
+    "name": "Utah",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-VA",
+    "name": "Virginia",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-VT",
+    "name": "Vermont",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-WA",
+    "name": "Washington",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-WI",
+    "name": "Wisconsin",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-WV",
+    "name": "West Virginia",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "US-WY",
+    "name": "Wyoming",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  }
+]

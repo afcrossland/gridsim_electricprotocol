@@ -1,0 +1,1119 @@
+{
+  "title": "Electric Protocol",
+  "source": "Electric Protocol - Policy Map - v2.xlsx",
+  "maxScore": 2,
+  "completenessThreshold": 0.4,
+  "glossary": [
+    "In the document, the term CERs refers to all behind the meter generating and storage technology",
+    "In the document, the term Consumer Participant (CP) is used to refer to homes or businesses connected to the grid"
+  ],
+  "sections": [
+    {
+      "id": "access-to-cer-technology",
+      "title": "Access to CER Technology",
+      "sourceRow": 9,
+      "order": 0
+    },
+    {
+      "id": "wholesale-and-ancillary-electricity-markets",
+      "title": "Wholesale and Ancillary Electricity Markets",
+      "sourceRow": 15,
+      "order": 1
+    },
+    {
+      "id": "self-consumption",
+      "title": "Self-Consumption",
+      "sourceRow": 34,
+      "order": 2
+    },
+    {
+      "id": "planning-and-permitting",
+      "title": "Planning and Permitting",
+      "sourceRow": 37,
+      "order": 3
+    },
+    {
+      "id": "grid-connection",
+      "title": "Grid Connection",
+      "sourceRow": 40,
+      "order": 4
+    },
+    {
+      "id": "control-cybersecurity-and-interoperability",
+      "title": "Control, Cybersecurity and Interoperability",
+      "sourceRow": 46,
+      "order": 5
+    },
+    {
+      "id": "standards",
+      "title": "Standards",
+      "sourceRow": 50,
+      "order": 6
+    },
+    {
+      "id": "tariffs",
+      "title": "Tariffs",
+      "sourceRow": 53,
+      "order": 7
+    },
+    {
+      "id": "training",
+      "title": "Training",
+      "sourceRow": 56,
+      "order": 8
+    }
+  ],
+  "countries": [
+    {
+      "code": "NZ",
+      "name": "New Zealand"
+    },
+    {
+      "code": "GB",
+      "name": "Great Britain"
+    },
+    {
+      "code": "IN",
+      "name": "India"
+    },
+    {
+      "code": "LK",
+      "name": "Sri Lanka"
+    },
+    {
+      "code": "PK",
+      "name": "Pakistan"
+    },
+    {
+      "code": "MY",
+      "name": "Malaysia"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q010",
+      "sourceRow": 10,
+      "sectionId": "access-to-cer-technology",
+      "subsection": null,
+      "order": 0,
+      "text": "Retail banks and/or government agencies offer customers no or low interest home energy efficiency loans or rebates to CPs for CERs or other energy efficiency investments",
+      "weight": 3.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No low cost finance available. Finance is equivalent to normal lending"
+        },
+        {
+          "score": 1,
+          "label": "Some low cost finance available but not yet universally acessible"
+        },
+        {
+          "score": 2,
+          "label": "Special loans or rebates available to reduce upfront cost and available to all CPs"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q011",
+      "sourceRow": 11,
+      "sectionId": "access-to-cer-technology",
+      "subsection": null,
+      "order": 1,
+      "text": "Affordability and accessibility across society",
+      "weight": 3.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "CERs only affordable and accessible to highest earners"
+        },
+        {
+          "score": 1,
+          "label": "CERs only affordable and accessible to middle and highest earners"
+        },
+        {
+          "score": 2,
+          "label": "CERs affordable and accessible to all earners inc. through zero capital cost models"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q012",
+      "sourceRow": 12,
+      "sectionId": "access-to-cer-technology",
+      "subsection": null,
+      "order": 2,
+      "text": "Cost of finance at rates to scale technology",
+      "weight": 3.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Cost of finance only available at or above 10%"
+        },
+        {
+          "score": 1,
+          "label": "Cost of finance for CERs above 5% and below 10%"
+        },
+        {
+          "score": 2,
+          "label": "Cost of finance for CERs available at or below 5%"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q013",
+      "sourceRow": 13,
+      "sectionId": "access-to-cer-technology",
+      "subsection": null,
+      "order": 3,
+      "text": "Statewide best practices for calculating and communicating benefits from CERs to CPs including self-consumption, generation and market value",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No universal best practices or standards in place"
+        },
+        {
+          "score": 1,
+          "label": "Best practices and standards in place for consumer protection but not enforced"
+        },
+        {
+          "score": 2,
+          "label": "Best practices and standards in place for consumer protection and are enforced"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q014",
+      "sourceRow": 14,
+      "sectionId": "access-to-cer-technology",
+      "subsection": null,
+      "order": 4,
+      "text": "Network and system operators can own and operate CERs (within a free market with other possible owners)",
+      "weight": 1.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Network operators face significant barriers to operating, incentivising, contracting with or owning CERs"
+        },
+        {
+          "score": 1,
+          "label": "Network operators face some barriers to operating, incentivising, contracting with or owning CERs"
+        },
+        {
+          "score": 2,
+          "label": "Network operators face no barriers to operating, incentivising, contracting with or owning CERs"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 0
+      }
+    },
+    {
+      "id": "q016",
+      "sourceRow": 16,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": null,
+      "order": 5,
+      "text": "Marketplace with open transparent time-of-day pricing for electricity import/consumption for all CPs.",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No time of use pricing for electricity import in place for CPs"
+        },
+        {
+          "score": 1,
+          "label": "Time of use pricing for electricity import available to some CPs"
+        },
+        {
+          "score": 2,
+          "label": "Time of use pricing for electricity import available to all or almost all CPs"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q017",
+      "sourceRow": 17,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": null,
+      "order": 6,
+      "text": "Marketplace with open transparent time-of-day pricing for electricity export for all CPs.",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No export pricing available"
+        },
+        {
+          "score": 1,
+          "label": "Export pricing available but restricted to only one form of CER or not available to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Time of use pricing available for export to all CPs and both solar and storage"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q018",
+      "sourceRow": 18,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": null,
+      "order": 7,
+      "text": "All electricity bills include a breakdown of all charges that add up to the net payment or bill.",
+      "weight": 1.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Bills are not broken down into constituent parts – only one cost/tariff shown"
+        },
+        {
+          "score": 2,
+          "label": "Bills broken down to show all of the following: wholesale/energy costs, network costs, system operation and taxes (where these are applicable)"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q019",
+      "sourceRow": 19,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": null,
+      "order": 8,
+      "text": "Half hour (or better) meter data is available to support accurate design of CER",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Data is not available"
+        },
+        {
+          "score": 1,
+          "label": "Data can be obtained through a manual process"
+        },
+        {
+          "score": 2,
+          "label": "Data is available in an electronic fomat online"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q020",
+      "sourceRow": 20,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": null,
+      "order": 9,
+      "text": "No barriers to participation for CERs in energy and ancillary markets based on asset size or technology",
+      "weight": 3.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "CERs have size barriers in all wholesale and ancillary markets"
+        },
+        {
+          "score": 1,
+          "label": "CERs have size barriers 50% or more of the wholesale and ancillary markets which are open to CERs"
+        },
+        {
+          "score": 2,
+          "label": "No size barriers for CERs in more than  50% of the wholesale and ancillary markets which are open to CERs"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q021",
+      "sourceRow": 21,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": null,
+      "order": 10,
+      "text": "Ancillary and wholesale market pricing is publicly available",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "At least one wholesale or ancillary market does not have transparent pricing"
+        },
+        {
+          "score": 1,
+          "label": "All ancillary  and wholesale markets pricing is fully transparent"
+        },
+        {
+          "score": 2,
+          "label": "All ancillary  and wholesale markets pricing is fully transparent, and pricing is available in real time"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q022",
+      "sourceRow": 22,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": null,
+      "order": 11,
+      "text": "CERs or CPs can participate individually or in Virtual Power Plants",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "VPPs are not allowed in any wholesale or ancillary market"
+        },
+        {
+          "score": 1,
+          "label": "VPPs have access to no more than 50% of wholesale or ancillary markets which are open to CERs"
+        },
+        {
+          "score": 2,
+          "label": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to CERs"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q024",
+      "sourceRow": 24,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 12,
+      "text": "Market signals for CERs and CPs to contribute to network reinforcement and network capacity i.e. provide grid and network infrastructure investment deferral",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available"
+        },
+        {
+          "score": 1,
+          "label": "Compensation available to all CERs that meet required technical standards but only under trials"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards as part of business as usual"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q025",
+      "sourceRow": 25,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 13,
+      "text": "Voltage regulation, voltage stabilty and voltage imbalance",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q026",
+      "sourceRow": 26,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 14,
+      "text": "Frequency regulation, keeping and reserves including spinning/non-spinning reserve",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q027",
+      "sourceRow": 27,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 15,
+      "text": "Peak demand reduction including demand charge reduction",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q028",
+      "sourceRow": 28,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 16,
+      "text": "Compensation for reducing demand or increasing generation during periods of high wholesale pricing (i.e. responding to tight supply conditions)",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q029",
+      "sourceRow": 29,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 17,
+      "text": "Black Start",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 0
+      }
+    },
+    {
+      "id": "q030",
+      "sourceRow": 30,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 18,
+      "text": "Demand increase",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "GB": 1
+      }
+    },
+    {
+      "id": "q031",
+      "sourceRow": 31,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 19,
+      "text": "Demand response (downturn)",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "GB": 1
+      }
+    },
+    {
+      "id": "q032",
+      "sourceRow": 32,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 20,
+      "text": "Carbon",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "GB": 2
+      }
+    },
+    {
+      "id": "q033",
+      "sourceRow": 33,
+      "sectionId": "wholesale-and-ancillary-electricity-markets",
+      "subsection": "Ancillary/Grid Service Markets Available",
+      "order": 21,
+      "text": "Any other non-wholesale market available to other generators",
+      "weight": 0.3,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No compensation available / market does not exist for any assets."
+        },
+        {
+          "score": 1,
+          "label": "Compensation available but not to all CPs"
+        },
+        {
+          "score": 2,
+          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 0
+      }
+    },
+    {
+      "id": "q035",
+      "sourceRow": 35,
+      "sectionId": "self-consumption",
+      "subsection": null,
+      "order": 22,
+      "text": "Zero cost for self-consuming electricity generation from behind the meter CERs",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "A fee is payable by CPs to anyone involved in the grid, network, system, or other power system incumbent to connect CERs behind the meter"
+        },
+        {
+          "score": 1,
+          "label": "A fee is payable but only to a standards or certification body"
+        },
+        {
+          "score": 2,
+          "label": "No fee is payable"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q036",
+      "sourceRow": 36,
+      "sectionId": "self-consumption",
+      "subsection": null,
+      "order": 23,
+      "text": "No regulatory barriers to CPs for connecting CERs for self-consumption",
+      "weight": 3.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "CPs not allowed to connect CERs even if for self-consumption"
+        },
+        {
+          "score": 2,
+          "label": "No barriers to connecting and using CERs for self-consumption"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q038",
+      "sourceRow": 38,
+      "sectionId": "planning-and-permitting",
+      "subsection": null,
+      "order": 24,
+      "text": "Simple online asset registration or standard automated permitting process to replace any local permitting requirements",
+      "weight": 1.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Permitting is required before a CER can be installed and is complex or risky to obtain"
+        },
+        {
+          "score": 1,
+          "label": "Permitting is required but is simple and online"
+        },
+        {
+          "score": 2,
+          "label": "Fit and inform, or no permitting in place"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q039",
+      "sourceRow": 39,
+      "sectionId": "planning-and-permitting",
+      "subsection": null,
+      "order": 25,
+      "text": "Planning rules and building codes do not unnecessarily restrict installation of CERs and enable net zero",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "planning and / or building rules impose cost or restrictions on solar / battery install"
+        },
+        {
+          "score": 1,
+          "label": "planning rules apply to restrict installation in certain locations"
+        },
+        {
+          "score": 2,
+          "label": "solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q041",
+      "sourceRow": 41,
+      "sectionId": "grid-connection",
+      "subsection": null,
+      "order": 26,
+      "text": "Zero cost, standardised, and transparent automated interconnection/grid connection process for all CPs and CERs",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Interconnection application always required before a CER can be installed and is complex,costly or time consuming to obtain"
+        },
+        {
+          "score": 1,
+          "label": "Interconnection application is required but is simple and online.  Applications are processeed in less than 15 days."
+        },
+        {
+          "score": 2,
+          "label": "Fit and inform, or no permitting in place (size restrictions permitted only for export to the grid)"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q042",
+      "sourceRow": 42,
+      "sectionId": "grid-connection",
+      "subsection": null,
+      "order": 27,
+      "text": "Open publicly available map or data of capacity for import and export across all networks so that all users know what they can connect.",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No database of capacity on networks"
+        },
+        {
+          "score": 1,
+          "label": "There is a database of network capacity, but it is not open to the public or does not show individual CPs"
+        },
+        {
+          "score": 2,
+          "label": "There is a full location specific database of available capacity for CPs to connect CERs"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 1,
+        "GB": 1
+      }
+    },
+    {
+      "id": "q043",
+      "sourceRow": 43,
+      "sectionId": "grid-connection",
+      "subsection": null,
+      "order": 28,
+      "text": "Transparent and publicly available cost/payment for increasing import and export capacity",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No publicly available data"
+        },
+        {
+          "score": 1,
+          "label": "Data available but is only for import or export or some CPs"
+        },
+        {
+          "score": 2,
+          "label": "Data available for import and export at all connection points/all CPs"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q045",
+      "sourceRow": 45,
+      "sectionId": "grid-connection",
+      "subsection": null,
+      "order": 29,
+      "text": "Simple and digital registration of CERs with utilities",
+      "weight": 1.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No registration process"
+        },
+        {
+          "score": 1,
+          "label": "Registration process but is paper based"
+        },
+        {
+          "score": 2,
+          "label": "Digital registration process in place which is at least regionalised"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q047",
+      "sourceRow": 47,
+      "sectionId": "control-cybersecurity-and-interoperability",
+      "subsection": null,
+      "order": 30,
+      "text": "Grid and system operators have the correct incentives in place for technology (e.g. grid forming batteries) which operate the power system with behind the meter technology, including dispatching the grid with at least 70% of total electrical supply coming from behind the meter sources",
+      "weight": 3.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "System operator cannot dispatch with more than 20% of total electricity generation from behind the meter tech at any one time"
+        },
+        {
+          "score": 1,
+          "label": "System operator cannot dispatch with more than 50% of total electricity generation from behind the meter tech at any one time"
+        },
+        {
+          "score": 2,
+          "label": "System operator can dispatch with more than 70% of total electricity generation from behind the meter at any one time"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 0
+      }
+    },
+    {
+      "id": "q048",
+      "sourceRow": 48,
+      "sectionId": "control-cybersecurity-and-interoperability",
+      "subsection": null,
+      "order": 31,
+      "text": "System operators set or approve technical and communication protocols for CER market participation at  national level",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Localised technical and communication protocols"
+        },
+        {
+          "score": 1,
+          "label": "Some localised rules and some national/statewide rules"
+        },
+        {
+          "score": 2,
+          "label": "National and universally adopted rules which also confirm to international norms"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 0
+      }
+    },
+    {
+      "id": "q049",
+      "sourceRow": 49,
+      "sectionId": "control-cybersecurity-and-interoperability",
+      "subsection": null,
+      "order": 32,
+      "text": "System operators set or approve technical and communication protocols for CER data exchange at state or national level",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Localised technical and communication protocols"
+        },
+        {
+          "score": 1,
+          "label": "Some localised rules and some national/statewide rules"
+        },
+        {
+          "score": 2,
+          "label": "National and universally adopted rules which also confirm to international norms"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 0,
+        "GB": 0
+      }
+    },
+    {
+      "id": "q051",
+      "sourceRow": 51,
+      "sectionId": "standards",
+      "subsection": null,
+      "order": 33,
+      "text": "Statewide best practices for electrical and mechanical installation",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No universal best practices or standards in place"
+        },
+        {
+          "score": 2,
+          "label": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q052",
+      "sourceRow": 52,
+      "sectionId": "standards",
+      "subsection": null,
+      "order": 34,
+      "text": "Statewide best practices for safety",
+      "weight": 3.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No universal best practices or standards in place"
+        },
+        {
+          "score": 2,
+          "label": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q054",
+      "sourceRow": 54,
+      "sectionId": "tariffs",
+      "subsection": null,
+      "order": 35,
+      "text": "No tariffs charged at border on CERs",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "Tariffs on imported CERs >=25%"
+        },
+        {
+          "score": 1,
+          "label": "Tariffs on imported CERs >=10% <25%"
+        },
+        {
+          "score": 2,
+          "label": "Tariffs on imported CERs <10%"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q055",
+      "sourceRow": 55,
+      "sectionId": "tariffs",
+      "subsection": null,
+      "order": 36,
+      "text": "Tax rebates/subsidies to CPs for CERs or other energy efficiency investments",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "tax incentives or subsides available to utility scale technology or other energy technology are more valuable than those provided to CERs."
+        },
+        {
+          "score": 2,
+          "label": "any tax incentives or subsidies for CERs at least match those provided to utility scale technology or other energy technology"
+        }
+      ],
+      "seedAnswers": {
+        "GB": 0
+      }
+    },
+    {
+      "id": "q057",
+      "sourceRow": 57,
+      "sectionId": "training",
+      "subsection": null,
+      "order": 37,
+      "text": "Statewide standardised curriculum and qualifications for CER installers and maintainers",
+      "weight": 2.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No standard recognised qualification"
+        },
+        {
+          "score": 2,
+          "label": "National qualification certificate(s) for CER installation and maintenance"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    },
+    {
+      "id": "q058",
+      "sourceRow": 58,
+      "sectionId": "training",
+      "subsection": null,
+      "order": 38,
+      "text": "Access to training courses to achieve recognised CER installation and maintenance qualifications",
+      "weight": 3.0,
+      "rubric": [
+        {
+          "score": 0,
+          "label": "No courses offered"
+        },
+        {
+          "score": 1,
+          "label": "Course offered but in single location or infrequently (>6 monthly)"
+        },
+        {
+          "score": 2,
+          "label": "Courses offered throughout country and on a regular basis"
+        }
+      ],
+      "seedAnswers": {
+        "NZ": 2,
+        "GB": 2
+      }
+    }
+  ]
+}
