@@ -23,6 +23,8 @@ export function scoreCountry(
   responses: Response[],
   code: string,
   name: string,
+  /** Overrides the protocol's default completeness threshold when supplied. */
+  threshold?: number,
 ): CountryScore {
   const byId = new Map(responses.filter((r) => r.countryCode === code).map((r) => [r.questionId, r]));
 
@@ -49,7 +51,7 @@ export function scoreCountry(
     completeness,
     answered,
     total: questions.length,
-    ranked: completeness >= protocol.completenessThreshold,
+    ranked: completeness >= (threshold ?? protocol.completenessThreshold),
   };
 }
 

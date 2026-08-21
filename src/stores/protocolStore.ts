@@ -16,12 +16,19 @@ const protocol = seed as unknown as Protocol;
  */
 interface ProtocolState {
   role: Role;
+  /**
+   * Completeness a jurisdiction must reach to be ranked and coloured. Seeded
+   * from the protocol but adjustable, because how much evidence is "enough"
+   * is a judgement rather than a property of the data.
+   */
+  threshold: number;
   sections: Section[];
   questions: Question[];
   responses: Response[];
   selectedCountry: string | null;
 
   setRole: (role: Role) => void;
+  setThreshold: (threshold: number) => void;
   selectCountry: (code: string | null) => void;
 
   // Registered users and admins
@@ -67,6 +74,7 @@ function seedResponses(): Response[] {
 function initialState() {
   return {
     role: "registered" as Role,
+    threshold: protocol.completenessThreshold,
     sections: protocol.sections.map((s) => ({ ...s })),
     questions: protocol.questions.map((q) => ({ ...q })),
     responses: seedResponses(),
@@ -80,6 +88,7 @@ export const useProtocolStore = create<ProtocolState>()(
       ...initialState(),
 
       setRole: (role) => set({ role }),
+      setThreshold: (threshold) => set({ threshold }),
       selectCountry: (code) => set({ selectedCountry: code }),
 
       setResponse: (countryCode, questionId, patch) =>
@@ -166,7 +175,9 @@ export const useProtocolStore = create<ProtocolState>()(
       // v5: section ids changed when the redundant "Electric Protocol" prefix
       // was stripped from headings, so persisted questions pointed at sections
       // that no longer existed.
-      version: 5,
+      // v6: default completeness threshold moved from 40% to 30%, which a
+      // persisted preference would otherwise mask.
+      version: 6,
 
       /**
        * Take the current seed's sections and questions, keeping only the
@@ -179,6 +190,7 @@ export const useProtocolStore = create<ProtocolState>()(
         return {
           ...initialState(),
           role: state?.role ?? "registered",
+          threshold: protocol.completenessThreshold,
           responses: (state?.responses ?? []).filter((r) => !r.seeded),
         } as ProtocolState;
       },
@@ -197,6 +209,7 @@ export const useProtocolStore = create<ProtocolState>()(
        */
       partialize: (state) => ({
         role: state.role,
+        threshold: state.threshold,
         sections: state.sections,
         questions: state.questions,
         responses: state.responses.filter((r) => !r.seeded),

@@ -28,6 +28,33 @@ export default function Scoreboard({ scores, selectedCountry, onSelect }: Props)
         Scoreboard
       </Typography>
 
+      <Box
+        sx={{
+          p: 1.5,
+          mb: 2,
+          borderRadius: 1.5,
+          bgcolor: "background.paper",
+          border: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          How well does a country's electricity policy let ordinary homes and
+          businesses generate, store and sell their own power? Each jurisdiction is
+          scored against 39 questions, weighted by impact.
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          <strong>Pick a country on the map or in this list</strong> to see its
+          answers, the evidence behind each one, and the changes that would raise its
+          score the most.
+        </Typography>
+        <Typography variant="caption">
+          A score is only shown once enough of the questions are answered — use the
+          threshold slider on the map to change how much is enough. The bar under each
+          row is how complete that jurisdiction's evidence is.
+        </Typography>
+      </Box>
+
       {ranked.length === 0 && (
         <Typography variant="body2" sx={{ mb: 2 }}>
           No jurisdiction has enough answers to be ranked yet.

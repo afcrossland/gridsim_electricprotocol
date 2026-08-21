@@ -2,7 +2,7 @@
   "title": "Electric Protocol",
   "source": "Electric Protocol - Policy Map - v2.xlsx",
   "maxScore": 2,
-  "completenessThreshold": 0.4,
+  "completenessThreshold": 0.3,
   "glossary": [
     "In the document, the term CERs refers to all behind the meter generating and storage technology",
     "In the document, the term Consumer Participant (CP) is used to refer to homes or businesses connected to the grid"

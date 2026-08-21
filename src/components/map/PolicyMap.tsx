@@ -297,7 +297,10 @@ export default function PolicyMap({ scores, selectedCountry, onCountryClick }: P
         onSelect={onCountryClick}
       />
 
-      <MapLegend />
+      <MapLegend
+        rankedCount={scores.filter((s) => s.ranked).length}
+        withData={scores.filter((s) => s.answered > 0).length}
+      />
     </Box>
   );
 }

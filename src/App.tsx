@@ -15,6 +15,7 @@ const PANEL_WIDTH = 460;
 export default function App() {
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
+  const threshold = useProtocolStore((s) => s.threshold);
   const selectedCountry = useProtocolStore((s) => s.selectedCountry);
   const selectCountry = useProtocolStore((s) => s.selectCountry);
 
@@ -31,9 +32,9 @@ export default function App() {
     if (selectedCountry) codes.add(selectedCountry);
 
     return [...codes].map((code) =>
-      scoreCountry(protocol, questions, responses, code, qualifiedName(code)),
+      scoreCountry(protocol, questions, responses, code, qualifiedName(code), threshold),
     );
-  }, [questions, responses, selectedCountry]);
+  }, [questions, responses, selectedCountry, threshold]);
 
   const selectedScore = scores.find((s) => s.code === selectedCountry) ?? null;
 

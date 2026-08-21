@@ -26,6 +26,17 @@ interface Props {
 }
 
 /**
+ * GSC Burnt Orange, used for the chosen rubric tier.
+ *
+ * Aqua was too close to the card's own border and to the unselected outline to
+ * read at a glance. Orange is reserved for this one meaning — "this is the
+ * answer" — so the unanswered marker below uses a neutral dashed edge rather
+ * than competing for the same colour.
+ */
+const SELECTED = "#EF864C";
+const SELECTED_TINT = "rgba(239, 134, 76, 0.12)";
+
+/**
  * One question as a compact card.
  *
  * The rubric tiers run horizontally rather than stacked — three short columns
@@ -48,9 +59,10 @@ export default function QuestionCard({ question, response, code, role }: Props) 
       variant="outlined"
       sx={{
         p: 2,
-        borderColor: response ? "divider" : "warning.light",
-        borderLeft: "3px solid",
-        borderLeftColor: response ? "primary.main" : "warning.main",
+        borderColor: "divider",
+        borderLeftWidth: 3,
+        borderLeftStyle: response ? "solid" : "dashed",
+        borderLeftColor: response ? "primary.main" : "grey.400",
       }}
     >
       <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start", mb: 1.5 }}>
@@ -123,9 +135,9 @@ export default function QuestionCard({ question, response, code, role }: Props) 
                 borderRadius: 1.5,
                 cursor: "pointer",
                 border: "2px solid",
-                borderColor: selected ? "primary.main" : "divider",
-                bgcolor: selected ? "action.selected" : "transparent",
-                "&:hover": { borderColor: selected ? "primary.main" : "primary.light" },
+                borderColor: selected ? SELECTED : "divider",
+                bgcolor: selected ? SELECTED_TINT : "transparent",
+                "&:hover": { borderColor: selected ? SELECTED : "primary.light" },
                 display: "flex",
                 flexDirection: "column",
                 gap: 0.75,
@@ -134,8 +146,15 @@ export default function QuestionCard({ question, response, code, role }: Props) 
               <Chip
                 size="small"
                 label={tier.score}
-                color={selected ? "primary" : "default"}
-                sx={{ width: 30, alignSelf: "flex-start" }}
+                sx={{
+                  width: 30,
+                  alignSelf: "flex-start",
+                  ...(selected && {
+                    bgcolor: SELECTED,
+                    color: "#FFFFFF",
+                    fontWeight: 700,
+                  }),
+                }}
               />
               {isAdmin ? (
                 <TextField
@@ -152,7 +171,13 @@ export default function QuestionCard({ question, response, code, role }: Props) 
                   }}
                 />
               ) : (
-                <Typography variant="body2" sx={{ color: selected ? "text.primary" : undefined }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: selected ? "text.primary" : undefined,
+                    fontWeight: selected ? 600 : 400,
+                  }}
+                >
                   {tier.label}
                 </Typography>
               )}

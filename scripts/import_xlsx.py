@@ -45,6 +45,10 @@ HEADING_FILL = "FFF9B27E"  # orange
 
 DROP_ROWS = {44}  # duplicate of row 24
 
+# Share of total question weight a jurisdiction must answer before it is ranked
+# and coloured on the map. Adjustable in the UI; this is the starting value.
+COMPLETENESS_THRESHOLD = 0.3
+
 # ISO 3166-1 alpha-2 for the sheet's country column labels. These keys are what
 # the map colours by (world.geojson property `country_iso2`).
 COUNTRY_ISO = {
@@ -217,7 +221,7 @@ def main():
         "title": str(ws.cell(2, 2).value or "Electric Protocol").strip(),
         "source": XLSX.name,
         "maxScore": 2,
-        "completenessThreshold": 0.4,
+        "completenessThreshold": COMPLETENESS_THRESHOLD,
         "glossary": glossary,
         "sections": [
             {k: v for k, v in s.items() if k != "col"} for s in sections

@@ -57,13 +57,16 @@ describe("jurisdiction resolution", () => {
   });
 
   it("lets a state answer a question the federal layer does not", () => {
-    // Row 42, hosting capacity maps, is set state by state: California and New
-    // York mandate them, Texas and Massachusetts do not, and a state with no
-    // researched answer has none at all.
+    // Row 42, hosting capacity maps, is mandated in only seven states. Those
+    // carry an exact answer of 2; every other state inherits the federal 0.
     expect(find("US-CA", 42)?.score).toBe(2);
     expect(find("US-NY", 42)?.score).toBe(2);
+    expect(find("US-NJ", 42)?.score).toBe(2);
     expect(find("US-TX", 42)?.score).toBe(0);
-    expect(find("US-OH", 42)).toBeUndefined();
+    expect(find("US-OH", 42)?.score).toBe(0);
+    expect(find("US-OH", 42)?.note).toContain("Inherited from the US answer");
+    // Row 17 is Californian only, so a state without one has no answer at all.
+    expect(find("US-OH", 17)).toBeUndefined();
     // Row 41 is Californian only, and must not read as inherited.
     expect(find("US-CA", 41)?.note).not.toContain("Inherited");
   });

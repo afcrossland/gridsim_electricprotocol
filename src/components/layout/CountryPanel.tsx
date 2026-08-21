@@ -25,6 +25,7 @@ export default function CountryPanel({ code, score, onBack }: Props) {
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
   const addQuestion = useProtocolStore((s) => s.addQuestion);
+  const threshold = useProtocolStore((s) => s.threshold);
 
   const [view, setView] = useState<string>(sections[0]?.id ?? IMPACT);
 
@@ -91,8 +92,8 @@ export default function CountryPanel({ code, score, onBack }: Props) {
         </Typography>
         {!score.ranked && (
           <Typography variant="caption">
-            Below the {Math.round(protocol.completenessThreshold * 100)}% completeness
-            threshold, so not ranked or coloured on the map
+            Below the {Math.round(threshold * 100)}% completeness threshold, so not
+            ranked or coloured on the map
           </Typography>
         )}
       </Box>
@@ -128,12 +129,21 @@ export default function CountryPanel({ code, score, onBack }: Props) {
             </>
           ) : activeSection ? (
             <>
-              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5, mb: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5, mb: 1 }}>
                 <Typography variant="h2">{activeSection.title}</Typography>
                 <Typography variant="body2">
                   {activeSection.answered}/{activeSection.total} answered
                 </Typography>
               </Box>
+
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                For each question, choose the statement that is true of {score.name}{" "}
+                today, then open <strong>Evidence</strong> to record the law, regulator
+                decision or document it rests on. Questions with an amber edge have no
+                answer yet. Your changes are saved in this browser only — they are never
+                published, and the shared dataset changes only when someone commits to
+                the repository.
+              </Typography>
 
               <Stack spacing={2}>
                 {sectionQuestions.map((q) => (
