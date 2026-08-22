@@ -4,8 +4,8 @@ import { Box } from "@mui/material";
 /**
  * Flag for a jurisdiction code.
  *
- * flagcdn carries subdivision flags for some countries but not others — US
- * states and the UK home nations have them, Australian states do not — so a
+ * flagcdn carries subdivision flags for some countries but not others - US
+ * states and the UK home nations have them, Australian states do not - so a
  * subnational code is tried as-is and falls back to its parent country's flag
  * when that 404s. A missing flag renders as a neutral placeholder rather than a
  * broken image, which matters because most of the world has no data yet and

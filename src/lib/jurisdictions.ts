@@ -42,16 +42,26 @@ export function jurisdictionName(code: string): string {
 /**
  * Subnational jurisdictions of a country, or an empty array.
  *
- * A country is either drawn whole or drawn as its states, never both — so a
- * non-empty result here means the country itself is not on the map and answers
- * given at country level have to be pushed down to its children.
+ * Having children does not by itself mean the country has no shape of its
+ * own - France has five (its overseas exclaves, pulled out because they run
+ * their own electricity regime) while keeping its own mappable, scoreable
+ * "FR" shape for everywhere else. Use `isSubdivided` to tell the two cases
+ * apart, since only a genuinely unmappable country needs an answer written
+ * against it pushed down to its children.
  */
 export function childrenOf(code: string): string[] {
   return childrenByParent.get(code) ?? [];
 }
 
+/**
+ * True only for a country with no shape of its own - Australia, the US and
+ * Canada, drawn entirely as their states/provinces. False for France despite
+ * it having children, because "FR" still has a shape and still means
+ * metropolitan France.
+ */
 export function isSubdivided(code: string): boolean {
-  return childrenByParent.has(code);
+  const j = byCode.get(code);
+  return j != null && !j.mappable && childrenByParent.has(code);
 }
 
 /**
@@ -60,10 +70,15 @@ export function isSubdivided(code: string): boolean {
  * Answering "AU" is a claim about Australian federal policy, which binds every
  * state; the map has no "AU" shape to colour, so the answer resolves to the
  * eight state codes instead. Answering "AU-SA" resolves to just South Australia.
+ *
+ * Answering "FR" resolves to just ["FR"] even though France has children: the
+ * "FR" shape still exists and still means metropolitan France specifically,
+ * so a directive-baseline EU answer written for France must not silently leak
+ * onto French Guiana, which is not on the European synchronous grid and is not
+ * bound by the same rules.
  */
 export function resolveTargets(code: string): string[] {
-  const children = childrenOf(code);
-  return children.length > 0 ? children : [code];
+  return isSubdivided(code) ? childrenOf(code) : [code];
 }
 
 /** Label showing a subnational jurisdiction in the context of its country. */

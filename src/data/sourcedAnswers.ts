@@ -31,7 +31,7 @@ const indicators = indicatorRaw as unknown as SourcedAnswers;
 
 /**
  * Both files share a schema. Indicator answers are listed first so that a
- * hand-written answer covering the same ground wins — see BASIS_RANK.
+ * hand-written answer covering the same ground wins - see BASIS_RANK.
  */
 const data: SourcedAnswers = {
   sources: { ...indicators.sources, ...handWritten.sources },
@@ -52,7 +52,7 @@ const BASIS_RANK: Record<AnswerEntry["basis"], number> = {
 
 /**
  * How specifically an answer was addressed to a jurisdiction. When two answers
- * cover the same jurisdiction and question, the more specific one wins — so a
+ * cover the same jurisdiction and question, the more specific one wins - so a
  * South Australia answer overrides a NEM-wide one, which overrides an
  * Australia-wide one.
  */
@@ -70,7 +70,7 @@ const SPECIFICITY = {
  *
  * Entries are keyed by spreadsheet row rather than question id so that a
  * reviewer can check any one of them against the sheet directly. Rows that no
- * longer exist — row 44 was dropped as a duplicate at import — are skipped
+ * longer exist - row 44 was dropped as a duplicate at import - are skipped
  * rather than silently attached to the wrong question.
  */
 export function sourcedResponses(questions: Question[]): Response[] {
@@ -103,7 +103,7 @@ export function sourcedResponses(questions: Question[]): Response[] {
 
     const note =
       entry.basis === "directive-baseline"
-        ? `${entry.note}\n\nEU directive baseline — national transposition has not been individually verified for this country.`
+        ? `${entry.note}\n\nEU directive baseline - national transposition has not been individually verified for this country.`
         : entry.note;
 
     for (const target of targets) {
@@ -142,7 +142,7 @@ export function sourcedResponses(questions: Question[]): Response[] {
             questionId: question.id,
             countryCode: code,
             score: entry.score,
-            source: `${source.title} — ${source.url}`,
+            source: `${source.title} - ${source.url}`,
             note: inherited
               ? `${note}\n\nInherited from the ${target} answer; not written specifically for this jurisdiction.`
               : note,

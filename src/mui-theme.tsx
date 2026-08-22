@@ -34,7 +34,7 @@ const theme: Theme = createTheme({
       main: '#FBB114',        // GSC Citrus
       light: '#FCCA4A',
       dark: '#D4960F',
-      contrastText: '#3B3838', // Citrus is bright — dark text for contrast
+      contrastText: '#3B3838', // Citrus is bright - dark text for contrast
     },
     error: {
       main: '#E24B4A',

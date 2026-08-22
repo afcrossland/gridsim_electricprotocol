@@ -19,7 +19,7 @@ export default function ImpactList({ items, limit = 10, onJump }: Props) {
   if (shown.length === 0) {
     return (
       <Typography variant="body2" sx={{ p: 2 }}>
-        Nothing left to improve — every question is at full marks.
+        Nothing left to improve - every question is at full marks.
       </Typography>
     );
   }

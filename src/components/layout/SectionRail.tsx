@@ -1,5 +1,4 @@
 import { Box, CircularProgress, LinearProgress, Typography } from "@mui/material";
-import BoltIcon from "@mui/icons-material/Bolt";
 
 import type { CountryScore, Section } from "../../lib/types";
 
@@ -11,7 +10,6 @@ export interface RailSection extends Section {
 interface Props {
   sections: RailSection[];
   selected: string;
-  impactCount: number;
   score: CountryScore;
   onSelect: (id: string) => void;
 }
@@ -20,17 +18,11 @@ const RAIL_WIDTH = 232;
 
 /**
  * Persistent list of sections with per-section progress, so it is always
- * visible how much of a country is filled in and where the gaps are. The
- * highest-impact list sits at the top as a pinned entry rather than a tab,
- * because it is the thing most worth acting on.
+ * visible how much of a country is filled in and where the gaps are.
+ * "Highest impact" lives in the tab bar above this, not here, since it is the
+ * single most important thing to find and a rail item was not visible enough.
  */
-export default function SectionRail({
-  sections,
-  selected,
-  impactCount,
-  score,
-  onSelect,
-}: Props) {
+export default function SectionRail({ sections, selected, score, onSelect }: Props) {
   return (
     <Box
       sx={{
@@ -44,19 +36,7 @@ export default function SectionRail({
       }}
     >
       <Box sx={{ flex: 1, overflowY: "auto", py: 1 }}>
-        <RailItem
-          label="Highest impact"
-          selected={selected === "impact"}
-          onClick={() => onSelect("impact")}
-          icon={<BoltIcon fontSize="small" color="secondary" />}
-          trailing={
-            <Typography variant="caption" sx={{ fontWeight: 600 }}>
-              {impactCount}
-            </Typography>
-          }
-        />
-
-        <Typography variant="overline" sx={{ display: "block", px: 2, pt: 2, pb: 0.5 }}>
+        <Typography variant="overline" sx={{ display: "block", px: 2, pt: 1, pb: 0.5 }}>
           Sections
         </Typography>
 

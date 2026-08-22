@@ -1,4 +1,5 @@
 import { Box, LinearProgress, Stack, Typography } from "@mui/material";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 import { scoreColor } from "../../lib/scoring";
 import type { CountryScore } from "../../lib/types";
@@ -12,7 +13,7 @@ interface Props {
 
 /**
  * Ranked jurisdictions. Anything below the completeness threshold is listed
- * under the ranked table rather than mixed into it — a country with four
+ * under the ranked table rather than mixed into it - a country with four
  * confident answers would otherwise sit at the top of the board on almost no
  * evidence.
  */
@@ -49,9 +50,7 @@ export default function Scoreboard({ scores, selectedCountry, onSelect }: Props)
           score the most.
         </Typography>
         <Typography variant="caption">
-          A score is only shown once enough of the questions are answered — use the
-          threshold slider on the map to change how much is enough. The bar under each
-          row is how complete that jurisdiction's evidence is.
+          A score is only shown once enough of the questions are answered.
         </Typography>
       </Box>
 
@@ -127,7 +126,9 @@ function Row({
         bgcolor: selected ? "action.selected" : "background.paper",
         border: "1px solid",
         borderColor: selected ? "primary.main" : "divider",
-        "&:hover": { borderColor: "primary.light" },
+        transition: "border-color 120ms, box-shadow 120ms",
+        "&:hover": { borderColor: "primary.light", boxShadow: 1 },
+        "&:hover .row-chevron": { color: "primary.main", transform: "translateX(2px)" },
       }}
     >
       {rank !== undefined && (
@@ -159,8 +160,14 @@ function Row({
           color: score.ranked ? scoreColor(score.score) : "text.disabled",
         }}
       >
-        {score.ranked ? `${Math.round(score.score * 100)}%` : "—"}
+        {score.ranked ? `${Math.round(score.score * 100)}%` : " - "}
       </Typography>
+
+      <ChevronRightIcon
+        className="row-chevron"
+        fontSize="small"
+        sx={{ color: "text.disabled", flexShrink: 0, transition: "color 120ms, transform 120ms" }}
+      />
 
       <LinearProgress
         variant="determinate"

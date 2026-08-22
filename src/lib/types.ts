@@ -27,7 +27,7 @@ export interface Response {
   questionId: string;
   countryCode: string;
   score: number;
-  /** Supporting citation — a URL, statute reference or document name. */
+  /** Supporting citation - a URL, statute reference or document name. */
   source: string;
   /** Free-text justification for the chosen score. */
   note: string;
@@ -73,7 +73,7 @@ export interface ImpactItem {
   question: Question;
   section: Section;
   currentScore: number | null;
-  /** weight x (maxScore - currentScore) — raw points available. */
+  /** weight x (maxScore - currentScore) - raw points available. */
   gain: number;
   /** Percentage points added to the country score if taken to full marks. */
   scoreDelta: number;

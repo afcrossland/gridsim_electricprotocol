@@ -285,7 +285,7 @@
     "level": "country",
     "parent": null,
     "region": "Northern America",
-    "mappable": true
+    "mappable": false
   },
   {
     "code": "CD",
@@ -1957,6 +1957,150 @@
     "level": "subnational",
     "parent": "AU",
     "region": "Australia",
+    "mappable": true
+  },
+  {
+    "code": "CA-AB",
+    "name": "Alberta",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-BC",
+    "name": "British Columbia",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-MB",
+    "name": "Manitoba",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-NB",
+    "name": "New Brunswick",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-NL",
+    "name": "Newfoundland and Labrador",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-NS",
+    "name": "Nova Scotia",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-NT",
+    "name": "Northwest Territories",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-NU",
+    "name": "Nunavut",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-ON",
+    "name": "Ontario",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-PE",
+    "name": "Prince Edward Island",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-QC",
+    "name": "Qu\u00e9bec",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-SK",
+    "name": "Saskatchewan",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "CA-YT",
+    "name": "Yukon",
+    "level": "subnational",
+    "parent": "CA",
+    "region": "Canada",
+    "mappable": true
+  },
+  {
+    "code": "FR-GF",
+    "name": "French Guiana",
+    "level": "subnational",
+    "parent": "FR",
+    "region": "France",
+    "mappable": true
+  },
+  {
+    "code": "FR-GP",
+    "name": "Guadeloupe",
+    "level": "subnational",
+    "parent": "FR",
+    "region": "France",
+    "mappable": true
+  },
+  {
+    "code": "FR-MQ",
+    "name": "Martinique",
+    "level": "subnational",
+    "parent": "FR",
+    "region": "France",
+    "mappable": true
+  },
+  {
+    "code": "FR-RE",
+    "name": "R\u00e9union",
+    "level": "subnational",
+    "parent": "FR",
+    "region": "France",
+    "mappable": true
+  },
+  {
+    "code": "FR-YT",
+    "name": "Mayotte",
+    "level": "subnational",
+    "parent": "FR",
+    "region": "France",
     "mappable": true
   },
   {

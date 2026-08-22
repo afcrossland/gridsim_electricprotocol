@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import seed from "./protocol.seed.json";
 import { sourcedResponses } from "./sourcedAnswers";
-import { childrenOf, isSubdivided } from "../lib/jurisdictions";
+import { childrenOf, isSubdivided, resolveTargets } from "../lib/jurisdictions";
 import type { Protocol } from "../lib/types";
 
 const protocol = seed as unknown as Protocol;
@@ -32,6 +32,22 @@ describe("jurisdiction resolution", () => {
 
   it("marks inherited answers as inherited in the note", () => {
     expect(find("AU-TAS", 54)?.note).toContain("Inherited from the AU answer");
+  });
+
+  it("keeps France's exclaves from inheriting its EU answers", () => {
+    // France has children (its overseas exclaves) but keeps its own mappable
+    // shape, unlike Australia which has none. A country with children is not
+    // automatically "subdivided" - only one with no shape of its own is.
+    expect(childrenOf("FR")).toEqual(
+      expect.arrayContaining(["FR-GF", "FR-GP", "FR-MQ", "FR-RE", "FR-YT"]),
+    );
+    expect(isSubdivided("FR")).toBe(false);
+    expect(resolveTargets("FR")).toEqual(["FR"]);
+
+    // An EU27-group answer written against "FR" must land on France itself,
+    // not on French Guiana, which is not on the European synchronous grid.
+    expect(find("FR", 51)).toBeDefined();
+    expect(find("FR-GF", 51)).toBeUndefined();
   });
 
   it("confines NEM market rules to NEM states", () => {

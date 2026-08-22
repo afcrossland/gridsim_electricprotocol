@@ -19,11 +19,16 @@ import type { CountryScore } from "../../lib/types";
 import MapLegend from "./MapLegend";
 import JurisdictionSearch from "./JurisdictionSearch";
 
-/** Whole-globe camera: the opening view, and where clearing a selection returns. */
-const INITIAL_VIEW = { longitude: 15, latitude: 25, zoom: 1.4 };
+/**
+ * Whole-globe camera, used both for the opening view and for the return when a
+ * selection is cleared, so the two always match. Centred on 0,0.
+ */
+const INITIAL_VIEW = { longitude: 0, latitude: 0, zoom: 1.4 };
 
 interface Props {
   scores: CountryScore[];
+  /** Which measure to paint. Completeness ignores the ranking threshold. */
+  metric: "score" | "completeness";
   selectedCountry: string | null;
   onCountryClick: (code: string) => void;
 }
@@ -59,8 +64,8 @@ const FILL_COLOR = [
  * instead of New Zealand. Alaska, Fiji and Russia have the same shape of
  * problem.
  *
- * The fix is to measure the span twice — once on [-180, 180] and once with
- * negative longitudes shifted into [0, 360) — and keep whichever is tighter.
+ * The fix is to measure the span twice - once on [-180, 180] and once with
+ * negative longitudes shifted into [0, 360) - and keep whichever is tighter.
  * MapLibre accepts longitudes past 180 and wraps them, so the shifted box can
  * be handed straight to fitBounds.
  */
@@ -105,7 +110,7 @@ export function boundsOf(
   ];
 }
 
-export default function PolicyMap({ scores, selectedCountry, onCountryClick }: Props) {
+export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick }: Props) {
   const mapRef = useRef<MapRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
@@ -142,14 +147,24 @@ export default function PolicyMap({ scores, selectedCountry, onCountryClick }: P
     if (!map || !sourceReady) return;
 
     for (const s of scores) {
+      // Completeness is its own answer to "how much do we know", so it is shown
+      // for anything with data rather than gated behind the ranking threshold -
+      // gating it would hide exactly the jurisdictions it exists to reveal.
+      const value =
+        metric === "completeness"
+          ? s.answered > 0
+            ? s.completeness
+            : null
+          : s.ranked
+            ? s.score
+            : null;
+
       map.setFeatureState(
         { source: "countries", id: s.code },
-        s.ranked
-          ? { score: s.score, insufficient: false }
-          : { score: null, insufficient: s.answered > 0 },
+        { score: value, insufficient: value === null && s.answered > 0 },
       );
     }
-  }, [scores, sourceReady]);
+  }, [scores, sourceReady, metric]);
 
   const handleSourceData = useCallback((e: { sourceId?: string; isSourceLoaded?: boolean }) => {
     if (e.sourceId === "countries" && e.isSourceLoaded) setSourceReady(true);
@@ -278,7 +293,7 @@ export default function PolicyMap({ scores, selectedCountry, onCountryClick }: P
           {hovered && hovered.answered > 0 ? (
             <>
               <Typography variant="h4">
-                {hovered.ranked ? `${Math.round(hovered.score * 100)}%` : "—"}
+                {hovered.ranked ? `${Math.round(hovered.score * 100)}%` : " - "}
               </Typography>
               <Typography variant="caption">
                 {hovered.answered}/{hovered.total} answered
@@ -286,7 +301,7 @@ export default function PolicyMap({ scores, selectedCountry, onCountryClick }: P
               </Typography>
             </>
           ) : (
-            <Typography variant="caption">No data yet — click to start</Typography>
+            <Typography variant="caption">No data yet - click to start</Typography>
           )}
         </Paper>
       )}
@@ -297,10 +312,7 @@ export default function PolicyMap({ scores, selectedCountry, onCountryClick }: P
         onSelect={onCountryClick}
       />
 
-      <MapLegend
-        rankedCount={scores.filter((s) => s.ranked).length}
-        withData={scores.filter((s) => s.answered > 0).length}
-      />
+      {!selectedCountry && <MapLegend />}
     </Box>
   );
 }

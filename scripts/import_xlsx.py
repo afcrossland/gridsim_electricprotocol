@@ -27,6 +27,9 @@ from pathlib import Path
 
 import openpyxl
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _text import humanize  # noqa: E402
+
 REPO = Path(__file__).resolve().parent.parent
 # The spreadsheet is committed under source/ so the import is reproducible from
 # a clean checkout. The parent directory is kept as a fallback for the original
@@ -82,7 +85,7 @@ def clean_section_title(text):
     already called Electric Protocol the prefix says nothing, and it pushes the
     part that identifies the section out of a narrow rail.
     """
-    return re.sub(r"^\s*Electric Protocol\s*[-–—]\s*", "", text).strip()
+    return re.sub(r"^\s*Electric Protocol\s*[-– - ]\s*", "", text).strip()
 
 
 def slug(text, maxlen=48):
@@ -100,7 +103,7 @@ def parse_rubric(raw, row):
         if not m:
             notes.append(f"row {row}: rubric line without a score prefix: {line.strip()[:60]!r}")
             continue
-        tiers.append({"score": int(m.group(1)), "label": m.group(2).strip()})
+        tiers.append({"score": int(m.group(1)), "label": humanize(m.group(2).strip())})
 
     if not tiers:
         raise ValueError(f"row {row}: no rubric tiers parsed")
@@ -175,7 +178,7 @@ def main():
 
         if rubric_cell is None:
             # Unfilled heading row: a subsection label grouping the rows below it.
-            current_subsection = text
+            current_subsection = humanize(text)
             continue
 
         if row in DROP_ROWS:
@@ -203,7 +206,7 @@ def main():
                 "sectionId": current_section["id"],
                 "subsection": current_subsection,
                 "order": len(questions),
-                "text": text,
+                "text": humanize(text),
                 "weight": float(weight),
                 "rubric": parse_rubric(rubric_cell, row),
                 "seedAnswers": answers,

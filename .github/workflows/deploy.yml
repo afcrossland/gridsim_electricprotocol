@@ -37,7 +37,7 @@ jobs:
       # `npm run build:prod` runs Vite in "prod" mode, which reads .env.prod.
       # The MapTiler key is not in the repo, so it is written here from a
       # repository secret. Note that the key is compiled into the client bundle
-      # and is therefore public — restrict it by domain in MapTiler.
+      # and is therefore public - restrict it by domain in MapTiler.
       - name: Write build environment
         run: |
           echo "VITE_MAPTILER_KEY=${{ secrets.VITE_MAPTILER_KEY }}" > .env.prod

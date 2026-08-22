@@ -96,7 +96,7 @@
       "sectionId": "access-to-cer-technology",
       "subsection": null,
       "order": 0,
-      "text": "Retail banks and/or government agencies offer customers no or low interest home energy efficiency loans or rebates to CPs for CERs or other energy efficiency investments",
+      "text": "Retail banks and/or government agencies offer customers no or low interest home energy efficiency loans or rebates to customers for behind-the-meter technology or other energy efficiency investments",
       "weight": 3.0,
       "rubric": [
         {
@@ -109,7 +109,7 @@
         },
         {
           "score": 2,
-          "label": "Special loans or rebates available to reduce upfront cost and available to all CPs"
+          "label": "Special loans or rebates available to reduce upfront cost and available to all customers"
         }
       ],
       "seedAnswers": {
@@ -128,15 +128,15 @@
       "rubric": [
         {
           "score": 0,
-          "label": "CERs only affordable and accessible to highest earners"
+          "label": "behind-the-meter technology only affordable and accessible to highest earners"
         },
         {
           "score": 1,
-          "label": "CERs only affordable and accessible to middle and highest earners"
+          "label": "behind-the-meter technology only affordable and accessible to middle and highest earners"
         },
         {
           "score": 2,
-          "label": "CERs affordable and accessible to all earners inc. through zero capital cost models"
+          "label": "behind-the-meter technology affordable and accessible to all earners inc. through zero capital cost models"
         }
       ],
       "seedAnswers": {
@@ -159,11 +159,11 @@
         },
         {
           "score": 1,
-          "label": "Cost of finance for CERs above 5% and below 10%"
+          "label": "Cost of finance for behind-the-meter technology above 5% and below 10%"
         },
         {
           "score": 2,
-          "label": "Cost of finance for CERs available at or below 5%"
+          "label": "Cost of finance for behind-the-meter technology available at or below 5%"
         }
       ],
       "seedAnswers": {
@@ -177,7 +177,7 @@
       "sectionId": "access-to-cer-technology",
       "subsection": null,
       "order": 3,
-      "text": "Statewide best practices for calculating and communicating benefits from CERs to CPs including self-consumption, generation and market value",
+      "text": "Statewide best practices for calculating and communicating benefits from behind-the-meter technology to customers including self-consumption, generation and market value",
       "weight": 2.0,
       "rubric": [
         {
@@ -204,20 +204,20 @@
       "sectionId": "access-to-cer-technology",
       "subsection": null,
       "order": 4,
-      "text": "Network and system operators can own and operate CERs (within a free market with other possible owners)",
+      "text": "Network and system operators can own and operate behind-the-meter technology (within a free market with other possible owners)",
       "weight": 1.0,
       "rubric": [
         {
           "score": 0,
-          "label": "Network operators face significant barriers to operating, incentivising, contracting with or owning CERs"
+          "label": "Network operators face significant barriers to operating, incentivising, contracting with or owning behind-the-meter technology"
         },
         {
           "score": 1,
-          "label": "Network operators face some barriers to operating, incentivising, contracting with or owning CERs"
+          "label": "Network operators face some barriers to operating, incentivising, contracting with or owning behind-the-meter technology"
         },
         {
           "score": 2,
-          "label": "Network operators face no barriers to operating, incentivising, contracting with or owning CERs"
+          "label": "Network operators face no barriers to operating, incentivising, contracting with or owning behind-the-meter technology"
         }
       ],
       "seedAnswers": {
@@ -231,20 +231,20 @@
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 5,
-      "text": "Marketplace with open transparent time-of-day pricing for electricity import/consumption for all CPs.",
+      "text": "Marketplace with open transparent time-of-day pricing for electricity import/consumption for all customers.",
       "weight": 2.0,
       "rubric": [
         {
           "score": 0,
-          "label": "No time of use pricing for electricity import in place for CPs"
+          "label": "No time of use pricing for electricity import in place for customers"
         },
         {
           "score": 1,
-          "label": "Time of use pricing for electricity import available to some CPs"
+          "label": "Time of use pricing for electricity import available to some customers"
         },
         {
           "score": 2,
-          "label": "Time of use pricing for electricity import available to all or almost all CPs"
+          "label": "Time of use pricing for electricity import available to all or almost all customers"
         }
       ],
       "seedAnswers": {
@@ -258,7 +258,7 @@
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 6,
-      "text": "Marketplace with open transparent time-of-day pricing for electricity export for all CPs.",
+      "text": "Marketplace with open transparent time-of-day pricing for electricity export for all customers.",
       "weight": 2.0,
       "rubric": [
         {
@@ -267,11 +267,11 @@
         },
         {
           "score": 1,
-          "label": "Export pricing available but restricted to only one form of CER or not available to all CPs"
+          "label": "Export pricing available but restricted to only one form of behind-the-meter technology or not available to all customers"
         },
         {
           "score": 2,
-          "label": "Time of use pricing available for export to all CPs and both solar and storage"
+          "label": "Time of use pricing available for export to all customers and both solar and storage"
         }
       ],
       "seedAnswers": {
@@ -308,7 +308,7 @@
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 8,
-      "text": "Half hour (or better) meter data is available to support accurate design of CER",
+      "text": "Half hour (or better) meter data is available to support accurate design of behind-the-meter technology",
       "weight": 2.0,
       "rubric": [
         {
@@ -335,20 +335,20 @@
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 9,
-      "text": "No barriers to participation for CERs in energy and ancillary markets based on asset size or technology",
+      "text": "No barriers to participation for behind-the-meter technology in energy and ancillary markets based on asset size or technology",
       "weight": 3.0,
       "rubric": [
         {
           "score": 0,
-          "label": "CERs have size barriers in all wholesale and ancillary markets"
+          "label": "behind-the-meter technology have size barriers in all wholesale and ancillary markets"
         },
         {
           "score": 1,
-          "label": "CERs have size barriers 50% or more of the wholesale and ancillary markets which are open to CERs"
+          "label": "behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology"
         },
         {
           "score": 2,
-          "label": "No size barriers for CERs in more than  50% of the wholesale and ancillary markets which are open to CERs"
+          "label": "No size barriers for behind-the-meter technology in more than  50% of the wholesale and ancillary markets which are open to behind-the-meter technology"
         }
       ],
       "seedAnswers": {
@@ -389,7 +389,7 @@
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 11,
-      "text": "CERs or CPs can participate individually or in Virtual Power Plants",
+      "text": "behind-the-meter technology or customers can participate individually or in Virtual Power Plants",
       "weight": 2.0,
       "rubric": [
         {
@@ -398,11 +398,11 @@
         },
         {
           "score": 1,
-          "label": "VPPs have access to no more than 50% of wholesale or ancillary markets which are open to CERs"
+          "label": "VPPs have access to no more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology"
         },
         {
           "score": 2,
-          "label": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to CERs"
+          "label": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology"
         }
       ],
       "seedAnswers": {
@@ -416,7 +416,7 @@
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 12,
-      "text": "Market signals for CERs and CPs to contribute to network reinforcement and network capacity i.e. provide grid and network infrastructure investment deferral",
+      "text": "Market signals for behind-the-meter technology and customers to contribute to network reinforcement and network capacity i.e. provide grid and network infrastructure investment deferral",
       "weight": 0.3,
       "rubric": [
         {
@@ -425,11 +425,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available to all CERs that meet required technical standards but only under trials"
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards but only under trials"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards as part of business as usual"
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards as part of business as usual"
         }
       ],
       "seedAnswers": {
@@ -452,11 +452,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -479,11 +479,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -506,11 +506,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -533,11 +533,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -560,11 +560,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -587,11 +587,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -613,11 +613,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -639,11 +639,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -665,11 +665,11 @@
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all CPs"
+          "label": "Compensation available but not to all customers"
         },
         {
           "score": 2,
-          "label": "Compensation available to all CERs that meet required technical standards for all CPs."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
         }
       ],
       "seedAnswers": {
@@ -683,12 +683,12 @@
       "sectionId": "self-consumption",
       "subsection": null,
       "order": 22,
-      "text": "Zero cost for self-consuming electricity generation from behind the meter CERs",
+      "text": "Zero cost for self-consuming electricity generation from behind the meter behind-the-meter technology",
       "weight": 2.0,
       "rubric": [
         {
           "score": 0,
-          "label": "A fee is payable by CPs to anyone involved in the grid, network, system, or other power system incumbent to connect CERs behind the meter"
+          "label": "A fee is payable by customers to anyone involved in the grid, network, system, or other power system incumbent to connect behind-the-meter technology behind the meter"
         },
         {
           "score": 1,
@@ -710,16 +710,16 @@
       "sectionId": "self-consumption",
       "subsection": null,
       "order": 23,
-      "text": "No regulatory barriers to CPs for connecting CERs for self-consumption",
+      "text": "No regulatory barriers to customers for connecting behind-the-meter technology for self-consumption",
       "weight": 3.0,
       "rubric": [
         {
           "score": 0,
-          "label": "CPs not allowed to connect CERs even if for self-consumption"
+          "label": "customers not allowed to connect behind-the-meter technology even if for self-consumption"
         },
         {
           "score": 2,
-          "label": "No barriers to connecting and using CERs for self-consumption"
+          "label": "No barriers to connecting and using behind-the-meter technology for self-consumption"
         }
       ],
       "seedAnswers": {
@@ -738,7 +738,7 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Permitting is required before a CER can be installed and is complex or risky to obtain"
+          "label": "Permitting is required before a behind-the-meter technology can be installed and is complex or risky to obtain"
         },
         {
           "score": 1,
@@ -760,7 +760,7 @@
       "sectionId": "planning-and-permitting",
       "subsection": null,
       "order": 25,
-      "text": "Planning rules and building codes do not unnecessarily restrict installation of CERs and enable net zero",
+      "text": "Planning rules and building codes do not unnecessarily restrict installation of behind-the-meter technology and enable net zero",
       "weight": 2.0,
       "rubric": [
         {
@@ -787,12 +787,12 @@
       "sectionId": "grid-connection",
       "subsection": null,
       "order": 26,
-      "text": "Zero cost, standardised, and transparent automated interconnection/grid connection process for all CPs and CERs",
+      "text": "Zero cost, standardised, and transparent automated interconnection/grid connection process for all customers and behind-the-meter technology",
       "weight": 2.0,
       "rubric": [
         {
           "score": 0,
-          "label": "Interconnection application always required before a CER can be installed and is complex,costly or time consuming to obtain"
+          "label": "Interconnection application always required before a behind-the-meter technology can be installed and is complex,costly or time consuming to obtain"
         },
         {
           "score": 1,
@@ -823,11 +823,11 @@
         },
         {
           "score": 1,
-          "label": "There is a database of network capacity, but it is not open to the public or does not show individual CPs"
+          "label": "There is a database of network capacity, but it is not open to the public or does not show individual customers"
         },
         {
           "score": 2,
-          "label": "There is a full location specific database of available capacity for CPs to connect CERs"
+          "label": "There is a full location specific database of available capacity for customers to connect behind-the-meter technology"
         }
       ],
       "seedAnswers": {
@@ -850,11 +850,11 @@
         },
         {
           "score": 1,
-          "label": "Data available but is only for import or export or some CPs"
+          "label": "Data available but is only for import or export or some customers"
         },
         {
           "score": 2,
-          "label": "Data available for import and export at all connection points/all CPs"
+          "label": "Data available for import and export at all connection points/all customers"
         }
       ],
       "seedAnswers": {
@@ -868,7 +868,7 @@
       "sectionId": "grid-connection",
       "subsection": null,
       "order": 29,
-      "text": "Simple and digital registration of CERs with utilities",
+      "text": "Simple and digital registration of behind-the-meter technology with utilities",
       "weight": 1.0,
       "rubric": [
         {
@@ -922,7 +922,7 @@
       "sectionId": "control-cybersecurity-and-interoperability",
       "subsection": null,
       "order": 31,
-      "text": "System operators set or approve technical and communication protocols for CER market participation at  national level",
+      "text": "System operators set or approve technical and communication protocols for behind-the-meter technology market participation at  national level",
       "weight": 2.0,
       "rubric": [
         {
@@ -949,7 +949,7 @@
       "sectionId": "control-cybersecurity-and-interoperability",
       "subsection": null,
       "order": 32,
-      "text": "System operators set or approve technical and communication protocols for CER data exchange at state or national level",
+      "text": "System operators set or approve technical and communication protocols for behind-the-meter technology data exchange at state or national level",
       "weight": 2.0,
       "rubric": [
         {
@@ -1022,20 +1022,20 @@
       "sectionId": "tariffs",
       "subsection": null,
       "order": 35,
-      "text": "No tariffs charged at border on CERs",
+      "text": "No tariffs charged at border on behind-the-meter technology",
       "weight": 2.0,
       "rubric": [
         {
           "score": 0,
-          "label": "Tariffs on imported CERs >=25%"
+          "label": "Tariffs on imported behind-the-meter technology >=25%"
         },
         {
           "score": 1,
-          "label": "Tariffs on imported CERs >=10% <25%"
+          "label": "Tariffs on imported behind-the-meter technology >=10% <25%"
         },
         {
           "score": 2,
-          "label": "Tariffs on imported CERs <10%"
+          "label": "Tariffs on imported behind-the-meter technology <10%"
         }
       ],
       "seedAnswers": {
@@ -1049,16 +1049,16 @@
       "sectionId": "tariffs",
       "subsection": null,
       "order": 36,
-      "text": "Tax rebates/subsidies to CPs for CERs or other energy efficiency investments",
+      "text": "Tax rebates/subsidies to customers for behind-the-meter technology or other energy efficiency investments",
       "weight": 2.0,
       "rubric": [
         {
           "score": 0,
-          "label": "tax incentives or subsides available to utility scale technology or other energy technology are more valuable than those provided to CERs."
+          "label": "tax incentives or subsides available to utility scale technology or other energy technology are more valuable than those provided to behind-the-meter technology."
         },
         {
           "score": 2,
-          "label": "any tax incentives or subsidies for CERs at least match those provided to utility scale technology or other energy technology"
+          "label": "any tax incentives or subsidies for behind-the-meter technology at least match those provided to utility scale technology or other energy technology"
         }
       ],
       "seedAnswers": {
@@ -1071,7 +1071,7 @@
       "sectionId": "training",
       "subsection": null,
       "order": 37,
-      "text": "Statewide standardised curriculum and qualifications for CER installers and maintainers",
+      "text": "Statewide standardised curriculum and qualifications for behind-the-meter technology installers and maintainers",
       "weight": 2.0,
       "rubric": [
         {
@@ -1080,7 +1080,7 @@
         },
         {
           "score": 2,
-          "label": "National qualification certificate(s) for CER installation and maintenance"
+          "label": "National qualification certificate(s) for behind-the-meter technology installation and maintenance"
         }
       ],
       "seedAnswers": {
@@ -1094,7 +1094,7 @@
       "sectionId": "training",
       "subsection": null,
       "order": 38,
-      "text": "Access to training courses to achieve recognised CER installation and maintenance qualifications",
+      "text": "Access to training courses to achieve recognised behind-the-meter technology installation and maintenance qualifications",
       "weight": 3.0,
       "rubric": [
         {

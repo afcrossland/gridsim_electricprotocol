@@ -29,8 +29,8 @@ interface Props {
  * GSC Burnt Orange, used for the chosen rubric tier.
  *
  * Aqua was too close to the card's own border and to the unselected outline to
- * read at a glance. Orange is reserved for this one meaning — "this is the
- * answer" — so the unanswered marker below uses a neutral dashed edge rather
+ * read at a glance. Orange is reserved for this one meaning - "this is the
+ * answer" - so the unanswered marker below uses a neutral dashed edge rather
  * than competing for the same colour.
  */
 const SELECTED = "#EF864C";
@@ -39,7 +39,7 @@ const SELECTED_TINT = "rgba(239, 134, 76, 0.12)";
 /**
  * One question as a compact card.
  *
- * The rubric tiers run horizontally rather than stacked — three short columns
+ * The rubric tiers run horizontally rather than stacked - three short columns
  * instead of three full-width rows is most of the difference between a section
  * that fits on screen and one that takes four scrolls. Source and notes stay
  * collapsed until wanted, with their state shown on the toggle so nothing

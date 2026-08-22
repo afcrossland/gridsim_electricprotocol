@@ -15,18 +15,57 @@ export default function TopNavbar() {
   const role = useProtocolStore((s) => s.role);
   const setRole = useProtocolStore((s) => s.setRole);
   const resetToSeed = useProtocolStore((s) => s.resetToSeed);
+  const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
+  const page = useProtocolStore((s) => s.page);
+  const setPage = useProtocolStore((s) => s.setPage);
+  const selectCountry = useProtocolStore((s) => s.selectCountry);
+
+  // Home: clear the selected jurisdiction and leave Settings, which also
+  // returns the map to its opening view and zoom via the same effect that
+  // runs when a selection is cleared any other way.
+  const goHome = () => {
+    setPage("map");
+    selectCountry(null);
+  };
 
   return (
     <AppBar position="static" color="inherit" elevation={1}>
       <Toolbar variant="dense" sx={{ gap: 2 }}>
-        <Typography variant="h5" sx={{ flexShrink: 0 }}>
-          {protocol.title}
-        </Typography>
-        <Typography variant="body2" sx={{ flexShrink: 0 }}>
-          Policy Map
+        <Box
+          onClick={goHome}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            flexShrink: 0,
+            cursor: "pointer",
+            "&:hover": { opacity: 0.8 },
+          }}
+        >
+          <Box
+            component="img"
+            src={`${import.meta.env.BASE_URL}favicon.png`}
+            alt=""
+            sx={{ height: 28, width: 28 }}
+          />
+          <Typography variant="h5">Solar Policy Wiki</Typography>
+        </Box>
+        <Typography variant="body2" sx={{ flexShrink: 0, display: { xs: "none", md: "block" } }}>
+          Scored against The {protocol.title}
         </Typography>
 
         <Box sx={{ flex: 1 }} />
+
+        <Button size="small" onClick={() => setWelcomeSeen(false)}>
+          About
+        </Button>
+        <Button
+          size="small"
+          variant={page === "settings" ? "outlined" : "text"}
+          onClick={() => setPage(page === "settings" ? "map" : "settings")}
+        >
+          Settings
+        </Button>
 
         {/* Stands in for auth: roles are a UI switch until sign-in exists. */}
         <ToggleButtonGroup

@@ -10,7 +10,7 @@ const protocol = seed as unknown as Protocol;
 
 /**
  * Everything mutable lives here behind a small set of actions. There is no
- * backend yet — state persists to localStorage — but nothing above this layer
+ * backend yet - state persists to localStorage - but nothing above this layer
  * knows that, so swapping in Firestore later means reimplementing these
  * actions and leaving the components alone.
  */
@@ -22,6 +22,12 @@ interface ProtocolState {
    * is a judgement rather than a property of the data.
    */
   threshold: number;
+  /** Which measure the choropleth paints: the score, or how much is answered. */
+  mapMetric: "score" | "completeness";
+  /** Which full-screen view is showing. Not persisted - always opens on the map. */
+  page: "map" | "settings";
+  /** False until the visitor dismisses the Charter welcome screen. */
+  welcomeSeen: boolean;
   sections: Section[];
   questions: Question[];
   responses: Response[];
@@ -29,6 +35,9 @@ interface ProtocolState {
 
   setRole: (role: Role) => void;
   setThreshold: (threshold: number) => void;
+  setMapMetric: (mapMetric: "score" | "completeness") => void;
+  setPage: (page: "map" | "settings") => void;
+  setWelcomeSeen: (seen: boolean) => void;
   selectCountry: (code: string | null) => void;
 
   // Registered users and admins
@@ -50,8 +59,8 @@ interface ProtocolState {
 /**
  * Spreadsheet answers plus researched answers, both as ordinary responses.
  *
- * The spreadsheet's GB and NZ answers carry no citation — they arrived as bare
- * scores — whereas everything in sourced-answers.json must cite something.
+ * The spreadsheet's GB and NZ answers carry no citation - they arrived as bare
+ * scores - whereas everything in sourced-answers.json must cite something.
  */
 function seedResponses(): Response[] {
   const out: Response[] = [];
@@ -75,6 +84,9 @@ function initialState() {
   return {
     role: "registered" as Role,
     threshold: protocol.completenessThreshold,
+    mapMetric: "score" as const,
+    page: "map" as const,
+    welcomeSeen: false,
     sections: protocol.sections.map((s) => ({ ...s })),
     questions: protocol.questions.map((q) => ({ ...q })),
     responses: seedResponses(),
@@ -89,6 +101,9 @@ export const useProtocolStore = create<ProtocolState>()(
 
       setRole: (role) => set({ role }),
       setThreshold: (threshold) => set({ threshold }),
+      setMapMetric: (mapMetric) => set({ mapMetric }),
+      setPage: (page) => set({ page }),
+      setWelcomeSeen: (welcomeSeen) => set({ welcomeSeen }),
       selectCountry: (code) => set({ selectedCountry: code }),
 
       setResponse: (countryCode, questionId, patch) =>
@@ -170,7 +185,7 @@ export const useProtocolStore = create<ProtocolState>()(
       name: "electric-protocol-policy-map",
       // Bump only for a change in the *shape* of stored state. Adding or
       // editing seed data needs no bump, because seeded answers are never
-      // persisted — see partialize below.
+      // persisted - see partialize below.
       //
       // v5: section ids changed when the redundant "Electric Protocol" prefix
       // was stripped from headings, so persisted questions pointed at sections
@@ -210,6 +225,8 @@ export const useProtocolStore = create<ProtocolState>()(
       partialize: (state) => ({
         role: state.role,
         threshold: state.threshold,
+        mapMetric: state.mapMetric,
+        welcomeSeen: state.welcomeSeen,
         sections: state.sections,
         questions: state.questions,
         responses: state.responses.filter((r) => !r.seeded),

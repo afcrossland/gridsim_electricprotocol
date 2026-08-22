@@ -10,3 +10,6 @@ tsconfig*.tsbuildinfo
 .env.prod
 .env.*.local
 .cache
+
+__pycache__/
+*.pyc

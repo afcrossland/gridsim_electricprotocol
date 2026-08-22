@@ -2,183 +2,183 @@
   "README": "Researched answers, keyed by the question's row in the source spreadsheet so each entry can be checked against it. Every entry must cite a source; nothing is scored on inference alone. `basis` is 'national' where the evidence is specific to that country, or 'directive-baseline' where an EU instrument creates the right and national transposition has not been individually verified.",
   "sources": {
     "eu-2019-944-art11": {
-      "title": "Directive (EU) 2019/944, Article 11 — Entitlement to a dynamic electricity price contract",
+      "title": "Directive (EU) 2019/944, Article 11 - Entitlement to a dynamic electricity price contract",
       "url": "https://eur-lex.europa.eu/eli/dir/2019/944/oj/eng"
     },
     "eu-2019-944-annex1": {
-      "title": "Directive (EU) 2019/944, Annex I — Minimum requirements for billing, with the three price components defined by Regulation (EU) 2016/1952",
+      "title": "Directive (EU) 2019/944, Annex I - Minimum requirements for billing, with the three price components defined by Regulation (EU) 2016/1952",
       "url": "https://eur-lex.europa.eu/eli/dir/2019/944/oj/eng"
     },
     "eu-2019-944-art23": {
-      "title": "Directive (EU) 2019/944, Articles 20–23 — Smart metering functionality and access to metering and consumption data",
+      "title": "Directive (EU) 2019/944, Articles 20–23 - Smart metering functionality and access to metering and consumption data",
       "url": "https://eur-lex.europa.eu/eli/dir/2019/944/oj/eng"
     },
     "eu-2019-944-art17": {
-      "title": "Directive (EU) 2019/944, Article 17 — Demand response through aggregation",
+      "title": "Directive (EU) 2019/944, Article 17 - Demand response through aggregation",
       "url": "https://lexparency.org/eu/32019L0944/ART_17/"
     },
     "eu-2019-944-art32": {
-      "title": "Directive (EU) 2019/944, Article 32 — Incentives for the use of flexibility in distribution networks",
+      "title": "Directive (EU) 2019/944, Article 32 - Incentives for the use of flexibility in distribution networks",
       "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX%3A32019L0944"
     },
     "ceer-art32-derogations": {
-      "title": "CEER — NRAs' approach to DSO flexibility procurement, justifications for derogations from Article 32",
+      "title": "CEER - NRAs' approach to DSO flexibility procurement, justifications for derogations from Article 32",
       "url": "https://www.ceer.eu/publication/nras-approach-to-dso-flexibility-procurement-justifications-for-derogations-from-article-32/"
     },
     "eu-red2-art21": {
-      "title": "Directive (EU) 2018/2001 (RED II), Article 21 — Renewables self-consumers",
+      "title": "Directive (EU) 2018/2001 (RED II), Article 21 - Renewables self-consumers",
       "url": "https://lexparency.org/eu/32018L2001/ART_21/"
     },
     "eu-red2-art17": {
-      "title": "Directive (EU) 2018/2001 (RED II), Article 17 — Simple-notification procedure for grid connections",
+      "title": "Directive (EU) 2018/2001 (RED II), Article 17 - Simple-notification procedure for grid connections",
       "url": "https://lexparency.org/eu/32018L2001/ART_17/"
     },
     "eu-red2-art18": {
-      "title": "Directive (EU) 2018/2001 (RED II), Article 18(3) and Annex IV — Certification schemes for installers of small-scale renewable systems",
+      "title": "Directive (EU) 2018/2001 (RED II), Article 18(3) and Annex IV - Certification schemes for installers of small-scale renewable systems",
       "url": "https://eur-lex.europa.eu/eli/dir/2018/2001/oj/eng"
     },
     "eu-customs-cer": {
-      "title": "EU Common Customs Tariff — 0% duty on photovoltaic modules; 2.7% on lithium-ion batteries",
+      "title": "EU Common Customs Tariff - 0% duty on photovoltaic modules; 2.7% on lithium-ion batteries",
       "url": "https://dutify.com/duty-rates-for-lithium-ion-battery"
     },
     "au-aemc-smart-meters": {
-      "title": "AEMC — Accelerating smart meter deployment: final rule, 28 November 2024, universal deployment across the NEM by 2030",
+      "title": "AEMC - Accelerating smart meter deployment: final rule, 28 November 2024, universal deployment across the NEM by 2030",
       "url": "https://www.aemc.gov.au/news-centre/media-releases/aemc-smart-meters-100-2030-new-customer-information-real-time-data-and-protections"
     },
     "au-cheaper-home-batteries": {
-      "title": "DCCEEW — Cheaper Home Batteries Program, delivered through the Small-scale Renewable Energy Scheme from 1 July 2025",
+      "title": "DCCEEW - Cheaper Home Batteries Program, delivered through the Small-scale Renewable Energy Scheme from 1 July 2025",
       "url": "https://www.dcceew.gov.au/energy/programs/cheaper-home-batteries"
     },
     "au-aemc-export-tariffs": {
-      "title": "AEMC — Access, pricing and incentive arrangements for distributed energy resources, final determination 12 August 2021; AER Export Tariff Guidelines",
+      "title": "AEMC - Access, pricing and incentive arrangements for distributed energy resources, final determination 12 August 2021; AER Export Tariff Guidelines",
       "url": "https://www.aemc.gov.au/rule-changes/access-pricing-and-incentive-arrangements-distributed-energy-resources"
     },
     "au-saa-accreditation": {
-      "title": "Solar Accreditation Australia — installer and designer accreditation scheme operator under the SRES since 29 February 2024, enforcing AS/NZS 4777.2:2020",
+      "title": "Solar Accreditation Australia - installer and designer accreditation scheme operator under the SRES since 29 February 2024, enforcing AS/NZS 4777.2:2020",
       "url": "https://saaustralia.com.au/about-accreditation/"
     },
     "au-cer-installers": {
-      "title": "Clean Energy Regulator — rooftop solar installers and designers must hold SAA accreditation to create certificates under the SRES",
+      "title": "Clean Energy Regulator - rooftop solar installers and designers must hold SAA accreditation to create certificates under the SRES",
       "url": "https://cer.gov.au/schemes/renewable-energy-target/renewable-energy-target-participants-and-industry/rooftop-solar-installers-and-designers"
     },
     "au-aemo-dashboard": {
-      "title": "AEMO — NEM data dashboard: five-minute dispatch and FCAS prices, demand, generation and interconnector flows, published free and publicly since the five-minute settlement start on 1 October 2021",
+      "title": "AEMO - NEM data dashboard: five-minute dispatch and FCAS prices, demand, generation and interconnector flows, published free and publicly since the five-minute settlement start on 1 October 2021",
       "url": "https://www.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/data-nem/data-dashboard-nem"
     },
     "au-aemo-ancillary": {
-      "title": "AEMO — Ancillary services: eight separate FCAS markets in the NEM, accessible to aggregated small resources through registered aggregators",
+      "title": "AEMO - Ancillary services: eight separate FCAS markets in the NEM, accessible to aggregated small resources through registered aggregators",
       "url": "https://www.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/system-operations/ancillary-services"
     },
     "au-aemo-rert": {
-      "title": "AEMO — Reliability and Emergency Reserve Trader: availability and activation payments for curtailable load, including aggregated smaller loads, procured through a pre-qualified panel",
+      "title": "AEMO - Reliability and Emergency Reserve Trader: availability and activation payments for curtailable load, including aggregated smaller loads, procured through a pre-qualified panel",
       "url": "https://www.aemo.com.au/energy-systems/electricity/emergency-management/reliability-and-emergency-reserve-trader-rert"
     },
     "au-aer-ringfencing": {
-      "title": "AER — Electricity Distribution Ring-fencing Guideline version 3 (3 November 2021): distributors prohibited from providing contestable services with a battery absent a waiver",
+      "title": "AER - Electricity Distribution Ring-fencing Guideline version 3 (3 November 2021): distributors prohibited from providing contestable services with a battery absent a waiver",
       "url": "https://www.aer.gov.au/system/files/AER%20-%20Ring-fencing%20Guideline%20Version%203%20-%20(electricity%20distribution)%20%20-%203%20November%202021.pdf"
     },
     "au-csip-aus": {
-      "title": "CSIP-AUS — Common Smart Inverter Profile Australia, an IEEE 2030.5 based DER communications profile developed by the DER Integration API Technical Working Group, with CEC-certified inverters",
+      "title": "CSIP-AUS - Common Smart Inverter Profile Australia, an IEEE 2030.5 based DER communications profile developed by the DER Integration API Technical Working Group, with CEC-certified inverters",
       "url": "https://arena.gov.au/knowledge-bank/common-smart-inverter-profile-australia/"
     },
     "au-aemo-sa-demand": {
-      "title": "AEMO — South Australian Electricity Report: record minimum operational demand of −209 MW on 19 October 2024, with rooftop PV meeting 64% of SA demand",
+      "title": "AEMO - South Australian Electricity Report: record minimum operational demand of −209 MW on 19 October 2024, with rooftop PV meeting 64% of SA demand",
       "url": "https://www.aemo.com.au/-/media/files/electricity/nem/planning_and_forecasting/sa_advisory/2025/2025-south-australian-electricity-report.pdf"
     },
     "au-saa-pathways": {
-      "title": "Solar Accreditation Australia — accreditation pathways built on nationally recognised UEE units (UEERE0054, UEERE0061, UEERE0080, UEERE0081), delivered by registered training organisations across Australia",
+      "title": "Solar Accreditation Australia - accreditation pathways built on nationally recognised UEE units (UEERE0054, UEERE0061, UEERE0080, UEERE0081), delivered by registered training organisations across Australia",
       "url": "https://saaustralia.com.au/accreditation-pathways/"
     },
     "au-import-tariffs": {
-      "title": "Australia — 0% import duty on solar panels and photovoltaic modules (GST applies separately); US ITA country commercial guide on Australian import tariffs",
+      "title": "Australia - 0% import duty on solar panels and photovoltaic modules (GST applies separately); US ITA country commercial guide on Australian import tariffs",
       "url": "https://www.trade.gov/country-commercial-guides/australia-import-tariffs"
     },
     "us-ferc-2222": {
-      "title": "FERC Order No. 2222 — requires RTOs/ISOs to let DER aggregations provide all wholesale services they are technically capable of; FERC explainer",
+      "title": "FERC Order No. 2222 - requires RTOs/ISOs to let DER aggregations provide all wholesale services they are technically capable of; FERC explainer",
       "url": "https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy"
     },
     "us-ferc-2222-tracker": {
-      "title": "FERC Order 2222 DER policy and implementation tracker, January 2026 — PJM energy and ancillary services implementation 1 February 2028, SPP Q2 2030, ISO-NE capacity from FCA 19 in February 2026",
+      "title": "FERC Order 2222 DER policy and implementation tracker, January 2026 - PJM energy and ancillary services implementation 1 February 2028, SPP Q2 2030, ISO-NE capacity from FCA 19 in February 2026",
       "url": "https://cuswebsite.blob.core.windows.net/2222tracker/Tracker-Report-January-2026.pdf"
     },
     "us-irs-obbba": {
-      "title": "IRS — FAQs on modification of sections 25C, 25D and others under Public Law 119-21 (One Big Beautiful Bill, 4 July 2025): section 25D terminated for expenditures after 31 December 2025",
+      "title": "IRS - FAQs on modification of sections 25C, 25D and others under Public Law 119-21 (One Big Beautiful Bill, 4 July 2025): section 25D terminated for expenditures after 31 December 2025",
       "url": "https://www.irs.gov/newsroom/faqs-for-modification-of-sections-25c-25d-25e-30c-30d-45l-45w-and-179d-under-public-law-119-21-139-stat-72-july-4-2025-commonly-known-as-the-one-big-beautiful-bill-obbb"
     },
     "us-doe-trade": {
-      "title": "US Department of Energy — Overview of trade and policy measures for US solar manufacturing (Section 201, Section 301 and AD/CVD orders)",
+      "title": "US Department of Energy - Overview of trade and policy measures for US solar manufacturing (Section 201, Section 301 and AD/CVD orders)",
       "url": "https://www.energy.gov/cmei/systems/overview-trade-and-policy-measures-us-solar-manufacturing"
     },
     "us-section201-expiry": {
-      "title": "Solar Power World — Section 201 safeguard tariffs on imported solar panels expired 6 February 2026, having stepped down to 14% for 2025; AD/CVD orders on Cambodia, Malaysia, Thailand and Vietnam imposed 24 June 2025 remain",
+      "title": "Solar Power World - Section 201 safeguard tariffs on imported solar panels expired 6 February 2026, having stepped down to 14% for 2025; AD/CVD orders on Cambodia, Malaysia, Thailand and Vietnam imposed 24 June 2025 remain",
       "url": "https://www.solarpowerworldonline.com/2026/02/end-of-an-era-sec-201-tariffs-on-imported-solar-panels-expire/"
     },
     "us-irec-1547": {
-      "title": "IREC — IEEE 1547-2018 adoption tracker: state-by-state dates for requiring UL 1741 SB certified inverters in new interconnection applications",
+      "title": "IREC - IEEE 1547-2018 adoption tracker: state-by-state dates for requiring UL 1741 SB certified inverters in new interconnection applications",
       "url": "https://irecusa.org/resources/ieee-1547-2018-adoption-tracker/"
     },
     "us-nrel-1547": {
-      "title": "NREL — Overview of distributed energy resource interconnection: IEEE 1547-2018 and UL 1741 certification of inverters",
+      "title": "NREL - Overview of distributed energy resource interconnection: IEEE 1547-2018 and UL 1741 certification of inverters",
       "url": "https://www.nrel.gov/grid/ieee-standard-1547/overview-distributed-energy-resource-interconnection"
     },
     "ca-nem3": {
-      "title": "California Net Billing Tariff (NEM 3.0) — approved by the CPUC 15 December 2022, effective 15 April 2023, replacing retail-rate net metering with hourly avoided-cost export compensation for PG&E, SCE and SDG&E customers (secondary source)",
+      "title": "California Net Billing Tariff (NEM 3.0) - approved by the CPUC 15 December 2022, effective 15 April 2023, replacing retail-rate net metering with hourly avoided-cost export compensation for PG&E, SCE and SDG&E customers (secondary source)",
       "url": "https://enphase.com/blog/homeowners/understanding-nem-30-and-future-net-energy-metering"
     },
     "ca-sgip": {
-      "title": "California Self-Generation Incentive Program (SGIP) — CPUC-administered storage rebates of $200–$1,000/kWh; as of April 2026 the residential budgets are fully reserved and new applications are waitlisted (secondary source)",
+      "title": "California Self-Generation Incentive Program (SGIP) - CPUC-administered storage rebates of $200–$1,000/kWh; as of April 2026 the residential budgets are fully reserved and new applications are waitlisted (secondary source)",
       "url": "https://sunsolarpros.com/blog/california-sgip-battery-rebate-2026/"
     },
     "ca-rule21-ica": {
-      "title": "IREC — California adopts first interconnection rules to use hosting capacity results: Integration Capacity Analysis built into Rule 21, with monthly-updated public ICA maps from PG&E, SCE and SDG&E",
+      "title": "IREC - California adopts first interconnection rules to use hosting capacity results: Integration Capacity Analysis built into Rule 21, with monthly-updated public ICA maps from PG&E, SCE and SDG&E",
       "url": "https://irecusa.org/blog/regulatory-engagement/california-adopts-first-interconnection-rules-to-utilize-hosting-capacity-results/"
     },
     "ny-vder": {
-      "title": "NYSERDA — Value of Distributed Energy Resources (VDER) Value Stack: compensation by when and where a DER delivers, comprising energy, capacity, environmental, demand reduction and locational system relief value",
+      "title": "NYSERDA - Value of Distributed Energy Resources (VDER) Value Stack: compensation by when and where a DER delivers, comprising energy, capacity, environmental, demand reduction and locational system relief value",
       "url": "https://www.nyserda.ny.gov/All-Programs/NY-Sun/Contractors/Value-of-Distributed-Energy-Resources"
     },
     "ny-sir": {
-      "title": "NY Department of Public Service — New York State Standardized Interconnection Requirements, effective 1 August 2025: a single statewide process for distributed generation and storage up to 5 MW",
+      "title": "NY Department of Public Service - New York State Standardized Interconnection Requirements, effective 1 August 2025: a single statewide process for distributed generation and storage up to 5 MW",
       "url": "https://dps.ny.gov/system/files/documents/2025/08/nys-standardized-interconnection-requirements-effective-080125.pdf"
     },
     "ny-sun": {
-      "title": "NYSERDA — NY-Sun megawatt block incentive: regional blocks of capacity funded at declining rates, available until each block is fully subscribed",
+      "title": "NYSERDA - NY-Sun megawatt block incentive: regional blocks of capacity funded at declining rates, available until each block is fully subscribed",
       "url": "https://www.nyserda.ny.gov/All-Programs/NY-Sun/Contractors/Dashboards-and-incentives"
     },
     "us-irec-hca": {
-      "title": "IREC — The evolution of hosting capacity analysis as a grid modernization tool: California, Nevada, Minnesota, New York, Maryland, New Jersey and Connecticut require utilities to publish solar hosting capacity maps; Hawaii also mandates hosting capacity analyses",
+      "title": "IREC - The evolution of hosting capacity analysis as a grid modernization tool: California, Nevada, Minnesota, New York, Maryland, New Jersey and Connecticut require utilities to publish solar hosting capacity maps; Hawaii also mandates hosting capacity analyses",
       "url": "https://irecusa.org/blog/regulatory-engagement/the-evolution-of-hosting-capacity-analysis-as-a-grid-modernization-tool/"
     },
     "tx-ercot-ader": {
-      "title": "ERCOT — Aggregate Distributed Energy Resource (ADER) pilot project, in Phase 3 as of 2025, letting aggregated distribution-level resources respond to ERCOT dispatch",
+      "title": "ERCOT - Aggregate Distributed Energy Resource (ADER) pilot project, in Phase 3 as of 2025, letting aggregated distribution-level resources respond to ERCOT dispatch",
       "url": "https://www.ercot.com/mktrules/pilots/ader"
     },
     "tx-no-net-metering": {
-      "title": "pv magazine USA — no Texas utility offers statewide net metering for rooftop solar; some retailers offer lower-value buyback and Denton Municipal Electric is a lone exception",
+      "title": "pv magazine USA - no Texas utility offers statewide net metering for rooftop solar; some retailers offer lower-value buyback and Denton Municipal Electric is a lone exception",
       "url": "https://pv-magazine-usa.com/2022/10/24/distributed-resources-to-earn-compensation-from-texas-grid-operator-ercot/"
     },
     "hi-smart-der": {
-      "title": "Hawaiian Electric — Smart Renewable Energy (Smart DER) export programme approved by the Hawaii PUC, with Customer Grid Supply, CGS Plus and Smart Export customers transitioning to Smart DER export tracks from 1 October 2024",
+      "title": "Hawaiian Electric - Smart Renewable Energy (Smart DER) export programme approved by the Hawaii PUC, with Customer Grid Supply, CGS Plus and Smart Export customers transitioning to Smart DER export tracks from 1 October 2024",
       "url": "https://www.hawaiianelectric.com/products-and-services/smart-renewable-energy-programs/smart-renewable-energy-export"
     },
     "hi-byod": {
-      "title": "Hawaiian Electric — Bring Your Own Device and BYOD Plus (from 15 May 2025) pay solar-plus-storage customers to discharge at peak; the earlier Battery Bonus programme closed to new participants on 1 July 2024",
+      "title": "Hawaiian Electric - Bring Your Own Device and BYOD Plus (from 15 May 2025) pay solar-plus-storage customers to discharge at peak; the earlier Battery Bonus programme closed to new participants on 1 July 2024",
       "url": "https://www.hawaiianelectric.com/products-and-services/customer-incentive-programs/battery-bonus"
     },
     "ma-smart": {
-      "title": "Massachusetts SMART (Solar Massachusetts Renewable Target) programme — per-kWh incentive paid for 20 years on top of net metering (secondary source)",
+      "title": "Massachusetts SMART (Solar Massachusetts Renewable Target) programme - per-kWh incentive paid for 20 years on top of net metering (secondary source)",
       "url": "https://www.energysage.com/local-data/solar-rebates-incentives/ma/"
     },
     "ma-connectedsolutions": {
-      "title": "Mass Save ConnectedSolutions — performance-based battery demand response paying roughly $225/kW of average summer performance across 30–60 dispatch events (secondary source)",
+      "title": "Mass Save ConnectedSolutions - performance-based battery demand response paying roughly $225/kW of average summer performance across 30–60 dispatch events (secondary source)",
       "url": "https://www.bostonsolar.us/solar-blog-resource-center/blog/what-is-mass-save-connectedsolutions-the-battery-incentive-program-explained/"
     },
     "in-surya-ghar": {
-      "title": "PM Surya Ghar Muft Bijli Yojana — announced 15 February 2024: ₹30,000/kW up to 2 kW and ₹18,000/kW above, capped at ₹78,000 for residential rooftop solar, with DISCOM approval and net metering (secondary source)",
+      "title": "PM Surya Ghar Muft Bijli Yojana - announced 15 February 2024: ₹30,000/kW up to 2 kW and ₹18,000/kW above, capped at ₹78,000 for residential rooftop solar, with DISCOM approval and net metering (secondary source)",
       "url": "https://cleartax.in/s/rooftop-solar-scheme"
     },
     "in-customs": {
-      "title": "Energetica India — Union Budget 2025-26 cut basic customs duty on solar cells and modules to 20%, effective 2 February 2025; a 20% AIDC applies on top, and DGTR recommended anti-dumping duties of up to 30% on Chinese cells and modules in September 2025",
+      "title": "Energetica India - Union Budget 2025-26 cut basic customs duty on solar cells and modules to 20%, effective 2 February 2025; a 20% AIDC applies on top, and DGTR recommended anti-dumping duties of up to 30% on Chinese cells and modules in September 2025",
       "url": "https://www.energetica-india.net/news/union-budget-2025-26-solar-cells-and-modules-duty-cut-to-20-percent"
     },
     "pk-nepra": {
@@ -186,156 +186,216 @@
       "url": "https://profit.pakistantoday.com.pk/2025/12/17/how-will-the-net-metering-regulations-change-if-nepras-draft-prosumer-regulations-2025-get-approved/"
     },
     "bd-net-metering": {
-      "title": "Bangladesh Net Metering Guidelines 2018 (amended 2019) — SREDA framework requiring bi-directional, time-of-use capable meters and SREDA-approved equipment meeting Bangladesh Standards and equivalent IEC standards",
+      "title": "Bangladesh Net Metering Guidelines 2018 (amended 2019) - SREDA framework requiring bi-directional, time-of-use capable meters and SREDA-approved equipment meeting Bangladesh Standards and equivalent IEC standards",
       "url": "https://policy.asiapacificenergy.org/sites/default/files/Net%20metering%20Guidelines%20-%202018.pdf"
     },
     "lk-soorya-bala": {
-      "title": "Soorya Bala Sangramaya (Battle for Solar Energy) — Ministry of Power and Renewable Energy with SLSEA, CEB and LECO, offering rooftop customers a choice of Net Metering, Net Accounting or Net Plus",
+      "title": "Soorya Bala Sangramaya (Battle for Solar Energy) - Ministry of Power and Renewable Energy with SLSEA, CEB and LECO, offering rooftop customers a choice of Net Metering, Net Accounting or Net Plus",
       "url": "https://policy.asiapacificenergy.org/node/3206"
     },
     "hi-shift-and-save": {
-      "title": "Hawaiian Electric — Shift and Save time-of-use rates (daytime, evening peak and overnight priced roughly 1:2:3), launched as a 16,000-customer pilot on Oʻahu and Hawaiʻi Island and closed to new enrolments from 1 February 2025",
+      "title": "Hawaiian Electric - Shift and Save time-of-use rates (daytime, evening peak and overnight priced roughly 1:2:3), launched as a 16,000-customer pilot on Oʻahu and Hawaiʻi Island and closed to new enrolments from 1 February 2025",
       "url": "https://www.hawaiianelectric.com/hawaiian-electric-to-close-shift-and-save-time-of-use-rates-program-to-new-enrollments-as-of-feb-1"
     },
     "ma-interconnection": {
-      "title": "Commonwealth of Massachusetts — utility interconnection: the DPU requires all investor-owned distribution companies to interconnect distributed generation under a common Model DG Interconnection Tariff with Simplified and Expedited processes",
+      "title": "Commonwealth of Massachusetts - utility interconnection: the DPU requires all investor-owned distribution companies to interconnect distributed generation under a common Model DG Interconnection Tariff with Simplified and Expedited processes",
       "url": "https://www.mass.gov/info-details/utility-interconnection-in-massachusetts"
     },
     "acer-ceer-retail-2024": {
-      "title": "ACER/CEER — 2024 Market Monitoring Report on Energy Retail and Consumer Protection: fewer than 30% of households can access dynamic price contracts in 10 member states, and fixed or regulated contracts still dominate at household level in 15",
+      "title": "ACER/CEER - 2024 Market Monitoring Report on Energy Retail and Consumer Protection: fewer than 30% of households can access dynamic price contracts in 10 member states, and fixed or regulated contracts still dominate at household level in 15",
       "url": "https://www.ceer.eu/publication/acer-ceer-2024-market-monitoring-report-energy-retail-and-consumer-protection/"
     },
     "de-kfw-270": {
-      "title": "KfW programme 270 'Erneuerbare Energien – Standard' — promotional loan covering 100% of PV and battery investment, terms to 30 years, rates from about 3.98% effective (secondary source)",
+      "title": "KfW programme 270 'Erneuerbare Energien – Standard' - promotional loan covering 100% of PV and battery investment, terms to 30 years, rates from about 3.98% effective (secondary source)",
       "url": "https://checkeverything.de/en/kfw-270-solar-loan-rates-2026-guide/"
     },
     "de-eeg-fit": {
-      "title": "Germany EEG feed-in tariff — remuneration fixed for 20 years from commissioning, with separate rates for surplus feed-in and full feed-in; pv magazine on the August 2025 revision",
+      "title": "Germany EEG feed-in tariff - remuneration fixed for 20 years from commissioning, with separate rates for surplus feed-in and full feed-in; pv magazine on the August 2025 revision",
       "url": "https://www.pv-magazine.com/2025/08/04/germany-reduces-feed-in-tariffs-for-solar-up-to-1-mw/"
     },
     "de-mastr": {
-      "title": "Bundesnetzagentur — Marktstammdatenregister (core energy market data register): free online registration of every generating installation, required within one month of commissioning under §71 EEG 2023 and a precondition for EEG remuneration",
+      "title": "Bundesnetzagentur - Marktstammdatenregister (core energy market data register): free online registration of every generating installation, required within one month of commissioning under §71 EEG 2023 and a precondition for EEG remuneration",
       "url": "https://www.bundesnetzagentur.de/EN/Areas/Energy/CoreEnergyMarketDataRegister/start.html"
     },
     "fr-autoconsommation": {
-      "title": "France — the prime à l'autoconsommation was abolished for new surplus-sale installations in early June 2026, and EDF OA surplus buyback fell to 1.1 c€/kWh HT from 5 June 2026 (previously 4 c€/kWh); photovoltaic panels are not covered by MaPrimeRénov' (secondary source)",
+      "title": "France - the prime à l'autoconsommation was abolished for new surplus-sale installations in early June 2026, and EDF OA surplus buyback fell to 1.1 c€/kWh HT from 5 June 2026 (previously 4 c€/kWh); photovoltaic panels are not covered by MaPrimeRénov' (secondary source)",
       "url": "https://selectra.info/energie/solaire/autoconsommation-prime"
     },
     "it-detrazione": {
-      "title": "Italy — 50% income tax deduction on photovoltaic installation up to €96,000 for a first home through 31 December 2026, 36% for other properties, spread over ten annual instalments (secondary source)",
+      "title": "Italy - 50% income tax deduction on photovoltaic installation up to €96,000 for a first home through 31 December 2026, 36% for other properties, spread over ten annual instalments (secondary source)",
       "url": "https://quifinanza.it/fisco-tasse/bonus-fiscali/bonus-fotovoltaico-2026/962611/"
     },
     "it-ritiro-dedicato": {
-      "title": "Italy — Scambio sul Posto closed to plants commissioned from 29 May 2025; Ritiro Dedicato with the GSE is the route for new installations, with a 2026 minimum guaranteed price of 4.75 c€/kWh (secondary source)",
+      "title": "Italy - Scambio sul Posto closed to plants commissioned from 29 May 2025; Ritiro Dedicato with the GSE is the route for new installations, with a 2026 minimum guaranteed price of 4.75 c€/kWh (secondary source)",
       "url": "https://www.enpal.com/it/fotovoltaico/scambio-sul-posto"
     },
     "es-rd244": {
-      "title": "Spain — Real Decreto 244/2019 self-consumption framework: simplified surplus compensation nets exports against imports within a billing period for renewable installations up to 100 kW, with registration in the self-consumption registry and notification to the distributor; IDAE grants cover 15–40% of cost (secondary source)",
+      "title": "Spain - Real Decreto 244/2019 self-consumption framework: simplified surplus compensation nets exports against imports within a billing period for renewable installations up to 100 kW, with registration in the self-consumption registry and notification to the distributor; IDAE grants cover 15–40% of cost (secondary source)",
       "url": "https://selectra.es/autoconsumo/normativa"
     },
     "nl-saldering": {
-      "title": "Rijksoverheid — the salderingsregeling ends on 1 January 2027 in a single step; households net exports against consumption until 31 December 2026, after which suppliers must pay a feed-in compensation of at least 50% of the basic supply tariff until 2030",
+      "title": "Rijksoverheid - the salderingsregeling ends on 1 January 2027 in a single step; households net exports against consumption until 31 December 2026, after which suppliers must pay a feed-in compensation of at least 50% of the basic supply tariff until 2030",
       "url": "https://www.rijksoverheid.nl/themas/klimaat-milieu-en-natuur/energie-thuis/salderingsregeling"
     },
     "pl-moj-prad": {
-      "title": "Mój Prąd — NFOŚiGW prosumer support programme: up to 7,000 PLN for a 2–10 kWp PV system and up to 16,000 PLN for storage under edition 6.0, with settlement under net-billing a condition of the grant",
+      "title": "Mój Prąd - NFOŚiGW prosumer support programme: up to 7,000 PLN for a 2–10 kWp PV system and up to 16,000 PLN for storage under edition 6.0, with settlement under net-billing a condition of the grant",
       "url": "https://mojprad.gov.pl/"
     },
     "pl-net-billing": {
-      "title": "Poland net-billing — prosumers sell surplus at the market price published by URE and buy at the retail price, replacing the earlier net-metering discount system (secondary source)",
+      "title": "Poland net-billing - prosumers sell surplus at the market price published by URE and buy at the retail price, replacing the earlier net-metering discount system (secondary source)",
       "url": "https://www.gramwzielone.pl/magazynowanie-energii/20343921/moj-prad-w-2026-z-budzetem-przynajmniej-500-mln-zl"
     },
     "ke-net-metering-2024": {
-      "title": "Kenya — The Energy (Net-Metering) Regulations 2024, gazetted by the Cabinet Secretary for Energy to operationalise section 162 of the Energy Act 2019: renewable systems under 1 MW, domestic installations capped at 10 kW, a 60-day approval window and bill credits at the retail tariff (Bowmans legal briefing)",
+      "title": "Kenya - The Energy (Net-Metering) Regulations 2024, gazetted by the Cabinet Secretary for Energy to operationalise section 162 of the Energy Act 2019: renewable systems under 1 MW, domestic installations capped at 10 kW, a 60-day approval window and bill credits at the retail tariff (Bowmans legal briefing)",
       "url": "https://bowmanslaw.com/insights/kenya-insights-on-the-energy-net-metering-regulations-2024-key-highlights/"
     },
     "ke-epra-licensing": {
-      "title": "Kenya — EPRA Solar PV licensing: designers, installers, importers and vendors require an EPRA licence and technicians must register with the Engineers Board of Kenya, holding a T3 solar technician certificate; EPRA's service charter allows 60 days for technician licences (secondary source)",
+      "title": "Kenya - EPRA Solar PV licensing: designers, installers, importers and vendors require an EPRA licence and technicians must register with the Engineers Board of Kenya, holding a T3 solar technician certificate; EPRA's service charter allows 60 days for technician licences (secondary source)",
       "url": "https://www.surgepv.com/solar-compliance/kenya/guides/epra-licensing"
     },
     "ke-import-standards": {
-      "title": "Kenya — Importation Guidelines for Solar PV Products and Systems (ACE-TAF/KEREA): KEBS Certificate of Conformity required per consignment, modules to KS IEC 61215 and KS IEC 61730",
+      "title": "Kenya - Importation Guidelines for Solar PV Products and Systems (ACE-TAF/KEREA): KEBS Certificate of Conformity required per consignment, modules to KS IEC 61215 and KS IEC 61730",
       "url": "https://www.ace-taf.org/wp-content/uploads/2019/10/Importation-Guidelines-For-Solar-PV-Products-and-Systems-in-Kenya-2019-ACE-TAF.pdf"
     },
     "ke-import-duty": {
-      "title": "Kenya — solar modules (HS 8541.40) enter duty-free and VAT-exempt, while balance-of-system components are assessed separately: inverters (HS 8504.40) attract 10% duty and 16% VAT (secondary source)",
+      "title": "Kenya - solar modules (HS 8541.40) enter duty-free and VAT-exempt, while balance-of-system components are assessed separately: inverters (HS 8504.40) attract 10% duty and 16% VAT (secondary source)",
       "url": "https://pamojaimports.com/import-solar-panels-from-china-to-kenya/"
     },
     "jp-fit-2026": {
-      "title": "Japan — METI FIT terms for small and rooftop PV from FY2026: residential under 10 kW at ¥24/kWh for years 1–4 then ¥8.3/kWh to year 10; rooftop above 10 kW at ¥19/kWh for years 1–5 then ¥8.3/kWh to year 20, with a ¥1/kWh bonus at 30% or more self-consumption (pv magazine)",
+      "title": "Japan - METI FIT terms for small and rooftop PV from FY2026: residential under 10 kW at ¥24/kWh for years 1–4 then ¥8.3/kWh to year 10; rooftop above 10 kW at ¥19/kWh for years 1–5 then ¥8.3/kWh to year 20, with a ¥1/kWh bonus at 30% or more self-consumption (pv magazine)",
       "url": "https://www.pv-magazine.com/2026/03/19/japan-sets-fit-terms-for-small-pv-rooftop-solar-as-large-scale-auctions-end/"
     },
     "kr-support": {
-      "title": "South Korea — Korea Energy Agency new and renewable energy equipment fund offering concessional finance for projects up to 200 kW (raised from 100 kW in 2025), alongside the Solar Rental Program of low-interest loans and subsidies for residential and small commercial systems (secondary source)",
+      "title": "South Korea - Korea Energy Agency new and renewable energy equipment fund offering concessional finance for projects up to 200 kW (raised from 100 kW in 2025), alongside the Solar Rental Program of low-interest loans and subsidies for residential and small commercial systems (secondary source)",
       "url": "https://www.reslink.org/blogs/south-korea-rps-phase-out-2026-solar-epc-playbook/"
     },
     "kr-net-metering": {
-      "title": "South Korea — KEPCO net metering for systems up to 50 kW residential and 1 MW commercial, compensating surplus at retail rates under a grid connection agreement with the local KEPCO distribution subsidiary (secondary source)",
+      "title": "South Korea - KEPCO net metering for systems up to 50 kW residential and 1 MW commercial, compensating surplus at retail rates under a grid connection agreement with the local KEPCO distribution subsidiary (secondary source)",
       "url": "https://practiceguides.chambers.com/practice-guides/renewable-energy-2025/south-korea"
     },
     "id-memr-2-2024": {
-      "title": "Indonesia — MEMR Regulation No. 2 of 2024 on rooftop solar: net metering abolished so exports to PLN no longer reduce the bill, and development capped by a quota of 5,746 MW across 2024–2028; existing users approved before the regulation keep net metering for ten years (SSEK legal briefing)",
+      "title": "Indonesia - MEMR Regulation No. 2 of 2024 on rooftop solar: net metering abolished so exports to PLN no longer reduce the bill, and development capped by a quota of 5,746 MW across 2024–2028; existing users approved before the regulation keep net metering for ten years (SSEK legal briefing)",
       "url": "https://ssek.com/blog/indonesia-issues-new-regulation-on-solar-rooftop-power-plants/"
     },
     "id-iesr": {
-      "title": "IESR — MEMR Regulation No. 2/2024 limits public participation in the energy transition through rooftop solar, with the quota system and loss of net metering assessed as barriers to the 3.6 GW rooftop target",
+      "title": "IESR - MEMR Regulation No. 2/2024 limits public participation in the energy transition through rooftop solar, with the quota system and loss of net metering assessed as barriers to the 3.6 GW rooftop target",
       "url": "https://iesr.or.id/en/memr-regulation-no-2-2024-limits-public-participation-to-support-energy-transition-through-rooftop-solar-pv/"
     },
     "my-nem3": {
-      "title": "SEDA Malaysia — Net Energy Metering 3.0: export credit against the TNB bill, allocated by quota released in rounds, so approval does not follow automatically from application",
+      "title": "SEDA Malaysia - Net Energy Metering 3.0: export credit against the TNB bill, allocated by quota released in rounds, so approval does not follow automatically from application",
       "url": "https://www.seda.gov.my/reportal/nem/"
     },
     "eu-entsoe-transparency": {
-      "title": "Commission Regulation (EU) No 543/2013 on submission and publication of data in electricity markets — the ENTSO-E Transparency Platform, live since 5 January 2015, publishes TSO-submitted generation, load, transmission and balancing data free of charge, in English, downloadable and retained for at least five years",
+      "title": "Commission Regulation (EU) No 543/2013 on submission and publication of data in electricity markets - the ENTSO-E Transparency Platform, live since 5 January 2015, publishes TSO-submitted generation, load, transmission and balancing data free of charge, in English, downloadable and retained for at least five years",
       "url": "https://www.entsoe.eu/data/transparency-platform/"
     },
     "eu-red3-art16": {
-      "title": "Directive (EU) 2023/2413 (RED III), Article 16 — maximum permitting timeline of three months for rooftop solar, with tacit approval and refusals required to be explicit and reasoned",
+      "title": "Directive (EU) 2023/2413 (RED III), Article 16 - maximum permitting timeline of three months for rooftop solar, with tacit approval and refusals required to be explicit and reasoned",
       "url": "https://eeb.org/wp-content/uploads/2023/11/RED-Timeline-Guidance-transposition-and-implementation-deadlines-1.pdf"
     },
     "eu-epbd-solar-ready": {
-      "title": "EPBD recast (Directive (EU) 2024/1275) — new buildings permitted after 29 May 2026 must be designed to accommodate solar, with fast-track approval for systems up to 100 kW decided within one month (secondary source)",
+      "title": "EPBD recast (Directive (EU) 2024/1275) - new buildings permitted after 29 May 2026 must be designed to accommodate solar, with fast-track approval for systems up to 100 kW decided within one month (secondary source)",
       "url": "https://www.pv-tech.org/eu-to-improve-energy-performance-of-buildings-rooftop-solar-required-to-be-installed-from-2027/"
     },
     "eu-reseu-schemes": {
-      "title": "RES EU certification — database of the certification schemes and qualifications required for small-scale renewable energy installers across European countries, maintained to support mutual recognition under RED II Annex IV",
+      "title": "RES EU certification - database of the certification schemes and qualifications required for small-scale renewable energy installers across European countries, maintained to support mutual recognition under RED II Annex IV",
       "url": "https://reseu.eu/schemes"
     },
     "eu-2019-944-art36": {
-      "title": "Directive (EU) 2019/944, Article 36 — distribution system operators shall not own, develop, manage or operate energy storage facilities, save by derogation for fully integrated network components or where the regulator finds no market interest",
+      "title": "Directive (EU) 2019/944, Article 36 - distribution system operators shall not own, develop, manage or operate energy storage facilities, save by derogation for fully integrated network components or where the regulator finds no market interest",
       "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex:32019L0944"
     },
     "gb-mcs-recc": {
-      "title": "MCS MIS 3002:2025 solar PV standard and the Renewable Energy Consumer Code — installers must calculate expected annual generation using the MCS Performance Estimate methodology, and every MCS-certified installer must belong to an approved consumer code covering sales practice, contracts and accurate performance estimates",
+      "title": "MCS MIS 3002:2025 solar PV standard and the Renewable Energy Consumer Code - installers must calculate expected annual generation using the MCS Performance Estimate methodology, and every MCS-certified installer must belong to an approved consumer code covering sales practice, contracts and accurate performance estimates",
       "url": "https://www.recc.org.uk/scheme/research/estimates"
     },
     "gb-mcs-standard": {
-      "title": "MCS — MIS 3002 Solar PV Systems standard (v5.0, 2025): installation, wiring, commissioning and handover requirements aligned to BS 7671, including documentation of shading and yield",
+      "title": "MCS - MIS 3002 Solar PV Systems standard (v5.0, 2025): installation, wiring, commissioning and handover requirements aligned to BS 7671, including documentation of shading and yield",
       "url": "https://mcscertified.com/wp-content/uploads/2025/02/MIS-3002_Solar-PV-Systems-V5.0-Final-for-publication.pdf"
     },
     "il-net-metering": {
-      "title": "Illinois — full retail net metering closed to new residential and small commercial interconnections from 1 January 2025, replaced by supply-only net metering; existing customers grandfathered unless they take the Distributed Generation rebate (secondary source)",
+      "title": "Illinois - full retail net metering closed to new residential and small commercial interconnections from 1 January 2025, replaced by supply-only net metering; existing customers grandfathered unless they take the Distributed Generation rebate (secondary source)",
       "url": "https://electrac.app/blog/net-metering-illinois-comed-guide"
     },
     "il-dg-rebate": {
-      "title": "Illinois Shines — ComEd and Ameren Distributed Generation (smart inverter) rebate of $300/kW DC for solar and $300/kWh for battery storage, available to residential customers installing a grid-interactive inverter",
+      "title": "Illinois Shines - ComEd and Ameren Distributed Generation (smart inverter) rebate of $300/kW DC for solar and $300/kWh for battery storage, available to residential customers installing a grid-interactive inverter",
       "url": "https://illinoisshines.com/faqs/"
     },
     "az-net-billing": {
-      "title": "Arizona — net billing export rates set annually by the Arizona Corporation Commission on the Resource Comparison Proxy since 2017, locked for ten years at installation and limited to a 10% annual reduction: about $0.069/kWh (APS) and $0.051/kWh (TEP) in 2026 (secondary source)",
+      "title": "Arizona - net billing export rates set annually by the Arizona Corporation Commission on the Resource Comparison Proxy since 2017, locked for ten years at installation and limited to a 10% annual reduction: about $0.069/kWh (APS) and $0.051/kWh (TEP) in 2026 (secondary source)",
       "url": "https://www.solar.com/learn/solar-net-billing-in-arizona/"
     },
     "az-hb2301": {
-      "title": "Arizona HB2301 — every municipality and county must offer instant solar permitting from 1 January 2026, with Phoenix, Tucson, Maricopa County and Mesa accepting SolarAPP+ for same-day residential PV permits (secondary source)",
+      "title": "Arizona HB2301 - every municipality and county must offer instant solar permitting from 1 January 2026, with Phoenix, Tucson, Maricopa County and Mesa accepting SolarAPP+ for same-day residential PV permits (secondary source)",
       "url": "https://www.solarpermitsolutions.com/blog/arizona-solar-permits-2026-requirements-fees-hb2301-guide"
     },
     "in-suryaghar-portal": {
-      "title": "PM Surya Ghar national portal — applications are submitted online and routed to the consumer's DISCOM for feasibility approval, with vendors registering on the portal and required to show at least three technicians trained under Suryamitra or SCGJ (secondary source)",
+      "title": "PM Surya Ghar national portal - applications are submitted online and routed to the consumer's DISCOM for feasibility approval, with vendors registering on the portal and required to show at least three technicians trained under Suryamitra or SCGJ (secondary source)",
       "url": "https://solarladder.com/blog/post/how-to-register-pm-suryaghar-vendor"
     },
     "lk-slsea-providers": {
-      "title": "Sri Lanka Sustainable Energy Authority — registered Solar PV Service Provider scheme: providers must register with SLSEA, submit test certificates from accredited laboratories and obtain SLSEA conformity certificates for panels, inverters and DC cables, under published rooftop installation guidelines",
+      "title": "Sri Lanka Sustainable Energy Authority - registered Solar PV Service Provider scheme: providers must register with SLSEA, submit test certificates from accredited laboratories and obtain SLSEA conformity certificates for panels, inverters and DC cables, under published rooftop installation guidelines",
       "url": "https://www.energy.gov.lk/images/soorya-bala/terms-and-conditions-as-a-registered-solar-photovoltaic-service-provider-slsea.pdf"
+    },
+    "tx-interconnection-permits": {
+      "title": "Texas - grid-tied solar requires a municipal permit costing roughly $50–$500 depending on system size and jurisdiction, plus an interconnection agreement with the TDU (Oncor, CenterPoint, AEP Texas), typically 15–30 business days for residential systems under 10 kW (secondary source)",
+      "url": "https://www.solarpermitsolutions.com/blog/solar-permits-texas-complete-guide-requirements-process"
+    },
+    "tx-solar-rights": {
+      "title": "Texas Property Code §202.010 (Solar Rights Act) - property owners' associations may not prohibit a solar energy device, and any governing provision that does is void; HB 431 (2025) extended the definition to solar roof tiles. Reasonable aesthetic conditions remain permitted",
+      "url": "https://solarunitedneighbors.org/wp-content/uploads/2024/07/hoa-texas-one-pager.pdf"
+    },
+    "eu-jrc-pv-standards": {
+      "title": "JRC - Standards for Photovoltaic Energy Systems: EN IEC 61215 for module design qualification and type approval, EN IEC 62109 for converter safety, and HD/IEC 60364-7-712 for the electrical installation of PV systems in buildings",
+      "url": "https://publications.jrc.ec.europa.eu/repository/bitstream/JRC127142/JRC127142_01.pdf"
+    },
+    "eu-lvd-harmonised": {
+      "title": "EU - EN IEC 61730-1 and 61730-2 adopted as harmonised standards under the Low Voltage Directive 2014/35/EU through publication in the Official Journal; PV modules above 75 V DC also fall under the EMC Directive 2014/30/EU and RoHS 2011/65/EU (secondary source)",
+      "url": "https://www.compliancegate.com/solar-panel-regulations-european-union/"
+    },
+    "ca-csa-c22-1": {
+      "title": "Canada - CSA C22.1 (Canadian Electrical Code, Part I) Section 64 governs renewable energy systems, setting PV system voltage limits and wiring methods; all equipment must carry a certification mark from a Standards Council of Canada accredited body (secondary source)",
+      "url": "https://www.surgepv.com/solar-compliance/canada/guides/csa-standards"
+    },
+    "ca-greener-homes": {
+      "title": "CMHC / Natural Resources Canada - the Canada Greener Homes Loan ($40,000 interest-free over ten years) closed to new applications on 2 October 2025; the $800m Canada Greener Homes Affordability Program launched September 2025 targets low- to median-income households and is delivered through the provinces, with solar eligibility varying by province",
+      "url": "https://www.cmhc-schl.gc.ca/professionals/project-funding-and-mortgage-financing/funding-programs/all-funding-programs/canada-greener-homes"
+    },
+    "ca-net-metering": {
+      "title": "Canada - all nine provinces and three territories operate net metering (called micro-generation in Alberta and Yukon), with caps ranging from 10 kW in Nunavut to 5 MW under Alberta's Micro-Generation Regulation; BC Hydro credits at 1:1 retail monthly with annual surplus paid at wholesale (secondary source)",
+      "url": "https://solarcalculatorcanada.org/net-metering-canada"
+    },
+    "in-iex": {
+      "title": "Indian Energy Exchange - day-ahead and real-time market clearing prices and volumes published daily; 15-minute real-time block data available from 1 April 2022, regulated by the Central Electricity Regulatory Commission since 2008 (secondary source)",
+      "url": "https://www.iexindia.com/market-data/real-time-market/market-snapshot"
+    },
+    "in-cea-bis": {
+      "title": "India - CEA (Technical Standards for Connectivity of the Distributed Generation Resources) Regulations 2013 and CEA (Safety and Electric Supply) Regulations 2010 set grid connection requirements; BIS IS 16221 (inverters) and IS 14086 (modules, mandatory under the 2022 Quality Control Order) set equipment safety (secondary source)",
+      "url": "https://www.surgepv.com/solar-compliance/india/guides/cea-technical-standards"
+    },
+    "in-net-metering-caps": {
+      "title": "India - rooftop solar capacity is generally capped at or below the sanctioned load, with state DISCOMs setting their own limits: most allow up to 100% of sanctioned load for residential, but Kerala proposed a 3 kW cap and other states vary considerably (secondary source)",
+      "url": "https://technosysblogs.com/india-solar-net-metering-rules-2025/"
+    },
+    "pk-net-metering-timeline": {
+      "title": "Pakistan - net metering applications must be submitted through an AEDB-registered installer and take 30–90 days from application to commissioning depending on the DISCO and documentation completeness (secondary source)",
+      "url": "https://maxpower.com.pk/news/net-metering-application-process-pakistan-2026/"
+    },
+    "pk-standards": {
+      "title": "Pakistan - NEPRA and DISCOs require IEC 61215/61730 certified panels and inverters compliant with IEEE 1547/UL 1741/IEC 62116 with mandatory anti-islanding; installers must hold AEDB competency certification (Category V1/V2) and Pakistan Engineering Council registration (secondary source)",
+      "url": "https://www.pvknowhow.com/countries/pakistan/nepra-aedb-solar-approval-process/"
+    },
+    "lk-standards-detail": {
+      "title": "Sri Lanka - CEB's Guide for Grid Interconnection of Embedded Generators requires modules to IEC 61215/61730 and inverters to IEEE 1547/UL 1741 or IEC 62109, with commissioning tested against IEC 61727, IEEE 1547-2018 and the IET 18th Edition wiring regulations",
+      "url": "https://www.pucsl.gov.lk/wp-content/uploads/2022/10/Guidelines-on-Rooftop-Solar-PV-installation-for-Utility-Providers_Revision-1.pdf"
+    },
+    "bd-net-metering-timeline": {
+      "title": "Bangladesh - distribution utilities (BPDB, BREB, DESCO, DPDC and others) issue a net metering approval letter within 10 working days of application, sign the final agreement within 15 working days of a successful inspection, and give installers up to 8 months to complete the system (secondary source)",
+      "url": "https://telmep.com/blog/how-to-apply-net-metering-bangladesh-2026"
+    },
+    "bd-training-sporadic": {
+      "title": "Bangladesh - solar PV training runs through occasional workshops (e.g. the Alliance for Rural Electrification's CORE microgrid design workshop, February 2025) and short private courses rather than a standing nationwide programme (secondary source)",
+      "url": "https://core-initiative.org/practitioner-activities/bangladesh-hosts-core-training-workshop-on-solar-pv-microgrid-design/"
     }
   },
   "groups": {
@@ -411,7 +471,7 @@
       "score": 1,
       "basis": "directive-baseline",
       "sourceId": "eu-2019-944-art17",
-      "note": "Article 17 requires member states to allow demand response through aggregation to participate in all electricity markets alongside producers, and lets independent aggregators enter without other participants' consent. Scored 1 rather than 2 because the share of markets genuinely open to aggregated CERs depends on national prequalification rules that have not been checked country by country."
+      "note": "Article 17 requires member states to allow demand response through aggregation to participate in all electricity markets alongside producers, and lets independent aggregators enter without other participants' consent. Scored 1 rather than 2 because the share of markets genuinely open to aggregated behind-the-meter technology depends on national prequalification rules that have not been checked country by country."
     },
     {
       "group": "EU27",
@@ -477,7 +537,7 @@
       "score": 2,
       "basis": "national",
       "sourceId": "au-cheaper-home-batteries",
-      "note": "The Cheaper Home Batteries Program cuts roughly 30% off the upfront cost of small-scale batteries from 1 July 2025, delivered through the Small-scale Renewable Energy Scheme that already underwrites rooftop solar. Available to households and small businesses nationally, so it meets the 'available to all CPs' test."
+      "note": "The Cheaper Home Batteries Program cuts roughly 30% off the upfront cost of small-scale batteries from 1 July 2025, delivered through the Small-scale Renewable Energy Scheme that already underwrites rooftop solar. Available to households and small businesses nationally, so it meets the 'available to all customers' test."
     },
     {
       "countries": [
@@ -545,7 +605,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "au-aer-ringfencing",
-      "note": "The AER's ring-fencing guideline prohibits distributors from providing contestable services with a battery unless they obtain a waiver, so network businesses cannot freely own CERs. They remain able to contract with and incentivise third-party CERs for network support, so this is 'some barriers' rather than significant ones."
+      "note": "The AER's ring-fencing guideline prohibits distributors from providing contestable services with a battery unless they obtain a waiver, so network businesses cannot freely own behind-the-meter technology. They remain able to contract with and incentivise third-party behind-the-meter technology for network support, so this is 'some barriers' rather than significant ones."
     },
     {
       "row": 21,
@@ -576,7 +636,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "au-aemo-rert",
-      "note": "Demand reduction is compensated through the RERT panel, but access runs through tender and pre-agreed contracts rather than being open to all CPs.",
+      "note": "Demand reduction is compensated through the RERT panel, but access runs through tender and pre-agreed contracts rather than being open to all customers.",
       "group": "NEM"
     },
     {
@@ -587,7 +647,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "au-aemo-sa-demand",
-      "note": "South Australia set a record minimum operational demand of −209 MW on 19 October 2024, with rooftop PV meeting 64% of demand — regionally past the 70% test at times. Scored 1 for Australia as a whole because the NEM-wide distributed share remains well below that level, and this is exactly the divergence a national score conceals."
+      "note": "South Australia set a record minimum operational demand of −209 MW on 19 October 2024, with rooftop PV meeting 64% of demand - regionally past the 70% test at times. Scored 1 for Australia as a whole because the NEM-wide distributed share remains well below that level, and this is exactly the divergence a national score conceals."
     },
     {
       "countries": [
@@ -597,7 +657,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "au-csip-aus",
-      "note": "CSIP-AUS provides a national DER communications profile built on the IEEE 2030.5 international standard, with Clean Energy Council inverter certification against it. Scored 1 rather than 2 because it was developed by an industry working group rather than set by the system operator, and DNSP adoption is uneven — Queensland has offered dynamic connections since late 2022 while other networks lag."
+      "note": "CSIP-AUS provides a national DER communications profile built on the IEEE 2030.5 international standard, with Clean Energy Council inverter certification against it. Scored 1 rather than 2 because it was developed by an industry working group rather than set by the system operator, and DNSP adoption is uneven - Queensland has offered dynamic connections since late 2022 while other networks lag."
     },
     {
       "countries": [
@@ -657,7 +717,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "us-ferc-2222",
-      "note": "Order 2222 establishes the right of DER aggregations — the US equivalent of a VPP — to participate in wholesale markets. Scored 1 because access depends on each RTO's compliance tariff, and most implementation dates are still in the future."
+      "note": "Order 2222 establishes the right of DER aggregations - the US equivalent of a VPP - to participate in wholesale markets. Scored 1 because access depends on each RTO's compliance tariff, and most implementation dates are still in the future."
     },
     {
       "countries": [
@@ -667,7 +727,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "us-irec-1547",
-      "note": "IEEE 1547-2018 is a national technical standard with UL 1741 SB certification behind it, but it binds only where a state regulator or ISO has adopted it, and IREC tracks adoption dates state by state. National standard, localised force — so partially rather than universally adopted."
+      "note": "IEEE 1547-2018 is a national technical standard with UL 1741 SB certification behind it, but it binds only where a state regulator or ISO has adopted it, and IREC tracks adoption dates state by state. National standard, localised force - so partially rather than universally adopted."
     },
     {
       "countries": [
@@ -937,7 +997,7 @@
       "score": 2,
       "basis": "national",
       "sourceId": "in-surya-ghar",
-      "note": "PM Surya Ghar Muft Bijli Yojana, announced 15 February 2024, pays ₹30,000/kW up to 2 kW and ₹18,000/kW above that, capped at ₹78,000. A national residential scheme open to households generally, which meets the test for reducing upfront cost for all CPs."
+      "note": "PM Surya Ghar Muft Bijli Yojana, announced 15 February 2024, pays ₹30,000/kW up to 2 kW and ₹18,000/kW above that, capped at ₹78,000. A national residential scheme open to households generally, which meets the test for reducing upfront cost for all customers."
     },
     {
       "countries": [
@@ -1007,7 +1067,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "lk-soorya-bala",
-      "note": "Customers choose between Net Metering, Net Accounting — where CEB or LECO buys surplus at a set feed-in tariff — and Net Plus. Export compensation is available to all rooftop customers but is not time-of-day priced."
+      "note": "Customers choose between Net Metering, Net Accounting - where CEB or LECO buys surplus at a set feed-in tariff - and Net Plus. Export compensation is available to all rooftop customers but is not time-of-day priced."
     },
     {
       "countries": [
@@ -1077,7 +1137,7 @@
       "score": 0,
       "basis": "national",
       "sourceId": "fr-autoconsommation",
-      "note": "The prime à l'autoconsommation — the only state subsidy toward the cost of a PV installation — was abolished in early June 2026 for new self-consumption-with-surplus installations. Photovoltaic panels are not covered by MaPrimeRénov', and the zero-rate eco-loan and 5.5% VAT reach solar thermal rather than PV. Installations connected before 5 June 2026 keep the old terms for 20 years."
+      "note": "The prime à l'autoconsommation - the only state subsidy toward the cost of a PV installation - was abolished in early June 2026 for new self-consumption-with-surplus installations. Photovoltaic panels are not covered by MaPrimeRénov', and the zero-rate eco-loan and 5.5% VAT reach solar thermal rather than PV. Installations connected before 5 June 2026 keep the old terms for 20 years."
     },
     {
       "countries": [
@@ -1217,7 +1277,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "ke-import-duty",
-      "note": "Solar modules enter duty-free and VAT-exempt, but the rest of a CER system does not: inverters attract 10% duty plus 16% VAT, and batteries and charge controllers are assessed separately. Since storage is as much a CER as generation, the effective border cost sits in the 10–25% band rather than below 10%."
+      "note": "Solar modules enter duty-free and VAT-exempt, but the rest of a behind-the-meter technology system does not: inverters attract 10% duty plus 16% VAT, and batteries and charge controllers are assessed separately. Since storage is as much a behind-the-meter technology as generation, the effective border cost sits in the 10–25% band rather than below 10%."
     },
     {
       "countries": [
@@ -1237,7 +1297,7 @@
       "score": 1,
       "basis": "national",
       "sourceId": "jp-fit-2026",
-      "note": "Rooftop systems receive a fixed feed-in tariff for surplus exports — ¥24/kWh for four years then ¥8.3/kWh for residential under 10 kW — with a ¥1/kWh bonus once self-consumption reaches 30%. Open to all rooftop operators, but a scheduled tariff rather than time-of-day export pricing."
+      "note": "Rooftop systems receive a fixed feed-in tariff for surplus exports - ¥24/kWh for four years then ¥8.3/kWh for residential under 10 kW - with a ¥1/kWh bonus once self-consumption reaches 30%. Open to all rooftop operators, but a scheduled tariff rather than time-of-day export pricing."
     },
     {
       "countries": [
@@ -1277,7 +1337,7 @@
       "score": 0,
       "basis": "national",
       "sourceId": "id-iesr",
-      "note": "Connection is capped by a national quota — 5,746 MW across 2024–2028, allocated annually — so approval depends on quota availability rather than on meeting a technical standard. IESR assesses the arrangement as a barrier to rooftop deployment."
+      "note": "Connection is capped by a national quota - 5,746 MW across 2024–2028, allocated annually - so approval depends on quota availability rather than on meeting a technical standard. IESR assesses the arrangement as a barrier to rooftop deployment."
     },
     {
       "countries": [
@@ -1355,7 +1415,7 @@
       "score": 1,
       "basis": "directive-baseline",
       "sourceId": "eu-entsoe-transparency",
-      "note": "Regulation 543/2013 requires TSOs to submit market data to the ENTSO-E Transparency Platform, which publishes it free of charge, in English, downloadable and kept for at least five years — including balancing energy prices and volumes activated. Scored 1 rather than 2 because publication is on statutory schedules rather than genuinely real time."
+      "note": "Regulation 543/2013 requires TSOs to submit market data to the ENTSO-E Transparency Platform, which publishes it free of charge, in English, downloadable and kept for at least five years - including balancing energy prices and volumes activated. Scored 1 rather than 2 because publication is on statutory schedules rather than genuinely real time."
     },
     {
       "group": "EU27",
@@ -1379,7 +1439,7 @@
       "score": 1,
       "basis": "directive-baseline",
       "sourceId": "eu-2019-944-art36",
-      "note": "Article 36 bars distribution system operators from owning, developing, managing or operating storage, so that storage services stay market-based. Derogations exist for fully integrated network components and where a regulator finds no market interest, and network operators may still contract with third-party CERs — so this is some barriers rather than significant ones."
+      "note": "Article 36 bars distribution system operators from owning, developing, managing or operating storage, so that storage services stay market-based. Derogations exist for fully integrated network components and where a regulator finds no market interest, and network operators may still contract with third-party behind-the-meter technology - so this is some barriers rather than significant ones."
     },
     {
       "countries": [
@@ -1389,7 +1449,7 @@
       "score": 2,
       "basis": "national",
       "sourceId": "gb-mcs-recc",
-      "note": "Installers must calculate expected annual generation using the MCS Performance Estimate methodology, and every MCS-certified installer must belong to an approved consumer code — RECC, HIES or GGF — covering sales practice, written contracts, deposit protection and accurate performance estimates. Standards exist and are enforced through certification rather than advisory."
+      "note": "Installers must calculate expected annual generation using the MCS Performance Estimate methodology, and every MCS-certified installer must belong to an approved consumer code - RECC, HIES or GGF - covering sales practice, written contracts, deposit protection and accurate performance estimates. Standards exist and are enforced through certification rather than advisory."
     },
     {
       "countries": [
@@ -1399,7 +1459,7 @@
       "score": 2,
       "basis": "national",
       "sourceId": "gb-mcs-standard",
-      "note": "MIS 3002 sets national installation, wiring, commissioning and handover requirements for solar PV, aligned to BS 7671 and revised periodically — version 5.0 was published in 2025."
+      "note": "MIS 3002 sets national installation, wiring, commissioning and handover requirements for solar PV, aligned to BS 7671 and revised periodically - version 5.0 was published in 2025."
     },
     {
       "countries": [
@@ -1510,6 +1570,202 @@
       "basis": "national",
       "sourceId": "lk-slsea-providers",
       "note": "Solar service providers must register with SLSEA under published terms, maintain safety policies and safe working practices, and appear in the national registered provider directory."
+    },
+    {
+      "countries": [
+        "US-TX"
+      ],
+      "row": 35,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "tx-interconnection-permits",
+      "note": "Self-consumed electricity itself is not charged, but getting there costs money: a municipal building permit of roughly $50–$500 and a TDU interconnection agreement. The fee is payable to the permitting authority rather than to the grid incumbent, which is the middle tier rather than the zero case. Interconnection rules also apply the same process to a 5 kW rooftop system as to a 250 kW commercial one."
+    },
+    {
+      "countries": [
+        "US"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "us-nrel-1547",
+      "note": "Every state operates interconnection procedures for distributed energy resources, built on IEEE 1547 and UL 1741 certification, which presupposes that consumers may connect and self-consume. No US jurisdiction bars behind-the-meter self-consumption; what varies is the compensation for exports and the cost of getting connected, which other questions capture."
+    },
+    {
+      "countries": [
+        "US-TX"
+      ],
+      "row": 39,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "tx-solar-rights",
+      "note": "The Solar Rights Act voids any property owners' association rule prohibiting a solar energy device, and HB 431 extended it to solar roof tiles in 2025. Associations may still impose reasonable conditions - panels within the roofline, following the roof slope, standard frame colours - and municipal permitting applies, so restrictions persist in particular locations rather than having been removed."
+    },
+    {
+      "group": "EU27",
+      "row": 51,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-jrc-pv-standards",
+      "note": "Installation is governed by the harmonised European adoption of the IEC series: EN IEC 61215 for module design qualification, EN IEC 62109 for converter safety, and HD 60364-7-712 for the electrical installation of PV in buildings, including earthing and surge protection. Maintained through CENELEC and revised in step with IEC, so aligned to international best practice by construction."
+    },
+    {
+      "group": "EU27",
+      "row": 52,
+      "score": 2,
+      "basis": "directive-baseline",
+      "sourceId": "eu-lvd-harmonised",
+      "note": "EN IEC 61730-1 and 61730-2 are harmonised standards under the Low Voltage Directive, cited in the Official Journal, so conformity carries a presumption of compliance and CE marking is mandatory. Modules above 75 V DC additionally fall under the EMC Directive and RoHS."
+    },
+    {
+      "countries": [
+        "CA"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ca-greener-homes",
+      "note": "The Canada Greener Homes Loan offered $40,000 interest-free over ten years but closed to new applications on 2 October 2025. Its replacement, the Greener Homes Affordability Program, is restricted to low- and median-income households and delivered provincially with solar eligibility varying, so support exists but is no longer open to all consumers."
+    },
+    {
+      "countries": [
+        "CA"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ca-net-metering",
+      "note": "Every province and territory operates net metering, called micro-generation in Alberta and Yukon, with system caps from 10 kW in Nunavut to 5 MW in Alberta. Compensation is a retail-rate credit rather than time-of-day export pricing, and annual surpluses are typically settled at wholesale."
+    },
+    {
+      "countries": [
+        "CA"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ca-csa-c22-1",
+      "note": "Section 64 of the Canadian Electrical Code governs PV installations nationally, setting DC voltage limits and wiring methods, and is adopted by every province through its electrical safety regime."
+    },
+    {
+      "countries": [
+        "CA"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ca-csa-c22-1",
+      "note": "Every piece of equipment in a Canadian solar installation - modules, inverters, racking, rapid shutdown and arc-fault devices - must carry a certification mark from a Standards Council of Canada accredited body."
+    },
+    {
+      "countries": [
+        "IN"
+      ],
+      "row": 21,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "in-iex",
+      "note": "The Indian Energy Exchange publishes day-ahead and real-time market clearing prices and traded volumes, with real-time data published in 15-minute blocks. Regulated by CERC and public since 2008, so transparent and effectively real time."
+    },
+    {
+      "countries": [
+        "IN"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "in-cea-bis",
+      "note": "CEA's 2013 connectivity regulations and 2010 safety regulations set national installation requirements, with BIS IS 16221 for inverters and IS 14086 for modules - the latter mandatory nationwide under the 2022 Quality Control Order."
+    },
+    {
+      "countries": [
+        "IN"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "in-cea-bis",
+      "note": "The CEA (Safety and Electric Supply) Regulations 2010 carry the safety requirements, enforced alongside mandatory BIS certification of installed equipment."
+    },
+    {
+      "countries": [
+        "IN"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "in-net-metering-caps",
+      "note": "Consumers may connect behind-the-meter technology for self-consumption nationwide; there is no ban. The rubric here is binary, so the state-variable sanctioned-load caps noted in the source (Kerala proposed as low as 3 kW, most states up to 100% of sanctioned load) are recorded as a caveat rather than a partial score."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 41,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "pk-net-metering-timeline",
+      "note": "Net metering applications must go through an AEDB-registered installer and take 30–90 days from application to commissioning depending on the DISCO. Well beyond the 15-day threshold for the simple-and-online tier."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "pk-standards",
+      "note": "NEPRA and DISCOs require modules certified to IEC 61215/61730 and inverters compliant with IEEE 1547/UL 1741/IEC 62116, including mandatory anti-islanding protection."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "pk-standards",
+      "note": "The same certification regime carries the safety requirement, enforced through NEPRA and DISCO inspection of every net-metering installation."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 57,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "pk-standards",
+      "note": "Installers must hold AEDB competency certification (Category V1/V2 and above) and Pakistan Engineering Council registration to submit net-metering applications, making a recognised national qualification a legal precondition of practising."
+    },
+    {
+      "countries": [
+        "LK"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "lk-standards-detail",
+      "note": "CEB's interconnection guide requires inverters to meet IEEE 1547/UL 1741 or IEC 62109 with anti-islanding protection, and commissioning is tested against IEC 61727, IEEE 1547-2018 and the IET 18th Edition wiring regulations."
+    },
+    {
+      "countries": [
+        "BD"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bd-net-metering-timeline",
+      "note": "Distribution utilities issue an approval letter within 10 working days of application, under the 15-day threshold for the simple tier. Scored 1 rather than 2 because an application and inspection are still required and the process is not established as an online one."
+    },
+    {
+      "countries": [
+        "BD"
+      ],
+      "row": 58,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bd-training-sporadic",
+      "note": "Solar PV training in Bangladesh runs through occasional workshops and short private courses rather than a standing nationwide programme offered regularly in multiple locations."
     }
   ]
 }

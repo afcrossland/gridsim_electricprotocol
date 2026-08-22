@@ -59,7 +59,7 @@ export function scoreCountry(
  * Highest-impact changes for a country: every question that is not already at
  * full marks, ranked by the weighted points it would gain.
  *
- * Unanswered questions are included — an unknown is as much of an opportunity
+ * Unanswered questions are included - an unknown is as much of an opportunity
  * as a known zero, and surfacing it prompts someone to go and find the answer.
  */
 export function rankImpact(

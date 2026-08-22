@@ -23,7 +23,7 @@ interface Props {
 /**
  * Search and select any jurisdiction on the map.
  *
- * Lists everything drawable, not just what has been scored — the point is to
+ * Lists everything drawable, not just what has been scored - the point is to
  * reach an empty country in order to start filling it in, so restricting the
  * list to countries with data would defeat it.
  */
