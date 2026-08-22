@@ -4,6 +4,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 import type { Question, Response } from "../../lib/types";
+import { impactColor, impactTextColor } from "../../lib/scoring";
 import { useProtocolStore } from "../../stores/protocolStore";
 
 interface Props {
@@ -63,7 +64,15 @@ export default function QuestionCard({ question, response, code }: Props) {
           <Typography variant="body1">{question.text}</Typography>
         </Box>
 
-        <Chip size="small" variant="outlined" label={`Weight ${question.weight}`} />
+        <Chip
+          size="small"
+          label={`Impact ${question.weight}`}
+          sx={{
+            bgcolor: impactColor(question.weight),
+            color: impactTextColor(question.weight),
+            fontWeight: 600,
+          }}
+        />
       </Box>
 
       <Box

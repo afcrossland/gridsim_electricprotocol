@@ -53,7 +53,7 @@ export default function SectionRail({ sections, selected, score, onSelect }: Pro
 
       <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-          <Typography variant="caption">Completeness</Typography>
+          <Typography variant="caption">Data completeness</Typography>
           <Typography variant="caption" sx={{ fontWeight: 600 }}>
             {Math.round(score.completeness * 100)}%
           </Typography>

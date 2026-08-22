@@ -282,3 +282,59 @@ export function scoreColor(score: number): string {
   }
   return chosen;
 }
+
+/**
+ * A bare score percentage reads as more precise than the underlying data
+ * actually supports, and invites comparing "68% vs 71%" as if that gap were
+ * meaningful. Everywhere a score is shown to a reader, it is banded into one
+ * of these five instead - the percentage still drives which band and colour
+ * a score gets, it is just never printed. Equal-width quintiles, using the
+ * same five colours as the map's continuous SCORE_RAMP (same order, same
+ * hues) so a banded label and the choropleth always agree on what a colour
+ * means.
+ */
+export const SCORE_BANDS = [
+  { label: "Very poor", min: 0.0, color: "#E24B4A" },
+  { label: "Poor", min: 0.2, color: "#EF864C" },
+  { label: "Moderate", min: 0.4, color: "#FBB114" },
+  { label: "Good", min: 0.6, color: "#5FCCD8" },
+  { label: "Very good", min: 0.8, color: "#008194" },
+] as const;
+
+export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
+  let chosen: (typeof SCORE_BANDS)[number] = SCORE_BANDS[0];
+  for (const b of SCORE_BANDS) {
+    if (score >= b.min) chosen = b;
+  }
+  return chosen;
+}
+
+/** "Good (75%)" - the band leads so a reader isn't left comparing two raw numbers, the percentage follows for anyone who wants the detail. */
+export function scoreLabel(score: number): string {
+  return `${scoreBand(score).label} (${Math.round(score * 100)}%)`;
+}
+
+/** Ceiling of the 0-5 impact (question weight) scale editable in the admin console. */
+export const MAX_IMPACT = 5;
+
+/**
+ * Yellow-to-green colour coding for a question's impact, so its relative
+ * priority reads at a glance instead of as a bare number. Borrows GSC's own
+ * Bright Yellow for the low end (reserved for gradients, unused elsewhere in
+ * the theme); the brand palette has no green, so the high end is a plain,
+ * unbranded green chosen just to read clearly against the yellow.
+ */
+const IMPACT_LOW_RGB = [255, 243, 74] as const; // #FFF34A, GSC Bright Yellow
+const IMPACT_HIGH_RGB = [46, 125, 50] as const; // #2E7D32
+
+export function impactColor(weight: number): string {
+  const t = Math.min(1, Math.max(0, weight / MAX_IMPACT));
+  const [r, g, b] = IMPACT_LOW_RGB.map((c, i) => Math.round(c + (IMPACT_HIGH_RGB[i] - c) * t));
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+/** Readable text colour against impactColor() at the same weight. */
+export function impactTextColor(weight: number): string {
+  const t = Math.min(1, Math.max(0, weight / MAX_IMPACT));
+  return t > 0.5 ? "#FFFFFF" : "#3B3838"; // GSC Deep Gray at the yellow end
+}

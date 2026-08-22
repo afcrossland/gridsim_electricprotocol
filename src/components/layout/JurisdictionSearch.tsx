@@ -3,7 +3,7 @@ import { Autocomplete, Box, Paper, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
 import { jurisdictions } from "../../lib/jurisdictions";
-import { scoreColor } from "../../lib/scoring";
+import { scoreBand, scoreLabel } from "../../lib/scoring";
 import type { CountryScore } from "../../lib/types";
 import FlagImg from "../ui/FlagImg";
 
@@ -88,12 +88,12 @@ export default function JurisdictionSearch({ scores, selected, onSelect }: Props
                   sx={{
                     fontWeight: 600,
                     color: option.score.ranked
-                      ? scoreColor(option.score.score)
+                      ? scoreBand(option.score.score).color
                       : "text.disabled",
                   }}
                 >
                   {option.score.ranked
-                    ? `${Math.round(option.score.score * 100)}%`
+                    ? scoreLabel(option.score.score)
                     : `${option.score.answered}/${option.score.total}`}
                 </Typography>
               )}

@@ -24,7 +24,7 @@ interface ProtocolState {
   /** Which measure the choropleth paints: the score, or how much is answered. */
   mapMetric: "score" | "completeness";
   /** Which full-screen view is showing. Not persisted - always opens on the map. */
-  page: "map" | "settings" | "admin";
+  page: "map" | "admin";
   /** False until the visitor dismisses the Charter welcome screen. */
   welcomeSeen: boolean;
   sections: Section[];
@@ -50,7 +50,7 @@ interface ProtocolState {
 
   setThreshold: (threshold: number) => void;
   setMapMetric: (mapMetric: "score" | "completeness") => void;
-  setPage: (page: "map" | "settings" | "admin") => void;
+  setPage: (page: "map" | "admin") => void;
   setWelcomeSeen: (seen: boolean) => void;
   selectCountry: (code: string | null) => void;
 

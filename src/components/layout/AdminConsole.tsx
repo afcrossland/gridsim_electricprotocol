@@ -8,6 +8,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Slider,
   Stack,
   TextField,
   Tooltip,
@@ -17,9 +18,11 @@ import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 
 import type { Question, RubricTier } from "../../lib/types";
-import { useProtocolStore } from "../../stores/protocolStore";
+import { impactColor, MAX_IMPACT } from "../../lib/scoring";
+import { protocol, useProtocolStore } from "../../stores/protocolStore";
 
 /** How many questions currently live in a section a delete would wipe out - shown in the confirm prompt. */
 function confirmDeleteSection(title: string, questionCount: number): boolean {
@@ -33,6 +36,8 @@ interface Props {
 }
 
 const RAIL_WIDTH = 232;
+/** Pinned rail entry above the question groups - not a section id. */
+const SETTINGS_VIEW = "settings";
 
 /** Ceiling a tier's points can be set to - see MAX_TIER_POINTS in scoring.ts. */
 const POINTS_OPTIONS = [0, 1, 2, 3, 4];
@@ -55,6 +60,8 @@ export default function AdminConsole({ onBack }: Props) {
   const addQuestion = useProtocolStore((s) => s.addQuestion);
   const deleteQuestion = useProtocolStore((s) => s.deleteQuestion);
   const resetToSeed = useProtocolStore((s) => s.resetToSeed);
+  const thresholdValue = useProtocolStore((s) => s.threshold);
+  const setThreshold = useProtocolStore((s) => s.setThreshold);
 
   const [activeSectionId, setActiveSectionId] = useState<string>(sections[0]?.id ?? "");
 
@@ -67,8 +74,10 @@ export default function AdminConsole({ onBack }: Props) {
     return map;
   }, [sections, questions]);
 
+  const showingSettings = activeSectionId === SETTINGS_VIEW;
   const activeSection = sections.find((s) => s.id === activeSectionId) ?? null;
   const activeQuestions = questionsBySection.get(activeSectionId) ?? [];
+  const threshold = Math.round(thresholdValue * 100);
 
   const handleAddSection = () => {
     const id = addSection("New group");
@@ -149,6 +158,26 @@ export default function AdminConsole({ onBack }: Props) {
             bgcolor: "background.paper",
           }}
         >
+          <Box
+            onClick={() => setActiveSectionId(SETTINGS_VIEW)}
+            sx={{
+              px: 2,
+              py: 1.25,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              bgcolor: showingSettings ? "action.selected" : "transparent",
+              "&:hover": { bgcolor: "action.hover" },
+            }}
+          >
+            <SettingsIcon fontSize="small" />
+            <Typography variant="body2" sx={{ fontWeight: showingSettings ? 600 : 400 }}>
+              Settings
+            </Typography>
+          </Box>
+          <Divider />
+
           {sections.map((section) => (
             <Box
               key={section.id}
@@ -198,6 +227,47 @@ export default function AdminConsole({ onBack }: Props) {
         </Box>
 
         <Box sx={{ flex: 1, overflowY: "auto", p: 3, minWidth: 0 }}>
+          {showingSettings ? (
+            <Paper variant="outlined" sx={{ p: 2.5, maxWidth: 500 }}>
+              <Typography variant="h6" gutterBottom>
+                Data completeness threshold
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                How much of a jurisdiction's question weight needs an answer
+                before it is coloured on the map and ranked on the scoreboard.
+                Below this, a jurisdiction is shown grey and left out of the
+                ranking.
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  mb: 0.5,
+                }}
+              >
+                <Typography variant="overline">Threshold</Typography>
+                <Typography variant="h5">{threshold}%</Typography>
+              </Box>
+
+              <Slider
+                min={0}
+                max={100}
+                step={5}
+                value={threshold}
+                onChange={(_, v) => setThreshold((v as number) / 100)}
+                marks={[
+                  {
+                    value: Math.round(protocol.completenessThreshold * 100),
+                    label: "Default",
+                  },
+                ]}
+                valueLabelDisplay="auto"
+                valueLabelFormat={(v) => `${v}%`}
+              />
+            </Paper>
+          ) : (
           <Stack spacing={2} sx={{ maxWidth: 900 }}>
             {activeSection && (
               <TextField
@@ -223,17 +293,29 @@ export default function AdminConsole({ onBack }: Props) {
                     onChange={(e) => updateQuestion(question.id, { text: e.target.value })}
                     sx={{ flex: 1 }}
                   />
+                  <Box
+                    title={`Impact ${question.weight}`}
+                    sx={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      flexShrink: 0,
+                      mt: 1.5,
+                      bgcolor: impactColor(question.weight),
+                    }}
+                  />
                   <TextField
                     size="small"
                     type="number"
-                    label="Weight"
+                    label="Impact"
                     variant="standard"
                     value={question.weight}
+                    slotProps={{ htmlInput: { min: 0, max: MAX_IMPACT, step: 0.1 } }}
                     onChange={(e) => {
-                      const weight = Number(e.target.value);
-                      if (Number.isFinite(weight) && weight >= 0) {
-                        updateQuestion(question.id, { weight });
-                      }
+                      const raw = Number(e.target.value);
+                      if (!Number.isFinite(raw)) return;
+                      const weight = Math.round(Math.min(MAX_IMPACT, Math.max(0, raw)) * 10) / 10;
+                      updateQuestion(question.id, { weight });
                     }}
                     sx={{ width: 90, flexShrink: 0 }}
                   />
@@ -322,6 +404,7 @@ export default function AdminConsole({ onBack }: Props) {
               </Button>
             )}
           </Stack>
+          )}
         </Box>
       </Box>
     </Box>

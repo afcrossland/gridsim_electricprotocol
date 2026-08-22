@@ -4,7 +4,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { jurisdictionName } from "../../lib/jurisdictions";
-import { groupScores, scoreColor } from "../../lib/scoring";
+import { groupScores, scoreBand, scoreLabel } from "../../lib/scoring";
 import type { CountryScore, GroupedScore } from "../../lib/types";
 import { customMixins } from "../../mui-theme";
 import FlagImg from "../ui/FlagImg";
@@ -47,28 +47,13 @@ export default function Scoreboard({ scores, selectedCountry, onSelect }: Props)
 
   return (
     <Box sx={{ p: 2, overflowY: "auto", height: "100%" }}>
-      <Typography variant="h2" gutterBottom>
-        Select country
+      <Typography variant="body2" sx={{ mb: 1.5 }}>
+        How well does a country's electricity policy let ordinary homes and
+        businesses generate, store and sell their own power?{" "}
+        <strong>Pick a country on the map or in this list</strong> to see/edit its
+        answers, the evidence behind each one, and the changes that would raise its
+        score the most.
       </Typography>
-
-      <Box
-        sx={{
-          p: 1.5,
-          mb: 1.5,
-          borderRadius: 1.5,
-          bgcolor: "background.paper",
-          border: "1px solid",
-          borderColor: "divider",
-        }}
-      >
-        <Typography variant="body2">
-          How well does a country's electricity policy let ordinary homes and
-          businesses generate, store and sell their own power?{" "}
-          <strong>Pick a country on the map or in this list</strong> to see/edit its
-          answers, the evidence behind each one, and the changes that would raise its
-          score the most.
-        </Typography>
-      </Box>
 
       <Box sx={{ mb: 2 }}>
         <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={onSelect} />
@@ -191,16 +176,17 @@ function Row({
         )}
 
         <Typography
-          variant="subtitle1"
+          variant="body2"
+          noWrap
           sx={{
-            width: 44,
+            width: 120,
             textAlign: "right",
             fontWeight: 700,
             flexShrink: 0,
-            color: group.ranked ? scoreColor(group.score) : "text.disabled",
+            color: group.ranked ? scoreBand(group.score).color : "text.disabled",
           }}
         >
-          {group.ranked ? `${Math.round(group.score * 100)}%` : " - "}
+          {group.ranked ? scoreLabel(group.score) : "Not enough data"}
         </Typography>
 
         {group.isGroup ? (
@@ -294,20 +280,18 @@ function ChildRow({
       <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, color: "text.secondary" }}>
         {jurisdictionName(child.code)}
       </Typography>
-      <Typography variant="caption" sx={{ flexShrink: 0 }}>
-        {child.answered}/{child.total}
-      </Typography>
       <Typography
-        variant="body2"
+        variant="caption"
+        noWrap
         sx={{
-          width: 40,
+          width: 110,
           textAlign: "right",
           fontWeight: 600,
           flexShrink: 0,
-          color: child.ranked ? scoreColor(child.score) : "text.disabled",
+          color: child.ranked ? scoreBand(child.score).color : "text.disabled",
         }}
       >
-        {child.ranked ? `${Math.round(child.score * 100)}%` : " - "}
+        {child.ranked ? scoreLabel(child.score) : "Not enough data"}
       </Typography>
     </Box>
   );

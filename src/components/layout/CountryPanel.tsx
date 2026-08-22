@@ -17,7 +17,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
-import { rankImpact, scoreColor } from "../../lib/scoring";
+import { rankImpact, scoreBand, scoreLabel } from "../../lib/scoring";
 import type { CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
 import ImpactList from "./ImpactList";
@@ -39,7 +39,6 @@ export default function CountryPanel({ code, score, onBack }: Props) {
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
-  const threshold = useProtocolStore((s) => s.threshold);
   const theme = useTheme();
 
   // Which section the rail is showing, independent of which top-level tab is
@@ -103,20 +102,16 @@ export default function CountryPanel({ code, score, onBack }: Props) {
         <Box sx={{ display: "flex", gap: 1.5 }}>
           <StatTile
             icon={<TrendingUpIcon fontSize="small" />}
-            color={score.ranked ? scoreColor(score.score) : theme.palette.text.disabled}
+            color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
             label="Score"
-            value={score.ranked ? `${Math.round(score.score * 100)}%` : " - "}
-            detail={
-              score.ranked
-                ? undefined
-                : `Below ${Math.round(threshold * 100)}% threshold`
-            }
+            value={score.ranked ? scoreLabel(score.score) : " - "}
+            detail={score.ranked ? undefined : "Not enough data"}
             fill={score.ranked ? score.score : undefined}
           />
           <StatTile
             icon={<FactCheckIcon fontSize="small" />}
             color={theme.palette.primary.main}
-            label="Completeness"
+            label="Data completeness"
             value={`${Math.round(score.completeness * 100)}%`}
             detail={`${score.answered}/${score.total} answered`}
             fill={score.completeness}

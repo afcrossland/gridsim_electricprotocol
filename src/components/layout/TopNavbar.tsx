@@ -8,9 +8,9 @@ export default function TopNavbar() {
   const setPage = useProtocolStore((s) => s.setPage);
   const selectCountry = useProtocolStore((s) => s.selectCountry);
 
-  // Home: clear the selected jurisdiction and leave Settings, which also
-  // returns the map to its opening view and zoom via the same effect that
-  // runs when a selection is cleared any other way.
+  // Home: clear the selected jurisdiction and leave whatever full-screen view
+  // is open, which also returns the map to its opening view and zoom via the
+  // same effect that runs when a selection is cleared any other way.
   const goHome = () => {
     setPage("map");
     selectCountry(null);
@@ -54,15 +54,6 @@ export default function TopNavbar() {
         >
           About
         </Button>
-        <Button
-          size="small"
-          variant={page === "settings" ? "outlined" : "text"}
-          onClick={() => setPage(page === "settings" ? "map" : "settings")}
-          sx={{ fontWeight: 400 }}
-        >
-          Settings
-        </Button>
-
         {/* Stands in for auth: open to anyone until sign-in exists. */}
         <Button
           size="small"

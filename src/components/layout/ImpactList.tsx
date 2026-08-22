@@ -1,6 +1,7 @@
 import { Box, Chip, Stack, Typography } from "@mui/material";
 
 import type { ImpactItem } from "../../lib/types";
+import { impactColor, impactTextColor } from "../../lib/scoring";
 
 interface Props {
   items: ImpactItem[];
@@ -9,9 +10,10 @@ interface Props {
 }
 
 /**
- * Highest-impact changes, ranked by weighted points available. Weight is shown
- * explicitly because it is the whole basis of the ranking, and a reader who
- * disagrees with an ordering usually disagrees with a weight.
+ * Highest-impact changes, ranked by weighted points available. Each
+ * question's impact is shown explicitly because it is the whole basis of the
+ * ranking, and a reader who disagrees with an ordering usually disagrees with
+ * an impact score.
  */
 export default function ImpactList({ items, limit = 10, onJump }: Props) {
   const shown = items.slice(0, limit);
@@ -62,7 +64,15 @@ export default function ImpactList({ items, limit = 10, onJump }: Props) {
               variant="outlined"
               label={`Currently: ${item.question.rubric.find((t) => t.score === item.currentScore)?.label ?? item.currentScore}`}
             />
-            <Chip size="small" variant="outlined" label={`Weight ${item.question.weight}`} />
+            <Chip
+              size="small"
+              label={`Impact ${item.question.weight}`}
+              sx={{
+                bgcolor: impactColor(item.question.weight),
+                color: impactTextColor(item.question.weight),
+                fontWeight: 600,
+              }}
+            />
           </Box>
         </Box>
       ))}

@@ -12,7 +12,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import World from "../../assets/jurisdictions.geojson?url";
 import mapStyleJson from "../../assets/map_gsc.json";
-import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP } from "../../lib/scoring";
+import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP, scoreLabel } from "../../lib/scoring";
 import { qualifiedName } from "../../lib/jurisdictions";
 import FlagImg from "../ui/FlagImg";
 import type { CountryScore } from "../../lib/types";
@@ -316,12 +316,15 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           </Box>
           {hovered && hovered.answered > 0 ? (
             <>
-              <Typography variant="h4">
-                {hovered.ranked ? `${Math.round(hovered.score * 100)}%` : " - "}
+              <Typography variant="caption" sx={{ display: "block" }}>
+                Policy score
+              </Typography>
+              <Typography variant="h5">
+                {hovered.ranked ? scoreLabel(hovered.score) : "Not enough data"}
               </Typography>
               <Typography variant="caption">
                 {hovered.answered}/{hovered.total} answered
-                {hovered.ranked ? "" : " · below threshold"}
+                {hovered.ranked ? "" : " · not enough data"}
               </Typography>
             </>
           ) : (
