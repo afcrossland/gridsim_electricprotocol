@@ -19,10 +19,26 @@ import type { CountryScore } from "../../lib/types";
 import MapLegend from "./MapLegend";
 
 /**
- * Whole-globe camera, used both for the opening view and for the return when a
- * selection is cleared, so the two always match. Centred on 0,0.
+ * Whole-globe camera for the very first paint, before the world geometry has
+ * loaded and the fitBounds-based reframe below can run. A fixed zoom here is
+ * only ever seen briefly - see WORLD_BOUNDS for the one actually used once
+ * the map has real content and a real container size to fit against.
  */
 const INITIAL_VIEW = { longitude: 0, latitude: 0, zoom: 1.4 };
+
+/**
+ * Bounds used to frame the whole world once a selection is cleared. A fixed
+ * zoom (what this used to be) assumes a particular container size - fine on a
+ * wide desktop panel, but on a short, narrow mobile container the same zoom
+ * shows only a narrow longitude slice around 0, which reads as "zoomed in on
+ * Africa" rather than a world view. fitBounds recalculates the zoom from
+ * whatever the container's actual pixel size is, so it always shows the
+ * whole world regardless of the panel's shape.
+ */
+const WORLD_BOUNDS: [[number, number], [number, number]] = [
+  [-170, -58],
+  [180, 78],
+];
 
 interface Props {
   scores: CountryScore[];
@@ -219,15 +235,8 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           duration: 900,
         });
       } else {
-        // easeTo is the imperative MapLibre GL JS camera API, not react-map-gl's
-        // initialViewState - it reads a `center: [lng, lat]` tuple, not flat
-        // longitude/latitude keys. Spreading INITIAL_VIEW straight in silently
-        // dropped the pan: `zoom` is a key easeTo recognises so that part
-        // worked, but `longitude`/`latitude` were ignored, leaving the camera
-        // centred wherever the last fitBounds had left it.
-        map.easeTo({
-          center: [INITIAL_VIEW.longitude, INITIAL_VIEW.latitude],
-          zoom: INITIAL_VIEW.zoom,
+        map.fitBounds(WORLD_BOUNDS, {
+          padding: 24,
           duration: 900,
         });
       }

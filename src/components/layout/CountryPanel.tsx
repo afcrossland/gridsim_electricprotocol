@@ -11,6 +11,7 @@ import {
   Tabs,
   Tooltip,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -40,6 +41,10 @@ export default function CountryPanel({ code, score, onBack }: Props) {
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
   const theme = useTheme();
+  // The section rail is a left-hand column on desktop, but that leaves too
+  // little width for the answer area on a phone in portrait - below `sm` it
+  // becomes a horizontal scrolling strip above the questions instead.
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Which section the rail is showing, independent of which top-level tab is
   // active, so switching to Highest impact and back does not lose the place.
@@ -136,13 +141,14 @@ export default function CountryPanel({ code, score, onBack }: Props) {
       </Tabs>
       <Divider />
 
-      <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
         {tab === SECTIONS && (
           <SectionRail
             sections={railSections}
             selected={activeSectionId}
             score={score}
             onSelect={setActiveSectionId}
+            horizontal={isMobile}
           />
         )}
 

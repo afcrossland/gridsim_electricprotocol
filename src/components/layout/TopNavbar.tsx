@@ -18,7 +18,7 @@ export default function TopNavbar() {
 
   return (
     <AppBar position="static" color="inherit" elevation={1}>
-      <Toolbar variant="dense" sx={{ gap: 2 }}>
+      <Toolbar variant="dense" sx={{ gap: { xs: 0.5, sm: 2 }, px: { xs: 1, sm: 2 } }}>
         <Box
           onClick={goHome}
           sx={{
@@ -36,18 +36,24 @@ export default function TopNavbar() {
             alt=""
             sx={{ height: 28, width: 28 }}
           />
-          <Typography variant="h5">Solar Policy Wiki</Typography>
+          {/* Full name only where there is room for it and three nav buttons
+              too - a phone gets the icon alone rather than a wrapped title. */}
+          <Typography variant="h5" sx={{ display: { xs: "none", sm: "block" } }}>
+            Solar Policy Wiki
+          </Typography>
         </Box>
 
         <Box sx={{ flex: 1 }} />
 
         {/* The theme's MuiButton override sets a 600 weight everywhere by
             default, which reads as shouting for a plain nav link - dialled
-            back to regular weight for just these two. */}
+            back to regular weight for just these two. Padding is tightened
+            on narrow screens so three buttons plus the logo fit without
+            wrapping the toolbar onto a second line. */}
         <Button
           size="small"
           onClick={() => setWelcomeSeen(false)}
-          sx={{ fontWeight: 400 }}
+          sx={{ fontWeight: 400, minWidth: 0, px: { xs: 1, sm: 2 } }}
         >
           About
         </Button>
@@ -55,7 +61,7 @@ export default function TopNavbar() {
           size="small"
           variant={page === "help" ? "outlined" : "text"}
           onClick={() => setPage(page === "help" ? "map" : "help")}
-          sx={{ fontWeight: 400 }}
+          sx={{ fontWeight: 400, minWidth: 0, px: { xs: 1, sm: 2 } }}
         >
           Help
         </Button>
@@ -64,9 +70,14 @@ export default function TopNavbar() {
           size="small"
           variant={page === "admin" ? "outlined" : "text"}
           onClick={() => setPage(page === "admin" ? "map" : "admin")}
-          sx={{ fontWeight: 400 }}
+          sx={{ fontWeight: 400, minWidth: 0, px: { xs: 1, sm: 2 } }}
         >
-          Admin console
+          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+            Admin console
+          </Box>
+          <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+            Admin
+          </Box>
         </Button>
       </Toolbar>
     </AppBar>

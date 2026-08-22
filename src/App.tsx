@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Box, Divider } from "@mui/material";
+import { Box, Divider, useMediaQuery, useTheme } from "@mui/material";
 
 import AdminConsole from "./components/layout/AdminConsole";
 import CountryPanel from "./components/layout/CountryPanel";
@@ -54,6 +54,34 @@ export default function App() {
 
   const selectedScore = scores.find((s) => s.code === selectedCountry) ?? null;
 
+  const theme = useTheme();
+  // Side by side stops fitting a phone screen well before the map itself
+  // becomes unusable, so below `md` the layout stacks instead: map on top,
+  // list below. A selected country goes full-screen there rather than also
+  // being squeezed into the stack - CountryPanel's own question cards and
+  // tabs need more room than a phone split three ways could give them.
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const map = (
+    <PolicyMap
+      scores={scores}
+      metric={mapMetric}
+      selectedCountry={selectedCountry}
+      onCountryClick={handleSelectCountry}
+    />
+  );
+
+  const list =
+    selectedCountry && selectedScore ? (
+      <CountryPanel
+        code={selectedCountry}
+        score={selectedScore}
+        onBack={() => handleSelectCountry(null)}
+      />
+    ) : (
+      <Scoreboard scores={scores} selectedCountry={selectedCountry} onSelect={handleSelectCountry} />
+    );
+
   return (
     <Box sx={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column" }}>
       <TopNavbar />
@@ -70,6 +98,18 @@ export default function App() {
             <HelpPage onBack={() => setPage("map")} />
           )}
         </Box>
+      ) : isMobile ? (
+        selectedCountry && selectedScore ? (
+          <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
+        ) : (
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <Box sx={{ height: "42vh", flexShrink: 0, position: "relative" }}>{map}</Box>
+            <Divider />
+            <Box sx={{ flex: 1, minHeight: 0, bgcolor: "background.default", overflow: "hidden" }}>
+              {list}
+            </Box>
+          </Box>
+        )
       ) : (
         <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
           {/* The map gives up two thirds of the width once a country is open:
@@ -81,12 +121,7 @@ export default function App() {
               minWidth: 0,
             }}
           >
-            <PolicyMap
-              scores={scores}
-              metric={mapMetric}
-              selectedCountry={selectedCountry}
-              onCountryClick={handleSelectCountry}
-            />
+            {map}
           </Box>
 
           <Divider orientation="vertical" flexItem />
@@ -102,19 +137,7 @@ export default function App() {
               overflow: "hidden",
             }}
           >
-            {selectedCountry && selectedScore ? (
-              <CountryPanel
-                code={selectedCountry}
-                score={selectedScore}
-                onBack={() => handleSelectCountry(null)}
-              />
-            ) : (
-              <Scoreboard
-                scores={scores}
-                selectedCountry={selectedCountry}
-                onSelect={handleSelectCountry}
-              />
-            )}
+            {list}
           </Box>
         </Box>
       )}

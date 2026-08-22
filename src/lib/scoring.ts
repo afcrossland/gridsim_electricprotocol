@@ -311,11 +311,11 @@ export function scoreColor(score: number): string {
  * means.
  */
 export const SCORE_BANDS = [
-  { label: "Very poor", min: 0.0, color: "#E24B4A" },
-  { label: "Poor", min: 0.2, color: "#EF864C" },
+  { label: "Very ineffective", min: 0.0, color: "#E24B4A" },
+  { label: "Ineffective", min: 0.2, color: "#EF864C" },
   { label: "Moderate", min: 0.4, color: "#FBB114" },
-  { label: "Good", min: 0.6, color: "#5FCCD8" },
-  { label: "Very good", min: 0.8, color: "#008194" },
+  { label: "Effective", min: 0.6, color: "#5FCCD8" },
+  { label: "Very effective", min: 0.8, color: "#008194" },
 ] as const;
 
 export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {

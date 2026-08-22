@@ -21,7 +21,7 @@ const TOPICS: Topic[] = [
   },
   {
     heading: "Score",
-    body: "A jurisdiction's score is the weighted share of what is in place, among the questions that have actually been answered - then scaled down by how much of the questionnaire has been answered overall. This means a jurisdiction cannot rank highly by only answering a handful of its best questions; broad, honest coverage beats a few cherry-picked answers. Scores are shown as one of five bands, Very poor to Very good, with the percentage alongside for those who want the detail.",
+    body: "A jurisdiction's score is the weighted share of what is in place, among the questions that have actually been answered - then scaled down by how much of the questionnaire has been answered overall. This means a jurisdiction cannot rank highly by only answering a handful of its best questions; broad, honest coverage beats a few cherry-picked answers. Scores are shown as one of five bands, Very ineffective to Very effective, with the percentage alongside for those who want the detail.",
   },
   {
     heading: "Data completeness",

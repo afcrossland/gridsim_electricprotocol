@@ -1,4 +1,4 @@
-import { Box, Paper, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Box, Paper, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useTheme } from "@mui/material";
 
 import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP } from "../../lib/scoring";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -7,8 +7,82 @@ export default function MapLegend() {
   const metric = useProtocolStore((s) => s.mapMetric);
   const setMetric = useProtocolStore((s) => s.setMapMetric);
   const showingScore = metric === "score";
+  const theme = useTheme();
+  // The floating bottom-left card assumes a wide, tall map - on the short,
+  // full-width map used below `md` it would either overlap most of the
+  // visible countries or get clipped, so it becomes a single-row banner
+  // pinned to the top of the map instead.
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const gradient = SCORE_RAMP.map((s) => `${s.color} ${s.stop * 100}%`).join(", ");
+
+  const metricToggle = (
+    <ToggleButtonGroup
+      size="small"
+      exclusive
+      value={metric}
+      onChange={(_, next) => next && setMetric(next)}
+    >
+      <ToggleButton value="score" sx={{ py: 0.25, px: isMobile ? 1 : 2, fontSize: isMobile ? "0.65rem" : "0.7rem" }}>
+        Score
+      </ToggleButton>
+      <ToggleButton
+        value="completeness"
+        sx={{ py: 0.25, px: isMobile ? 1 : 2, fontSize: isMobile ? "0.65rem" : "0.7rem" }}
+      >
+        {isMobile ? "Data" : "Completeness"}
+      </ToggleButton>
+    </ToggleButtonGroup>
+  );
+
+  if (isMobile) {
+    return (
+      <Paper
+        elevation={2}
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1,
+          px: 1.5,
+          py: 1,
+          display: "flex",
+          alignItems: "center",
+          gap: 1.25,
+          bgcolor: "rgba(255,255,255,0.92)",
+          backdropFilter: "blur(8px)",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        {metricToggle}
+
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box
+            sx={{
+              height: 8,
+              borderRadius: 4,
+              background: `linear-gradient(90deg, ${gradient})`,
+            }}
+          />
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.25 }}>
+            <Typography variant="caption" sx={{ fontSize: "0.6rem", lineHeight: 1 }}>
+              0%
+            </Typography>
+            <Typography variant="caption" sx={{ fontSize: "0.6rem", lineHeight: 1 }}>
+              100%
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexShrink: 0 }}>
+          {showingScore && <Swatch color={COLOR_INSUFFICIENT} title="Not enough data" />}
+          <Swatch color={COLOR_NO_DATA} title="No data" />
+        </Box>
+      </Paper>
+    );
+  }
 
   return (
     <Paper
@@ -27,21 +101,7 @@ export default function MapLegend() {
         backdropFilter: "blur(8px)",
       }}
     >
-      <ToggleButtonGroup
-        size="small"
-        exclusive
-        fullWidth
-        value={metric}
-        onChange={(_, next) => next && setMetric(next)}
-        sx={{ mb: 1 }}
-      >
-        <ToggleButton value="score" sx={{ py: 0.25, fontSize: "0.7rem" }}>
-          Score
-        </ToggleButton>
-        <ToggleButton value="completeness" sx={{ py: 0.25, fontSize: "0.7rem" }}>
-          Completeness
-        </ToggleButton>
-      </ToggleButtonGroup>
+      <Box sx={{ mb: 1 }}>{metricToggle}</Box>
 
       <Typography variant="overline">
         {showingScore ? "Protocol score" : "Questions answered, by weight"}
@@ -87,9 +147,10 @@ export default function MapLegend() {
   );
 }
 
-function Swatch({ color }: { color: string }) {
+function Swatch({ color, title }: { color: string; title?: string }) {
   return (
     <Box
+      title={title}
       sx={{
         width: 14,
         height: 14,
