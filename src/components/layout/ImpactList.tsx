@@ -19,7 +19,8 @@ export default function ImpactList({ items, limit = 10, onJump }: Props) {
   if (shown.length === 0) {
     return (
       <Typography variant="body2" sx={{ p: 2 }}>
-        Nothing left to improve - every question is at full marks.
+        Nothing to show yet - every answered question is already at full marks,
+        or none have been answered. Use Answer the questions to add some.
       </Typography>
     );
   }
@@ -56,15 +57,7 @@ export default function ImpactList({ items, limit = 10, onJump }: Props) {
           </Box>
 
           <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-            <Chip
-              size="small"
-              variant="outlined"
-              label={
-                item.currentScore === null
-                  ? "Unanswered"
-                  : `Currently ${item.currentScore}/2`
-              }
-            />
+            <Chip size="small" variant="outlined" label={`Currently ${item.currentScore}/2`} />
             <Chip size="small" variant="outlined" label={`Weight ${item.question.weight}`} />
           </Box>
         </Box>

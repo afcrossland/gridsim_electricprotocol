@@ -9,8 +9,8 @@
   ],
   "sections": [
     {
-      "id": "access-to-cer-technology",
-      "title": "Access to CER Technology",
+      "id": "access-to-behind-the-meter-technology",
+      "title": "Access to behind-the-meter technology",
       "sourceRow": 9,
       "order": 0
     },
@@ -93,7 +93,7 @@
     {
       "id": "q010",
       "sourceRow": 10,
-      "sectionId": "access-to-cer-technology",
+      "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 0,
       "text": "Retail banks and/or government agencies offer customers no or low interest home energy efficiency loans or rebates to customers for behind-the-meter technology or other energy efficiency investments",
@@ -120,7 +120,7 @@
     {
       "id": "q011",
       "sourceRow": 11,
-      "sectionId": "access-to-cer-technology",
+      "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 1,
       "text": "Affordability and accessibility across society",
@@ -147,7 +147,7 @@
     {
       "id": "q012",
       "sourceRow": 12,
-      "sectionId": "access-to-cer-technology",
+      "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 2,
       "text": "Cost of finance at rates to scale technology",
@@ -174,7 +174,7 @@
     {
       "id": "q013",
       "sourceRow": 13,
-      "sectionId": "access-to-cer-technology",
+      "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 3,
       "text": "Statewide best practices for calculating and communicating benefits from behind-the-meter technology to customers including self-consumption, generation and market value",
@@ -201,7 +201,7 @@
     {
       "id": "q014",
       "sourceRow": 14,
-      "sectionId": "access-to-cer-technology",
+      "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 4,
       "text": "Network and system operators can own and operate behind-the-meter technology (within a free market with other possible owners)",

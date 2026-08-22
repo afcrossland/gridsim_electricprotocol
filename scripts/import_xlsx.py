@@ -85,7 +85,7 @@ def clean_section_title(text):
     already called Electric Protocol the prefix says nothing, and it pushes the
     part that identifies the section out of a narrow rail.
     """
-    return re.sub(r"^\s*Electric Protocol\s*[-– - ]\s*", "", text).strip()
+    return re.sub(r"^\s*Electric Protocol\s*[-–]\s*", "", text).strip()
 
 
 def slug(text, maxlen=48):
@@ -165,7 +165,7 @@ def main():
         is_heading = bool(fill and fill.patternType and fill.fgColor.rgb == HEADING_FILL)
 
         if is_heading:
-            title = clean_section_title(text)
+            title = humanize(clean_section_title(text))
             current_section = {
                 "id": slug(title),
                 "title": title,

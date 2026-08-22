@@ -56,11 +56,15 @@ export function scoreCountry(
 }
 
 /**
- * Highest-impact changes for a country: every question that is not already at
- * full marks, ranked by the weighted points it would gain.
+ * Highest-impact changes for a country: every *answered* question that is not
+ * already at full marks, ranked by the weighted points it would gain from
+ * being taken to the top of its rubric.
  *
- * Unanswered questions are included - an unknown is as much of an opportunity
- * as a known zero, and surfacing it prompts someone to go and find the answer.
+ * Unanswered questions are deliberately excluded - this list is about policy
+ * gaps that are known and confirmed, not about missing research. Finding an
+ * unanswered question is a separate task, done by filtering the questions
+ * list on the Answer the questions page rather than by inflating this list
+ * with unknowns.
  */
 export function rankImpact(
   protocol: Protocol,
@@ -90,14 +94,14 @@ export function rankImpact(
 
   for (const q of questions) {
     const r = byId.get(q.id);
-    const currentScore = r ? r.score : null;
-    const gain = q.weight * (protocol.maxScore - (currentScore ?? 0));
+    if (!r) continue; // unanswered: a research gap, not a ranked policy gap
+
+    const currentScore = r.score;
+    const gain = q.weight * (protocol.maxScore - currentScore);
     if (gain <= 0) continue;
 
-    const nextAnsweredWeight = r ? answeredWeight : answeredWeight + q.weight;
     const nextEarned = earned + gain;
-    const nextScore =
-      nextAnsweredWeight > 0 ? nextEarned / (nextAnsweredWeight * protocol.maxScore) : 0;
+    const nextScore = answeredWeight > 0 ? nextEarned / (answeredWeight * protocol.maxScore) : 0;
 
     items.push({
       question: q,

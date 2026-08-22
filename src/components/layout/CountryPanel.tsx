@@ -4,8 +4,10 @@ import {
   Button,
   Chip,
   Divider,
+  FormControlLabel,
   IconButton,
   Stack,
+  Switch,
   Tab,
   Tabs,
   Tooltip,
@@ -42,7 +44,8 @@ export default function CountryPanel({ code, score, onBack }: Props) {
   // Which section the rail is showing, independent of which top-level tab is
   // active, so switching to Highest impact and back does not lose the place.
   const [activeSectionId, setActiveSectionId] = useState<string>(sections[0]?.id ?? "");
-  const [tab, setTab] = useState<typeof IMPACT | typeof SECTIONS>(IMPACT);
+  const [tab, setTab] = useState<typeof IMPACT | typeof SECTIONS>(SECTIONS);
+  const [unansweredOnly, setUnansweredOnly] = useState(false);
 
   const byQuestion = useMemo(
     () => new Map(responses.filter((r) => r.countryCode === code).map((r) => [r.questionId, r])),
@@ -77,6 +80,9 @@ export default function CountryPanel({ code, score, onBack }: Props) {
         : [],
     [questions, activeSection],
   );
+  const visibleQuestions = unansweredOnly
+    ? sectionQuestions.filter((q) => !byQuestion.has(q.id))
+    : sectionQuestions;
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
@@ -147,8 +153,10 @@ export default function CountryPanel({ code, score, onBack }: Props) {
                 Highest impact changes
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                Ranked by the weighted points each change would add. Unanswered questions
-                are included - an unknown is as much of an opportunity as a known zero.
+                Answered questions not yet at full marks, ranked by the weighted points
+                each would add. Unanswered questions are not included here - switch to{" "}
+                <strong>Answer the questions</strong> and filter to unanswered to find
+                those.
               </Typography>
               <ImpactList
                 items={impact}
@@ -164,11 +172,34 @@ export default function CountryPanel({ code, score, onBack }: Props) {
             </>
           ) : activeSection ? (
             <>
-              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5, mb: 1 }}>
-                <Typography variant="h2">{activeSection.title}</Typography>
-                <Typography variant="body2">
-                  {activeSection.answered}/{activeSection.total} answered
-                </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: 1.5,
+                  mb: 1,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5 }}>
+                  <Typography variant="h2">{activeSection.title}</Typography>
+                  <Typography variant="body2">
+                    {activeSection.answered}/{activeSection.total} answered
+                  </Typography>
+                </Box>
+
+                <FormControlLabel
+                  sx={{ m: 0 }}
+                  control={
+                    <Switch
+                      size="small"
+                      checked={unansweredOnly}
+                      onChange={(e) => setUnansweredOnly(e.target.checked)}
+                    />
+                  }
+                  label={<Typography variant="body2">Unanswered only</Typography>}
+                />
               </Box>
 
               <Typography variant="body2" sx={{ mb: 2 }}>
@@ -178,8 +209,14 @@ export default function CountryPanel({ code, score, onBack }: Props) {
                 answer yet.
               </Typography>
 
+              {visibleQuestions.length === 0 && (
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  Every question in this section is answered.
+                </Typography>
+              )}
+
               <Stack spacing={2}>
-                {sectionQuestions.map((q) => (
+                {visibleQuestions.map((q) => (
                   <QuestionCard
                     key={q.id}
                     question={q}

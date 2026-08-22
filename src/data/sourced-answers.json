@@ -396,6 +396,126 @@
     "bd-training-sporadic": {
       "title": "Bangladesh - solar PV training runs through occasional workshops (e.g. the Alliance for Rural Electrification's CORE microgrid design workshop, February 2025) and short private courses rather than a standing nationwide programme (secondary source)",
       "url": "https://core-initiative.org/practitioner-activities/bangladesh-hosts-core-training-workshop-on-solar-pv-microgrid-design/"
+    },
+    "za-tax-rebate-expired": {
+      "title": "South Africa - SARS residential solar tax rebate: 25% of panel cost up to R15,000, available only for panels first brought into use in the 2024 year of assessment (1 March 2023 to 29 February 2024); no equivalent incentive has replaced it (secondary source)",
+      "url": "https://www.sars.gov.za/types-of-tax/personal-income-tax/filing-season/solar-tax-rebate/"
+    },
+    "za-net-billing": {
+      "title": "South Africa - NERSA approved a net-billing framework in December 2024, but rollout runs municipality by municipality: Cape Town, eThekwini and Ekurhuleni have mature net metering/billing programmes, most others do not yet (secondary source)",
+      "url": "https://energybee.co.za/guides/net-metering-sell-solar-back-eskom-south-africa-2026"
+    },
+    "za-sseg-registration": {
+      "title": "South Africa - Small-Scale Embedded Generation registration via PV GreenCard or the local municipality, requiring a Certificate of Compliance; Eskom simplified the compliance process and extended a fee waiver for systems up to 50 kW to March 2026",
+      "url": "https://www.eskom.co.za/eskom-simplifies-solar-system-compliance-after-working-with-industry-stakeholders-extends-cost-relief-for-small-scale-embedded-generation-sseg-customers/"
+    },
+    "za-standards": {
+      "title": "South Africa - SANS 10142-1 (wiring) and SANS 60364-7-712 (solar PV installations) are the national installation standards; inverters require an NRS 097-2-1 type-test certificate from an accredited laboratory, and installers must issue a Certificate of Compliance",
+      "url": "https://pvgreencard.co.za/small-scale-embedded-generation-sseg-registration-process/"
+    },
+    "ma-loi-82-21": {
+      "title": "Morocco - Law 82-21 on self-production of electricity, implementing decree published in Bulletin Officiel n. 7489 on 9 March 2026 and entering force 9 June 2026: self-producers may inject and resell surplus capped at 20% of annual production; ANRE set buy-back tariffs of 0.18-0.21 DH/kWh for medium/high/very-high voltage, with no residential (BT, under 11 kW) tariff yet published (pv magazine France)",
+      "url": "https://www.pv-magazine.fr/2026/03/20/le-maroc-debloque-enfin-lautoproduction-solaire/"
+    },
+    "ma-import-duty": {
+      "title": "Morocco - import duty on assembled photovoltaic modules raised from 2.5% to 10% under the 2026 finance law to protect the domestic solar industry, while inverter duty fell from 17.5% to 2.5%",
+      "url": "https://9anonai.com/fr/blog/customs-duty-solar-panels-appliances-2026"
+    },
+    "ma-nm-standards": {
+      "title": "Morocco - a commission of the Ministry of Energy, IMANOR, AMEE and IRESEN made 19 standards mandatory for photovoltaic installations, including NM CEI 61215 (module design), NM CEI 61730-2 (module safety qualification) and NM 10.1.001 (domestic and industrial PV installation)",
+      "url": "https://leseco.ma/business/energie-solaire-a-quoi-servent-les-nouvelles-normes-obligatoires.html"
+    },
+    "br-lei-14300": {
+      "title": "Brazil - Lei 14.300/2022, the distributed generation legal framework: surplus injected to the grid earns kWh credits valid for 60 months; systems connected before 7 January 2023 keep full compensation until 2045, while newer systems phase in the Fio B distribution charge, reaching 45% of TUSD by 2025 and depreciating injected-kWh value by roughly 12.2% (secondary source)",
+      "url": "https://www.saewelenergiasolar.com.br/blog/lei-14300-fio-b-energia-solar/"
+    },
+    "br-import-tariff-25": {
+      "title": "Brazil - Resolution Gecex No. 666 raised the import tariff on photovoltaic modules from 9.6% to 25% for imports outside the quota system, effective from 2025/2026; a reduced 9.6% rate survives only for centralised projects over 5 MW within a capped quota, which does not apply to behind-the-meter residential imports",
+      "url": "https://canalsolar.com.br/imposto-de-importacao-paineis-solares/"
+    },
+    "br-inmetro-nbr": {
+      "title": "Brazil - INMETRO Portaria 140 requires certification of PV generation, conditioning and storage equipment installed in buildings; ABNT NBR 16690 (2019) sets design requirements for the DC side of PV installations, including cabling, breakers, connectors and inverter ground-fault indication aligned to IEC 62109-2",
+      "url": "https://www.osetoreletrico.com.br/revisao-da-nbr-16690-incorporando-ainda-mais-seguranca-e-qualidade-as-instalacoes-fotovoltaicas-brasileiras/"
+    },
+    "pk-import-duty": {
+      "title": "Pakistan - solar panels carry 0% customs duty under Statutory Regulatory Orders promoting renewable energy; a 10% General Sales Tax applies from 1 July 2025 (a domestic consumption tax, not a border tariff), with a proposed rise to 18% dropped in the 2026-27 federal budget (secondary source)",
+      "url": "https://www.solarcitizen.com.pk/solar-panel-tax-pakistan/"
+    },
+    "bd-import-duty-zero": {
+      "title": "Bangladesh - import duty, regulatory duty, supplementary duty and advance tax on solar equipment reduced to zero in the FY2026-27 national budget, effective until 30 June 2031; previously combined PV import taxes ranged from 26.2% to 58.6%",
+      "url": "https://www.tbsnews.net/economy/nbr-slashes-customs-duty-petroleum-solar-power-generation-1171116"
+    },
+    "id-sef-grant": {
+      "title": "Indonesia - the Ministry of Energy's Sustainable Energy Fund (SEF) grant covers 10% to nearly 100% of rooftop solar investment cost as a results-based payment after installation, open to residential, business, industrial and social PLN customer groups (UNDP / ESDM)",
+      "url": "https://www.esdm.go.id/en/media-center/news-archives/energy-ministry-launches-sef-grant-for-rooftop-solar-systems"
+    },
+    "bd-idcol": {
+      "title": "Bangladesh - IDCOL has financed nearly 50% of the country's renewable energy capacity including domestic and industrial rooftop solar, and targets 6 GWp of further renewable finance over five years, but operates as an infrastructure financier rather than a universally accessible retail household loan product (secondary source)",
+      "url": "https://www.tbsnews.net/supplement/financing-bangladeshs-clean-energy-future-idcol-powering-transition-1248576"
+    },
+    "pk-sbp-financing": {
+      "title": "Pakistan - the State Bank of Pakistan's Financing Scheme for Renewable Energy channels subsidised-rate lending for solar through commercial banks; several banks including Meezan Bank offer solar-specific loan and instalment products (SBP / secondary source)",
+      "url": "https://www.sbp.org.pk/Incen-others/Rene.asp"
+    },
+    "mx-interconnection": {
+      "title": "Mexico - CRE-regulated distributed generation for installations under 500 kW offers three interconnection schemes since 2017: net metering (medicion neta), net billing (facturacion neta) and total energy sale, with a regulatory trend toward market-price surplus sale rather than 1:1 credit (secondary source)",
+      "url": "https://www.enlight.mx/blog/conoce-los-esquemas-de-interconexion-que-existen-en-mexico"
+    },
+    "mx-cenace-timeline": {
+      "title": "Mexico - CENACE has 30 business days to complete an interconnection study once payment is confirmed, under the distributed generation framework for installations under 500 kW (secondary source)",
+      "url": "https://mexicocomovamos.mx/publicaciones/2025/10/overview-of-renewable-energy-in-mexico/"
+    },
+    "mx-nom-standards": {
+      "title": "Mexico - NOM-001-SEDE is the official standard for photovoltaic installations and CFE interconnection (Article 690 covers PV systems, Article 705 covers interconnection and equipment approval); inverters must be certified to NMX-J-643-ANCE (secondary source)",
+      "url": "https://cceea.mx/blog/energia-solar-fotovoltaica/cuales-son-las-normas-para-instalaciones-fotovoltaicas-en-mexico"
+    },
+    "ke-self-consumption": {
+      "title": "Kenya - self-generation for own consumption below 1 MW does not require an EPRA licence under the Energy Act 2019; a signed net-metering agreement with KPLC is only needed for systems that export surplus to the grid",
+      "url": "https://www.surgepv.com/solar-compliance/kenya/guides/epra-licensing"
+    },
+    "ch-feedin-2026": {
+      "title": "Switzerland - the revised Electricity Supply Act (StromVG), approved by referendum 9 June 2024, harmonises feed-in remuneration nationwide from 2026 based on a quarterly reference market price published by the Federal Office of Energy; since 1 January 2025 a virtual ZEV option lets consumers share locally consumed solar within the same building complex at a discounted grid fee (secondary source)",
+      "url": "https://www.primeo-energie.ch/en/privatkunden/strom-produzieren/verguetung-stromeinspeisung.html"
+    },
+    "ch-nin-niv": {
+      "title": "Switzerland - NIN (Niederspannungs-Installationsnorm), maintained by Electrosuisse, is the national low-voltage installation standard for electrical work including PV; a restricted installation permit under Article 14 of the Low-Voltage Installation Ordinance (NIV) is legally required to carry out solar installation work",
+      "url": "https://www.ausbildung-weiterbildung.ch/en-US/niv-info.aspx"
+    },
+    "ch-solarprofi": {
+      "title": "Switzerland - Swissolar's Solarprofi quality label requires installers, planners and manufacturers to meet education and reference-project criteria and to keep attending courses to retain it, alongside Electrosuisse's regular NIN training courses",
+      "url": "https://reseu.eu/schemes/switzerland"
+    },
+    "no-enova-2025": {
+      "title": "Norway - Enova pays 2,500 NOK per installed kW up to 15 kW (up to 37,500 NOK) for residential solar as of August 2025, open nationally to private homeowners applying in their own name; pre-approval required from 1 September 2025 (secondary source)",
+      "url": "https://www.solcellekraft.no/artikkel/enova-stotte-til-solceller-i-2025"
+    },
+    "no-plusskunde": {
+      "title": "Norway - the plusskunde scheme lets producers sell excess electricity at the Nord Pool spot price minus a markup, exempt from the fixed component of production grid fees; the 100 kW production limit was removed from 1 January 2024, and self-produced, self-consumed electricity avoids grid fees and taxes entirely (secondary source)",
+      "url": "https://norgesnett.no/kunde/plusskunde/"
+    },
+    "ke-self-consumption-fee": {
+      "title": "Kenya - grid-interconnection fees and meter installation costs apply to net-metering (exporting) customers; self-generation under 1 MW for the owner's own consumption is exempt from EPRA licensing and therefore from these agreement-linked fees (secondary source, cross-referenced with EPRA licensing guide)",
+      "url": "https://www.plexus-energy.co.ke/kenya-net-metering-tariff-2025/"
+    },
+    "ke-tvet-training": {
+      "title": "Kenya - roughly 16 tertiary institutions nationally offer NITA and TVET CDACC-accredited solar PV training leading to recognised T1/T2/T3 technician licenses, which ERC requires for certification",
+      "url": "https://energyzedworld.com/advisory/how-to-become-a-licensed-solar-pv-technician-in-kenya/"
+    },
+    "pk-self-consumption-license": {
+      "title": "Pakistan - as of 2026, a NEPRA generation licence (fee waived for systems up to 25 kW) is required only for net-metering customers exporting to the grid; households running solar for self-consumption only, with no grid export, face no licensing requirement or fee (Dawn / Pakistan Observer)",
+      "url": "https://www.dawn.com/news/1995812"
+    },
+    "ca-tariff-china": {
+      "title": "Canada - a 25% surtax applies to Chinese-origin solar panels as part of Canada's trade rebalancing with China, alongside batteries, semiconductors and critical minerals; since China supplies most imported panels, this is the tariff facing a typical importer regardless of the general 0-25% MFN range that applies by HS code (secondary source)",
+      "url": "https://mysolarsolutions.ca/how-will-tariffs-impact-the-canadian-solar-industry/"
+    },
+    "ca-self-consumption": {
+      "title": "Canada - zero-export, behind-the-meter configurations are an established option (Ontario's HRS program is one example), and no province bars self-consumption; CSA C22.1 Section 64 governs both grid-tied and self-consumption PV installations nationally (secondary source)",
+      "url": "https://polaronsolar.com/the-ultimate-canadian-solar-energy-guide-2026-cost-rebates/"
+    },
+    "ca-red-seal": {
+      "title": "Canada - the interprovincial Red Seal Program sets common electrician certification standards recognised in every province and territory; several colleges (BCIT, NSCC, and the national Colleges and Institutes Canada programme) offer solar PV microcredentials specifically for Red Seal electricians",
+      "url": "https://www.collegesinstitutes.ca/microcredentials/uie/solar-pv-installation/"
     }
   },
   "groups": {
@@ -1766,6 +1886,426 @@
       "basis": "national",
       "sourceId": "bd-training-sporadic",
       "note": "Solar PV training in Bangladesh runs through occasional workshops and short private courses rather than a standing nationwide programme offered regularly in multiple locations."
+    },
+    {
+      "countries": [
+        "ZA"
+      ],
+      "row": 10,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "za-tax-rebate-expired",
+      "note": "SARS offered a 25% rebate on solar panel cost up to R15,000, but only for panels first used within the 2024 tax year (1 March 2023 to 29 February 2024). No successor scheme has been introduced, so no low-cost finance or rebate route is currently available to residential customers."
+    },
+    {
+      "countries": [
+        "ZA"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "za-net-billing",
+      "note": "NERSA approved a national net-billing framework in December 2024, but implementation is municipal: Cape Town, eThekwini and Ekurhuleni have mature programmes while most other municipalities and Eskom-direct customers do not yet. Export compensation exists but is not available to all customers."
+    },
+    {
+      "countries": [
+        "ZA"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "za-sseg-registration",
+      "note": "SSEG registration runs through the PV GreenCard digital platform or the local municipality and requires a Certificate of Compliance rather than a notify-and-connect model. Eskom simplified the process and extended a registration fee waiver to March 2026, but an application and inspection are still required."
+    },
+    {
+      "countries": [
+        "ZA"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "za-sseg-registration",
+      "note": "PV GreenCard operates as a national digital SSEG registration platform used across municipalities, rather than a paper-based or purely local process."
+    },
+    {
+      "countries": [
+        "ZA"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "za-standards",
+      "note": "SANS 10142-1 and SANS 60364-7-712 set national wiring and PV installation requirements, with NERSA-approved grid codes governing connection."
+    },
+    {
+      "countries": [
+        "ZA"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "za-standards",
+      "note": "Inverters require an NRS 097-2-1 type-test certificate from an accredited laboratory, and installers must issue a Certificate of Compliance confirming the installation meets national safety standards."
+    },
+    {
+      "countries": [
+        "MA"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ma-loi-82-21",
+      "note": "Law 82-21's implementing decree, effective 9 June 2026, lets self-producers resell surplus capped at 20% of annual production. ANRE has set buy-back tariffs for medium and high voltage systems, but no residential low-voltage tariff has been published yet, and the rate is fixed rather than time-of-day."
+    },
+    {
+      "countries": [
+        "MA"
+      ],
+      "row": 54,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ma-import-duty",
+      "note": "The 2026 finance law raised the import duty on assembled PV modules from 2.5% to 10% to protect domestic manufacturing, landing exactly at the boundary between the top and middle tier; inverter duty fell to 2.5% over the same period."
+    },
+    {
+      "countries": [
+        "MA"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-nm-standards",
+      "note": "A joint commission of the Ministry of Energy, IMANOR, AMEE and IRESEN made 19 standards mandatory for PV installations, including NM CEI 61215 for module design and NM 10.1.001 for domestic and industrial installation - a national standard set aligned to the IEC series."
+    },
+    {
+      "countries": [
+        "MA"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-nm-standards",
+      "note": "NM CEI 61730-2, part of the same mandatory standard set, specifically defines safety qualification requirements for PV module operation."
+    },
+    {
+      "countries": [
+        "BR"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "br-lei-14300",
+      "note": "Lei 14.300 credits surplus generation as kWh valid for 60 months. Systems connected before 7 January 2023 keep full compensation until 2045, but newer systems face the progressively phased-in Fio B distribution charge, which reaches 45% of TUSD by 2025 and cuts the effective value of injected energy by around 12%. A banking mechanism open to all, but not time-of-day export pricing, and its value is being deliberately eroded for new entrants."
+    },
+    {
+      "countries": [
+        "BR"
+      ],
+      "row": 54,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "br-import-tariff-25",
+      "note": "Resolution Gecex 666 raised the import tariff on PV modules from 9.6% to 25% for imports outside the quota system. A reduced 9.6% rate survives only for centralised projects above 5 MW within a capped quota, which does not reach behind-the-meter residential imports, so the tariff actually facing a household is 25%."
+    },
+    {
+      "countries": [
+        "BR"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "br-inmetro-nbr",
+      "note": "ABNT NBR 16690 (2019) sets national design requirements for the DC side of PV installations - cabling, breakers, connectors and disconnect switches - maintained by the national standards body and periodically revised."
+    },
+    {
+      "countries": [
+        "BR"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "br-inmetro-nbr",
+      "note": "INMETRO Portaria 140 requires certification of generation, conditioning and storage equipment installed in buildings, and NBR 16690 mandates inverter ground-fault detection and external alarm indication aligned to IEC 62109-2."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "pk-import-duty",
+      "note": "Solar panels carry 0% customs duty under SROs promoting renewable energy. A 10% GST applies from 1 July 2025, but that is a domestic consumption tax rather than a border tariff, which is what this question asks about."
+    },
+    {
+      "countries": [
+        "BD"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "bd-import-duty-zero",
+      "note": "The FY2026-27 national budget zeroed import duty, regulatory duty, supplementary duty and advance tax on solar equipment until 30 June 2031, down from a combined 26.2-58.6% previously."
+    },
+    {
+      "countries": [
+        "ID"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "id-sef-grant",
+      "note": "The Sustainable Energy Fund grant covers 10% to nearly 100% of rooftop solar investment cost, paid after installation, and is open to residential as well as business, industrial and social PLN customer groups."
+    },
+    {
+      "countries": [
+        "BD"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bd-idcol",
+      "note": "IDCOL has financed nearly half of Bangladesh's renewable energy capacity, including domestic rooftop solar, and targets 6 GWp further over five years. It operates as an infrastructure and project financier rather than a retail product a household can straightforwardly apply for, so finance exists but is not clearly available to all consumers on the same terms."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "pk-sbp-financing",
+      "note": "The State Bank of Pakistan directs commercial banks to offer subsidised-rate renewable energy financing, and several banks including Meezan Bank offer solar-specific loan products. Available but channelled through individual banks' own eligibility and terms rather than a universal scheme."
+    },
+    {
+      "countries": [
+        "MX"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "mx-interconnection",
+      "note": "Distributed generation under 500 kW can use net metering, net billing or total energy sale, all CRE-regulated and available nationally, but none price exports by time of day, and the regulatory trend is toward market-price surplus sale rather than 1:1 crediting."
+    },
+    {
+      "countries": [
+        "MX"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "mx-cenace-timeline",
+      "note": "CENACE has 30 business days to complete an interconnection study once payment is confirmed, for installations under 500 kW - beyond the 15-day threshold for the simple-and-online tier, though the process is standardised nationally rather than locally variable."
+    },
+    {
+      "countries": [
+        "MX"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "mx-nom-standards",
+      "note": "NOM-001-SEDE is the national standard for photovoltaic installations, with Article 690 covering PV systems and Article 705 covering CFE interconnection and equipment approval requirements."
+    },
+    {
+      "countries": [
+        "MX"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "mx-nom-standards",
+      "note": "Interactive inverters must be certified to NMX-J-643-ANCE before they can be used for interconnection, enforced as part of the national standard."
+    },
+    {
+      "countries": [
+        "KE"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ke-self-consumption",
+      "note": "Self-generation for the owner's own consumption below 1 MW is explicitly exempt from EPRA licensing under the Energy Act 2019. No barrier to connecting for self-consumption; only exporting surplus requires a separate net-metering agreement."
+    },
+    {
+      "countries": [
+        "CH"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ch-feedin-2026",
+      "note": "From 2026 feed-in remuneration is harmonised nationwide and linked to a quarterly reference market price rather than a flat utility-set rate, and a virtual ZEV option since January 2025 lets neighbours share locally consumed solar at a discounted grid fee. Scored 1 rather than 2 because the reference price resets quarterly, not by time of day."
+    },
+    {
+      "countries": [
+        "CH"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ch-nin-niv",
+      "note": "NIN, maintained by Electrosuisse, is the national low-voltage electrical installation standard covering PV work, reviewed and updated as part of a standing national body's remit."
+    },
+    {
+      "countries": [
+        "CH"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ch-nin-niv",
+      "note": "A restricted installation permit under NIV Article 14 is a legal precondition for carrying out solar installation work, enforced nationally rather than left to local discretion."
+    },
+    {
+      "countries": [
+        "CH"
+      ],
+      "row": 57,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ch-nin-niv",
+      "note": "The NIV Article 14 restricted permit functions as the national recognised qualification required to install and maintain solar systems."
+    },
+    {
+      "countries": [
+        "CH"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ch-solarprofi",
+      "note": "Electrosuisse runs regular NIN and NIV preparatory courses nationally, and Swissolar's Solarprofi label requires ongoing course attendance to retain, so training is available on a standing, countrywide basis rather than a single location or infrequent schedule."
+    },
+    {
+      "countries": [
+        "NO"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "no-enova-2025",
+      "note": "Enova pays 2,500 NOK per installed kW up to 15 kW, worth up to 37,500 NOK, open nationally to private homeowners rather than rationed by region or waitlist."
+    },
+    {
+      "countries": [
+        "NO"
+      ],
+      "row": 17,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "no-plusskunde",
+      "note": "Plusskunde exports are paid at the Nord Pool spot price minus a markup, which moves hourly with the wholesale market - genuinely time-of-day pricing rather than a flat rate. Open nationally since the 100 kW production cap was removed in January 2024."
+    },
+    {
+      "countries": [
+        "NO"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "no-plusskunde",
+      "note": "Self-produced electricity that is self-consumed is exempt from grid fees and taxes entirely under the plusskunde arrangement, with grid charges applying only to electricity bought from the grid."
+    },
+    {
+      "countries": [
+        "NO"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "no-enova-2025",
+      "note": "NEK 400/410 is the national electrical installation standard, and Enova support requires installation by an electrician with the corresponding authorisation."
+    },
+    {
+      "countries": [
+        "NO"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "no-enova-2025",
+      "note": "The same NEK 400/410 authorisation requirement carries the safety standard, enforced as a condition of both legal installation and Enova support."
+    },
+    {
+      "countries": [
+        "KE"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ke-self-consumption-fee",
+      "note": "Grid-interconnection and metering fees apply to net-metering customers who export, but self-generation under 1 MW for the owner's own consumption is exempt from EPRA licensing entirely, so a self-consumption-only installation carries no such fee."
+    },
+    {
+      "countries": [
+        "KE"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ke-tvet-training",
+      "note": "Around 16 tertiary institutions nationally offer NITA and TVET CDACC-accredited solar PV training leading to T1/T2/T3 licenses, which ERC requires for recognised certification - regular and geographically spread rather than a single location or infrequent course."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "pk-self-consumption-license",
+      "note": "A NEPRA generation licence, with its fee waived for systems up to 25 kW, is required only for net-metering customers exporting to the grid. Self-consumption-only installations face no licensing requirement or fee."
+    },
+    {
+      "countries": [
+        "PK"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "pk-self-consumption-license",
+      "note": "Households running solar purely for self-consumption, without grid export, face no NEPRA licensing requirement - only net-metering (export) participants are regulated. No barrier to connecting for self-consumption."
+    },
+    {
+      "countries": [
+        "CA"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ca-self-consumption",
+      "note": "Zero-export, behind-the-meter configurations are an established option nationally - Ontario's HRS programme is one example - and CSA C22.1 Section 64 governs self-consumption PV installations the same as grid-tied ones. No province bars connecting for self-consumption."
+    },
+    {
+      "countries": [
+        "CA"
+      ],
+      "row": 54,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "ca-tariff-china",
+      "note": "A 25% surtax applies specifically to Chinese-origin solar panels, and China supplies most imported modules, so the tariff actually facing a typical importer sits at the top of the rubric's bracket regardless of the lower general MFN range that applies to other HS codes."
+    },
+    {
+      "countries": [
+        "CA"
+      ],
+      "row": 57,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ca-red-seal",
+      "note": "The interprovincial Red Seal Program sets one nationally recognised electrician certification standard honoured in every province and territory, letting a certified installer work anywhere in Canada without re-certifying."
+    },
+    {
+      "countries": [
+        "CA"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ca-red-seal",
+      "note": "Solar PV microcredentials built for Red Seal electricians are offered at colleges across multiple provinces - BCIT, NSCC and the national Colleges and Institutes Canada programme among them - on a standing, regularly available basis."
     }
   ]
 }

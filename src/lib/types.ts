@@ -72,7 +72,8 @@ export interface CountryScore {
 export interface ImpactItem {
   question: Question;
   section: Section;
-  currentScore: number | null;
+  /** Always answered - rankImpact excludes unanswered questions entirely. */
+  currentScore: number;
   /** weight x (maxScore - currentScore) - raw points available. */
   gain: number;
   /** Percentage points added to the country score if taken to full marks. */

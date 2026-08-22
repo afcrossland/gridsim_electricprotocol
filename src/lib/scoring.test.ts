@@ -85,12 +85,18 @@ describe("rankImpact", () => {
   it("gives a zero-scored heavy question more impact than a partial light one", () => {
     const items = rankImpact(protocol, questions, sections, responses, "GB");
     const top = items[0];
-    expect(top.gain).toBe(top.question.weight * (2 - (top.currentScore ?? 0)));
+    expect(top.gain).toBe(top.question.weight * (2 - top.currentScore));
   });
 
-  it("includes unanswered questions as opportunities", () => {
+  it("excludes unanswered questions - this list is confirmed gaps, not unknowns", () => {
     const items = rankImpact(protocol, questions, sections, responses, "NZ");
-    const unanswered = items.filter((i) => i.currentScore === null);
-    expect(unanswered.length).toBe(4);
+    const answeredIds = new Set(
+      responses.filter((r) => r.countryCode === "NZ").map((r) => r.questionId),
+    );
+
+    // NZ has 4 unanswered questions in the seed data; none should appear here.
+    expect(questions.length - answeredIds.size).toBe(4);
+    expect(items.every((i) => answeredIds.has(i.question.id))).toBe(true);
+    expect(items.every((i) => typeof i.currentScore === "number")).toBe(true);
   });
 });

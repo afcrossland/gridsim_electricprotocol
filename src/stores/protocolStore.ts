@@ -192,7 +192,14 @@ export const useProtocolStore = create<ProtocolState>()(
       // that no longer existed.
       // v6: default completeness threshold moved from 40% to 30%, which a
       // persisted preference would otherwise mask.
-      version: 6,
+      //
+      // v7: `sections` and `questions` are no longer persisted at all (see
+      // partialize below) - a browser that had cached them before a text fix
+      // shipped (the CER/CP acronym cleanup, in this case) would silently keep
+      // showing the old wording forever, because `merge` spread the stale
+      // persisted copy over the freshly-loaded, fixed one. Bumping the version
+      // clears any copy written by the old, buggy partialize.
+      version: 7,
 
       /**
        * Take the current seed's sections and questions, keeping only the
@@ -211,32 +218,39 @@ export const useProtocolStore = create<ProtocolState>()(
       },
 
       /**
-       * Persist only what a person actually did: their role, any admin edits to
-       * the questions, and answers they typed.
+       * Persist only what a person actually did: their role, preferences, and
+       * answers they typed. Nothing derived from the seed files.
        *
-       * Seeded answers are derived from `protocol.seed.json` and
-       * `sourced-answers.json`, so writing them to localStorage means a cached
-       * copy shadows every later data update. That is how Australia went blank
-       * when answers moved to per-state codes, and how newly researched US and
-       * South Asian answers failed to appear. Deriving them fresh on every load
-       * removes the failure mode rather than relying on remembering to bump the
-       * version each time the data changes.
+       * `sections` and `questions` are deliberately excluded, even though they
+       * can be admin-edited, because they come from `protocol.seed.json` and
+       * persisting the full arrays means a cached copy shadows every later fix
+       * to that data - exactly the bug that let stale CER/CP wording and
+       * pre-cleanup question text keep showing up after both had been fixed at
+       * the source. The same reasoning already applies to `responses` below:
+       * seeded answers are derived from `protocol.seed.json` and
+       * `sourced-answers.json`, so a persisted copy shadows every later data
+       * update - that's how Australia went blank when answers moved to
+       * per-state codes, and how newly researched countries failed to appear.
+       * Deriving both fresh on every load removes the failure mode rather than
+       * relying on remembering to bump the version every time the data
+       * changes. The trade is that admin edits to question text or weight do
+       * not survive a reload - acceptable while there are no real admin users
+       * yet; worth a proper sparse-edit mechanism before there are.
        */
       partialize: (state) => ({
         role: state.role,
         threshold: state.threshold,
         mapMetric: state.mapMetric,
         welcomeSeen: state.welcomeSeen,
-        sections: state.sections,
-        questions: state.questions,
         responses: state.responses.filter((r) => !r.seeded),
       }),
 
       /**
-       * Rebuild the full response list on load: current seed data, plus the
-       * user's own answers with their jurisdiction codes re-resolved. A response
-       * recorded against a country that has since been subdivided would
-       * otherwise be stranded on a code the map no longer draws.
+       * Rebuild sections, questions and the full response list on every load:
+       * current seed data, plus the user's own answers with their jurisdiction
+       * codes re-resolved. A response recorded against a country that has
+       * since been subdivided would otherwise be stranded on a code the map no
+       * longer draws.
        */
       merge: (persisted, current) => {
         const state = persisted as Partial<ProtocolState> | undefined;
@@ -251,6 +265,11 @@ export const useProtocolStore = create<ProtocolState>()(
         return {
           ...current,
           ...state,
+          // Never take sections/questions from the persisted blob, even one
+          // written before this fix shipped - always the fresh seed-derived
+          // copy from `current`.
+          sections: current.sections,
+          questions: current.questions,
           responses: [...seedResponses(), ...userEntered],
         };
       },
