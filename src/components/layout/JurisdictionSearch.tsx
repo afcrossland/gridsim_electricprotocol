@@ -54,16 +54,11 @@ export default function JurisdictionSearch({ scores, selected, onSelect }: Props
 
   return (
     <Paper
-      elevation={3}
+      variant="outlined"
       sx={{
-        position: "absolute",
-        top: 16,
-        left: 16,
-        zIndex: 1,
         px: 1,
         py: 0.5,
-        width: 300,
-        maxWidth: "calc(100% - 32px)",
+        width: "100%",
       }}
     >
       <Autocomplete

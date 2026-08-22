@@ -170,3 +170,11 @@ export function sourcedCountries(): string[] {
   }
   return [...codes];
 }
+
+/**
+ * The EU-27 member codes, for the scoreboard's EU rollup row - re-exported
+ * from the same list `sourced-answers.json`'s "EU27" group already uses to
+ * address answers, so scoreboard grouping and answer targeting can never
+ * silently drift onto different membership lists.
+ */
+export const EU27: readonly string[] = data.groups.EU27 ?? [];

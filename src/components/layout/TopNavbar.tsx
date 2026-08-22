@@ -56,13 +56,21 @@ export default function TopNavbar() {
 
         <Box sx={{ flex: 1 }} />
 
-        <Button size="small" onClick={() => setWelcomeSeen(false)}>
+        {/* The theme's MuiButton override sets a 600 weight everywhere by
+            default, which reads as shouting for a plain nav link - dialled
+            back to regular weight for just these two. */}
+        <Button
+          size="small"
+          onClick={() => setWelcomeSeen(false)}
+          sx={{ fontWeight: 400 }}
+        >
           About
         </Button>
         <Button
           size="small"
           variant={page === "settings" ? "outlined" : "text"}
           onClick={() => setPage(page === "settings" ? "map" : "settings")}
+          sx={{ fontWeight: 400 }}
         >
           Settings
         </Button>

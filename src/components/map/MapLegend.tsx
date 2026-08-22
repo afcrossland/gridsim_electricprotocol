@@ -23,6 +23,10 @@ export default function MapLegend() {
         px: 2,
         py: 1.5,
         width: 232,
+        // Frosted glass rather than a solid panel, so the map colour under the
+        // legend's own corner stays legible instead of being fully occluded.
+        bgcolor: "rgba(255,255,255,0.86)",
+        backdropFilter: "blur(8px)",
       }}
     >
       <ToggleButtonGroup
@@ -52,9 +56,23 @@ export default function MapLegend() {
           background: `linear-gradient(90deg, ${gradient})`,
         }}
       />
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.5 }}>
-        <Typography variant="caption">0%</Typography>
-        <Typography variant="caption">100%</Typography>
+      {/* Ticks at each quartile rather than just the two ends, so a colour on
+          the map can be read against a value without guessing between them. */}
+      <Box sx={{ position: "relative", height: 14, mt: 0.5 }}>
+        {[0, 25, 50, 75, 100].map((pct) => (
+          <Typography
+            key={pct}
+            variant="caption"
+            sx={{
+              position: "absolute",
+              left: `${pct}%`,
+              transform:
+                pct === 0 ? "none" : pct === 100 ? "translateX(-100%)" : "translateX(-50%)",
+            }}
+          >
+            {pct}%
+          </Typography>
+        ))}
       </Box>
 
       {showingScore && (

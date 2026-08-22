@@ -93,6 +93,59 @@ def slug(text, maxlen=48):
     return s[:maxlen].rstrip("-")
 
 
+# The spreadsheet writes every question as a declarative statement to be
+# scored true/false against the rubric below it, which reads oddly in the app
+# as a question with three multiple-choice answers. Rewritten to interrogative
+# form here, keyed by spreadsheet row rather than attempted as a generic
+# transform - the 39 statements have different enough grammar (noun phrases,
+# "No barriers to...", "Zero cost for...") that no single mechanical rule
+# produces a natural question for all of them, and getting the polarity wrong
+# would silently change what a jurisdiction's existing 0/1/2 answer means.
+# Section titles and rubric tier labels are deliberately left as descriptive
+# labels, not rewritten - only the question itself.
+QUESTION_REWRITES = {
+    10: "Do retail banks and/or government agencies offer no- or low-interest home energy efficiency loans or rebates for behind-the-meter technology or other energy efficiency investments?",
+    11: "Is behind-the-meter technology affordable and accessible across society?",
+    12: "Is finance available at rates that can scale behind-the-meter technology?",
+    13: "Are there statewide best practices for calculating and communicating the benefits of behind-the-meter technology to customers, including self-consumption, generation and market value?",
+    14: "Can network and system operators own and operate behind-the-meter technology, within a free market alongside other possible owners?",
+    16: "Is there an open, transparent marketplace with time-of-day pricing for electricity import/consumption for all customers?",
+    17: "Is there an open, transparent marketplace with time-of-day pricing for electricity export for all customers?",
+    18: "Do electricity bills break down all the charges that add up to the net payment?",
+    19: "Is half-hourly (or better) meter data available to support accurate design of behind-the-meter technology?",
+    20: "Are there barriers to behind-the-meter technology participating in energy and ancillary markets based on asset size or technology?",
+    21: "Is ancillary and wholesale market pricing publicly available?",
+    22: "Can behind-the-meter technology or customers participate in wholesale and ancillary markets individually or through Virtual Power Plants?",
+    24: "Are there market signals for behind-the-meter technology and customers to contribute to network reinforcement and capacity - for example, providing grid and network infrastructure investment deferral?",
+    25: "Is there compensation available for voltage regulation, voltage stability and voltage imbalance services?",
+    26: "Is there compensation available for frequency regulation, keeping and reserves, including spinning/non-spinning reserve?",
+    27: "Is there compensation available for peak demand reduction, including demand charge reduction?",
+    28: "Is there compensation available for reducing demand or increasing generation during periods of high wholesale pricing - that is, responding to tight supply conditions?",
+    29: "Is there compensation available for black start services?",
+    30: "Is there compensation available for demand increase services?",
+    31: "Is there compensation available for demand response (downturn)?",
+    32: "Is there compensation available for carbon-related services?",
+    33: "Is there compensation available in any other non-wholesale market that is open to other generators?",
+    35: "Is self-consuming electricity generated from behind-the-meter technology free of charge?",
+    36: "Can customers connect behind-the-meter technology for self-consumption without regulatory barriers?",
+    38: "Is there a simple online asset registration or standard automated permitting process in place, replacing local permitting requirements?",
+    39: "Do planning rules and building codes avoid unnecessarily restricting the installation of behind-the-meter technology, while still enabling net zero?",
+    41: "Is there a zero-cost, standardised and transparent automated interconnection/grid connection process for all customers and behind-the-meter technology?",
+    42: "Is there an open, publicly available map or dataset showing import and export capacity across all networks, so users know what they can connect?",
+    43: "Is the cost of increasing import and export capacity transparent and publicly available?",
+    45: "Is there simple, digital registration of behind-the-meter technology with utilities?",
+    47: "Do grid and system operators have the right incentives for technology (such as grid-forming batteries) that operates the power system using behind-the-meter technology, including dispatching the grid with at least 70% of total electrical supply from behind-the-meter sources?",
+    48: "Do system operators set or approve technical and communication protocols for behind-the-meter technology market participation at a national level?",
+    49: "Do system operators set or approve technical and communication protocols for behind-the-meter technology data exchange at a state or national level?",
+    51: "Are there statewide best practices for electrical and mechanical installation?",
+    52: "Are there statewide best practices for safety?",
+    54: "How much tariff is charged at the border on imported behind-the-meter technology?",
+    55: "Are tax rebates or subsidies available to customers for behind-the-meter technology or other energy efficiency investments?",
+    57: "Is there a statewide standardised curriculum and qualification for behind-the-meter technology installers and maintainers?",
+    58: "Is there access to training courses to achieve recognised behind-the-meter technology installation and maintenance qualifications?",
+}
+
+
 def parse_rubric(raw, row):
     """Parse a rubric cell into ordered {score, label} tiers."""
     tiers = []
@@ -206,7 +259,7 @@ def main():
                 "sectionId": current_section["id"],
                 "subsection": current_subsection,
                 "order": len(questions),
-                "text": humanize(text),
+                "text": QUESTION_REWRITES.get(row, humanize(text)),
                 "weight": float(weight),
                 "rubric": parse_rubric(rubric_cell, row),
                 "seedAnswers": answers,

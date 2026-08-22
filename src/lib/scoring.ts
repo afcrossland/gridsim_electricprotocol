@@ -1,3 +1,4 @@
+import { EU27 } from "../data/sourcedAnswers";
 import { getJurisdiction } from "./jurisdictions";
 import type {
   CountryScore,
@@ -8,6 +9,18 @@ import type {
   Response,
   Section,
 } from "./types";
+
+/**
+ * Political/economic blocs collapsed into one scoreboard row, the same way a
+ * subdivided country's states roll up - distinct from ISO subdivision
+ * (Australia, the US, Canada) because every member keeps its own real
+ * jurisdiction record, shape and score everywhere else (the map, search, its
+ * own country page). This only changes how the *scoreboard* reads 27
+ * near-identical rows as one. Extend this map for another bloc row.
+ */
+const POLITICAL_BLOCS: Record<string, { name: string; members: readonly string[] }> = {
+  EU: { name: "European Union", members: EU27 },
+};
 
 /**
  * Weighted score normalised over *answered* weight only.
@@ -122,40 +135,65 @@ export function rankImpact(
 }
 
 /**
- * Group country scores by sovereign state for the scoreboard.
+ * Group country scores for the scoreboard - by sovereign state, and by
+ * political bloc where one is configured (POLITICAL_BLOCS, currently the EU).
  *
- * A subdivided country (Australia, the US, Canada) has no score of its own -
- * its row's score is the average across whichever of its states/provinces are
- * individually `ranked`. Averaging in an unranked child would let one
- * thinly-evidenced province drag the whole country's figure toward zero on
- * almost no data, the same distortion the per-jurisdiction threshold exists to
- * prevent - so a group is `ranked` only when at least one child is, and the
- * average is taken over ranked children alone.
+ * Three different shapes of row come out of this:
  *
- * A country with exclaves but its own mappable shape (France) is different:
- * "FR" already has a real, directly-evidenced score, so that stays the row's
- * score untouched. The exclaves appear as children for the breakdown, but are
- * never averaged into it - they are additional jurisdictions, not missing
- * pieces of France's own figure.
+ * - A subdivided country (Australia, the US, Canada) has no score of its own -
+ *   its row's score is the average across whichever of its states/provinces
+ *   are individually `ranked`. Averaging in an unranked child would let one
+ *   thinly-evidenced province drag the whole country's figure toward zero on
+ *   almost no data, the same distortion the per-jurisdiction threshold exists
+ *   to prevent - so a group is `ranked` only when at least one child is, and
+ *   the average is taken over ranked children alone.
+ * - A country with exclaves but its own mappable shape (France) is different:
+ *   "FR" already has a real, directly-evidenced score, so that stays the row's
+ *   score untouched. The exclaves appear as children for the breakdown, but
+ *   are never averaged into it - they are additional jurisdictions, not
+ *   missing pieces of France's own figure.
+ * - A bloc (the EU) has no jurisdiction of its own at all - not a country, not
+ *   a subdivision - so it is built purely from its members' scores, using the
+ *   same ranked-only averaging as a subdivided country. Unlike ISO
+ *   subdivision, membership does not touch a country's own jurisdiction
+ *   record: France is both an EU member (hidden from the top-level list,
+ *   shown only inside the EU row) and, everywhere else in the app, still a
+ *   fully independent, mappable, directly-clickable country in its own right.
  */
 export function groupScores(scores: CountryScore[]): GroupedScore[] {
   const byCode = new Map(scores.map((s) => [s.code, s]));
   const childrenByParent = new Map<string, CountryScore[]>();
-  const isChild = new Set<string>();
+  const hiddenFromTopLevel = new Set<string>();
 
+  // ISO subdivision: a country's states/provinces/exclaves roll up under it.
   for (const s of scores) {
     const parent = getJurisdiction(s.code)?.parent;
     if (!parent) continue;
     const list = childrenByParent.get(parent) ?? [];
     list.push(s);
     childrenByParent.set(parent, list);
-    isChild.add(s.code);
+    hiddenFromTopLevel.add(s.code);
+  }
+
+  // Political blocs: member states roll up under the bloc the same way,
+  // without touching their own jurisdiction record - each still has a real
+  // ISO parent of null (a top-level sovereign country) everywhere else.
+  const childrenByBloc = new Map<string, CountryScore[]>();
+  for (const [blocCode, bloc] of Object.entries(POLITICAL_BLOCS)) {
+    for (const memberCode of bloc.members) {
+      const s = byCode.get(memberCode);
+      if (!s) continue;
+      const list = childrenByBloc.get(blocCode) ?? [];
+      list.push(s);
+      childrenByBloc.set(blocCode, list);
+      hiddenFromTopLevel.add(s.code);
+    }
   }
 
   const grouped: GroupedScore[] = [];
 
   for (const s of scores) {
-    if (isChild.has(s.code)) continue; // shown under its parent below, not standalone
+    if (hiddenFromTopLevel.has(s.code)) continue; // shown under its parent/bloc below
     const children = childrenByParent.get(s.code) ?? [];
     grouped.push({
       code: s.code,
@@ -175,27 +213,38 @@ export function groupScores(scores: CountryScore[]): GroupedScore[] {
   // CountryScore themselves - their group row is built from the children alone.
   for (const [parentCode, children] of childrenByParent) {
     if (byCode.has(parentCode)) continue;
-    const j = getJurisdiction(parentCode);
-    const ranked = children.filter((c) => c.ranked);
-    const score = ranked.length > 0 ? ranked.reduce((sum, c) => sum + c.score, 0) / ranked.length : 0;
-    const completeness =
-      ranked.length > 0 ? ranked.reduce((sum, c) => sum + c.completeness, 0) / ranked.length : 0;
+    grouped.push(syntheticGroup(parentCode, getJurisdiction(parentCode)?.name ?? parentCode, children));
+  }
 
-    grouped.push({
-      code: parentCode,
-      name: j?.name ?? parentCode,
-      isGroup: true,
-      children,
-      score,
-      completeness,
-      ranked: ranked.length > 0,
-      rankedChildren: ranked.length,
-      totalChildren: children.length,
-      hasOwnScore: false,
-    });
+  // Blocs have no jurisdiction entry at all, so this is the only place they
+  // are ever produced.
+  for (const [blocCode, bloc] of Object.entries(POLITICAL_BLOCS)) {
+    const children = childrenByBloc.get(blocCode);
+    if (children && children.length > 0) grouped.push(syntheticGroup(blocCode, bloc.name, children));
   }
 
   return grouped;
+}
+
+/** A group row with no score of its own - averaged over whichever children are ranked. */
+function syntheticGroup(code: string, name: string, children: CountryScore[]): GroupedScore {
+  const ranked = children.filter((c) => c.ranked);
+  const score = ranked.length > 0 ? ranked.reduce((sum, c) => sum + c.score, 0) / ranked.length : 0;
+  const completeness =
+    ranked.length > 0 ? ranked.reduce((sum, c) => sum + c.completeness, 0) / ranked.length : 0;
+
+  return {
+    code,
+    name,
+    isGroup: true,
+    children,
+    score,
+    completeness,
+    ranked: ranked.length > 0,
+    rankedChildren: ranked.length,
+    totalChildren: children.length,
+    hasOwnScore: false,
+  };
 }
 
 /** Colour ramp for the choropleth, low score to high. */

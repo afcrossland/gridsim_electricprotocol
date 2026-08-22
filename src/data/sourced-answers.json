@@ -516,6 +516,26 @@
     "ca-red-seal": {
       "title": "Canada - the interprovincial Red Seal Program sets common electrician certification standards recognised in every province and territory; several colleges (BCIT, NSCC, and the national Colleges and Institutes Canada programme) offer solar PV microcredentials specifically for Red Seal electricians",
       "url": "https://www.collegesinstitutes.ca/microcredentials/uie/solar-pv-installation/"
+    },
+    "tr-net-metering": {
+      "title": "Turkey - post-2019 unlicensed rooftop solar uses monthly net metering with hourly netting introduced in November 2025 amendments; surplus after netting is purchased at 90% of the YEKDEM tariff applicable to licensed generation, and surplus can now be marketed through an aggregator (Mondaq / Pragma International legal briefings)",
+      "url": "https://www.mondaq.com/turkey/renewables/1807898/t%C3%BCrkiye-introduces-a-new-framework-for-unlicensed-renewables-after-yekdem"
+    },
+    "tr-connection": {
+      "title": "Turkey - unlicensed rooftop applications up to 3 MW are approved immediately if compliant, but overall assessment runs up to 20 days (plus a further 10 if documents are missing) followed by a 15-day window to execute the connection agreement; rooftop installations also need a municipal building permit and electrical project approval (secondary legal summary)",
+      "url": "https://advocateturkey.com/2026/02/23/unlicensed-electricity-generation-in-turkey-and-its-legal-limits-a-practical-guide-for-self-consumption-rooftop-solar-and-industrial-projects/"
+    },
+    "tr-china-antidumping": {
+      "title": "Turkey - anti-dumping measures on Chinese-origin solar modules can add roughly $25 per square metre on top of the general 0-5% tariff most other origins face (EU-origin panels enter duty-free under the Customs Union); since China supplies most imported modules globally, this is the tariff facing a typical importer",
+      "url": "https://www.energytrend.com/news/20241011-48539.html"
+    },
+    "th-factory-license": {
+      "title": "Thailand - a Ministerial Regulation effective 28 December 2024 eliminated the factory licence (Ror Ngor 4) requirement from the ERC for rooftop solar outside industrial estates at any capacity; self-consumption installations now need only a PEA/MEA grid connection permit (Hunton Andrews Kurth legal briefing)",
+      "url": "https://www.hunton.com/insights/legal/thailand-eases-regulations-for-solar-rooftop-installations"
+    },
+    "th-net-billing": {
+      "title": "Thailand - the net billing programme pays a fixed 2.20 THB/kWh for 10 years, with residential (Type 1, up to 10 kWp) export capped at 5 kW per meter; the NEPC expanded the programme to 500 MW and the ERC reopened a residential round on 1 July 2026 after a freeze, with commercial operation required by 2027 (capsolar / Sahawatthanakit legal summaries)",
+      "url": "https://www.sahawatthanakit1988.com/en/insights/solar-nem-thailand-2026"
     }
   },
   "groups": {
@@ -2306,6 +2326,66 @@
       "basis": "national",
       "sourceId": "ca-red-seal",
       "note": "Solar PV microcredentials built for Red Seal electricians are offered at colleges across multiple provinces - BCIT, NSCC and the national Colleges and Institutes Canada programme among them - on a standing, regularly available basis."
+    },
+    {
+      "countries": [
+        "TR"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "tr-net-metering",
+      "note": "Unlicensed rooftop solar nets consumption against production monthly, with hourly netting introduced by November 2025 amendments. Surplus is bought at a fixed 90% of the YEKDEM licensed-generation tariff rather than a market or time-of-day rate, so this is closer to a scheduled feed-in price than genuine time-of-use export pricing."
+    },
+    {
+      "countries": [
+        "TR"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "tr-connection",
+      "note": "Systems up to 1 MW are licence-exempt and up to 3 MW get immediate approval if compliant, but the overall assessment window runs up to 20 days (30 if documents are missing) plus a 15-day connection-agreement window, and rooftop installations still need a municipal building permit and electrical project approval. Simpler than a licensed project, but well beyond the 15-day threshold for the top tier."
+    },
+    {
+      "countries": [
+        "TR"
+      ],
+      "row": 54,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "tr-china-antidumping",
+      "note": "Most origins face a 0-5% tariff and EU-origin panels are duty-free under the Customs Union, but anti-dumping measures add roughly $25/m2 on Chinese-origin modules - and China supplies most of the modules actually imported, so the tariff facing a typical importer sits well above the 25% threshold."
+    },
+    {
+      "countries": [
+        "TH"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "th-net-billing",
+      "note": "The net billing programme pays a fixed 2.20 THB/kWh for 10 years rather than a time-of-day rate, residential export is capped at 5 kW per meter, and the whole scheme runs in capacity-limited rounds (500 MW nationally) that were frozen and only reopened on 1 July 2026 - export compensation exists, but is rationed rather than open to every customer on demand."
+    },
+    {
+      "countries": [
+        "TH"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "th-factory-license",
+      "note": "The Ministerial Regulation effective 28 December 2024 removed the ERC factory licence requirement for rooftop solar outside industrial estates at any capacity. A self-consumption installation now needs only a grid connection permit from PEA or MEA, removing what had been the main regulatory barrier."
+    },
+    {
+      "countries": [
+        "TH"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "th-factory-license",
+      "note": "Self-consumption-only connection is simplified to a PEA/MEA grid permit following the December 2024 deregulation, but a system capable of exporting still goes through the separate, capacity-capped net billing application process rather than a fit-and-inform route, so the connection process as a whole is not yet at the top tier."
     }
   ]
 }

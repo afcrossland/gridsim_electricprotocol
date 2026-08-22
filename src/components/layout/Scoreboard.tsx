@@ -6,7 +6,21 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { jurisdictionName } from "../../lib/jurisdictions";
 import { groupScores, scoreColor } from "../../lib/scoring";
 import type { CountryScore, GroupedScore } from "../../lib/types";
+import { customMixins } from "../../mui-theme";
 import FlagImg from "../ui/FlagImg";
+import JurisdictionSearch from "./JurisdictionSearch";
+
+/**
+ * customMixins.tile's transition timing and hover shadow, typed concretely.
+ * Its CSSObject type is a wide union (emotion allows nested selectors,
+ * keyframes, arrays...) so TypeScript cannot narrow `tile["&:hover"]` down to
+ * an object with a `boxShadow` string - pulled out here once, as the literal
+ * values the mixin actually holds, rather than fighting that typing inline.
+ */
+const TILE_HOVER = {
+  transition: String(customMixins.tile.transition),
+  boxShadow: "0 6px 20px rgba(0,0,0,0.08)" as const,
+};
 
 interface Props {
   scores: CountryScore[];
@@ -34,34 +48,30 @@ export default function Scoreboard({ scores, selectedCountry, onSelect }: Props)
   return (
     <Box sx={{ p: 2, overflowY: "auto", height: "100%" }}>
       <Typography variant="h2" gutterBottom>
-        Scoreboard
+        Select country
       </Typography>
 
       <Box
         sx={{
           p: 1.5,
-          mb: 2,
+          mb: 1.5,
           borderRadius: 1.5,
           bgcolor: "background.paper",
           border: "1px solid",
           borderColor: "divider",
         }}
       >
-        <Typography variant="body2" sx={{ mb: 1 }}>
+        <Typography variant="body2">
           How well does a country's electricity policy let ordinary homes and
-          businesses generate, store and sell their own power? Each jurisdiction is
-          scored against 39 questions, weighted by impact.
-        </Typography>
-        <Typography variant="body2" sx={{ mb: 1 }}>
-          <strong>Pick a country on the map or in this list</strong> to see its
+          businesses generate, store and sell their own power?{" "}
+          <strong>Pick a country on the map or in this list</strong> to see/edit its
           answers, the evidence behind each one, and the changes that would raise its
           score the most.
         </Typography>
-        <Typography variant="caption">
-          A score is only shown once enough of the questions are answered. A country
-          with states or provinces shows its average across the ones that qualify -
-          expand a row to see them individually.
-        </Typography>
+      </Box>
+
+      <Box sx={{ mb: 2 }}>
+        <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={onSelect} />
       </Box>
 
       {ranked.length === 0 && (
@@ -138,15 +148,24 @@ function Row({
           gap: 1.25,
           pl: 1.25,
           pr: 1,
-          py: 0.75,
+          py: 0.4,
           borderRadius: 1.5,
           cursor: "pointer",
           overflow: "hidden",
           bgcolor: selected ? "action.selected" : "background.paper",
           border: "1px solid",
           borderColor: selected ? "primary.main" : "divider",
-          transition: "border-color 120ms, box-shadow 120ms",
-          "&:hover": { borderColor: "primary.light", boxShadow: 1 },
+          // customMixins.tile's hover lift and transition timing, scaled down
+          // from its -4px (tuned for a squarer dashboard card) to suit a
+          // compact list row; the hover shadow value is its own too, pulled in
+          // directly since the mixin's loosely-typed CSSObject does not narrow
+          // a nested "&:hover" selector enough to read it back out.
+          transition: `transform 180ms ease, box-shadow 180ms ease, ${TILE_HOVER.transition}`,
+          "&:hover": {
+            borderColor: "primary.light",
+            transform: "translateY(-2px)",
+            boxShadow: TILE_HOVER.boxShadow,
+          },
           "&:hover .row-chevron": { color: "primary.main", transform: "translateX(2px)" },
         }}
       >
@@ -159,7 +178,7 @@ function Row({
           </Typography>
         )}
 
-        <FlagImg code={group.code} size={22} />
+        <FlagImg code={group.code} size={16} />
 
         <Typography variant="subtitle1" noWrap sx={{ flex: 1, minWidth: 0 }}>
           {group.name}

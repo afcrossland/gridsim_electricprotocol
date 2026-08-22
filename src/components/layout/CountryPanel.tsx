@@ -12,9 +12,12 @@ import {
   Tabs,
   Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 import { rankImpact, scoreColor } from "../../lib/scoring";
 import type { CountryScore } from "../../lib/types";
@@ -23,6 +26,7 @@ import ImpactList from "./ImpactList";
 import QuestionCard from "./QuestionCard";
 import SectionRail, { type RailSection } from "./SectionRail";
 import FlagImg from "../ui/FlagImg";
+import StatTile from "../ui/StatTile";
 
 interface Props {
   code: string;
@@ -40,6 +44,7 @@ export default function CountryPanel({ code, score, onBack }: Props) {
   const responses = useProtocolStore((s) => s.responses);
   const addQuestion = useProtocolStore((s) => s.addQuestion);
   const threshold = useProtocolStore((s) => s.threshold);
+  const theme = useTheme();
 
   // Which section the rail is showing, independent of which top-level tab is
   // active, so switching to Highest impact and back does not lose the place.
@@ -86,38 +91,42 @@ export default function CountryPanel({ code, score, onBack }: Props) {
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
-      {/* Name on the left, score pinned to the right and labelled, so the
-          number reads as "Score: 62%" at a glance rather than a bare figure. */}
-      <Box sx={{ px: 3, py: 2, display: "flex", alignItems: "center", gap: 1.5 }}>
-        <Tooltip title="Back to scoreboard">
-          <IconButton size="small" onClick={onBack}>
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <FlagImg code={code} size={28} />
-        <Typography variant="h2" sx={{ flex: 1, minWidth: 0 }} noWrap>
-          {score.name}
-        </Typography>
-
-        <Box sx={{ textAlign: "right", flexShrink: 0 }}>
-          <Typography variant="overline" sx={{ display: "block", lineHeight: 1.2 }}>
-            Score
-          </Typography>
-          <Typography
-            variant="h2"
-            sx={{ color: score.ranked ? scoreColor(score.score) : "text.disabled", lineHeight: 1 }}
-          >
-            {score.ranked ? `${Math.round(score.score * 100)}%` : " - "}
+      <Box sx={{ px: 3, py: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+          <Tooltip title="Back to scoreboard">
+            <IconButton size="small" onClick={onBack}>
+              <ArrowBackIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <FlagImg code={code} size={28} />
+          <Typography variant="h2" sx={{ flex: 1, minWidth: 0 }} noWrap>
+            {score.name}
           </Typography>
         </Box>
-      </Box>
 
-      {!score.ranked && (
-        <Typography variant="caption" sx={{ px: 3, pb: 1, display: "block" }}>
-          Below the {Math.round(threshold * 100)}% completeness threshold, so not ranked
-          or coloured on the map.
-        </Typography>
-      )}
+        <Box sx={{ display: "flex", gap: 1.5 }}>
+          <StatTile
+            icon={<TrendingUpIcon fontSize="small" />}
+            color={score.ranked ? scoreColor(score.score) : theme.palette.text.disabled}
+            label="Score"
+            value={score.ranked ? `${Math.round(score.score * 100)}%` : " - "}
+            detail={
+              score.ranked
+                ? undefined
+                : `Below ${Math.round(threshold * 100)}% threshold`
+            }
+            fill={score.ranked ? score.score : undefined}
+          />
+          <StatTile
+            icon={<FactCheckIcon fontSize="small" />}
+            color={theme.palette.primary.main}
+            label="Completeness"
+            value={`${Math.round(score.completeness * 100)}%`}
+            detail={`${score.answered}/${score.total} answered`}
+            fill={score.completeness}
+          />
+        </Box>
+      </Box>
 
       {/* The single most useful thing to do with a country's page is see what
           would raise its score, so that gets a real tab rather than a rail

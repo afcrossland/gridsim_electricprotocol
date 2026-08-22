@@ -17,7 +17,6 @@ import { qualifiedName } from "../../lib/jurisdictions";
 import FlagImg from "../ui/FlagImg";
 import type { CountryScore } from "../../lib/types";
 import MapLegend from "./MapLegend";
-import JurisdictionSearch from "./JurisdictionSearch";
 
 /**
  * Whole-globe camera, used both for the opening view and for the return when a
@@ -117,12 +116,27 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   const [sourceReady, setSourceReady] = useState(false);
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
 
+  // The base style's own country-name labels compete with the choropleth and
+  // our own hover tooltip for the same information, so they are hidden rather
+  // than removed outright - kept in the style array (not deleted) in case
+  // anything ever needs to reference them by id via beforeId. Town, city and
+  // place labels are left alone; those still earn their place once zoomed
+  // into a selected country.
+  const HIDDEN_LABEL_LAYERS = new Set(["Country labels", "Country labels disputed"]);
+
   const mapStyle = useMemo(() => {
     const style = structuredClone(mapStyleJson) as unknown as StyleSpecification;
     const key = import.meta.env.VITE_MAPTILER_KEY;
     const source = (style.sources as Record<string, { url?: string }>)?.maptiler_planet_v4;
     if (source?.url) source.url = source.url.replace("placeholder", key);
     if (style.glyphs) style.glyphs = style.glyphs.replace("placeholder", key);
+
+    for (const layer of style.layers) {
+      if (HIDDEN_LABEL_LAYERS.has(layer.id)) {
+        layer.layout = { ...layer.layout, visibility: "none" };
+      }
+    }
+
     return style;
   }, []);
 
@@ -205,7 +219,17 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           duration: 900,
         });
       } else {
-        map.easeTo({ ...INITIAL_VIEW, duration: 900 });
+        // easeTo is the imperative MapLibre GL JS camera API, not react-map-gl's
+        // initialViewState - it reads a `center: [lng, lat]` tuple, not flat
+        // longitude/latitude keys. Spreading INITIAL_VIEW straight in silently
+        // dropped the pan: `zoom` is a key easeTo recognises so that part
+        // worked, but `longitude`/`latitude` were ignored, leaving the camera
+        // centred wherever the last fitBounds had left it.
+        map.easeTo({
+          center: [INITIAL_VIEW.longitude, INITIAL_VIEW.latitude],
+          zoom: INITIAL_VIEW.zoom,
+          duration: 900,
+        });
       }
     });
     return () => cancelAnimationFrame(frame);
@@ -305,12 +329,6 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           )}
         </Paper>
       )}
-
-      <JurisdictionSearch
-        scores={scores}
-        selected={selectedCountry}
-        onSelect={onCountryClick}
-      />
 
       {!selectedCountry && <MapLegend />}
     </Box>
