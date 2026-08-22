@@ -3,6 +3,7 @@ import { Box, Divider } from "@mui/material";
 
 import AdminConsole from "./components/layout/AdminConsole";
 import CountryPanel from "./components/layout/CountryPanel";
+import HelpPage from "./components/layout/HelpPage";
 import Scoreboard from "./components/layout/Scoreboard";
 import TopNavbar from "./components/layout/TopNavbar";
 import WelcomeModal from "./components/ui/WelcomeModal";
@@ -59,11 +60,15 @@ export default function App() {
 
       <WelcomeModal open={!welcomeSeen} onClose={() => setWelcomeSeen(true)} />
 
-      {page === "admin" ? (
+      {page === "admin" || page === "help" ? (
         // Full takeover - there is nothing useful to keep the map visible
-        // for while editing question definitions or settings.
+        // for while editing question definitions, settings, or reading help.
         <Box sx={{ flex: 1, overflow: "hidden" }}>
-          <AdminConsole onBack={() => setPage("map")} />
+          {page === "admin" ? (
+            <AdminConsole onBack={() => setPage("map")} />
+          ) : (
+            <HelpPage onBack={() => setPage("map")} />
+          )}
         </Box>
       ) : (
         <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>

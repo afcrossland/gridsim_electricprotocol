@@ -38,14 +38,27 @@ function tierPoints(question: Question, rawScore: number): number {
 }
 
 /**
- * Weighted score normalised over *answered* weight only.
+ * Weighted score normalised over *answered* weight only, then discounted by
+ * completeness.
  *
  * The spreadsheet divides by the weight of every question, which scores an
  * unanswered question as if it were a zero and makes a partly-filled country
- * look far worse than it is. Here the denominator is the weight of what has
- * actually been answered, so the number means "of the policy you have told us
- * about, this is how much is in place". Completeness is reported alongside it
- * so a thinly-evidenced score can be read for what it is.
+ * look far worse than it is - so the achievement rate itself, `rawScore`, is
+ * computed over what has actually been answered, meaning "of the policy you
+ * have told us about, this is how much is in place". Left there, though, a
+ * jurisdiction that answers only its handful of heaviest-weighted questions
+ * and scores full marks on those can out-rank one with much broader (if more
+ * mixed) coverage - answering less is never a way to score higher, so the
+ * achievement rate is multiplied by completeness to get the score this
+ * function actually returns. A jurisdiction at exactly the completeness
+ * threshold with a perfect answered-only rate is not shown as if it were
+ * fully evidenced; one with full coverage is unaffected (completeness 1
+ * leaves rawScore unchanged).
+ *
+ * This discount only applies once a jurisdiction clears `ranked` - below
+ * threshold, `ranked` is false and every caller shows "not enough data"
+ * rather than a number, so an unresearched jurisdiction is never shown a
+ * fake low score instead of no score at all.
  */
 export function scoreCountry(
   protocol: Protocol,
@@ -71,13 +84,13 @@ export function scoreCountry(
     earned += q.weight * tierPoints(q, r.score);
   }
 
-  const score = answeredWeight > 0 ? earned / (answeredWeight * MAX_TIER_POINTS) : 0;
+  const rawScore = answeredWeight > 0 ? earned / (answeredWeight * MAX_TIER_POINTS) : 0;
   const completeness = totalWeight > 0 ? answeredWeight / totalWeight : 0;
 
   return {
     code,
     name,
-    score,
+    score: rawScore * completeness,
     completeness,
     answered,
     total: questions.length,
@@ -130,8 +143,12 @@ export function rankImpact(
     const gain = q.weight * (MAX_TIER_POINTS - tierPoints(q, currentScore));
     if (gain <= 0) continue;
 
+    // Taking an already-answered question to full marks does not change
+    // completeness, so the same completeness multiplier applies to both
+    // sides of the delta - only the answered-only rate moves.
     const nextEarned = earned + gain;
-    const nextScore = answeredWeight > 0 ? nextEarned / (answeredWeight * MAX_TIER_POINTS) : 0;
+    const nextRawScore = answeredWeight > 0 ? nextEarned / (answeredWeight * MAX_TIER_POINTS) : 0;
+    const nextScore = nextRawScore * current.completeness;
 
     items.push({
       question: q,

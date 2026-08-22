@@ -32,14 +32,46 @@ describe("scoreCountry", () => {
     expect(s.ranked).toBe(true);
   });
 
-  it("normalises NZ over answered weight, not total weight", () => {
+  it("normalises NZ over answered weight, not total weight, then discounts by completeness", () => {
     const s = scoreCountry(protocol, questions, responses, "NZ", "New Zealand");
     expect(s.answered).toBe(35);
     expect(s.completeness).toBeCloseTo(0.955385, 6);
     // The spreadsheet reports 0.502 for NZ because its four blanks are counted
     // as zeros in the denominator. Dividing by answered weight instead gives a
-    // materially higher figure, and is the number the app ranks on.
-    expect(s.score).toBeCloseTo(0.464171, 6);
+    // materially higher raw rate (0.464171), and the completeness discount
+    // below then pulls that back down slightly for the four still-unanswered.
+    expect(s.score).toBeCloseTo(0.443462, 6);
+  });
+
+  it("discounts a thinly-but-perfectly-answered country below one with broader, more mixed coverage", () => {
+    // Answer only the heaviest questions (weight >= 3, ~37% of total weight)
+    // for LK, all at full marks - clears the completeness threshold on
+    // weight alone without touching most of the protocol.
+    const heavy = questions.filter((q) => q.weight >= 3);
+    const cherryPicked: Response[] = heavy.map((q) => ({
+      questionId: q.id,
+      countryCode: "LK",
+      score: q.rubric[q.rubric.length - 1].score,
+      source: "",
+      note: "",
+      updatedAt: "",
+    }));
+    const thin = scoreCountry(protocol, questions, cherryPicked, "LK", "Sri Lanka");
+    expect(thin.ranked).toBe(true);
+
+    // A perfect raw achievement rate on what was answered...
+    const heavyWeight = heavy.reduce((sum, q) => sum + q.weight, 0);
+    const totalWeight = questions.reduce((sum, q) => sum + q.weight, 0);
+    expect(thin.completeness).toBeCloseTo(heavyWeight / totalWeight, 10);
+
+    // ...is discounted well below 100%, not shown at face value.
+    expect(thin.score).toBeCloseTo(thin.completeness, 10);
+    expect(thin.score).toBeLessThan(1);
+
+    // GB answers everything, including plenty of lower marks - broader,
+    // messier coverage still outranks the thin-but-perfect country.
+    const gb = scoreCountry(protocol, questions, responses, "GB", "Great Britain");
+    expect(gb.score).toBeGreaterThan(thin.score);
   });
 
   it("returns a zero score, not NaN, for a country with no answers", () => {
@@ -61,8 +93,13 @@ describe("scoreCountry", () => {
       },
     ];
     const s = scoreCountry(protocol, questions, sparse, "IN", "India");
-    // A single perfect answer would otherwise put India top of the board.
-    expect(s.score).toBe(1);
+    // A single perfect answer is only 1 of 39 questions' weight, so even
+    // before the completeness discount this cannot put India top of the
+    // board - and the discount means the raw 100% achievement rate on that
+    // one answer is not what gets shown either: score equals completeness
+    // itself, since a perfect rawScore of 1 leaves the discount as the only
+    // remaining factor.
+    expect(s.score).toBeCloseTo(s.completeness, 10);
     expect(s.completeness).toBeLessThan(protocol.completenessThreshold);
     expect(s.ranked).toBe(false);
   });

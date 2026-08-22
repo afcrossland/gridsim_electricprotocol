@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import seed from "./protocol.seed.json";
+import handWritten from "./sourced-answers.json";
+import indicators from "./indicator-answers.json";
 import { sourcedResponses } from "./sourcedAnswers";
 import { childrenOf, isSubdivided, resolveTargets } from "../lib/jurisdictions";
 import type { Protocol } from "../lib/types";
 
 const protocol = seed as unknown as Protocol;
 const responses = sourcedResponses(protocol.questions);
+const QUALITY_VALUES = new Set(["primary-official", "secondary"]);
 
 function find(code: string, row: number) {
   const q = protocol.questions.find((x) => x.sourceRow === row);
@@ -124,6 +127,22 @@ describe("jurisdiction resolution", () => {
     for (const r of responses) {
       const rubric = byId.get(r.questionId)!.rubric;
       expect(rubric.some((t) => t.score === r.score)).toBe(true);
+    }
+  });
+
+  // `quality` is optional and not backfilled onto sources added before the
+  // field existed (see the long comment on SourceRef in sourcedAnswers.ts) -
+  // this only checks that wherever it IS set, it is one of the two values the
+  // rest of the app can rely on, not that every source has one.
+  it("only uses recognised values for a source's evidence quality", () => {
+    const allSources = { ...indicators.sources, ...handWritten.sources };
+    for (const [id, source] of Object.entries(allSources)) {
+      const quality = (source as { quality?: string }).quality;
+      if (quality !== undefined) {
+        expect(QUALITY_VALUES.has(quality), `source ${id} has an unrecognised quality value`).toBe(
+          true,
+        );
+      }
     }
   });
 });

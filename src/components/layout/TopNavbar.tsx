@@ -51,6 +51,14 @@ export default function TopNavbar() {
         >
           About
         </Button>
+        <Button
+          size="small"
+          variant={page === "help" ? "outlined" : "text"}
+          onClick={() => setPage(page === "help" ? "map" : "help")}
+          sx={{ fontWeight: 400 }}
+        >
+          Help
+        </Button>
         {/* Stands in for auth: open to anyone until sign-in exists. */}
         <Button
           size="small"

@@ -40,8 +40,21 @@ almost everything. Each answer needs:
 }
 ```
 
-Add the citation once to the `sources` map (`title`, `url`), then reference it
-by `sourceId` from as many answers as apply - don't duplicate the citation text.
+Add the citation once to the `sources` map (`title`, `url`, `quality`), then
+reference it by `sourceId` from as many answers as apply - don't duplicate the
+citation text.
+
+**Set `quality` on every source you add.** `"primary-official"` means the
+source *is* the regulator, market operator, statute text or other official
+body's own material - it need not be a literal `.gov` domain (a market
+operator like the Indian Energy Exchange counts). `"secondary"` means it
+*describes* that material instead of being it - a news article, law firm
+briefing or explainer site. Prefer a primary-official source when one exists;
+use a secondary one only as the documented fallback in the rule above, and say
+so in the note. This field is optional in the schema (existing sources from
+before it existed are not backfilled), but every source you add from now on
+should have it - `sourcedAnswers.test.ts` checks that wherever it is set, it
+is one of these two values.
 
 **`src/data/indicator-answers.json`** - generated, not hand-edited. Only for
 questions with a rubric that maps onto a real cross-country statistical

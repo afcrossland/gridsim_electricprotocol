@@ -6,6 +6,18 @@ import indicatorRaw from "./indicator-answers.json";
 interface SourceRef {
   title: string;
   url: string;
+  /**
+   * How authoritative the source itself is - independent of `basis`, which
+   * says how specifically an *answer* targets a jurisdiction. A source is
+   * "primary-official" when it is the regulator, market operator, statute
+   * text or other official body's own material (need not be a literal .gov
+   * domain - a market operator like the Indian Energy Exchange counts); it is
+   * "secondary" when it is a news article, law firm briefing or explainer
+   * site describing that material rather than being it. Optional and not
+   * backfilled onto sources added before this field existed - see
+   * `sourcedAnswers.test.ts` for what is and is not enforced.
+   */
+  quality?: "primary-official" | "secondary";
 }
 
 interface AnswerEntry {

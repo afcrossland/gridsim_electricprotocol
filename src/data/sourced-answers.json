@@ -417,6 +417,11 @@
       "title": "Morocco - Law 82-21 on self-production of electricity, implementing decree published in Bulletin Officiel n. 7489 on 9 March 2026 and entering force 9 June 2026: self-producers may inject and resell surplus capped at 20% of annual production; ANRE set buy-back tariffs of 0.18-0.21 DH/kWh for medium/high/very-high voltage, with no residential (BT, under 11 kW) tariff yet published (pv magazine France)",
       "url": "https://www.pv-magazine.fr/2026/03/20/le-maroc-debloque-enfin-lautoproduction-solaire/"
     },
+    "ma-anre-tarif-cession": {
+      "title": "Morocco - ANRE's surplus buy-back tariff decision (regulatory period 1 March 2026 - 28 February 2027) sets 21 centimes/kWh at peak hours and 18 centimes/kWh at off-peak hours for medium, high and very-high voltage self-producers - genuinely time-of-day, but ANRE has explicitly deferred setting a low-voltage (residential) tariff until a separate regulatory and technical framework is in place, so it does not yet reach residential customers",
+      "url": "https://ecoactu.ma/anre-fixe-les-nouveaux-tarifs-de-lexcedent-electrique/",
+      "quality": "secondary"
+    },
     "ma-import-duty": {
       "title": "Morocco - import duty on assembled photovoltaic modules raised from 2.5% to 10% under the 2026 finance law to protect the domestic solar industry, while inverter duty fell from 17.5% to 2.5%",
       "url": "https://9anonai.com/fr/blog/customs-duty-solar-panels-appliances-2026"
@@ -424,6 +429,21 @@
     "ma-nm-standards": {
       "title": "Morocco - a commission of the Ministry of Energy, IMANOR, AMEE and IRESEN made 19 standards mandatory for photovoltaic installations, including NM CEI 61215 (module design), NM CEI 61730-2 (module safety qualification) and NM 10.1.001 (domestic and industrial PV installation)",
       "url": "https://leseco.ma/business/energie-solaire-a-quoi-servent-les-nouvelles-normes-obligatoires.html"
+    },
+    "ma-decret-2-25-100-regimes": {
+      "title": "Morocco - Decree 2.25.100 (Bulletin Officiel, 19 March 2026) sets three self-production regimes by installed capacity: under 11 kW (typically a home or agricultural solar pump) needs only a declaration and no fee; 11 kW to 5 MW needs a grid-connection agreement (accord de raccordement); above 5 MW needs a full authorisation, with ONEE's national grid operator assessing technical feasibility for each application (Le Desk, detailed institutional reporting)",
+      "url": "https://ledesk.ma/enclair/autoproduction-delectricite-les-details-du-decret-qui-fixe-enfin-les-regles-du-jeu/",
+      "quality": "secondary"
+    },
+    "ma-anre-capacite-accueil": {
+      "title": "Morocco - ANRE publishes hosting capacity (available and reserved) for renewable self-production connections at every distribution substation on a dedicated public platform, ca.anre.ma, as part of its Decision n. 01/25 approving the national grid's hosting capacity",
+      "url": "https://ca.anre.ma/",
+      "quality": "primary-official"
+    },
+    "ma-declaration-paper-based": {
+      "title": "Morocco - Law 82-21 provides for full digitalisation of self-production connection procedures, including a first-come-first-served electronic priority system, but as of June 2026 the electronic platform had not launched: applications still go through the regional offices of the Energy Transition department on paper while the platform is built",
+      "url": "https://medias24.com/2026/06/18/autoproduction-le-maroc-tient-il-enfin-son-cadre-ou-seulement-une-amorce-1702209/",
+      "quality": "secondary"
     },
     "br-lei-14300": {
       "title": "Brazil - Lei 14.300/2022, the distributed generation legal framework: surplus injected to the grid earns kWh credits valid for 60 months; systems connected before 7 January 2023 keep full compensation until 2045, while newer systems phase in the Fio B distribution charge, reaching 45% of TUSD by 2025 and depreciating injected-kWh value by roughly 12.2% (secondary source)",
@@ -536,6 +556,36 @@
     "th-net-billing": {
       "title": "Thailand - the net billing programme pays a fixed 2.20 THB/kWh for 10 years, with residential (Type 1, up to 10 kWp) export capped at 5 kW per meter; the NEPC expanded the programme to 500 MW and the ERC reopened a residential round on 1 July 2026 after a freeze, with commercial operation required by 2027 (capsolar / Sahawatthanakit legal summaries)",
       "url": "https://www.sahawatthanakit1988.com/en/insights/solar-nem-thailand-2026"
+    },
+    "cl-minenergia-gd-faq": {
+      "title": "Chile - Ministry of Energy's official FAQ on the Ley de Generación Distribuida (net billing, Ley 21.118/20.571) connection procedure: the distributor may not reject a Solicitud de Conexion, but the customer bears the cost of connection activities (valued by the distributor under official price decrees) and, if a bidirectional meter is needed, that too; regulated customers are eligible up to 300 kW",
+      "url": "https://generaciondistribuida.minenergia.cl/preguntas-frecuentes/tramitacion-del-procedimiento-de-conexion",
+      "quality": "primary-official"
+    },
+    "cl-sec-online-conexion": {
+      "title": "Chile - the Superintendencia de Electricidad y Combustibles (SEC) operates an online connection-processing system (Generacion Ciudadana) letting applicants complete the entire Ley de Generacion Distribuida connection procedure without visiting the distributor's offices; end to end connection typically takes three to six months",
+      "url": "https://www.sec.cl/generacion-ciudadana-te4/",
+      "quality": "primary-official"
+    },
+    "cl-sec-rgr-2024": {
+      "title": "Chile - SEC Instruccion Tecnica RGR N.02/2024 on the design and execution of consumer electrical installations, part of the Reglamento de Seguridad de las Instalaciones de Consumo (in force since July 2021, replacing the 1998 Decreto 327/NSEG 5), with a further seismic-design instruction for electrical installations published January 2025 referencing NCh 2369:2023",
+      "url": "https://www.sec.cl/sitio-web/wp-content/uploads/2025/01/RGR-N-02-2024-V11-destacada.pdf",
+      "quality": "primary-official"
+    },
+    "cl-subrei-aranceles": {
+      "title": "Chile - SUBREI (Subsecretaria de Relaciones Economicas Internacionales) on import tariffs: the general Ad Valorem duty has been 6% since 1 January 2003, reduced to 0% for goods meeting the origin rules of one of Chile's 30-plus trade agreements, including the Chile-China FTA (covers solar panels with a valid Form F certificate of origin) and the Chile-EU Association Agreement",
+      "url": "https://www.subrei.gob.cl/preguntas-frecuentes/aranceles-de-importacion",
+      "quality": "primary-official"
+    },
+    "cl-accelerated-depreciation": {
+      "title": "Chile - Ley 20.780 allows renewable energy assets, including behind-the-meter solar panels, inverters, mounts and storage, to be depreciated in full in their first tax year rather than over the 10-15 year useful life the SII would otherwise assign; a separate MiPyME tax credit and the residential/small-business Casa Solar programme add further support at the smaller end of the market (secondary sources, not independently checked against the SII's own text)",
+      "url": "https://www.energiaestrategica.com/el-gobierno-de-chile-anuncio-un-nuevo-credito-tributario-para-la-instalacion-de-paneles-solares-en-pymes/",
+      "quality": "secondary"
+    },
+    "cl-capacidad-publica": {
+      "title": "Chile - Ministry of Energy, SEC and CNE jointly run a public information platform for distributed generation, hosted on each distributor's own website, giving substation, feeder and transformer-level capacity data so a prospective customer can check whether a location can connect before applying",
+      "url": "https://energia.gob.cl/noticias/nacional/plataforma-de-informacion-publica-para-generacion-distribuida",
+      "quality": "primary-official"
     }
   },
   "groups": {
@@ -1802,10 +1852,10 @@
         "IN"
       ],
       "row": 21,
-      "score": 2,
+      "score": 0,
       "basis": "national",
       "sourceId": "in-iex",
-      "note": "The Indian Energy Exchange publishes day-ahead and real-time market clearing prices and traded volumes, with real-time data published in 15-minute blocks. Regulated by CERC and public since 2008, so transparent and effectively real time."
+      "note": "The Indian Energy Exchange publishes day-ahead and real-time market clearing prices and traded volumes, with real-time data published in 15-minute blocks. Regulated by CERC and public since 2008, so transparent and effectively real time. However, this does not cover ancillary services, and the rubric requires all wholesale and ancillary markets to be transparent for a score above zero."
     },
     {
       "countries": [
@@ -1974,8 +2024,8 @@
       "row": 17,
       "score": 1,
       "basis": "national",
-      "sourceId": "ma-loi-82-21",
-      "note": "Law 82-21's implementing decree, effective 9 June 2026, lets self-producers resell surplus capped at 20% of annual production. ANRE has set buy-back tariffs for medium and high voltage systems, but no residential low-voltage tariff has been published yet, and the rate is fixed rather than time-of-day."
+      "sourceId": "ma-anre-tarif-cession",
+      "note": "Law 82-21's implementing decree, effective 9 June 2026, lets self-producers resell surplus capped at 20% of annual production. Correction to an earlier reading of this answer: ANRE's buy-back tariff for medium/high/very-high voltage self-producers is genuinely time-of-day (21 centimes/kWh peak, 18 centimes/kWh off-peak), not flat - but it stays at the middle tier because ANRE has explicitly deferred setting any low-voltage (residential) tariff, so it is not yet available to all customers."
     },
     {
       "countries": [
@@ -2006,6 +2056,54 @@
       "basis": "national",
       "sourceId": "ma-nm-standards",
       "note": "NM CEI 61730-2, part of the same mandatory standard set, specifically defines safety qualification requirements for PV module operation."
+    },
+    {
+      "countries": ["MA"],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-decret-2-25-100-regimes",
+      "note": "Installations under 11 kW - the typical residential or agricultural-pump self-consumption case - fall under a simple declaration regime with no fee required to connect. Larger installations (11 kW-5 MW accord de raccordement, above 5 MW autorisation) are not confirmed fee-free, so this is scored for the residential/small-scale case the question is really asking about."
+    },
+    {
+      "countries": ["MA"],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-decret-2-25-100-regimes",
+      "note": "Self-production for self-consumption is explicitly legalised nationwide under Decree 2.25.100, with a defined regulatory pathway at every scale (declaration, connection agreement, or authorisation depending on capacity) rather than a prohibition - the rubric here is binary and only asks whether customers are allowed to connect at all."
+    },
+    {
+      "countries": ["MA"],
+      "row": 38,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-decret-2-25-100-regimes",
+      "note": "For installations under 11 kW, the regime is a declaration only - no approval to seek, no fee - which is the fit-and-inform case this question's top tier describes. Larger installations go through a heavier connection-agreement or authorisation process instead."
+    },
+    {
+      "countries": ["MA"],
+      "row": 41,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-decret-2-25-100-regimes",
+      "note": "Under-11kW self-production needs only a declaration, at no cost, with no approval step - fit-and-inform - and the law's only real constraint on that group is the 20% cap on how much can be exported to the grid, which is the specific size restriction this question's top tier explicitly allows. Larger installations face a connection-agreement or authorisation process instead, which is a heavier bar not addressed by this answer."
+    },
+    {
+      "countries": ["MA"],
+      "row": 42,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ma-anre-capacite-accueil",
+      "note": "ANRE publishes available and reserved hosting capacity for every distribution substation on its own public platform (ca.anre.ma), letting a prospective self-producer check a specific location before applying - a full, location-specific, publicly available capacity database rather than an aggregate national figure."
+    },
+    {
+      "countries": ["MA"],
+      "row": 45,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ma-declaration-paper-based",
+      "note": "Law 82-21 provides for a fully digital connection process, including an electronic first-come-first-served priority system, but the electronic platform itself had not launched as of June 2026 - applications currently go to regional Energy Transition offices on paper. A real registration process exists, just not yet the digital one the law intends."
     },
     {
       "countries": [
@@ -2386,6 +2484,78 @@
       "basis": "national",
       "sourceId": "th-factory-license",
       "note": "Self-consumption-only connection is simplified to a PEA/MEA grid permit following the December 2024 deregulation, but a system capable of exporting still goes through the separate, capacity-capped net billing application process rather than a fit-and-inform route, so the connection process as a whole is not yet at the top tier."
+    },
+    {
+      "countries": ["CL"],
+      "row": 35,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "cl-minenergia-gd-faq",
+      "note": "Connecting behind-the-meter generation for self-consumption is not free: the distributor charges the customer for the connection activities it performs, valued under official price decrees, plus the cost of a bidirectional meter where the existing one only measures consumption. That is a fee payable to the grid incumbent to connect, which is the bottom tier regardless of how self-consumption itself is billed afterwards."
+    },
+    {
+      "countries": ["CL"],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cl-minenergia-gd-faq",
+      "note": "The distributor cannot reject a connection request or refuse to buy the exported energy, and any regulated customer (residential included) is entitled to install behind-the-meter generation for self-consumption up to 300 kW. The rubric here is binary and only asks whether customers are allowed to connect at all - the multi-month process itself is a separate, lower-tier finding captured under row 41."
+    },
+    {
+      "countries": ["CL"],
+      "row": 38,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cl-sec-online-conexion",
+      "note": "A connection application (Solicitud de Conexion) is required before installation, but it can be filed and tracked entirely online through the SEC's Generacion Ciudadana portal rather than in person at distributor offices, which is what keeps this at the middle tier rather than the bottom one - it is a real permitting step, just not a complex or risky one to complete."
+    },
+    {
+      "countries": ["CL"],
+      "row": 41,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "cl-sec-online-conexion",
+      "note": "The end-to-end connection procedure (Solicitud de Conexion, distributor review, Notificacion de Conexion, connection protocol and bidirectional meter installation) typically takes three to six months and carries a distributor-charged connection cost, well outside the 15-day, low-cost bar this question sets for the middle tier, even though part of the process can be done online."
+    },
+    {
+      "countries": ["CL"],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cl-sec-online-conexion",
+      "note": "Registration runs through the SEC's own online Generacion Ciudadana system, which every distributor nationwide is subject to - a single national digital process rather than a regional or paper-based one."
+    },
+    {
+      "countries": ["CL"],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cl-sec-rgr-2024",
+      "note": "The SEC's consumer electrical installation safety regulation has been amended repeatedly in recent years - a full replacement of the low-voltage standard in July 2021, a new technical instruction on design and execution in 2024, and a seismic-design instruction referencing the current Chilean structural standard (NCh 2369:2023) in January 2025 - showing genuinely continual review rather than a static rulebook, though an explicit annual review cycle is not separately confirmed."
+    },
+    {
+      "countries": ["CL"],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cl-subrei-aranceles",
+      "note": "Chile's general import duty has been 6% since 2003, and solar panels from China (Chile's dominant panel supplier) enter at 0% under the Chile-China free trade agreement with a valid certificate of origin - both well under the 10% threshold for the top tier."
+    },
+    {
+      "countries": ["CL"],
+      "row": 55,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cl-accelerated-depreciation",
+      "note": "Ley 20.780's full first-year depreciation for renewable energy assets applies to behind-the-meter equipment on the same terms as utility-scale plant, and smaller systems additionally get their own targeted support (a MiPyME tax credit and the residential/small-business Casa Solar programme) that utility-scale generation does not - so behind-the-meter incentives at minimum match, and arguably exceed, those for utility-scale technology. Sourced from secondary explainer coverage of the law rather than the SII's own text, so treat the precise mechanics as indicative rather than exact."
+    },
+    {
+      "countries": ["CL"],
+      "row": 42,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cl-capacidad-publica",
+      "note": "The Ministry of Energy, SEC and CNE jointly publish a distributed-generation capacity platform on each distributor's website, showing substation, feeder and transformer-level headroom so a prospective customer can check a specific location before applying to connect - a full, location-specific, publicly available capacity database rather than an internal or aggregate one."
     }
   ]
 }
