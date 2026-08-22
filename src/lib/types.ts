@@ -68,6 +68,41 @@ export interface CountryScore {
   ranked: boolean;
 }
 
+/**
+ * A scoreboard row - either one country standing alone, or a country grouped
+ * with its subnational jurisdictions.
+ *
+ * Two different shapes of "group" exist and this covers both:
+ *
+ * - A subdivided country (Australia, the US, Canada) has no shape or score of
+ *   its own; `score` is the average across whichever children are `ranked`,
+ *   and is meaningless (0, `ranked: false`) if none are.
+ * - A country with exclaves but its own shape (France) keeps its own `score`
+ *   as the row's score; the exclaves are additional children shown in the
+ *   breakdown, not averaged in.
+ */
+export interface GroupedScore {
+  code: string;
+  name: string;
+  isGroup: boolean;
+  /** Populated only when isGroup is true. */
+  children: CountryScore[];
+  score: number;
+  completeness: number;
+  ranked: boolean;
+  /** For a group with no score of its own: how many children are ranked. */
+  rankedChildren: number;
+  totalChildren: number;
+  /**
+   * True for France-shaped groups (a real, directly-evidenced score at the
+   * anchor code, with exclave children shown alongside it). False for
+   * Australia-shaped groups (no shape or score of its own; `score` above is
+   * synthesised entirely from `children`). Governs whether clicking the row
+   * opens the anchor's own country page or only expands the child list.
+   */
+  hasOwnScore: boolean;
+}
+
 /** A single unanswered-or-improvable question, ranked by what it would gain. */
 export interface ImpactItem {
   question: Question;

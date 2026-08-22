@@ -1,5 +1,7 @@
+import { getJurisdiction } from "./jurisdictions";
 import type {
   CountryScore,
+  GroupedScore,
   ImpactItem,
   Protocol,
   Question,
@@ -117,6 +119,83 @@ export function rankImpact(
   // question can dilute the denominator enough to give a negative delta while
   // still being a real gap worth closing.
   return items.sort((a, b) => b.gain - a.gain || a.question.order - b.question.order);
+}
+
+/**
+ * Group country scores by sovereign state for the scoreboard.
+ *
+ * A subdivided country (Australia, the US, Canada) has no score of its own -
+ * its row's score is the average across whichever of its states/provinces are
+ * individually `ranked`. Averaging in an unranked child would let one
+ * thinly-evidenced province drag the whole country's figure toward zero on
+ * almost no data, the same distortion the per-jurisdiction threshold exists to
+ * prevent - so a group is `ranked` only when at least one child is, and the
+ * average is taken over ranked children alone.
+ *
+ * A country with exclaves but its own mappable shape (France) is different:
+ * "FR" already has a real, directly-evidenced score, so that stays the row's
+ * score untouched. The exclaves appear as children for the breakdown, but are
+ * never averaged into it - they are additional jurisdictions, not missing
+ * pieces of France's own figure.
+ */
+export function groupScores(scores: CountryScore[]): GroupedScore[] {
+  const byCode = new Map(scores.map((s) => [s.code, s]));
+  const childrenByParent = new Map<string, CountryScore[]>();
+  const isChild = new Set<string>();
+
+  for (const s of scores) {
+    const parent = getJurisdiction(s.code)?.parent;
+    if (!parent) continue;
+    const list = childrenByParent.get(parent) ?? [];
+    list.push(s);
+    childrenByParent.set(parent, list);
+    isChild.add(s.code);
+  }
+
+  const grouped: GroupedScore[] = [];
+
+  for (const s of scores) {
+    if (isChild.has(s.code)) continue; // shown under its parent below, not standalone
+    const children = childrenByParent.get(s.code) ?? [];
+    grouped.push({
+      code: s.code,
+      name: s.name,
+      isGroup: children.length > 0,
+      children,
+      score: s.score,
+      completeness: s.completeness,
+      ranked: s.ranked,
+      rankedChildren: children.filter((c) => c.ranked).length,
+      totalChildren: children.length,
+      hasOwnScore: true,
+    });
+  }
+
+  // Subdivided countries (AU, US, CA) have children but never appear as a
+  // CountryScore themselves - their group row is built from the children alone.
+  for (const [parentCode, children] of childrenByParent) {
+    if (byCode.has(parentCode)) continue;
+    const j = getJurisdiction(parentCode);
+    const ranked = children.filter((c) => c.ranked);
+    const score = ranked.length > 0 ? ranked.reduce((sum, c) => sum + c.score, 0) / ranked.length : 0;
+    const completeness =
+      ranked.length > 0 ? ranked.reduce((sum, c) => sum + c.completeness, 0) / ranked.length : 0;
+
+    grouped.push({
+      code: parentCode,
+      name: j?.name ?? parentCode,
+      isGroup: true,
+      children,
+      score,
+      completeness,
+      ranked: ranked.length > 0,
+      rankedChildren: ranked.length,
+      totalChildren: children.length,
+      hasOwnScore: false,
+    });
+  }
+
+  return grouped;
 }
 
 /** Colour ramp for the choropleth, low score to high. */
