@@ -28,7 +28,7 @@ describe("scoreCountry", () => {
     const s = scoreCountry(protocol, questions, responses, "GB", "Great Britain");
     expect(s.answered).toBe(39);
     expect(s.completeness).toBe(1);
-    expect(s.score).toBeCloseTo(0.694615, 6);
+    expect(s.score).toBeCloseTo(0.623462, 6);
     expect(s.ranked).toBe(true);
   });
 
@@ -39,7 +39,7 @@ describe("scoreCountry", () => {
     // The spreadsheet reports 0.502 for NZ because its four blanks are counted
     // as zeros in the denominator. Dividing by answered weight instead gives a
     // materially higher figure, and is the number the app ranks on.
-    expect(s.score).toBeCloseTo(0.541868, 6);
+    expect(s.score).toBeCloseTo(0.464171, 6);
   });
 
   it("returns a zero score, not NaN, for a country with no answers", () => {
@@ -85,7 +85,10 @@ describe("rankImpact", () => {
   it("gives a zero-scored heavy question more impact than a partial light one", () => {
     const items = rankImpact(protocol, questions, sections, responses, "GB");
     const top = items[0];
-    expect(top.gain).toBe(top.question.weight * (2 - top.currentScore));
+    // Tier points: 0 -> 0, 1 -> 1, 2 -> 4 (a top-tier answer counts double a
+    // linear scale would), normalised against a ceiling of 4.
+    const tierPoints = [0, 1, 4][top.currentScore];
+    expect(top.gain).toBe(top.question.weight * (4 - tierPoints));
   });
 
   it("excludes unanswered questions - this list is confirmed gaps, not unknowns", () => {

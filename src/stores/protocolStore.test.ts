@@ -20,7 +20,7 @@ describe("persistence", () => {
 
   it("keeps seeded answers out of localStorage", () => {
     // Trigger a write.
-    useProtocolStore.getState().setRole("admin");
+    useProtocolStore.getState().setThreshold(0.35);
 
     const raw = localStorage.getItem(STORAGE_KEY);
     expect(raw).toBeTruthy();
@@ -55,9 +55,9 @@ describe("persistence", () => {
     }
   });
 
-  it("keeps sections and questions out of localStorage", () => {
+  it("keeps sections and the base questions array out of localStorage", () => {
     // Trigger a write.
-    useProtocolStore.getState().setRole("admin");
+    useProtocolStore.getState().setThreshold(0.35);
 
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!).state as Record<
       string,
@@ -65,6 +65,85 @@ describe("persistence", () => {
     >;
     expect(stored.sections).toBeUndefined();
     expect(stored.questions).toBeUndefined();
+  });
+
+  it("persists an admin edit to a question as a sparse override, and reapplies it on reload", () => {
+    const question = useProtocolStore.getState().questions[0];
+    useProtocolStore.getState().updateQuestion(question.id, { weight: 9.5 });
+
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!).state as {
+      questionOverrides: Record<string, Partial<{ weight: number }>>;
+    };
+    expect(stored.questionOverrides[question.id]).toEqual({ weight: 9.5 });
+
+    useProtocolStore.persist.rehydrate();
+    const rehydrated = useProtocolStore.getState().questions.find((q) => q.id === question.id);
+    expect(rehydrated?.weight).toBe(9.5);
+  });
+
+  it("does not let an override mask an unrelated question's shipped text", () => {
+    const [first, second] = useProtocolStore.getState().questions;
+    useProtocolStore.getState().updateQuestion(first.id, { weight: 9.5 });
+
+    useProtocolStore.persist.rehydrate();
+    const rehydratedSecond = useProtocolStore.getState().questions.find((q) => q.id === second.id);
+    expect(rehydratedSecond?.text).toBe(second.text);
+  });
+
+  it("resetQuestion discards the override and restores the shipped question", () => {
+    const question = useProtocolStore.getState().questions[0];
+    useProtocolStore.getState().updateQuestion(question.id, { text: "Edited text" });
+    useProtocolStore.getState().resetQuestion(question.id);
+
+    const restored = useProtocolStore.getState().questions.find((q) => q.id === question.id);
+    expect(restored?.text).toBe(question.text);
+
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!).state as {
+      questionOverrides: Record<string, unknown>;
+    };
+    expect(stored.questionOverrides[question.id]).toBeUndefined();
+  });
+
+  it("persists an added question and section, and reapplies them on reload", () => {
+    const sectionId = useProtocolStore.getState().addSection("Training");
+    const questionId = useProtocolStore.getState().addQuestion(sectionId);
+
+    useProtocolStore.persist.rehydrate();
+
+    const state = useProtocolStore.getState();
+    expect(state.sections.some((s) => s.id === sectionId && s.title === "Training")).toBe(true);
+    expect(state.questions.some((q) => q.id === questionId && q.sectionId === sectionId)).toBe(
+      true,
+    );
+  });
+
+  it("deleting a section cascades to its questions and their responses", () => {
+    const sectionId = useProtocolStore.getState().addSection("Training");
+    const questionId = useProtocolStore.getState().addQuestion(sectionId);
+    useProtocolStore.getState().setResponse("LK", questionId, { score: 1 });
+
+    useProtocolStore.getState().deleteSection(sectionId);
+
+    const state = useProtocolStore.getState();
+    expect(state.sections.some((s) => s.id === sectionId)).toBe(false);
+    expect(state.questions.some((q) => q.id === questionId)).toBe(false);
+    expect(state.responses.some((r) => r.questionId === questionId)).toBe(false);
+
+    useProtocolStore.persist.rehydrate();
+    expect(useProtocolStore.getState().sections.some((s) => s.id === sectionId)).toBe(false);
+  });
+
+  it("deleting a shipped question keeps it out of the live set after reload", () => {
+    const question = useProtocolStore.getState().questions[0];
+    useProtocolStore.getState().deleteQuestion(question.id);
+
+    useProtocolStore.persist.rehydrate();
+    expect(useProtocolStore.getState().questions.some((q) => q.id === question.id)).toBe(false);
+
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!).state as {
+      removedQuestionIds: string[];
+    };
+    expect(stored.removedQuestionIds).toContain(question.id);
   });
 
   it("never shows stale question text from a cache written before a wording fix shipped", () => {

@@ -23,6 +23,21 @@ const POLITICAL_BLOCS: Record<string, { name: string; members: readonly string[]
 };
 
 /**
+ * Ceiling a rubric tier's `points` can be set to in the admin console, and
+ * what `scoreCountry` and `rankImpact` normalise a question against - fixed
+ * globally rather than per question, so a question whose tiers are all set
+ * below 4 simply cannot contribute its full share, by admin choice. This is
+ * the scoring ceiling now, not `protocol.maxScore` (which stays 2, the count
+ * of rubric steps above zero - a display concern, not a scoring one).
+ */
+const MAX_TIER_POINTS = 4;
+
+/** Points a response earns, looked up from the question's own rubric definition. */
+function tierPoints(question: Question, rawScore: number): number {
+  return question.rubric.find((t) => t.score === rawScore)?.points ?? rawScore;
+}
+
+/**
  * Weighted score normalised over *answered* weight only.
  *
  * The spreadsheet divides by the weight of every question, which scores an
@@ -53,10 +68,10 @@ export function scoreCountry(
     if (!r) continue;
     answered += 1;
     answeredWeight += q.weight;
-    earned += q.weight * r.score;
+    earned += q.weight * tierPoints(q, r.score);
   }
 
-  const score = answeredWeight > 0 ? earned / (answeredWeight * protocol.maxScore) : 0;
+  const score = answeredWeight > 0 ? earned / (answeredWeight * MAX_TIER_POINTS) : 0;
   const completeness = totalWeight > 0 ? answeredWeight / totalWeight : 0;
 
   return {
@@ -101,7 +116,7 @@ export function rankImpact(
     0,
   );
   const earned = questions.reduce(
-    (sum, q) => sum + q.weight * (byId.get(q.id)?.score ?? 0),
+    (sum, q) => sum + q.weight * tierPoints(q, byId.get(q.id)?.score ?? 0),
     0,
   );
 
@@ -112,11 +127,11 @@ export function rankImpact(
     if (!r) continue; // unanswered: a research gap, not a ranked policy gap
 
     const currentScore = r.score;
-    const gain = q.weight * (protocol.maxScore - currentScore);
+    const gain = q.weight * (MAX_TIER_POINTS - tierPoints(q, currentScore));
     if (gain <= 0) continue;
 
     const nextEarned = earned + gain;
-    const nextScore = answeredWeight > 0 ? nextEarned / (answeredWeight * protocol.maxScore) : 0;
+    const nextScore = answeredWeight > 0 ? nextEarned / (answeredWeight * MAX_TIER_POINTS) : 0;
 
     items.push({
       question: q,

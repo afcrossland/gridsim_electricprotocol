@@ -101,15 +101,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No low cost finance available. Finance is equivalent to normal lending"
+          "label": "No low cost finance available. Finance is equivalent to normal lending",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Some low cost finance available but not yet universally acessible"
+          "label": "Some low cost finance available but not yet universally acessible",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Special loans or rebates available to reduce upfront cost and available to all customers"
+          "label": "Special loans or rebates available to reduce upfront cost and available to all customers",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -128,15 +131,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "behind-the-meter technology only affordable and accessible to highest earners"
+          "label": "behind-the-meter technology only affordable and accessible to highest earners",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "behind-the-meter technology only affordable and accessible to middle and highest earners"
+          "label": "behind-the-meter technology only affordable and accessible to middle and highest earners",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "behind-the-meter technology affordable and accessible to all earners inc. through zero capital cost models"
+          "label": "behind-the-meter technology affordable and accessible to all earners inc. through zero capital cost models",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -155,15 +161,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Cost of finance only available at or above 10%"
+          "label": "Cost of finance only available at or above 10%",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Cost of finance for behind-the-meter technology above 5% and below 10%"
+          "label": "Cost of finance for behind-the-meter technology above 5% and below 10%",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Cost of finance for behind-the-meter technology available at or below 5%"
+          "label": "Cost of finance for behind-the-meter technology available at or below 5%",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -182,15 +191,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No universal best practices or standards in place"
+          "label": "No universal best practices or standards in place",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Best practices and standards in place for consumer protection but not enforced"
+          "label": "Best practices and standards in place for consumer protection but not enforced",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Best practices and standards in place for consumer protection and are enforced"
+          "label": "Best practices and standards in place for consumer protection and are enforced",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -209,15 +221,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Network operators face significant barriers to operating, incentivising, contracting with or owning behind-the-meter technology"
+          "label": "Network operators face significant barriers to operating, incentivising, contracting with or owning behind-the-meter technology",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Network operators face some barriers to operating, incentivising, contracting with or owning behind-the-meter technology"
+          "label": "Network operators face some barriers to operating, incentivising, contracting with or owning behind-the-meter technology",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Network operators face no barriers to operating, incentivising, contracting with or owning behind-the-meter technology"
+          "label": "Network operators face no barriers to operating, incentivising, contracting with or owning behind-the-meter technology",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -236,15 +251,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No time of use pricing for electricity import in place for customers"
+          "label": "No time of use pricing for electricity import in place for customers",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Time of use pricing for electricity import available to some customers"
+          "label": "Time of use pricing for electricity import available to some customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Time of use pricing for electricity import available to all or almost all customers"
+          "label": "Time of use pricing for electricity import available to all or almost all customers",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -263,15 +281,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No export pricing available"
+          "label": "No export pricing available",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Export pricing available but restricted to only one form of behind-the-meter technology or not available to all customers"
+          "label": "Export pricing available but restricted to only one form of behind-the-meter technology or not available to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Time of use pricing available for export to all customers and both solar and storage"
+          "label": "Time of use pricing available for export to all customers and both solar and storage",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -290,11 +311,13 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Bills are not broken down into constituent parts – only one cost/tariff shown"
+          "label": "Bills are not broken down into constituent parts – only one cost/tariff shown",
+          "points": 0
         },
         {
           "score": 2,
-          "label": "Bills broken down to show all of the following: wholesale/energy costs, network costs, system operation and taxes (where these are applicable)"
+          "label": "Bills broken down to show all of the following: wholesale/energy costs, network costs, system operation and taxes (where these are applicable)",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -313,15 +336,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Data is not available"
+          "label": "Data is not available",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Data can be obtained through a manual process"
+          "label": "Data can be obtained through a manual process",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Data is available in an electronic fomat online"
+          "label": "Data is available in an electronic fomat online",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -340,15 +366,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "behind-the-meter technology have size barriers in all wholesale and ancillary markets"
+          "label": "behind-the-meter technology have size barriers in all wholesale and ancillary markets",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology"
+          "label": "behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "No size barriers for behind-the-meter technology in more than  50% of the wholesale and ancillary markets which are open to behind-the-meter technology"
+          "label": "No size barriers for behind-the-meter technology in more than  50% of the wholesale and ancillary markets which are open to behind-the-meter technology",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -367,15 +396,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "At least one wholesale or ancillary market does not have transparent pricing"
+          "label": "At least one wholesale or ancillary market does not have transparent pricing",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "All ancillary  and wholesale markets pricing is fully transparent"
+          "label": "All ancillary  and wholesale markets pricing is fully transparent",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "All ancillary  and wholesale markets pricing is fully transparent, and pricing is available in real time"
+          "label": "All ancillary  and wholesale markets pricing is fully transparent, and pricing is available in real time",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -394,15 +426,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "VPPs are not allowed in any wholesale or ancillary market"
+          "label": "VPPs are not allowed in any wholesale or ancillary market",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "VPPs have access to no more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology"
+          "label": "VPPs have access to no more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology"
+          "label": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -421,15 +456,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available"
+          "label": "No compensation available",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards but only under trials"
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards but only under trials",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards as part of business as usual"
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards as part of business as usual",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -448,15 +486,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -475,15 +516,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -502,15 +546,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -529,15 +576,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -556,15 +606,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -583,15 +636,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -609,15 +665,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -635,15 +694,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -661,15 +723,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No compensation available / market does not exist for any assets."
+          "label": "No compensation available / market does not exist for any assets.",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Compensation available but not to all customers"
+          "label": "Compensation available but not to all customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers."
+          "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -688,15 +753,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "A fee is payable by customers to anyone involved in the grid, network, system, or other power system incumbent to connect behind-the-meter technology behind the meter"
+          "label": "A fee is payable by customers to anyone involved in the grid, network, system, or other power system incumbent to connect behind-the-meter technology behind the meter",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "A fee is payable but only to a standards or certification body"
+          "label": "A fee is payable but only to a standards or certification body",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "No fee is payable"
+          "label": "No fee is payable",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -715,11 +783,13 @@
       "rubric": [
         {
           "score": 0,
-          "label": "customers not allowed to connect behind-the-meter technology even if for self-consumption"
+          "label": "customers not allowed to connect behind-the-meter technology even if for self-consumption",
+          "points": 0
         },
         {
           "score": 2,
-          "label": "No barriers to connecting and using behind-the-meter technology for self-consumption"
+          "label": "No barriers to connecting and using behind-the-meter technology for self-consumption",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -738,15 +808,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Permitting is required before a behind-the-meter technology can be installed and is complex or risky to obtain"
+          "label": "Permitting is required before a behind-the-meter technology can be installed and is complex or risky to obtain",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Permitting is required but is simple and online"
+          "label": "Permitting is required but is simple and online",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Fit and inform, or no permitting in place"
+          "label": "Fit and inform, or no permitting in place",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -765,15 +838,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "planning and / or building rules impose cost or restrictions on solar / battery install"
+          "label": "planning and / or building rules impose cost or restrictions on solar / battery install",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "planning rules apply to restrict installation in certain locations"
+          "label": "planning rules apply to restrict installation in certain locations",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes"
+          "label": "solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -792,15 +868,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Interconnection application always required before a behind-the-meter technology can be installed and is complex,costly or time consuming to obtain"
+          "label": "Interconnection application always required before a behind-the-meter technology can be installed and is complex,costly or time consuming to obtain",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Interconnection application is required but is simple and online.  Applications are processeed in less than 15 days."
+          "label": "Interconnection application is required but is simple and online.  Applications are processeed in less than 15 days.",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Fit and inform, or no permitting in place (size restrictions permitted only for export to the grid)"
+          "label": "Fit and inform, or no permitting in place (size restrictions permitted only for export to the grid)",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -819,15 +898,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No database of capacity on networks"
+          "label": "No database of capacity on networks",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "There is a database of network capacity, but it is not open to the public or does not show individual customers"
+          "label": "There is a database of network capacity, but it is not open to the public or does not show individual customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "There is a full location specific database of available capacity for customers to connect behind-the-meter technology"
+          "label": "There is a full location specific database of available capacity for customers to connect behind-the-meter technology",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -846,15 +928,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No publicly available data"
+          "label": "No publicly available data",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Data available but is only for import or export or some customers"
+          "label": "Data available but is only for import or export or some customers",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Data available for import and export at all connection points/all customers"
+          "label": "Data available for import and export at all connection points/all customers",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -873,15 +958,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No registration process"
+          "label": "No registration process",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Registration process but is paper based"
+          "label": "Registration process but is paper based",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Digital registration process in place which is at least regionalised"
+          "label": "Digital registration process in place which is at least regionalised",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -900,15 +988,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "System operator cannot dispatch with more than 20% of total electricity generation from behind the meter tech at any one time"
+          "label": "System operator cannot dispatch with more than 20% of total electricity generation from behind the meter tech at any one time",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "System operator cannot dispatch with more than 50% of total electricity generation from behind the meter tech at any one time"
+          "label": "System operator cannot dispatch with more than 50% of total electricity generation from behind the meter tech at any one time",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "System operator can dispatch with more than 70% of total electricity generation from behind the meter at any one time"
+          "label": "System operator can dispatch with more than 70% of total electricity generation from behind the meter at any one time",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -927,15 +1018,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Localised technical and communication protocols"
+          "label": "Localised technical and communication protocols",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Some localised rules and some national/statewide rules"
+          "label": "Some localised rules and some national/statewide rules",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "National and universally adopted rules which also confirm to international norms"
+          "label": "National and universally adopted rules which also confirm to international norms",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -954,15 +1048,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Localised technical and communication protocols"
+          "label": "Localised technical and communication protocols",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Some localised rules and some national/statewide rules"
+          "label": "Some localised rules and some national/statewide rules",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "National and universally adopted rules which also confirm to international norms"
+          "label": "National and universally adopted rules which also confirm to international norms",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -981,11 +1078,13 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No universal best practices or standards in place"
+          "label": "No universal best practices or standards in place",
+          "points": 0
         },
         {
           "score": 2,
-          "label": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best"
+          "label": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -1004,11 +1103,13 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No universal best practices or standards in place"
+          "label": "No universal best practices or standards in place",
+          "points": 0
         },
         {
           "score": 2,
-          "label": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice"
+          "label": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -1027,15 +1128,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "Tariffs on imported behind-the-meter technology >=25%"
+          "label": "Tariffs on imported behind-the-meter technology >=25%",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Tariffs on imported behind-the-meter technology >=10% <25%"
+          "label": "Tariffs on imported behind-the-meter technology >=10% <25%",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Tariffs on imported behind-the-meter technology <10%"
+          "label": "Tariffs on imported behind-the-meter technology <10%",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -1054,11 +1158,13 @@
       "rubric": [
         {
           "score": 0,
-          "label": "tax incentives or subsides available to utility scale technology or other energy technology are more valuable than those provided to behind-the-meter technology."
+          "label": "tax incentives or subsides available to utility scale technology or other energy technology are more valuable than those provided to behind-the-meter technology.",
+          "points": 0
         },
         {
           "score": 2,
-          "label": "any tax incentives or subsidies for behind-the-meter technology at least match those provided to utility scale technology or other energy technology"
+          "label": "any tax incentives or subsidies for behind-the-meter technology at least match those provided to utility scale technology or other energy technology",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -1076,11 +1182,13 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No standard recognised qualification"
+          "label": "No standard recognised qualification",
+          "points": 0
         },
         {
           "score": 2,
-          "label": "National qualification certificate(s) for behind-the-meter technology installation and maintenance"
+          "label": "National qualification certificate(s) for behind-the-meter technology installation and maintenance",
+          "points": 4
         }
       ],
       "seedAnswers": {
@@ -1099,15 +1207,18 @@
       "rubric": [
         {
           "score": 0,
-          "label": "No courses offered"
+          "label": "No courses offered",
+          "points": 0
         },
         {
           "score": 1,
-          "label": "Course offered but in single location or infrequently (>6 monthly)"
+          "label": "Course offered but in single location or infrequently (>6 monthly)",
+          "points": 1
         },
         {
           "score": 2,
-          "label": "Courses offered throughout country and on a regular basis"
+          "label": "Courses offered throughout country and on a regular basis",
+          "points": 4
         }
       ],
       "seedAnswers": {

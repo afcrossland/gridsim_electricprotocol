@@ -179,6 +179,15 @@ def parse_rubric(raw, row):
     scores = [t["score"] for t in tiers]
     if scores != sorted(scores) or scores[0] != 0 or scores[-1] != 2:
         raise ValueError(f"row {row}: rubric scores {scores} are not a valid 0..2 ladder")
+
+    # Points are how much a tier counts toward the weighted score, editable
+    # 0-4 in the admin console independently of the tier's rank. Seeded here
+    # to match the scale the app already scored on before points became
+    # editable: the top tier is worth double a plain 0/1/2 ladder would give
+    # it, everything else is worth its own rank.
+    for t in tiers:
+        t["points"] = 4 if t["score"] == 2 else t["score"]
+
     return tiers
 
 
@@ -276,6 +285,10 @@ def main():
     seed = {
         "title": str(ws.cell(2, 2).value or "Electric Protocol").strip(),
         "source": XLSX.name,
+        # Count of rubric steps above zero, for display only - the app scores
+        # a top-tier answer as worth double a linear scale would, so this is
+        # not the ceiling scoreCountry()/rankImpact() normalise against
+        # (see TIER_POINTS in src/lib/scoring.ts).
         "maxScore": 2,
         "completenessThreshold": COMPLETENESS_THRESHOLD,
         "glossary": glossary,

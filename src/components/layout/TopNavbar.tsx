@@ -1,20 +1,8 @@
-import {
-  AppBar,
-  Box,
-  Button,
-  ToggleButton,
-  ToggleButtonGroup,
-  Toolbar,
-  Typography,
-} from "@mui/material";
+import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 
-import type { Role } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
 
 export default function TopNavbar() {
-  const role = useProtocolStore((s) => s.role);
-  const setRole = useProtocolStore((s) => s.setRole);
-  const resetToSeed = useProtocolStore((s) => s.resetToSeed);
   const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
@@ -75,30 +63,15 @@ export default function TopNavbar() {
           Settings
         </Button>
 
-        {/* Stands in for auth: roles are a UI switch until sign-in exists. */}
-        <ToggleButtonGroup
+        {/* Stands in for auth: open to anyone until sign-in exists. */}
+        <Button
           size="small"
-          exclusive
-          value={role}
-          onChange={(_, next: Role | null) => next && setRole(next)}
+          variant={page === "admin" ? "outlined" : "text"}
+          onClick={() => setPage(page === "admin" ? "map" : "admin")}
+          sx={{ fontWeight: 400 }}
         >
-          <ToggleButton value="registered">Registered</ToggleButton>
-          <ToggleButton value="admin">Admin</ToggleButton>
-        </ToggleButtonGroup>
-
-        {role === "admin" && (
-          <Button
-            size="small"
-            color="warning"
-            onClick={() => {
-              if (confirm("Discard all local edits and reload the spreadsheet data?")) {
-                resetToSeed();
-              }
-            }}
-          >
-            Reset to seed
-          </Button>
-        )}
+          Admin console
+        </Button>
       </Toolbar>
     </AppBar>
   );

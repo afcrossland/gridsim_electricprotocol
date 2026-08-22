@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   Box,
-  Button,
   Chip,
   Divider,
   FormControlLabel,
@@ -14,7 +13,6 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
@@ -38,11 +36,9 @@ const IMPACT = "impact";
 const SECTIONS = "sections";
 
 export default function CountryPanel({ code, score, onBack }: Props) {
-  const role = useProtocolStore((s) => s.role);
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
-  const addQuestion = useProtocolStore((s) => s.addQuestion);
   const threshold = useProtocolStore((s) => s.threshold);
   const theme = useTheme();
 
@@ -231,21 +227,9 @@ export default function CountryPanel({ code, score, onBack }: Props) {
                     question={q}
                     response={byQuestion.get(q.id)}
                     code={code}
-                    role={role}
                   />
                 ))}
               </Stack>
-
-              {role === "admin" && (
-                <Button
-                  size="small"
-                  startIcon={<AddIcon />}
-                  sx={{ mt: 2 }}
-                  onClick={() => addQuestion(activeSection.id)}
-                >
-                  Add question
-                </Button>
-              )}
             </>
           ) : null}
         </Box>

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Box, Divider } from "@mui/material";
 
+import AdminConsole from "./components/layout/AdminConsole";
 import CountryPanel from "./components/layout/CountryPanel";
 import Scoreboard from "./components/layout/Scoreboard";
 import SettingsPage from "./components/layout/SettingsPage";
@@ -59,6 +60,14 @@ export default function App() {
 
       <WelcomeModal open={!welcomeSeen} onClose={() => setWelcomeSeen(true)} />
 
+      {page === "admin" ? (
+        // Full takeover, not a sidebar view like Settings - there is nothing
+        // useful to keep the map visible for while editing question
+        // definitions themselves.
+        <Box sx={{ flex: 1, overflow: "hidden" }}>
+          <AdminConsole onBack={() => setPage("map")} />
+        </Box>
+      ) : (
       <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
         {/* The map gives up two thirds of the width once a country is open:
             answering questions needs the room, browsing the map does not.
@@ -110,6 +119,7 @@ export default function App() {
           )}
         </Box>
       </Box>
+      )}
     </Box>
   );
 }

@@ -1,28 +1,15 @@
 import { useState } from "react";
-import {
-  Box,
-  Button,
-  Chip,
-  Collapse,
-  IconButton,
-  Paper,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/DeleteOutline";
+import { Box, Button, Chip, Collapse, IconButton, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
-import type { Question, Response, Role } from "../../lib/types";
+import type { Question, Response } from "../../lib/types";
 import { useProtocolStore } from "../../stores/protocolStore";
 
 interface Props {
   question: Question;
   response: Response | undefined;
   code: string;
-  role: Role;
 }
 
 /**
@@ -44,13 +31,14 @@ const SELECTED_TINT = "rgba(239, 134, 76, 0.12)";
  * that fits on screen and one that takes four scrolls. Source and notes stay
  * collapsed until wanted, with their state shown on the toggle so nothing
  * important hides behind it.
+ *
+ * Editing the question itself - its text, weight or rubric - happens in the
+ * Admin Console, not here; this card only records an answer against whatever
+ * the question currently says.
  */
-export default function QuestionCard({ question, response, code, role }: Props) {
+export default function QuestionCard({ question, response, code }: Props) {
   const setResponse = useProtocolStore((s) => s.setResponse);
   const deleteResponse = useProtocolStore((s) => s.deleteResponse);
-  const updateQuestion = useProtocolStore((s) => s.updateQuestion);
-  const deleteQuestion = useProtocolStore((s) => s.deleteQuestion);
-  const isAdmin = role === "admin";
 
   const [showEvidence, setShowEvidence] = useState(false);
 
@@ -72,46 +60,10 @@ export default function QuestionCard({ question, response, code, role }: Props) 
               {question.subsection}
             </Typography>
           )}
-          {isAdmin ? (
-            <TextField
-              fullWidth
-              multiline
-              size="small"
-              variant="standard"
-              value={question.text}
-              onChange={(e) => updateQuestion(question.id, { text: e.target.value })}
-            />
-          ) : (
-            <Typography variant="body1">{question.text}</Typography>
-          )}
+          <Typography variant="body1">{question.text}</Typography>
         </Box>
 
-        {isAdmin ? (
-          <TextField
-            size="small"
-            type="number"
-            label="Weight"
-            variant="standard"
-            value={question.weight}
-            onChange={(e) => {
-              const weight = Number(e.target.value);
-              if (Number.isFinite(weight) && weight >= 0) {
-                updateQuestion(question.id, { weight });
-              }
-            }}
-            sx={{ width: 76, flexShrink: 0 }}
-          />
-        ) : (
-          <Chip size="small" variant="outlined" label={`Weight ${question.weight}`} />
-        )}
-
-        {isAdmin && (
-          <Tooltip title="Delete question">
-            <IconButton size="small" onClick={() => deleteQuestion(question.id)}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
+        <Chip size="small" variant="outlined" label={`Weight ${question.weight}`} />
       </Box>
 
       <Box
@@ -124,7 +76,7 @@ export default function QuestionCard({ question, response, code, role }: Props) 
           gap: 1,
         }}
       >
-        {question.rubric.map((tier, i) => {
+        {question.rubric.map((tier) => {
           const selected = response?.score === tier.score;
           return (
             <Box
@@ -143,44 +95,15 @@ export default function QuestionCard({ question, response, code, role }: Props) 
                 gap: 0.75,
               }}
             >
-              <Chip
-                size="small"
-                label={tier.score}
+              <Typography
+                variant="body2"
                 sx={{
-                  width: 30,
-                  alignSelf: "flex-start",
-                  ...(selected && {
-                    bgcolor: SELECTED,
-                    color: "#FFFFFF",
-                    fontWeight: 700,
-                  }),
+                  color: selected ? "text.primary" : undefined,
+                  fontWeight: selected ? 600 : 400,
                 }}
-              />
-              {isAdmin ? (
-                <TextField
-                  fullWidth
-                  multiline
-                  size="small"
-                  variant="standard"
-                  value={tier.label}
-                  onClick={(e) => e.stopPropagation()}
-                  onChange={(e) => {
-                    const rubric = question.rubric.slice();
-                    rubric[i] = { ...tier, label: e.target.value };
-                    updateQuestion(question.id, { rubric });
-                  }}
-                />
-              ) : (
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: selected ? "text.primary" : undefined,
-                    fontWeight: selected ? 600 : 400,
-                  }}
-                >
-                  {tier.label}
-                </Typography>
-              )}
+              >
+                {tier.label}
+              </Typography>
             </Box>
           );
         })}
@@ -222,13 +145,11 @@ export default function QuestionCard({ question, response, code, role }: Props) 
             )}
 
             <Box sx={{ flex: 1 }} />
-            {isAdmin && (
-              <Tooltip title="Clear this response">
-                <IconButton size="small" onClick={() => deleteResponse(code, question.id)}>
-                  <RestartAltIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
+            <Tooltip title="Clear this response">
+              <IconButton size="small" onClick={() => deleteResponse(code, question.id)}>
+                <RestartAltIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Box>
 
           <Collapse in={showEvidence}>

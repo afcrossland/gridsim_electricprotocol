@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 import seed from "../data/protocol.seed.json";
 import { sourcedResponses } from "../data/sourcedAnswers";
 import { resolveTargets } from "../lib/jurisdictions";
-import type { Protocol, Question, Response, Role, Section } from "../lib/types";
+import type { Protocol, Question, Response, Section } from "../lib/types";
 
 const protocol = seed as unknown as Protocol;
 
@@ -15,7 +15,6 @@ const protocol = seed as unknown as Protocol;
  * actions and leaving the components alone.
  */
 interface ProtocolState {
-  role: Role;
   /**
    * Completeness a jurisdiction must reach to be ranked and coloured. Seeded
    * from the protocol but adjustable, because how much evidence is "enough"
@@ -25,35 +24,102 @@ interface ProtocolState {
   /** Which measure the choropleth paints: the score, or how much is answered. */
   mapMetric: "score" | "completeness";
   /** Which full-screen view is showing. Not persisted - always opens on the map. */
-  page: "map" | "settings";
+  page: "map" | "settings" | "admin";
   /** False until the visitor dismisses the Charter welcome screen. */
   welcomeSeen: boolean;
   sections: Section[];
   questions: Question[];
   responses: Response[];
   selectedCountry: string | null;
+  /**
+   * Admin edits to a shipped question's text/weight/rubric, keyed by question
+   * id and persisted standalone rather than the full `questions` array - see
+   * the long comment on `partialize` below for why.
+   */
+  questionOverrides: Record<string, Partial<Question>>;
+  /** Admin edits to a shipped section's title, same shape as questionOverrides. */
+  sectionOverrides: Record<string, Partial<Section>>;
+  /** Whole sections the admin added, not present in the shipped seed at all. */
+  customSections: Section[];
+  /** Whole questions the admin added, not present in the shipped seed at all. */
+  customQuestions: Question[];
+  /** Shipped section ids the admin deleted - filtered out of the live seed on every load. */
+  removedSectionIds: string[];
+  /** Shipped question ids the admin deleted - filtered out of the live seed on every load. */
+  removedQuestionIds: string[];
 
-  setRole: (role: Role) => void;
   setThreshold: (threshold: number) => void;
   setMapMetric: (mapMetric: "score" | "completeness") => void;
-  setPage: (page: "map" | "settings") => void;
+  setPage: (page: "map" | "settings" | "admin") => void;
   setWelcomeSeen: (seen: boolean) => void;
   selectCountry: (code: string | null) => void;
 
-  // Registered users and admins
   setResponse: (
     countryCode: string,
     questionId: string,
     patch: Partial<Pick<Response, "score" | "source" | "note">>,
   ) => void;
-
-  // Admin only
   deleteResponse: (countryCode: string, questionId: string) => void;
+
+  // Admin console only
+  updateSection: (id: string, patch: Partial<Section>) => void;
+  addSection: (title: string) => string;
+  /** Deletes a section and every question in it (and their responses). */
+  deleteSection: (id: string) => void;
   updateQuestion: (id: string, patch: Partial<Question>) => void;
+  /** Discards a question's persisted override, reverting it to the shipped seed version. */
+  resetQuestion: (id: string) => void;
   addQuestion: (sectionId: string) => string;
   deleteQuestion: (id: string) => void;
 
   resetToSeed: () => void;
+}
+
+/** Applies a sparse override map on top of a base list of records with an `id`. */
+function withOverrides<T extends { id: string }>(
+  items: T[],
+  overrides: Record<string, Partial<T>>,
+): T[] {
+  return items.map((item) => (overrides[item.id] ? { ...item, ...overrides[item.id] } : item));
+}
+
+/**
+ * The live section/question set: the shipped seed, minus anything admin-
+ * deleted, plus anything admin-added, with admin overrides reapplied on top.
+ * Used both to build the initial in-memory state and to rebuild it from a
+ * persisted blob on every load, so the two never drift apart.
+ */
+function buildLiveData(persisted: {
+  sectionOverrides?: Record<string, Partial<Section>>;
+  questionOverrides?: Record<string, Partial<Question>>;
+  customSections?: Section[];
+  customQuestions?: Question[];
+  removedSectionIds?: string[];
+  removedQuestionIds?: string[];
+}) {
+  const sectionOverrides = persisted.sectionOverrides ?? {};
+  const questionOverrides = persisted.questionOverrides ?? {};
+  const customSections = persisted.customSections ?? [];
+  const customQuestions = persisted.customQuestions ?? [];
+  const removedSectionIds = persisted.removedSectionIds ?? [];
+  const removedQuestionIds = persisted.removedQuestionIds ?? [];
+
+  const sections = withOverrides(
+    [
+      ...protocol.sections.filter((s) => !removedSectionIds.includes(s.id)),
+      ...customSections,
+    ],
+    sectionOverrides,
+  );
+  const questions = withOverrides(
+    [
+      ...protocol.questions.filter((q) => !removedQuestionIds.includes(q.id)),
+      ...customQuestions,
+    ],
+    questionOverrides,
+  );
+
+  return { sections, questions };
 }
 
 /**
@@ -82,7 +148,6 @@ function seedResponses(): Response[] {
 
 function initialState() {
   return {
-    role: "registered" as Role,
     threshold: protocol.completenessThreshold,
     mapMetric: "score" as const,
     page: "map" as const,
@@ -91,15 +156,26 @@ function initialState() {
     questions: protocol.questions.map((q) => ({ ...q })),
     responses: seedResponses(),
     selectedCountry: null,
+    questionOverrides: {},
+    sectionOverrides: {},
+    customSections: [],
+    customQuestions: [],
+    removedSectionIds: [],
+    removedQuestionIds: [],
   };
 }
+
+const DEFAULT_RUBRIC = [
+  { score: 0, label: "Not in place", points: 0 },
+  { score: 1, label: "Partly in place", points: 1 },
+  { score: 2, label: "Fully in place", points: 4 },
+];
 
 export const useProtocolStore = create<ProtocolState>()(
   persist(
     (set, get) => ({
       ...initialState(),
 
-      setRole: (role) => set({ role }),
       setThreshold: (threshold) => set({ threshold }),
       setMapMetric: (mapMetric) => set({ mapMetric }),
       setPage: (page) => set({ page }),
@@ -142,31 +218,117 @@ export const useProtocolStore = create<ProtocolState>()(
           ),
         })),
 
-      updateQuestion: (id, patch) =>
+      updateSection: (id, patch) =>
+        set((state) => {
+          const isCustom = state.customSections.some((s) => s.id === id);
+          return {
+            sections: state.sections.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+            customSections: isCustom
+              ? state.customSections.map((s) => (s.id === id ? { ...s, ...patch } : s))
+              : state.customSections,
+            sectionOverrides: isCustom
+              ? state.sectionOverrides
+              : {
+                  ...state.sectionOverrides,
+                  [id]: { ...state.sectionOverrides[id], ...patch },
+                },
+          };
+        }),
+
+      addSection: (title) => {
+        const id = `s-${Date.now().toString(36)}`;
+        const order = Math.max(0, ...get().sections.map((s) => s.order)) + 1;
+        const section: Section = { id, title, order };
         set((state) => ({
-          questions: state.questions.map((q) => (q.id === id ? { ...q, ...patch } : q)),
-        })),
+          sections: [...state.sections, section],
+          customSections: [...state.customSections, section],
+        }));
+        return id;
+      },
+
+      // Cascades to every question in the section (and their responses), the
+      // same way deleting a question cascades to its responses - an orphaned
+      // question with no section would be unreachable from the rail forever.
+      deleteSection: (id) =>
+        set((state) => {
+          const questionIdsInSection = new Set(
+            state.questions.filter((q) => q.sectionId === id).map((q) => q.id),
+          );
+          const isCustom = state.customSections.some((s) => s.id === id);
+
+          const questionOverrides = { ...state.questionOverrides };
+          for (const qid of questionIdsInSection) delete questionOverrides[qid];
+
+          const sectionOverrides = { ...state.sectionOverrides };
+          delete sectionOverrides[id];
+
+          return {
+            sections: state.sections.filter((s) => s.id !== id),
+            customSections: state.customSections.filter((s) => s.id !== id),
+            removedSectionIds: isCustom
+              ? state.removedSectionIds
+              : [...state.removedSectionIds, id],
+            questions: state.questions.filter((q) => q.sectionId !== id),
+            customQuestions: state.customQuestions.filter((q) => q.sectionId !== id),
+            removedQuestionIds: [
+              ...state.removedQuestionIds,
+              ...[...questionIdsInSection].filter(
+                (qid) => !state.customQuestions.some((q) => q.id === qid),
+              ),
+            ],
+            responses: state.responses.filter((r) => !questionIdsInSection.has(r.questionId)),
+            questionOverrides,
+            sectionOverrides,
+          };
+        }),
+
+      updateQuestion: (id, patch) =>
+        set((state) => {
+          const isCustom = state.customQuestions.some((q) => q.id === id);
+          return {
+            questions: state.questions.map((q) => (q.id === id ? { ...q, ...patch } : q)),
+            customQuestions: isCustom
+              ? state.customQuestions.map((q) => (q.id === id ? { ...q, ...patch } : q))
+              : state.customQuestions,
+            questionOverrides: isCustom
+              ? state.questionOverrides
+              : {
+                  ...state.questionOverrides,
+                  [id]: { ...state.questionOverrides[id], ...patch },
+                },
+          };
+        }),
+
+      // Only meaningful for a shipped question - a custom one has no seed
+      // version to revert to, so this is a no-op for those.
+      resetQuestion: (id) =>
+        set((state) => {
+          const overrides = { ...state.questionOverrides };
+          delete overrides[id];
+          const seedQuestion = protocol.questions.find((q) => q.id === id);
+          return {
+            questionOverrides: overrides,
+            questions: state.questions.map((q) =>
+              q.id === id && seedQuestion ? { ...seedQuestion } : q,
+            ),
+          };
+        }),
 
       addQuestion: (sectionId) => {
         const id = `q-${Date.now().toString(36)}`;
         const order = Math.max(0, ...get().questions.map((q) => q.order)) + 1;
+        const question: Question = {
+          id,
+          sectionId,
+          subsection: null,
+          order,
+          text: "New question",
+          weight: 1,
+          rubric: DEFAULT_RUBRIC.map((t) => ({ ...t })),
+        };
         set((state) => ({
-          questions: [
-            ...state.questions,
-            {
-              id,
-              sectionId,
-              subsection: null,
-              order,
-              text: "New question",
-              weight: 1,
-              rubric: [
-                { score: 0, label: "Not in place" },
-                { score: 1, label: "Partly in place" },
-                { score: 2, label: "Fully in place" },
-              ],
-            },
-          ],
+          questions: [...state.questions, question],
+          customQuestions: [...state.customQuestions, question],
         }));
         return id;
       },
@@ -174,10 +336,20 @@ export const useProtocolStore = create<ProtocolState>()(
       // Responses to a deleted question go with it, otherwise they linger as
       // orphans that still count toward nothing but can never be edited.
       deleteQuestion: (id) =>
-        set((state) => ({
-          questions: state.questions.filter((q) => q.id !== id),
-          responses: state.responses.filter((r) => r.questionId !== id),
-        })),
+        set((state) => {
+          const isCustom = state.customQuestions.some((q) => q.id === id);
+          const questionOverrides = { ...state.questionOverrides };
+          delete questionOverrides[id];
+          return {
+            questions: state.questions.filter((q) => q.id !== id),
+            customQuestions: state.customQuestions.filter((q) => q.id !== id),
+            removedQuestionIds: isCustom
+              ? state.removedQuestionIds
+              : [...state.removedQuestionIds, id],
+            responses: state.responses.filter((r) => r.questionId !== id),
+            questionOverrides,
+          };
+        }),
 
       resetToSeed: () => set(initialState()),
     }),
@@ -199,58 +371,86 @@ export const useProtocolStore = create<ProtocolState>()(
       // showing the old wording forever, because `merge` spread the stale
       // persisted copy over the freshly-loaded, fixed one. Bumping the version
       // clears any copy written by the old, buggy partialize.
-      version: 7,
+      //
+      // v8: admin edits to a shipped question persist again, but as
+      // `questionOverrides` - a sparse patch keyed by question id, not the
+      // full `questions` array. A field an admin never touched still comes
+      // from the live seed on every load, so unrelated fixes (new questions,
+      // rewording elsewhere) are not masked - only the specific fields a
+      // specific question was overridden on are. The v7 fix's actual point
+      // (don't let a whole-array cache shadow the seed) still holds; only the
+      // granularity changed.
+      //
+      // v9: sections and questions can now be added or deleted outright, not
+      // just edited - `customSections`/`customQuestions` (whole records with
+      // no seed counterpart) and `removedSectionIds`/`removedQuestionIds`
+      // (shipped ids to filter out) persist alongside the overrides, all
+      // reapplied to the live seed on every load by buildLiveData().
+      version: 9,
 
       /**
-       * Take the current seed's sections and questions, keeping only the
-       * responses a user typed. Admin edits to question text or weights are
-       * lost on a structural change, which is the right trade while the
-       * question set itself is still moving.
+       * Keep the user's answers and every admin edit (overrides, additions,
+       * deletions); everything else comes fresh from `initialState()`.
        */
       migrate: (persisted) => {
         const state = persisted as Partial<ProtocolState> | undefined;
+        const { sections, questions } = buildLiveData(state ?? {});
         return {
           ...initialState(),
-          role: state?.role ?? "registered",
           threshold: protocol.completenessThreshold,
           responses: (state?.responses ?? []).filter((r) => !r.seeded),
+          questionOverrides: state?.questionOverrides ?? {},
+          sectionOverrides: state?.sectionOverrides ?? {},
+          customSections: state?.customSections ?? [],
+          customQuestions: state?.customQuestions ?? [],
+          removedSectionIds: state?.removedSectionIds ?? [],
+          removedQuestionIds: state?.removedQuestionIds ?? [],
+          sections,
+          questions,
         } as ProtocolState;
       },
 
       /**
-       * Persist only what a person actually did: their role, preferences, and
-       * answers they typed. Nothing derived from the seed files.
+       * Persist only what a person actually did: their preferences, answers
+       * they typed, and admin edits to the question set. Nothing derived
+       * wholesale from the seed files.
        *
-       * `sections` and `questions` are deliberately excluded, even though they
-       * can be admin-edited, because they come from `protocol.seed.json` and
-       * persisting the full arrays means a cached copy shadows every later fix
-       * to that data - exactly the bug that let stale CER/CP wording and
-       * pre-cleanup question text keep showing up after both had been fixed at
-       * the source. The same reasoning already applies to `responses` below:
-       * seeded answers are derived from `protocol.seed.json` and
-       * `sourced-answers.json`, so a persisted copy shadows every later data
-       * update - that's how Australia went blank when answers moved to
-       * per-state codes, and how newly researched countries failed to appear.
-       * Deriving both fresh on every load removes the failure mode rather than
-       * relying on remembering to bump the version every time the data
-       * changes. The trade is that admin edits to question text or weight do
-       * not survive a reload - acceptable while there are no real admin users
-       * yet; worth a proper sparse-edit mechanism before there are.
+       * The shipped `sections`/`questions` arrays are deliberately excluded -
+       * they come from `protocol.seed.json`, and persisting the full arrays
+       * means a cached copy shadows every later fix to that data, exactly the
+       * bug that let stale CER/CP wording and pre-cleanup question text keep
+       * showing up after both had been fixed at the source. The sparse
+       * override/addition/removal fields below avoid that: each only shadows
+       * the specific thing an admin actually touched, so an unrelated
+       * question added or reworded later in the seed still comes through
+       * untouched. The same reasoning applies to `responses`: seeded answers
+       * are derived from `protocol.seed.json` and `sourced-answers.json`, so
+       * a persisted copy shadows every later data update - that's how
+       * Australia went blank when answers moved to per-state codes, and how
+       * newly researched countries failed to appear. Deriving them fresh on
+       * every load removes that failure mode rather than relying on
+       * remembering to bump the version every time the data changes.
        */
       partialize: (state) => ({
-        role: state.role,
         threshold: state.threshold,
         mapMetric: state.mapMetric,
         welcomeSeen: state.welcomeSeen,
         responses: state.responses.filter((r) => !r.seeded),
+        questionOverrides: state.questionOverrides,
+        sectionOverrides: state.sectionOverrides,
+        customSections: state.customSections,
+        customQuestions: state.customQuestions,
+        removedSectionIds: state.removedSectionIds,
+        removedQuestionIds: state.removedQuestionIds,
       }),
 
       /**
-       * Rebuild sections, questions and the full response list on every load:
-       * current seed data, plus the user's own answers with their jurisdiction
-       * codes re-resolved. A response recorded against a country that has
-       * since been subdivided would otherwise be stranded on a code the map no
-       * longer draws.
+       * Rebuild the full response list on every load - current seed data,
+       * plus the user's own answers with their jurisdiction codes
+       * re-resolved (a response recorded against a country that has since
+       * been subdivided would otherwise be stranded on a code the map no
+       * longer draws) - then rebuild sections/questions from the fresh seed
+       * with every persisted admin edit reapplied on top.
        */
       merge: (persisted, current) => {
         const state = persisted as Partial<ProtocolState> | undefined;
@@ -261,15 +461,13 @@ export const useProtocolStore = create<ProtocolState>()(
           .flatMap((r) =>
             resolveTargets(r.countryCode).map((code) => ({ ...r, countryCode: code })),
           );
+        const { sections, questions } = buildLiveData(state);
 
         return {
           ...current,
           ...state,
-          // Never take sections/questions from the persisted blob, even one
-          // written before this fix shipped - always the fresh seed-derived
-          // copy from `current`.
-          sections: current.sections,
-          questions: current.questions,
+          sections,
+          questions,
           responses: [...seedResponses(), ...userEntered],
         };
       },

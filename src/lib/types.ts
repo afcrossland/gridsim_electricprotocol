@@ -1,6 +1,9 @@
 export interface RubricTier {
+  /** Stable id for this tier, also what a Response.score points at - not required to be contiguous. */
   score: number;
   label: string;
+  /** How much this tier counts toward the weighted score, 0-4. Editable in the admin console. */
+  points: number;
 }
 
 export interface Section {
@@ -51,8 +54,6 @@ export interface Protocol {
   countries: { code: string; name: string }[];
   questions: Question[];
 }
-
-export type Role = "registered" | "admin";
 
 /** A country's computed standing. */
 export interface CountryScore {
@@ -107,9 +108,9 @@ export interface GroupedScore {
 export interface ImpactItem {
   question: Question;
   section: Section;
-  /** Always answered - rankImpact excludes unanswered questions entirely. */
+  /** Raw rubric tier (0/1/2), always answered - rankImpact excludes unanswered questions entirely. */
   currentScore: number;
-  /** weight x (maxScore - currentScore) - raw points available. */
+  /** weight x (points available at the top tier - points earned now) - see tierPoints() in scoring.ts. */
   gain: number;
   /** Percentage points added to the country score if taken to full marks. */
   scoreDelta: number;

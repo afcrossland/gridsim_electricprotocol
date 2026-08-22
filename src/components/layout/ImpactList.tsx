@@ -57,7 +57,11 @@ export default function ImpactList({ items, limit = 10, onJump }: Props) {
           </Box>
 
           <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-            <Chip size="small" variant="outlined" label={`Currently ${item.currentScore}/2`} />
+            <Chip
+              size="small"
+              variant="outlined"
+              label={`Currently: ${item.question.rubric.find((t) => t.score === item.currentScore)?.label ?? item.currentScore}`}
+            />
             <Chip size="small" variant="outlined" label={`Weight ${item.question.weight}`} />
           </Box>
         </Box>
