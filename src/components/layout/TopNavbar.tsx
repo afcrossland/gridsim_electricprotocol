@@ -1,6 +1,6 @@
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 
-import { protocol, useProtocolStore } from "../../stores/protocolStore";
+import { useProtocolStore } from "../../stores/protocolStore";
 
 export default function TopNavbar() {
   const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
@@ -38,9 +38,6 @@ export default function TopNavbar() {
           />
           <Typography variant="h5">Solar Policy Wiki</Typography>
         </Box>
-        <Typography variant="body2" sx={{ flexShrink: 0, display: { xs: "none", md: "block" } }}>
-          Scored against The {protocol.title}
-        </Typography>
 
         <Box sx={{ flex: 1 }} />
 
