@@ -7,12 +7,13 @@ import {
   IconButton,
   MenuItem,
   Paper,
-  Select,
   Slider,
   Stack,
   TextField,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -62,6 +63,12 @@ export default function AdminConsole({ onBack }: Props) {
   const resetToSeed = useProtocolStore((s) => s.resetToSeed);
   const thresholdValue = useProtocolStore((s) => s.threshold);
   const setThreshold = useProtocolStore((s) => s.setThreshold);
+  const theme = useTheme();
+  // The group rail is a left-hand column on desktop, but that leaves too
+  // little width for editing a question on a phone in portrait - below `sm`
+  // it becomes a horizontal scrolling strip above the editor instead, the
+  // same treatment CountryPanel's SectionRail gets.
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [activeSectionId, setActiveSectionId] = useState<string>(sections[0]?.id ?? "");
 
@@ -147,65 +154,101 @@ export default function AdminConsole({ onBack }: Props) {
         </Button>
       </Box>
 
-      <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
         <Box
-          sx={{
-            width: RAIL_WIDTH,
-            flexShrink: 0,
-            borderRight: "1px solid",
-            borderColor: "divider",
-            overflowY: "auto",
-            bgcolor: "background.paper",
-          }}
+          sx={
+            isMobile
+              ? {
+                  flexShrink: 0,
+                  display: "flex",
+                  overflowX: "auto",
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                  bgcolor: "background.paper",
+                }
+              : {
+                  width: RAIL_WIDTH,
+                  flexShrink: 0,
+                  borderRight: "1px solid",
+                  borderColor: "divider",
+                  overflowY: "auto",
+                  bgcolor: "background.paper",
+                }
+          }
         >
           <Box
             onClick={() => setActiveSectionId(SETTINGS_VIEW)}
-            sx={{
-              px: 2,
-              py: 1.25,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              bgcolor: showingSettings ? "action.selected" : "transparent",
-              "&:hover": { bgcolor: "action.hover" },
-            }}
+            sx={
+              isMobile
+                ? {
+                    px: 1.5,
+                    py: 1,
+                    flexShrink: 0,
+                    width: 84,
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 0.5,
+                    borderBottom: "3px solid",
+                    borderColor: showingSettings ? "primary.main" : "transparent",
+                    "&:hover": { bgcolor: "action.hover" },
+                  }
+                : {
+                    px: 2,
+                    py: 1.25,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    bgcolor: showingSettings ? "action.selected" : "transparent",
+                    "&:hover": { bgcolor: "action.hover" },
+                  }
+            }
           >
             <SettingsIcon fontSize="small" />
-            <Typography variant="body2" sx={{ fontWeight: showingSettings ? 600 : 400 }}>
+            <Typography
+              variant={isMobile ? "caption" : "body2"}
+              sx={{ fontWeight: showingSettings ? 600 : 400, textAlign: isMobile ? "center" : undefined }}
+            >
               Settings
             </Typography>
           </Box>
-          <Divider />
+          {!isMobile && <Divider />}
 
-          {sections.map((section) => (
-            <Box
-              key={section.id}
-              onClick={() => setActiveSectionId(section.id)}
-              sx={{
-                px: 2,
-                py: 1.25,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 0.5,
-                bgcolor: activeSectionId === section.id ? "action.selected" : "transparent",
-                "&:hover": { bgcolor: "action.hover" },
-              }}
-            >
-              <Box sx={{ flex: 1, minWidth: 0 }}>
+          {sections.map((section) =>
+            isMobile ? (
+              <Box
+                key={section.id}
+                onClick={() => setActiveSectionId(section.id)}
+                sx={{
+                  px: 1.5,
+                  py: 1,
+                  flexShrink: 0,
+                  width: 100,
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 0.25,
+                  borderBottom: "3px solid",
+                  borderColor: activeSectionId === section.id ? "primary.main" : "transparent",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+              >
                 <Typography
-                  variant="body2"
-                  noWrap
-                  sx={{ fontWeight: activeSectionId === section.id ? 600 : 400 }}
+                  variant="caption"
+                  sx={{
+                    fontWeight: activeSectionId === section.id ? 600 : 400,
+                    textAlign: "center",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
                 >
                   {section.title}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {questionsBySection.get(section.id)?.length ?? 0} questions
-                </Typography>
-              </Box>
-              <Tooltip title="Delete this group">
                 <IconButton
                   size="small"
                   onClick={(e) => {
@@ -215,18 +258,67 @@ export default function AdminConsole({ onBack }: Props) {
                 >
                   <DeleteOutlineIcon fontSize="small" />
                 </IconButton>
+              </Box>
+            ) : (
+              <Box
+                key={section.id}
+                onClick={() => setActiveSectionId(section.id)}
+                sx={{
+                  px: 2,
+                  py: 1.25,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  bgcolor: activeSectionId === section.id ? "action.selected" : "transparent",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+              >
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    variant="body2"
+                    noWrap
+                    sx={{ fontWeight: activeSectionId === section.id ? 600 : 400 }}
+                  >
+                    {section.title}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {questionsBySection.get(section.id)?.length ?? 0} questions
+                  </Typography>
+                </Box>
+                <Tooltip title="Delete this group">
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteSection(section.id);
+                    }}
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            ),
+          )}
+
+          {isMobile ? (
+            <Box sx={{ display: "flex", alignItems: "center", px: 1, flexShrink: 0 }}>
+              <Tooltip title="Add group">
+                <IconButton size="small" onClick={handleAddSection}>
+                  <AddIcon fontSize="small" />
+                </IconButton>
               </Tooltip>
             </Box>
-          ))}
-
-          <Box sx={{ p: 1 }}>
-            <Button size="small" startIcon={<AddIcon />} onClick={handleAddSection} fullWidth>
-              Add group
-            </Button>
-          </Box>
+          ) : (
+            <Box sx={{ p: 1 }}>
+              <Button size="small" startIcon={<AddIcon />} onClick={handleAddSection} fullWidth>
+                Add group
+              </Button>
+            </Box>
+          )}
         </Box>
 
-        <Box sx={{ flex: 1, overflowY: "auto", p: 3, minWidth: 0 }}>
+        <Box sx={{ flex: 1, overflowY: "auto", p: isMobile ? 2 : 3, minWidth: 0 }}>
           {showingSettings ? (
             <Paper variant="outlined" sx={{ p: 2.5, maxWidth: 500 }}>
               <Typography variant="h6" gutterBottom>
@@ -282,65 +374,23 @@ export default function AdminConsole({ onBack }: Props) {
 
             {activeQuestions.map((question) => (
               <Paper key={question.id} variant="outlined" sx={{ p: 2 }}>
-                <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start", mb: 1.5 }}>
-                  <TextField
-                    fullWidth
-                    multiline
-                    size="small"
-                    variant="standard"
-                    label="Question"
-                    value={question.text}
-                    onChange={(e) => updateQuestion(question.id, { text: e.target.value })}
-                    sx={{ flex: 1 }}
-                  />
-                  <Box
-                    title={`Impact ${question.weight}`}
-                    sx={{
-                      width: 14,
-                      height: 14,
-                      borderRadius: "50%",
-                      flexShrink: 0,
-                      mt: 1.5,
-                      bgcolor: impactColor(question.weight),
-                    }}
-                  />
-                  <TextField
-                    size="small"
-                    type="number"
-                    label="Impact"
-                    variant="standard"
-                    value={question.weight}
-                    slotProps={{ htmlInput: { min: 0, max: MAX_IMPACT, step: 0.1 } }}
-                    onChange={(e) => {
-                      const raw = Number(e.target.value);
-                      if (!Number.isFinite(raw)) return;
-                      const weight = Math.round(Math.min(MAX_IMPACT, Math.max(0, raw)) * 10) / 10;
-                      updateQuestion(question.id, { weight });
-                    }}
-                    sx={{ width: 90, flexShrink: 0 }}
-                  />
-                  {questionOverrides[question.id] && (
-                    <Tooltip title="Revert this question to the shipped version">
-                      <IconButton size="small" onClick={() => resetQuestion(question.id)}>
-                        <RestartAltIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Delete this question">
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        if (confirm("Delete this question? This also removes any answers already recorded against it.")) {
-                          deleteQuestion(question.id);
-                        }
-                      }}
-                    >
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
+                <QuestionHeader
+                  question={question}
+                  isMobile={isMobile}
+                  overridden={Boolean(questionOverrides[question.id])}
+                  onChangeText={(text) => updateQuestion(question.id, { text })}
+                  onChangeWeight={(weight) => updateQuestion(question.id, { weight })}
+                  onResetQuestion={() => resetQuestion(question.id)}
+                  onDeleteQuestion={() => deleteQuestion(question.id)}
+                />
 
                 <Divider sx={{ mb: 1.5 }} />
+
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+                  Answers a country can pick for this question, and the points each is worth
+                  toward its score (0 = counts for nothing, 4 = counts in full). The question's
+                  own Impact above then scales how much that counts toward the overall total.
+                </Typography>
 
                 <Stack spacing={1}>
                   {question.rubric.map((tier, i) => (
@@ -349,22 +399,25 @@ export default function AdminConsole({ onBack }: Props) {
                         fullWidth
                         size="small"
                         variant="standard"
+                        label="Answer"
                         value={tier.label}
                         onChange={(e) => setTierField(question, i, { label: e.target.value })}
                       />
-                      <Select
+                      <TextField
+                        select
                         size="small"
                         variant="standard"
+                        label="Points"
                         value={tier.points}
                         onChange={(e) => setTierField(question, i, { points: Number(e.target.value) })}
-                        sx={{ width: 64, flexShrink: 0 }}
+                        sx={{ width: 72, flexShrink: 0 }}
                       >
                         {POINTS_OPTIONS.map((p) => (
                           <MenuItem key={p} value={p}>
                             {p}
                           </MenuItem>
                         ))}
-                      </Select>
+                      </TextField>
                       <Tooltip title="Remove this answer">
                         <IconButton
                           size="small"
@@ -407,6 +460,123 @@ export default function AdminConsole({ onBack }: Props) {
           )}
         </Box>
       </Box>
+    </Box>
+  );
+}
+
+/**
+ * A question's text, impact and action icons. On a phone, cramming all three
+ * into one row leaves each too narrow to use, so the order changes: impact
+ * (what this list is prioritised by) leads on its own row, the question text
+ * gets a full-width row of its own below it, and the action icons trail last
+ * rather than fighting the text field for space. Desktop keeps the original
+ * single row.
+ */
+function QuestionHeader({
+  question,
+  isMobile,
+  overridden,
+  onChangeText,
+  onChangeWeight,
+  onResetQuestion,
+  onDeleteQuestion,
+}: {
+  question: Question;
+  isMobile: boolean;
+  overridden: boolean;
+  onChangeText: (text: string) => void;
+  onChangeWeight: (weight: number) => void;
+  onResetQuestion: () => void;
+  onDeleteQuestion: () => void;
+}) {
+  const impactDot = (
+    <Box
+      title={`Impact ${question.weight}`}
+      sx={{
+        width: 14,
+        height: 14,
+        borderRadius: "50%",
+        flexShrink: 0,
+        bgcolor: impactColor(question.weight),
+      }}
+    />
+  );
+
+  const impactField = (
+    <TextField
+      size="small"
+      type="number"
+      label="Impact"
+      variant="standard"
+      value={question.weight}
+      slotProps={{ htmlInput: { min: 0, max: MAX_IMPACT, step: 0.1 } }}
+      onChange={(e) => {
+        const raw = Number(e.target.value);
+        if (!Number.isFinite(raw)) return;
+        onChangeWeight(Math.round(Math.min(MAX_IMPACT, Math.max(0, raw)) * 10) / 10);
+      }}
+      sx={{ width: 90, flexShrink: 0 }}
+    />
+  );
+
+  const questionField = (
+    <TextField
+      fullWidth
+      multiline
+      size="small"
+      variant="standard"
+      label="Question"
+      value={question.text}
+      onChange={(e) => onChangeText(e.target.value)}
+      sx={{ flex: 1 }}
+    />
+  );
+
+  const actionIcons = (
+    <>
+      {overridden && (
+        <Tooltip title="Revert this question to the shipped version">
+          <IconButton size="small" onClick={onResetQuestion}>
+            <RestartAltIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
+      <Tooltip title="Delete this question">
+        <IconButton
+          size="small"
+          onClick={() => {
+            if (
+              confirm("Delete this question? This also removes any answers already recorded against it.")
+            ) {
+              onDeleteQuestion();
+            }
+          }}
+        >
+          <DeleteOutlineIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Stack spacing={1} sx={{ mb: 1.5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {impactDot}
+          {impactField}
+        </Box>
+        {questionField}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 0.5 }}>{actionIcons}</Box>
+      </Stack>
+    );
+  }
+
+  return (
+    <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start", mb: 1.5 }}>
+      {questionField}
+      <Box sx={{ mt: 1.5, display: "flex" }}>{impactDot}</Box>
+      {impactField}
+      {actionIcons}
     </Box>
   );
 }

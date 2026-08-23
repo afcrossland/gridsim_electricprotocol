@@ -329,7 +329,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
                 Policy score
               </Typography>
               <Typography variant="h5">
-                {hovered.ranked ? scoreLabel(hovered.score) : "Not enough data"}
+                {hovered.ranked ? scoreLabel(hovered.score) : "Not enough data to score yet"}
               </Typography>
               <Typography variant="caption">
                 {hovered.answered}/{hovered.total} answered

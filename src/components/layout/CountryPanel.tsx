@@ -109,8 +109,7 @@ export default function CountryPanel({ code, score, onBack }: Props) {
             icon={<TrendingUpIcon fontSize="small" />}
             color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
             label="Score"
-            value={score.ranked ? scoreLabel(score.score) : " - "}
-            detail={score.ranked ? undefined : "Not enough data"}
+            value={score.ranked ? scoreLabel(score.score) : "Not enough data to score yet"}
             fill={score.ranked ? score.score : undefined}
           />
           <StatTile

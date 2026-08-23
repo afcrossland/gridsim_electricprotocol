@@ -177,16 +177,17 @@ function Row({
 
         <Typography
           variant="body2"
-          noWrap
+          noWrap={group.ranked}
           sx={{
-            width: 120,
+            width: 130,
             textAlign: "right",
             fontWeight: 700,
             flexShrink: 0,
+            lineHeight: group.ranked ? undefined : 1.2,
             color: group.ranked ? scoreBand(group.score).color : "text.disabled",
           }}
         >
-          {group.ranked ? scoreLabel(group.score) : "Not enough data"}
+          {group.ranked ? scoreLabel(group.score) : "Not enough data to score yet"}
         </Typography>
 
         {group.isGroup ? (
@@ -282,16 +283,17 @@ function ChildRow({
       </Typography>
       <Typography
         variant="caption"
-        noWrap
+        noWrap={child.ranked}
         sx={{
-          width: 110,
+          width: 120,
           textAlign: "right",
           fontWeight: 600,
           flexShrink: 0,
+          lineHeight: child.ranked ? undefined : 1.2,
           color: child.ranked ? scoreBand(child.score).color : "text.disabled",
         }}
       >
-        {child.ranked ? scoreLabel(child.score) : "Not enough data"}
+        {child.ranked ? scoreLabel(child.score) : "Not enough data to score yet"}
       </Typography>
     </Box>
   );
