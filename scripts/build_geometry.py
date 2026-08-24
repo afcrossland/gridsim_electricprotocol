@@ -45,8 +45,31 @@ SUBDIVIDED = {"AU", "US", "CA"}
 # disputed areas. Anything without a real two-letter code is not scoreable.
 BAD_CODES = {"-99", "", None}
 
+# Not a scoreable electricity jurisdiction under any government - excluded
+# entirely rather than just left out of app-level filters, so it never
+# appears on the map, in search, or in any jurisdiction dropdown.
+SKIP_COUNTRIES = {"AQ"}  # Antarctica
+
 # Territories that are not their own electricity jurisdiction.
 SKIP_ADMIN1 = {"AU-X02~"}  # Jervis Bay Territory
+
+# Full ISO 3166-1 alpha-2 countries in their own right in Natural Earth's
+# admin0 layer (each has its own polygon and its own code, unlike a US state,
+# which only exists in the admin1 layer) - but each is a US insular area with
+# its own local electricity utility and regulator, not the mainland grid, so
+# grouped under "US" the same way a state is rather than left as an ordinary
+# independent country. Level "subnational" and parent "US" here is exactly
+# the shape a state gets from the admin1 loop below; only the source layer
+# differs.
+#
+# Grouping them under "US" means a federal-level answer written for "US" is
+# now inherited by these three too (see resolveTargets/childrenOf), which is
+# a real simplification worth flagging when researching: insular territories
+# often have distinct tax and customs treatment from the mainland (Puerto
+# Rico runs its own tax system, for one), so an inherited federal score here
+# is a starting assumption, not a verified one - the same caveat any
+# inherited answer already carries, just easy to forget for a territory.
+US_TERRITORIES = {"PR", "GU", "AS"}
 
 # Countries whose country-level polygon includes a distant, disjoint overseas
 # territory that runs its own electricity regime - clicking French Guiana
@@ -138,7 +161,7 @@ def main() -> None:
         # ISO_A2 is "-99" for France and Norway among others; the _EH variant
         # carries the code actually in use.
         code = props.get("ISO_A2_EH") or props.get("ISO_A2")
-        if code in BAD_CODES:
+        if code in BAD_CODES or code in SKIP_COUNTRIES:
             continue
         if code in SUBDIVIDED:
             # Natural Earth lists external territories under the sovereign's
@@ -167,15 +190,20 @@ def main() -> None:
         if exclaves:
             print(f"  split {code}: {', '.join(e['code'] for e in exclaves)}")
 
+        is_us_territory = code in US_TERRITORIES
         features.append(
             {
                 "type": "Feature",
                 "properties": {
                     "code": code,
                     "name": country_name,
-                    "level": "country",
-                    "parent": None,
-                    "region": props.get("SUBREGION") or props.get("REGION_UN"),
+                    "level": "subnational" if is_us_territory else "country",
+                    "parent": "US" if is_us_territory else None,
+                    "region": (
+                        "United States of America"
+                        if is_us_territory
+                        else (props.get("SUBREGION") or props.get("REGION_UN"))
+                    ),
                 },
                 "geometry": geometry,
             }

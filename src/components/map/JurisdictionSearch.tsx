@@ -18,16 +18,27 @@ interface Props {
   scores: CountryScore[];
   selected: string | null;
   onSelect: (code: string) => void;
+  /**
+   * Default true - see the note on the Autocomplete below. A caller that
+   * embeds this inside its own portalled/scrollable surface (a Popover, say)
+   * should pass false instead: a disabled-portal dropdown is a normal
+   * absolutely-positioned child of this Paper, so it gets clipped by
+   * whatever overflow rule that surface's own Paper applies rather than
+   * floating freely above everything the way a portalled one does.
+   */
+  disablePortal?: boolean;
 }
 
 /**
- * Search and select any jurisdiction on the map.
+ * Search and select any jurisdiction on the map. Sits in PolicyMap's bottom
+ * bar rather than a sidebar control, so it stays reachable while looking at
+ * the map instead of requiring a trip to the list.
  *
  * Lists everything drawable, not just what has been scored - the point is to
  * reach an empty country in order to start filling it in, so restricting the
  * list to countries with data would defeat it.
  */
-export default function JurisdictionSearch({ scores, selected, onSelect }: Props) {
+export default function JurisdictionSearch({ scores, selected, onSelect, disablePortal = true }: Props) {
   const scoreByCode = useMemo(() => new Map(scores.map((s) => [s.code, s])), [scores]);
 
   const options = useMemo<Option[]>(
@@ -54,17 +65,38 @@ export default function JurisdictionSearch({ scores, selected, onSelect }: Props
 
   return (
     <Paper
-      variant="outlined"
+      elevation={0}
+      data-tour="jurisdiction-search"
       sx={{
         px: 1,
         py: 0.5,
         width: "100%",
+        // The dropdown below needs a positioned ancestor to anchor to - see
+        // the `disablePortal` note on the Autocomplete itself.
+        position: "relative",
+        bgcolor: "#ffffff",
+        border: "1px solid",
+        borderColor: "divider",
       }}
     >
       <Autocomplete
         size="small"
         options={options}
         value={value}
+        // Left at its MUI default (disablePortal false), the dropdown
+        // portals to <body> and positions itself against the viewport -
+        // inside this app's nested flex/scroll containers (the sidebar's own
+        // scroll area, sitting next to the map) that math can misfire and
+        // land the list pinned near the top-left of the screen instead of
+        // under the input, which is what the bottom-bar usage passes
+        // disablePortal=true to avoid: it keeps the dropdown a normal child
+        // of this Paper, positioned relative to it instead of the viewport.
+        // The trade-off is that a disabled-portal dropdown gets clipped by
+        // an ancestor's own overflow rule rather than floating free - a real
+        // problem once this component is embedded inside something that
+        // clips, like a Popover's own Paper (see the `disablePortal` prop
+        // doc above).
+        slotProps={{ popper: { disablePortal } }}
         groupBy={(o) => o.group}
         getOptionLabel={(o) => o.label}
         isOptionEqualToValue={(a, b) => a.code === b.code}

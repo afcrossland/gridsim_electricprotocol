@@ -1,9 +1,34 @@
-import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography } from "@mui/material";
 
 import { useProtocolStore } from "../../stores/protocolStore";
 
+/**
+ * A nav item's look, matching the sibling gridsim-frontend project's own
+ * TopNavbar exactly: a plain underlined link rather than a button - active
+ * gets the aqua text + bottom border, everything else is grey until
+ * hovered, no background/outline chrome at any state.
+ */
+function navItemSx(active: boolean) {
+  return {
+    display: "flex",
+    alignItems: "center",
+    height: "100%",
+    px: { xs: 1, sm: 2 },
+    cursor: "pointer",
+    color: active ? "primary.main" : "text.secondary",
+    fontWeight: active ? 500 : 400,
+    fontSize: "0.875rem",
+    borderBottom: active ? "2px solid" : "2px solid transparent",
+    borderColor: active ? "primary.main" : "transparent",
+    transition: "color 0.15s ease, border-color 0.15s ease",
+    userSelect: "none" as const,
+    "&:hover": { color: "primary.main" },
+  };
+}
+
 export default function TopNavbar() {
   const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
+  const setTourSeen = useProtocolStore((s) => s.setTourSeen);
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
   const selectCountry = useProtocolStore((s) => s.selectCountry);
@@ -34,51 +59,72 @@ export default function TopNavbar() {
             component="img"
             src={`${import.meta.env.BASE_URL}favicon.png`}
             alt=""
-            sx={{ height: 28, width: 28 }}
+            sx={{ height: 34, width: 34, flexShrink: 0 }}
           />
-          {/* Full name only where there is room for it and three nav buttons
-              too - a phone gets the icon alone rather than a wrapped title. */}
-          <Typography variant="h5" sx={{ display: { xs: "none", sm: "block" } }}>
-            Solar Policy Wiki
-          </Typography>
+          {/* Full name/subtitle only where there is room for it and three nav
+              buttons too - a phone gets the icon alone rather than a wrapped
+              title. Format, sizing and colour match the sibling gridsim-
+              frontend project's own header exactly. */}
+          <Box
+            sx={{
+              display: { xs: "none", sm: "flex" },
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+          >
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: "1rem",
+                color: "primary.main",
+                letterSpacing: "-0.01em",
+                lineHeight: 1.2,
+              }}
+            >
+              Solar Policy Wiki
+            </Typography>
+            <Typography sx={{ fontSize: "0.65rem", color: "text.secondary", lineHeight: 1.3 }}>
+              by The Global Solar Council&ensp;·&ensp;
+              <Box component="span" sx={{ color: "#D97706", fontStyle: "italic", fontWeight: 600 }}>
+                Solar. Storage. Future Secured.
+              </Box>
+            </Typography>
+          </Box>
         </Box>
 
         <Box sx={{ flex: 1 }} />
 
-        {/* The theme's MuiButton override sets a 600 weight everywhere by
-            default, which reads as shouting for a plain nav link - dialled
-            back to regular weight for just these two. Padding is tightened
-            on narrow screens so three buttons plus the logo fit without
-            wrapping the toolbar onto a second line. */}
-        <Button
-          size="small"
-          onClick={() => setWelcomeSeen(false)}
-          sx={{ fontWeight: 400, minWidth: 0, px: { xs: 1, sm: 2 } }}
-        >
-          About
-        </Button>
-        <Button
-          size="small"
-          variant={page === "help" ? "outlined" : "text"}
-          onClick={() => setPage(page === "help" ? "map" : "help")}
-          sx={{ fontWeight: 400, minWidth: 0, px: { xs: 1, sm: 2 } }}
-        >
-          Help
-        </Button>
-        {/* Stands in for auth: open to anyone until sign-in exists. */}
-        <Button
-          size="small"
-          variant={page === "admin" ? "outlined" : "text"}
-          onClick={() => setPage(page === "admin" ? "map" : "admin")}
-          sx={{ fontWeight: 400, minWidth: 0, px: { xs: 1, sm: 2 } }}
-        >
-          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-            Admin console
+        {/* Plain underlined links, not buttons - see navItemSx. */}
+        <Box sx={{ display: "flex", alignItems: "stretch", height: "100%" }}>
+          <Box onClick={() => setTourSeen(false)} sx={navItemSx(false)}>
+            <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+              Take the tour
+            </Box>
+            <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+              Tour
+            </Box>
           </Box>
-          <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-            Admin
+
+          <Box sx={{ width: "1px", height: 20, bgcolor: "divider", mx: 0.5, alignSelf: "center" }} />
+
+          <Box data-tour="nav-links" sx={{ display: "flex", alignItems: "stretch" }}>
+            <Box onClick={() => setWelcomeSeen(false)} sx={navItemSx(false)}>
+              About
+            </Box>
+            <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
+              Help
+            </Box>
+            {/* Stands in for auth: open to anyone until sign-in exists. */}
+            <Box onClick={() => setPage(page === "admin" ? "map" : "admin")} sx={navItemSx(page === "admin")}>
+              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                Admin console
+              </Box>
+              <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+                Admin
+              </Box>
+            </Box>
           </Box>
-        </Button>
+        </Box>
       </Toolbar>
     </AppBar>
   );

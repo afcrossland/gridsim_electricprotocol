@@ -149,7 +149,6 @@ function RailItem({
       {trailing}
       <Typography
         variant={horizontal ? "caption" : "body2"}
-        noWrap={!horizontal}
         sx={{
           flex: horizontal ? undefined : 1,
           minWidth: 0,

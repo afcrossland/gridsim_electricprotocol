@@ -99,6 +99,30 @@ export function scoreCountry(
 }
 
 /**
+ * A jurisdiction's score broken down per section - the section radar's data
+ * source. Reuses `scoreCountry` itself, scoped to each section's own
+ * questions in turn, so a section's score carries exactly the same
+ * completeness discount and `ranked` gate as the overall figure - no
+ * separate formula to keep in sync.
+ */
+export function scoreSections(
+  protocol: Protocol,
+  sections: Section[],
+  questions: Question[],
+  responses: Response[],
+  code: string,
+  threshold?: number,
+): { section: Section; score: CountryScore }[] {
+  return sections.map((section) => {
+    const sectionQuestions = questions.filter((q) => q.sectionId === section.id);
+    return {
+      section,
+      score: scoreCountry(protocol, sectionQuestions, responses, code, section.title, threshold),
+    };
+  });
+}
+
+/**
  * Highest-impact changes for a country: every *answered* question that is not
  * already at full marks, ranked by the weighted points it would gain from
  * being taken to the top of its rubric.
@@ -188,9 +212,11 @@ export function rankImpact(
  *   a subdivision - so it is built purely from its members' scores, using the
  *   same ranked-only averaging as a subdivided country. Unlike ISO
  *   subdivision, membership does not touch a country's own jurisdiction
- *   record: France is both an EU member (hidden from the top-level list,
- *   shown only inside the EU row) and, everywhere else in the app, still a
- *   fully independent, mappable, directly-clickable country in its own right.
+ *   record: an ordinary EU member (Germany, say) is hidden from the top-level
+ *   list and shown only inside the EU row, but a member that is itself a
+ *   France-shaped country (its own mappable shape, plus exclave children of
+ *   its own) stays a normal top-level row too - see the comment where
+ *   `childrenByBloc` is built for why.
  */
 export function groupScores(scores: CountryScore[]): GroupedScore[] {
   const byCode = new Map(scores.map((s) => [s.code, s]));
@@ -210,6 +236,16 @@ export function groupScores(scores: CountryScore[]): GroupedScore[] {
   // Political blocs: member states roll up under the bloc the same way,
   // without touching their own jurisdiction record - each still has a real
   // ISO parent of null (a top-level sovereign country) everywhere else.
+  //
+  // A member with its own exclave children (France) is the one exception -
+  // it still contributes to the bloc's average below, but is not hidden from
+  // the top level. Hiding it there would have meant its own exclaves
+  // (French Guiana etc.) had nowhere left to nest under: `children` is only
+  // ever attached to a row that is actually pushed to `grouped`, and a
+  // country demoted to a bare bloc-member entry never gets one. France needs
+  // to stay a normal, independent top-level row - with its exclaves nested
+  // under it, same as if it were not in any bloc at all - for exactly the
+  // reason it is not ISO-subdivided in the first place.
   const childrenByBloc = new Map<string, CountryScore[]>();
   for (const [blocCode, bloc] of Object.entries(POLITICAL_BLOCS)) {
     for (const memberCode of bloc.members) {
@@ -218,7 +254,7 @@ export function groupScores(scores: CountryScore[]): GroupedScore[] {
       const list = childrenByBloc.get(blocCode) ?? [];
       list.push(s);
       childrenByBloc.set(blocCode, list);
-      hiddenFromTopLevel.add(s.code);
+      if (!childrenByParent.has(s.code)) hiddenFromTopLevel.add(s.code);
     }
   }
 
@@ -279,13 +315,21 @@ function syntheticGroup(code: string, name: string, children: CountryScore[]): G
   };
 }
 
-/** Colour ramp for the choropleth, low score to high. */
+/**
+ * Colour ramp for the choropleth, low score to high - red to green, drawn
+ * from the sibling gridsim-frontend project's own carbon-intensity scale
+ * (`CARBON_COLOUR_STOPS`), reversed (there low is good/green, high is bad/
+ * red; here a high score is good) and without its darkest, near-black red -
+ * too harsh at this end of the scale - so the lowest stop is its ordinary
+ * red instead, with an extra orange step added between that and the amber
+ * stop so the ramp still reads as five distinct, evenly-spaced colours.
+ */
 export const SCORE_RAMP = [
-  { stop: 0.0, color: "#E24B4A" },
-  { stop: 0.25, color: "#EF864C" },
-  { stop: 0.5, color: "#FBB114" },
-  { stop: 0.75, color: "#5FCCD8" },
-  { stop: 1.0, color: "#008194" },
+  { stop: 0.0, color: "#c0392b" },
+  { stop: 0.25, color: "#f47c2c" },
+  { stop: 0.5, color: "#f9a825" },
+  { stop: 0.75, color: "#c8e07b" },
+  { stop: 1.0, color: "#1a9850" },
 ] as const;
 
 /** Countries below the completeness threshold, and those with no data at all. */
@@ -311,11 +355,11 @@ export function scoreColor(score: number): string {
  * means.
  */
 export const SCORE_BANDS = [
-  { label: "Very ineffective", min: 0.0, color: "#E24B4A" },
-  { label: "Ineffective", min: 0.2, color: "#EF864C" },
-  { label: "Moderate", min: 0.4, color: "#FBB114" },
-  { label: "Effective", min: 0.6, color: "#5FCCD8" },
-  { label: "Very effective", min: 0.8, color: "#008194" },
+  { label: "Very ineffective", min: 0.0, color: "#c0392b" },
+  { label: "Ineffective", min: 0.2, color: "#f47c2c" },
+  { label: "Moderate", min: 0.4, color: "#f9a825" },
+  { label: "Effective", min: 0.6, color: "#c8e07b" },
+  { label: "Very effective", min: 0.8, color: "#1a9850" },
 ] as const;
 
 export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
@@ -354,4 +398,36 @@ export function impactColor(weight: number): string {
 export function impactTextColor(weight: number): string {
   const t = Math.min(1, Math.max(0, weight / MAX_IMPACT));
   return t > 0.5 ? "#FFFFFF" : "#3B3838"; // GSC Deep Gray at the yellow end
+}
+
+/**
+ * A bare weight like "0.3" or "2" reads as more precise than a reader can
+ * actually use it for - what matters is roughly how much a question counts,
+ * not the exact figure. Everywhere a question's Impactfullness is shown, it is
+ * banded into one of these five instead; the underlying weight (still 0-5,
+ * still editable to a decimal in the admin console) is what the maths - and
+ * impactColor()'s gradient - keeps using. Equal-width quintiles of
+ * MAX_IMPACT, so today's spreadsheet weights (0.3 up to 3) land mostly in
+ * the lower bands rather than being spread across the full scale - 0.3 in
+ * particular falls in "Very low", same as the lightest weight in the data.
+ */
+export const IMPACT_BANDS = [
+  { label: "Very low", min: 0 },
+  { label: "Low", min: 1 },
+  { label: "Moderate", min: 2 },
+  { label: "High", min: 3 },
+  { label: "Very high", min: 4 },
+].map((b) => ({ ...b, color: impactColor(b.min + 0.5) }));
+
+export function impactBand(weight: number): (typeof IMPACT_BANDS)[number] {
+  let chosen = IMPACT_BANDS[0];
+  for (const b of IMPACT_BANDS) {
+    if (weight >= b.min) chosen = b;
+  }
+  return chosen;
+}
+
+/** "Very low" - see IMPACT_BANDS for why this replaces the raw weight in the UI. */
+export function impactLabel(weight: number): string {
+  return impactBand(weight).label;
 }

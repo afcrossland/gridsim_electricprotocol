@@ -1,26 +1,39 @@
 import { useState } from "react";
-import { Box, Collapse, IconButton, LinearProgress, Stack, Typography } from "@mui/material";
+import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { jurisdictionName } from "../../lib/jurisdictions";
 import { groupScores, scoreBand, scoreLabel } from "../../lib/scoring";
+import {
+  compareGroups,
+  isCompletenessSort,
+  matchesFilters,
+  type ScoreboardSort,
+} from "../../lib/scoreboardFilters";
 import type { CountryScore, GroupedScore } from "../../lib/types";
-import { customMixins } from "../../mui-theme";
+import { useProtocolStore } from "../../stores/protocolStore";
 import FlagImg from "../ui/FlagImg";
-import JurisdictionSearch from "./JurisdictionSearch";
+import ScoreboardFilters from "./ScoreboardFilters";
 
 /**
- * customMixins.tile's transition timing and hover shadow, typed concretely.
- * Its CSSObject type is a wide union (emotion allows nested selectors,
- * keyframes, arrays...) so TypeScript cannot narrow `tile["&:hover"]` down to
- * an object with a `boxShadow` string - pulled out here once, as the literal
- * values the mixin actually holds, rather than fighting that typing inline.
+ * What a row's tile shows, driven by the current sort - sorting by score
+ * shows the score (as before); sorting by data completeness shows that
+ * instead, since that is the number the list is actually ordered by and a
+ * reader comparing rows top to bottom wants to see the value creating that
+ * order, not a different one.
  */
-const TILE_HOVER = {
-  transition: String(customMixins.tile.transition),
-  boxShadow: "0 6px 20px rgba(0,0,0,0.08)" as const,
-};
+function tileDisplay(
+  entry: Pick<CountryScore, "score" | "completeness" | "ranked">,
+  sort: ScoreboardSort,
+): { text: string; color: string } {
+  if (isCompletenessSort(sort)) {
+    return { text: `${Math.round(entry.completeness * 100)}%`, color: "primary.main" };
+  }
+  return entry.ranked
+    ? { text: scoreLabel(entry.score), color: scoreBand(entry.score).color }
+    : { text: "Not enough data to score yet", color: "text.disabled" };
+}
 
 interface Props {
   scores: CountryScore[];
@@ -29,24 +42,26 @@ interface Props {
 }
 
 /**
- * Ranked jurisdictions, grouped by sovereign state. A country with states or
- * provinces (Australia, the US, Canada) shows as one row rather than a wall of
- * near-identical entries; its score is the average across whichever of its
- * children individually clear the completeness threshold, so one thin
- * province cannot drag a whole country's figure down on almost no evidence.
- * Anything below the threshold - a country outright, or a group with no
- * ranked children - is listed under the ranked table rather than mixed into
- * it.
+ * Jurisdictions, grouped by sovereign state and ordered by how much of the
+ * questionnaire has actually been answered - a country with states or
+ * provinces (Australia, the US, Canada) shows as one row rather than a wall
+ * of near-identical entries, and its own completeness is the average across
+ * its children. Data completeness leads rather than score because it is the
+ * more honest thing to sort a research wiki by: it says how much is actually
+ * known about a jurisdiction, not how well that jurisdiction happens to
+ * score, and a reader deciding where to research next wants the thin rows,
+ * not just the impressive ones.
  */
 export default function Scoreboard({ scores, selectedCountry, onSelect }: Props) {
-  const grouped = groupScores(scores);
-  const ranked = grouped.filter((g) => g.ranked).sort((a, b) => b.score - a.score);
-  const unranked = grouped
-    .filter((g) => !g.ranked && (g.isGroup ? g.totalChildren > 0 : true))
-    .sort((a, b) => b.completeness - a.completeness);
+  const filters = useProtocolStore((s) => s.scoreboardFilters);
+  const sort = useProtocolStore((s) => s.scoreboardSort);
+  const allGroups = groupScores(scores);
+  const grouped = allGroups
+    .filter((g) => matchesFilters(g, filters))
+    .sort((a, b) => compareGroups(a, b, sort));
 
   return (
-    <Box sx={{ p: 2, overflowY: "auto", height: "100%" }}>
+    <Box data-tour="scoreboard" sx={{ p: 2, overflowY: "auto", height: "100%", bgcolor: "#ffffff" }}>
       <Typography variant="body2" sx={{ mb: 1.5 }}>
         How well does a country's electricity policy let ordinary homes and
         businesses generate, store and sell their own power?{" "}
@@ -55,49 +70,35 @@ export default function Scoreboard({ scores, selectedCountry, onSelect }: Props)
         score the most.
       </Typography>
 
-      <Box sx={{ mb: 2 }}>
-        <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={onSelect} />
-      </Box>
+      <ScoreboardFilters groups={allGroups} />
 
-      {ranked.length === 0 && (
+      {grouped.length === 0 && (
         <Typography variant="body2" sx={{ mb: 2 }}>
-          No jurisdiction has enough answers to be ranked yet.
+          No jurisdiction matches these filters.
         </Typography>
       )}
 
+      {/* Light-grey tiles on the sidebar's own white background, matching
+          the sibling gridsim-frontend project's own card colours exactly
+          (#F9FAFB fill, #E5E7EB border) rather than a theme token. */}
       <Stack spacing={0.75}>
-        {ranked.map((g, i) => (
+        {grouped.map((g, i) => (
           <Row
             key={g.code}
             rank={i + 1}
             group={g}
             selectedCountry={selectedCountry}
             onSelect={onSelect}
+            sort={sort}
           />
         ))}
       </Stack>
-
-      {unranked.length > 0 && (
-        <>
-          <Typography variant="overline" sx={{ display: "block", mt: 2.5, mb: 1 }}>
-            Not enough data to rank
-          </Typography>
-          <Stack spacing={0.75}>
-            {unranked.map((g) => (
-              <Row key={g.code} group={g} selectedCountry={selectedCountry} onSelect={onSelect} />
-            ))}
-          </Stack>
-        </>
-      )}
     </Box>
   );
 }
 
 /**
- * One line per top-level jurisdiction. Completeness is a hairline bar along
- * the bottom edge rather than its own row, which keeps the row to a single
- * band of text without losing the signal that a score rests on partial
- * evidence.
+ * One line per top-level jurisdiction.
  *
  * A group with its own score (France) opens that country's page on click, the
  * same as any other row, with a separate chevron to expand its exclaves. A
@@ -109,11 +110,13 @@ function Row({
   group,
   selectedCountry,
   onSelect,
+  sort,
 }: {
   rank?: number;
   group: GroupedScore;
   selectedCountry: string | null;
   onSelect: (code: string) => void;
+  sort: ScoreboardSort;
 }) {
   const [expanded, setExpanded] = useState(false);
   const selected = group.hasOwnScore
@@ -127,30 +130,20 @@ function Row({
           group.hasOwnScore ? onSelect(group.code) : setExpanded((v) => !v)
         }
         sx={{
-          position: "relative",
           display: "flex",
           alignItems: "center",
           gap: 1.25,
           pl: 1.25,
           pr: 1,
-          py: 0.4,
-          borderRadius: 1.5,
+          py: 0.9,
+          borderRadius: "8px",
+          border: "1px solid",
+          borderColor: selected ? "primary.main" : "#E5E7EB",
           cursor: "pointer",
           overflow: "hidden",
-          bgcolor: selected ? "action.selected" : "background.paper",
-          border: "1px solid",
-          borderColor: selected ? "primary.main" : "divider",
-          // customMixins.tile's hover lift and transition timing, scaled down
-          // from its -4px (tuned for a squarer dashboard card) to suit a
-          // compact list row; the hover shadow value is its own too, pulled in
-          // directly since the mixin's loosely-typed CSSObject does not narrow
-          // a nested "&:hover" selector enough to read it back out.
-          transition: `transform 180ms ease, box-shadow 180ms ease, ${TILE_HOVER.transition}`,
-          "&:hover": {
-            borderColor: "primary.light",
-            transform: "translateY(-2px)",
-            boxShadow: TILE_HOVER.boxShadow,
-          },
+          bgcolor: selected ? "action.selected" : "#F9FAFB",
+          transition: "background-color 120ms ease, border-color 120ms ease",
+          "&:hover": { bgcolor: selected ? "action.selected" : "#F3F4F6" },
           "&:hover .row-chevron": { color: "primary.main", transform: "translateX(2px)" },
         }}
       >
@@ -169,25 +162,19 @@ function Row({
           {group.name}
         </Typography>
 
-        {group.isGroup && (
-          <Typography variant="caption" sx={{ flexShrink: 0 }}>
-            {group.rankedChildren}/{group.totalChildren} {group.hasOwnScore ? "overseas" : ""}
-          </Typography>
-        )}
-
         <Typography
           variant="body2"
-          noWrap={group.ranked}
+          noWrap={isCompletenessSort(sort) || group.ranked}
           sx={{
             width: 130,
             textAlign: "right",
             fontWeight: 700,
             flexShrink: 0,
-            lineHeight: group.ranked ? undefined : 1.2,
-            color: group.ranked ? scoreBand(group.score).color : "text.disabled",
+            lineHeight: isCompletenessSort(sort) || group.ranked ? undefined : 1.2,
+            color: tileDisplay(group, sort).color,
           }}
         >
-          {group.ranked ? scoreLabel(group.score) : "Not enough data to score yet"}
+          {tileDisplay(group, sort).text}
         </Typography>
 
         {group.isGroup ? (
@@ -211,38 +198,26 @@ function Row({
             sx={{ color: "text.disabled", flexShrink: 0, transition: "color 120ms, transform 120ms" }}
           />
         )}
-
-        <LinearProgress
-          variant="determinate"
-          value={group.completeness * 100}
-          sx={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 2,
-            bgcolor: "transparent",
-            "& .MuiLinearProgress-bar": { bgcolor: "grey.300" },
-          }}
-        />
       </Box>
 
       {group.isGroup && (
         <Collapse in={expanded}>
-          <Stack spacing={0.5} sx={{ pl: 3, pt: 0.5 }}>
+          <Stack spacing={0.5} sx={{ pl: 3, pt: 0.75, bgcolor: "#ffffff" }}>
             {[...group.children]
-              .sort((a, b) => (b.ranked ? b.score : -1) - (a.ranked ? a.score : -1))
+              .sort((a, b) => compareGroups(a, b, sort))
               .map((child) => (
                 <ChildRow
                   key={child.code}
                   child={child}
                   selected={child.code === selectedCountry}
                   onSelect={onSelect}
+                  sort={sort}
                 />
               ))}
           </Stack>
         </Collapse>
       )}
+
     </Box>
   );
 }
@@ -252,10 +227,12 @@ function ChildRow({
   child,
   selected,
   onSelect,
+  sort,
 }: {
   child: CountryScore;
   selected: boolean;
   onSelect: (code: string) => void;
+  sort: ScoreboardSort;
 }) {
   return (
     <Box
@@ -266,13 +243,13 @@ function ChildRow({
         gap: 1,
         pl: 1,
         pr: 1.5,
-        py: 0.5,
-        borderRadius: 1,
-        cursor: "pointer",
+        py: 0.6,
+        borderRadius: "8px",
         border: "1px solid",
         borderColor: selected ? "primary.main" : "transparent",
+        cursor: "pointer",
         bgcolor: selected ? "action.selected" : "transparent",
-        "&:hover": { bgcolor: selected ? "action.selected" : "action.hover" },
+        "&:hover": { bgcolor: selected ? "action.selected" : "#F9FAFB" },
       }}
     >
       {/* Plain name, not the qualified "State, Country" form CountryScore
@@ -283,17 +260,17 @@ function ChildRow({
       </Typography>
       <Typography
         variant="caption"
-        noWrap={child.ranked}
+        noWrap={isCompletenessSort(sort) || child.ranked}
         sx={{
           width: 120,
           textAlign: "right",
           fontWeight: 600,
           flexShrink: 0,
-          lineHeight: child.ranked ? undefined : 1.2,
-          color: child.ranked ? scoreBand(child.score).color : "text.disabled",
+          lineHeight: isCompletenessSort(sort) || child.ranked ? undefined : 1.2,
+          color: tileDisplay(child, sort).color,
         }}
       >
-        {child.ranked ? scoreLabel(child.score) : "Not enough data to score yet"}
+        {tileDisplay(child, sort).text}
       </Typography>
     </Box>
   );

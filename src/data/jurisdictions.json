@@ -64,27 +64,11 @@
     "mappable": true
   },
   {
-    "code": "AQ",
-    "name": "Antarctica",
-    "level": "country",
-    "parent": null,
-    "region": "Antarctica",
-    "mappable": true
-  },
-  {
     "code": "AR",
     "name": "Argentina",
     "level": "country",
     "parent": null,
     "region": "South America",
-    "mappable": true
-  },
-  {
-    "code": "AS",
-    "name": "American Samoa",
-    "level": "country",
-    "parent": null,
-    "region": "Polynesia",
     "mappable": true
   },
   {
@@ -669,14 +653,6 @@
     "level": "country",
     "parent": null,
     "region": "Central America",
-    "mappable": true
-  },
-  {
-    "code": "GU",
-    "name": "Guam",
-    "level": "country",
-    "parent": null,
-    "region": "Micronesia",
     "mappable": true
   },
   {
@@ -1384,14 +1360,6 @@
     "mappable": true
   },
   {
-    "code": "PR",
-    "name": "Puerto Rico",
-    "level": "country",
-    "parent": null,
-    "region": "Caribbean",
-    "mappable": true
-  },
-  {
     "code": "PS",
     "name": "Palestine",
     "level": "country",
@@ -1896,6 +1864,14 @@
     "mappable": true
   },
   {
+    "code": "AS",
+    "name": "American Samoa",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
     "code": "AU-ACT",
     "name": "Australian Capital Territory",
     "level": "subnational",
@@ -2101,6 +2077,22 @@
     "level": "subnational",
     "parent": "FR",
     "region": "France",
+    "mappable": true
+  },
+  {
+    "code": "GU",
+    "name": "Guam",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "PR",
+    "name": "Puerto Rico",
+    "level": "subnational",
+    "parent": "US",
+    "region": "United States of America",
     "mappable": true
   },
   {

@@ -22,7 +22,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 
 import type { Question, RubricTier } from "../../lib/types";
-import { impactColor, MAX_IMPACT } from "../../lib/scoring";
+import { impactColor, impactLabel, MAX_IMPACT } from "../../lib/scoring";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
 
 /** How many questions currently live in a section a delete would wipe out - shown in the confirm prompt. */
@@ -389,7 +389,7 @@ export default function AdminConsole({ onBack }: Props) {
                 <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
                   Answers a country can pick for this question, and the points each is worth
                   toward its score (0 = counts for nothing, 4 = counts in full). The question's
-                  own Impact above then scales how much that counts toward the overall total.
+                  own Impactfullness above then scales how much that counts toward the overall total.
                 </Typography>
 
                 <Stack spacing={1}>
@@ -491,7 +491,7 @@ function QuestionHeader({
 }) {
   const impactDot = (
     <Box
-      title={`Impact ${question.weight}`}
+      title={`Impactfullness: ${impactLabel(question.weight)} (${question.weight})`}
       sx={{
         width: 14,
         height: 14,
@@ -506,7 +506,7 @@ function QuestionHeader({
     <TextField
       size="small"
       type="number"
-      label="Impact"
+      label="Impactfullness"
       variant="standard"
       value={question.weight}
       slotProps={{ htmlInput: { min: 0, max: MAX_IMPACT, step: 0.1 } }}
@@ -515,7 +515,7 @@ function QuestionHeader({
         if (!Number.isFinite(raw)) return;
         onChangeWeight(Math.round(Math.min(MAX_IMPACT, Math.max(0, raw)) * 10) / 10);
       }}
-      sx={{ width: 90, flexShrink: 0 }}
+      sx={{ width: 130, flexShrink: 0 }}
     />
   );
 

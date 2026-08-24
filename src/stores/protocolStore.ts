@@ -4,7 +4,21 @@ import { persist } from "zustand/middleware";
 import seed from "../data/protocol.seed.json";
 import { sourcedResponses } from "../data/sourcedAnswers";
 import { resolveTargets } from "../lib/jurisdictions";
-import type { Protocol, Question, Response, Section } from "../lib/types";
+import {
+  DEFAULT_SCOREBOARD_FILTERS,
+  DEFAULT_SCOREBOARD_SORT,
+  type ScoreboardFilters,
+  type ScoreboardSort,
+} from "../lib/scoreboardFilters";
+import {
+  WINDROSE,
+  type CountryPanelTab,
+  type EvidenceItem,
+  type Protocol,
+  type Question,
+  type Response,
+  type Section,
+} from "../lib/types";
 
 const protocol = seed as unknown as Protocol;
 
@@ -27,10 +41,28 @@ interface ProtocolState {
   page: "map" | "admin" | "help";
   /** False until the visitor dismisses the Charter welcome screen. */
   welcomeSeen: boolean;
+  /** False until the visitor dismisses (or skips) the scroll-driven onboarding tour. */
+  tourSeen: boolean;
   sections: Section[];
   questions: Question[];
   responses: Response[];
   selectedCountry: string | null;
+  /** Whether the detail view is in side-by-side compare mode. Not persisted. */
+  comparing: boolean;
+  /** The second jurisdiction being compared against `selectedCountry`, or null if comparing hasn't picked one yet. Not persisted. */
+  compareCountry: string | null;
+  /**
+   * Which tab the main (non-compare) CountryPanel shows. Lifted out of that
+   * component's own state - same as `page`, a view preference, not
+   * persisted - so the onboarding tour can drive it from outside, reusing
+   * the controlled-prop mechanism CountryPanel already exposes for
+   * CompareView.
+   */
+  countryPanelTab: CountryPanelTab;
+  /** Scoreboard's continent/country/score filters. Not persisted - a view preference, reset on reload like `page`. */
+  scoreboardFilters: ScoreboardFilters;
+  /** How the Scoreboard list is ordered. Not persisted, same as scoreboardFilters. */
+  scoreboardSort: ScoreboardSort;
   /**
    * Admin edits to a shipped question's text/weight/rubric, keyed by question
    * id and persisted standalone rather than the full `questions` array - see
@@ -52,14 +84,30 @@ interface ProtocolState {
   setMapMetric: (mapMetric: "score" | "completeness") => void;
   setPage: (page: "map" | "admin" | "help") => void;
   setWelcomeSeen: (seen: boolean) => void;
+  setTourSeen: (seen: boolean) => void;
   selectCountry: (code: string | null) => void;
+  setComparing: (comparing: boolean) => void;
+  setCompareCountry: (code: string | null) => void;
+  setCountryPanelTab: (tab: CountryPanelTab) => void;
+  setScoreboardFilters: (patch: Partial<ScoreboardFilters>) => void;
+  resetScoreboardFilters: () => void;
+  setScoreboardSort: (sort: ScoreboardSort) => void;
 
   setResponse: (
     countryCode: string,
     questionId: string,
-    patch: Partial<Pick<Response, "score" | "source" | "note">>,
+    patch: Partial<Pick<Response, "score">>,
   ) => void;
   deleteResponse: (countryCode: string, questionId: string) => void;
+  /** Appends a blank evidence item - only meaningful once a response already exists (a score has been picked). */
+  addEvidence: (countryCode: string, questionId: string) => void;
+  updateEvidence: (
+    countryCode: string,
+    questionId: string,
+    index: number,
+    patch: Partial<EvidenceItem>,
+  ) => void;
+  removeEvidence: (countryCode: string, questionId: string, index: number) => void;
 
   // Admin console only
   updateSection: (id: string, patch: Partial<Section>) => void;
@@ -73,6 +121,21 @@ interface ProtocolState {
   deleteQuestion: (id: string) => void;
 
   resetToSeed: () => void;
+}
+
+/**
+ * A response persisted before evidence became a list carried a flat
+ * `source`/`note` pair instead of `evidence: EvidenceItem[]` - folded into a
+ * single evidence entry here (or an empty array if both were blank) rather
+ * than discarded, since it is real citation text someone typed in. Already-
+ * current-shape responses pass through unchanged.
+ */
+function migrateResponseShape(r: Response & { source?: string; note?: string }): Response {
+  if (Array.isArray(r.evidence)) return r;
+  const { source, note, ...rest } = r;
+  const evidence: EvidenceItem[] =
+    source || note ? [{ title: "", source: source ?? "", note: note ?? "" }] : [];
+  return { ...rest, evidence };
 }
 
 /** Applies a sparse override map on top of a base list of records with an `id`. */
@@ -136,8 +199,7 @@ function seedResponses(): Response[] {
         questionId: q.id,
         countryCode,
         score,
-        source: "",
-        note: "",
+        evidence: [],
         updatedAt: new Date(0).toISOString(),
         seeded: true,
       });
@@ -152,10 +214,16 @@ function initialState() {
     mapMetric: "score" as const,
     page: "map" as const,
     welcomeSeen: false,
+    tourSeen: false,
     sections: protocol.sections.map((s) => ({ ...s })),
     questions: protocol.questions.map((q) => ({ ...q })),
     responses: seedResponses(),
     selectedCountry: null,
+    comparing: false,
+    compareCountry: null,
+    countryPanelTab: WINDROSE as CountryPanelTab,
+    scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS,
+    scoreboardSort: DEFAULT_SCOREBOARD_SORT,
     questionOverrides: {},
     sectionOverrides: {},
     customSections: [],
@@ -180,7 +248,19 @@ export const useProtocolStore = create<ProtocolState>()(
       setMapMetric: (mapMetric) => set({ mapMetric }),
       setPage: (page) => set({ page }),
       setWelcomeSeen: (welcomeSeen) => set({ welcomeSeen }),
-      selectCountry: (code) => set({ selectedCountry: code }),
+      setTourSeen: (tourSeen) => set({ tourSeen }),
+      // Picking a jurisdiction - from the map, search, or the scoreboard -
+      // always means "look at this one", which is not compatible with
+      // whatever compare state was left over from a previous detail view.
+      selectCountry: (code) =>
+        set({ selectedCountry: code, comparing: false, compareCountry: null }),
+      setComparing: (comparing) => set({ comparing }),
+      setCompareCountry: (compareCountry) => set({ compareCountry }),
+      setCountryPanelTab: (countryPanelTab) => set({ countryPanelTab }),
+      setScoreboardFilters: (patch) =>
+        set((state) => ({ scoreboardFilters: { ...state.scoreboardFilters, ...patch } })),
+      resetScoreboardFilters: () => set({ scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS }),
+      setScoreboardSort: (scoreboardSort) => set({ scoreboardSort }),
 
       setResponse: (countryCode, questionId, patch) =>
         set((state) => {
@@ -198,8 +278,7 @@ export const useProtocolStore = create<ProtocolState>()(
                   questionId,
                   countryCode,
                   score: patch.score,
-                  source: patch.source ?? "",
-                  note: patch.note ?? "",
+                  evidence: [],
                   updatedAt: now,
                 },
               ],
@@ -208,6 +287,59 @@ export const useProtocolStore = create<ProtocolState>()(
 
           const responses = state.responses.slice();
           responses[i] = { ...responses[i], ...patch, updatedAt: now, seeded: false };
+          return { responses };
+        }),
+
+      // No-ops rather than creating a response from nothing - evidence only
+      // makes sense once a score has actually been picked, the same way the
+      // Evidence panel in QuestionCard only ever shows once `response` exists.
+      addEvidence: (countryCode, questionId) =>
+        set((state) => {
+          const i = state.responses.findIndex(
+            (r) => r.countryCode === countryCode && r.questionId === questionId,
+          );
+          if (i === -1) return state;
+          const responses = state.responses.slice();
+          responses[i] = {
+            ...responses[i],
+            evidence: [...responses[i].evidence, { title: "", source: "", note: "" }],
+            updatedAt: new Date().toISOString(),
+            seeded: false,
+          };
+          return { responses };
+        }),
+
+      updateEvidence: (countryCode, questionId, index, patch) =>
+        set((state) => {
+          const i = state.responses.findIndex(
+            (r) => r.countryCode === countryCode && r.questionId === questionId,
+          );
+          if (i === -1 || !state.responses[i].evidence[index]) return state;
+          const evidence = state.responses[i].evidence.slice();
+          evidence[index] = { ...evidence[index], ...patch };
+          const responses = state.responses.slice();
+          responses[i] = {
+            ...responses[i],
+            evidence,
+            updatedAt: new Date().toISOString(),
+            seeded: false,
+          };
+          return { responses };
+        }),
+
+      removeEvidence: (countryCode, questionId, index) =>
+        set((state) => {
+          const i = state.responses.findIndex(
+            (r) => r.countryCode === countryCode && r.questionId === questionId,
+          );
+          if (i === -1) return state;
+          const responses = state.responses.slice();
+          responses[i] = {
+            ...responses[i],
+            evidence: responses[i].evidence.filter((_, ei) => ei !== index),
+            updatedAt: new Date().toISOString(),
+            seeded: false,
+          };
           return { responses };
         }),
 
@@ -386,7 +518,19 @@ export const useProtocolStore = create<ProtocolState>()(
       // no seed counterpart) and `removedSectionIds`/`removedQuestionIds`
       // (shipped ids to filter out) persist alongside the overrides, all
       // reapplied to the live seed on every load by buildLiveData().
-      version: 9,
+      //
+      // v10: a response's evidence is now a list (`evidence: EvidenceItem[]`,
+      // each with its own title/source/note), not one flat `source`/`note`
+      // pair - a score can rest on more than one citation. migrate() folds
+      // any pre-v10 response's source/note into a single evidence entry
+      // rather than dropping it.
+      //
+      // `tourSeen` (added after v10, no bump) is a bare additive boolean -
+      // an existing visitor's persisted blob simply lacks the key, `merge`
+      // leaves `initialState()`'s `false` default in place for them, and the
+      // onboarding tour plays once for everyone who hasn't dismissed it
+      // rather than being silently skipped for pre-existing visitors.
+      version: 10,
 
       /**
        * Keep the user's answers and every admin edit (overrides, additions,
@@ -398,7 +542,7 @@ export const useProtocolStore = create<ProtocolState>()(
         return {
           ...initialState(),
           threshold: protocol.completenessThreshold,
-          responses: (state?.responses ?? []).filter((r) => !r.seeded),
+          responses: (state?.responses ?? []).filter((r) => !r.seeded).map(migrateResponseShape),
           questionOverrides: state?.questionOverrides ?? {},
           sectionOverrides: state?.sectionOverrides ?? {},
           customSections: state?.customSections ?? [],
@@ -435,6 +579,7 @@ export const useProtocolStore = create<ProtocolState>()(
         threshold: state.threshold,
         mapMetric: state.mapMetric,
         welcomeSeen: state.welcomeSeen,
+        tourSeen: state.tourSeen,
         responses: state.responses.filter((r) => !r.seeded),
         questionOverrides: state.questionOverrides,
         sectionOverrides: state.sectionOverrides,

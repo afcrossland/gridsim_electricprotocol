@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import seed from "../data/protocol.seed.json";
-import { rankImpact, scoreCountry } from "./scoring";
+import { rankImpact, scoreCountry, scoreSections } from "./scoring";
 import type { Protocol, Response } from "./types";
 
 const protocol = seed as unknown as Protocol;
@@ -14,8 +14,7 @@ function seedResponses(): Response[] {
       questionId: q.id,
       countryCode,
       score,
-      source: "",
-      note: "",
+      evidence: [],
       updatedAt: "1970-01-01T00:00:00.000Z",
     })),
   );
@@ -52,8 +51,7 @@ describe("scoreCountry", () => {
       questionId: q.id,
       countryCode: "LK",
       score: q.rubric[q.rubric.length - 1].score,
-      source: "",
-      note: "",
+      evidence: [],
       updatedAt: "",
     }));
     const thin = scoreCountry(protocol, questions, cherryPicked, "LK", "Sri Lanka");
@@ -87,8 +85,7 @@ describe("scoreCountry", () => {
         questionId: questions[0].id,
         countryCode: "IN",
         score: 2,
-        source: "",
-        note: "",
+        evidence: [],
         updatedAt: "",
       },
     ];
@@ -102,6 +99,51 @@ describe("scoreCountry", () => {
     expect(s.score).toBeCloseTo(s.completeness, 10);
     expect(s.completeness).toBeLessThan(protocol.completenessThreshold);
     expect(s.ranked).toBe(false);
+  });
+});
+
+describe("scoreSections", () => {
+  const responses = seedResponses();
+
+  it("covers every section, and each section's own question set only", () => {
+    const breakdown = scoreSections(protocol, sections, questions, responses, "GB");
+    expect(breakdown).toHaveLength(sections.length);
+
+    for (const { section, score } of breakdown) {
+      const inSection = questions.filter((q) => q.sectionId === section.id);
+      expect(score.total).toBe(inSection.length);
+      expect(score.answered).toBeLessThanOrEqual(inSection.length);
+    }
+  });
+
+  it("partitions the full question set - every question counted in exactly one section", () => {
+    // Sections are non-overlapping, so summing each section's own total/
+    // answered counts (each computed by the same scoreCountry() this test
+    // compares against) must reconstruct the whole-protocol figures exactly.
+    const breakdown = scoreSections(protocol, sections, questions, responses, "GB");
+    const whole = scoreCountry(protocol, questions, responses, "GB", "Great Britain");
+
+    const totalAcrossSections = breakdown.reduce((sum, b) => sum + b.score.total, 0);
+    const answeredAcrossSections = breakdown.reduce((sum, b) => sum + b.score.answered, 0);
+    expect(totalAcrossSections).toBe(questions.length);
+    expect(totalAcrossSections).toBe(whole.total);
+    expect(answeredAcrossSections).toBe(whole.answered);
+  });
+
+  it("marks a section unranked when it falls below the completeness threshold on its own", () => {
+    const sparse: Response[] = [
+      {
+        questionId: questions[0].id, // row 10, in the first section
+        countryCode: "IN",
+        score: 2,
+        evidence: [],
+        updatedAt: "",
+      },
+    ];
+    const breakdown = scoreSections(protocol, sections, questions, sparse, "IN");
+    const untouched = breakdown.find((b) => b.section.id !== questions[0].sectionId);
+    expect(untouched?.score.answered).toBe(0);
+    expect(untouched?.score.ranked).toBe(false);
   });
 });
 

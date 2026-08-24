@@ -23,7 +23,6 @@ export default function WelcomeModal({ open, onClose }: Props) {
       sx={{
         position: "fixed",
         inset: 0,
-        bgcolor: "rgba(0,0,0,0.35)",
         zIndex: 200,
         display: "flex",
         alignItems: "center",
@@ -31,19 +30,42 @@ export default function WelcomeModal({ open, onClose }: Props) {
         p: 2,
       }}
     >
+      {/* Same dark top/bottom vignette as the onboarding tour's hero scene
+          (see ScrollStory.tsx), rather than a flat tint - the Charter reads
+          as a direct continuation of that opening screen, not a different
+          kind of overlay. */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 45%)",
+          pointerEvents: "none",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 25%)",
+          pointerEvents: "none",
+        }}
+      />
+
       <Box
         onClick={(e) => e.stopPropagation()}
         sx={{
-          bgcolor: "background.paper",
-          border: "1px solid",
-          borderColor: "divider",
+          position: "relative",
+          // Frosted, matching the tour hero card's own CARD_BASE exactly.
+          bgcolor: "rgba(255,255,255,0.96)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255,255,255,0.6)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.14)",
           borderRadius: 3,
           px: { xs: 3, sm: 5 },
           py: 4,
           maxWidth: 660,
           width: "100%",
           maxHeight: "90vh",
-          boxShadow: 21,
           // Header and button stay put; only the Charter text scrolls, so the
           // way out of the dialog is always visible.
           display: "flex",

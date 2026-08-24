@@ -154,10 +154,15 @@ export function sourcedResponses(questions: Question[]): Response[] {
             questionId: question.id,
             countryCode: code,
             score: entry.score,
-            source: `${source.title} - ${source.url}`,
-            note: inherited
-              ? `${note}\n\nInherited from the ${target} answer; not written specifically for this jurisdiction.`
-              : note,
+            evidence: [
+              {
+                title: source.title,
+                source: source.url,
+                note: inherited
+                  ? `${note}\n\nInherited from the ${target} answer; not written specifically for this jurisdiction.`
+                  : note,
+              },
+            ],
             updatedAt: new Date(0).toISOString(),
             seeded: true,
             basis: entry.basis,

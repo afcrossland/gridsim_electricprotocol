@@ -1,11 +1,15 @@
-import { Box, Paper, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
 
 import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP } from "../../lib/scoring";
 import { useProtocolStore } from "../../stores/protocolStore";
 
+/**
+ * Reads which measure is currently painted so its title and "not enough
+ * data" swatch stay accurate - the score/completeness choice itself is made
+ * in the bottom toolbar (see App.tsx), not here.
+ */
 export default function MapLegend() {
   const metric = useProtocolStore((s) => s.mapMetric);
-  const setMetric = useProtocolStore((s) => s.setMapMetric);
   const showingScore = metric === "score";
   const theme = useTheme();
   // The floating bottom-left card assumes a wide, tall map - on the short,
@@ -15,25 +19,6 @@ export default function MapLegend() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const gradient = SCORE_RAMP.map((s) => `${s.color} ${s.stop * 100}%`).join(", ");
-
-  const metricToggle = (
-    <ToggleButtonGroup
-      size="small"
-      exclusive
-      value={metric}
-      onChange={(_, next) => next && setMetric(next)}
-    >
-      <ToggleButton value="score" sx={{ py: 0.25, px: isMobile ? 1 : 2, fontSize: isMobile ? "0.65rem" : "0.7rem" }}>
-        Score
-      </ToggleButton>
-      <ToggleButton
-        value="completeness"
-        sx={{ py: 0.25, px: isMobile ? 1 : 2, fontSize: isMobile ? "0.65rem" : "0.7rem" }}
-      >
-        {isMobile ? "Data" : "Completeness"}
-      </ToggleButton>
-    </ToggleButtonGroup>
-  );
 
   if (isMobile) {
     return (
@@ -56,8 +41,6 @@ export default function MapLegend() {
           borderColor: "divider",
         }}
       >
-        {metricToggle}
-
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Box
             sx={{
@@ -85,47 +68,61 @@ export default function MapLegend() {
   }
 
   return (
-    <Paper
-      elevation={2}
+    <Box
       sx={{
         position: "absolute",
+        top: 16,
         left: 16,
-        bottom: 16,
-        zIndex: 1,
-        px: 2,
-        py: 1.5,
-        width: 232,
-        // Frosted glass rather than a solid panel, so the map colour under the
-        // legend's own corner stays legible instead of being fully occluded.
-        bgcolor: "rgba(255,255,255,0.86)",
+        zIndex: 1000,
+        width: "min(20vw, 100%)",
+        px: 1.5,
+        py: 1.25,
+        bgcolor: "rgba(255,255,255,0.92)",
         backdropFilter: "blur(8px)",
+        borderRadius: "8px",
+        border: "1px solid rgba(0,0,0,0.08)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
       }}
     >
-      <Box sx={{ mb: 1 }}>{metricToggle}</Box>
-
-      <Typography variant="overline">
+      <Typography
+        sx={{
+          fontSize: "0.625rem",
+          fontWeight: 600,
+          letterSpacing: "0.06em",
+          color: "#6B7280",
+          textTransform: "uppercase",
+          mb: 0.75,
+          lineHeight: 1.3,
+        }}
+      >
         {showingScore ? "Protocol score" : "Questions answered, by weight"}
       </Typography>
-      <Box
-        sx={{
-          height: 10,
-          borderRadius: 5,
-          mt: 0.5,
-          background: `linear-gradient(90deg, ${gradient})`,
-        }}
-      />
+
+      {/* Segmented bar - one block per SCORE_RAMP stop, not a smooth
+          gradient, so each block reads as the one discrete colour actually
+          painted on the map rather than implying a value can fall between
+          two of them. */}
+      <Box sx={{ display: "flex", borderRadius: "5px", overflow: "hidden", height: 20 }}>
+        {SCORE_RAMP.map((s, i) => (
+          <Box key={i} sx={{ flex: 1, bgcolor: s.color }} />
+        ))}
+      </Box>
+
       {/* Ticks at each quartile rather than just the two ends, so a colour on
           the map can be read against a value without guessing between them. */}
-      <Box sx={{ position: "relative", height: 14, mt: 0.5 }}>
+      <Box sx={{ position: "relative", height: 16, mt: 0.5 }}>
         {[0, 25, 50, 75, 100].map((pct) => (
           <Typography
             key={pct}
-            variant="caption"
             sx={{
               position: "absolute",
-              left: `${pct}%`,
-              transform:
-                pct === 0 ? "none" : pct === 100 ? "translateX(-100%)" : "translateX(-50%)",
+              fontSize: "0.625rem",
+              color: "#9CA3AF",
+              lineHeight: 1,
+              top: 2,
+              left: pct === 100 ? undefined : `${pct}%`,
+              right: pct === 100 ? 0 : undefined,
+              transform: pct > 0 && pct < 100 ? "translateX(-50%)" : undefined,
             }}
           >
             {pct}%
@@ -133,17 +130,27 @@ export default function MapLegend() {
         ))}
       </Box>
 
-      {showingScore && (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
-          <Swatch color={COLOR_INSUFFICIENT} />
-          <Typography variant="caption">Not enough data</Typography>
+      {/* Tiled side by side rather than stacked - two short rows wasted the
+          card's own width for no reason once each has its own swatch. Text
+          wraps instead of clipping if the card ever gets narrower than a
+          label needs. */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mt: 1 }}>
+        {showingScore && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
+            <Swatch color={COLOR_INSUFFICIENT} />
+            <Typography variant="caption" sx={{ overflowWrap: "break-word" }}>
+              Not enough data
+            </Typography>
+          </Box>
+        )}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
+          <Swatch color={COLOR_NO_DATA} />
+          <Typography variant="caption" sx={{ overflowWrap: "break-word" }}>
+            No data
+          </Typography>
         </Box>
-      )}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-        <Swatch color={COLOR_NO_DATA} />
-        <Typography variant="caption">No data</Typography>
       </Box>
-    </Paper>
+    </Box>
   );
 }
 

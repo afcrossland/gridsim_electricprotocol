@@ -246,7 +246,7 @@
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 5,
-      "text": "Is there an open, transparent marketplace with time-of-day pricing for electricity import/consumption for all customers?",
+      "text": "For electricity import/consumption, is there an open, transparent marketplace with time-of-day pricing for all customers?",
       "weight": 2.0,
       "rubric": [
         {
@@ -276,7 +276,7 @@
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 6,
-      "text": "Is there an open, transparent marketplace with time-of-day pricing for electricity export for all customers?",
+      "text": "For electricity export, is there an open, transparent marketplace with time-of-day pricing for all customers?",
       "weight": 2.0,
       "rubric": [
         {
@@ -1013,7 +1013,7 @@
       "sectionId": "control-cybersecurity-and-interoperability",
       "subsection": null,
       "order": 31,
-      "text": "Do system operators set or approve technical and communication protocols for behind-the-meter technology market participation at a national level?",
+      "text": "For market participation, do system operators set or approve technical and communication protocols for behind-the-meter technology at a national level?",
       "weight": 2.0,
       "rubric": [
         {
@@ -1043,7 +1043,7 @@
       "sectionId": "control-cybersecurity-and-interoperability",
       "subsection": null,
       "order": 32,
-      "text": "Do system operators set or approve technical and communication protocols for behind-the-meter technology data exchange at a state or national level?",
+      "text": "For data exchange, do system operators set or approve technical and communication protocols for behind-the-meter technology at a state or national level?",
       "weight": 2.0,
       "rubric": [
         {

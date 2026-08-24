@@ -1,3 +1,14 @@
+/**
+ * A jurisdiction's detail view has three tabs. Lives here, not in
+ * CountryPanel itself, so the protocol store can reference the type/default
+ * without a circular import (the store also needs CountryPanel's own
+ * useProtocolStore hook).
+ */
+export const IMPACT = "impact";
+export const SECTIONS = "sections";
+export const WINDROSE = "windrose";
+export type CountryPanelTab = typeof IMPACT | typeof SECTIONS | typeof WINDROSE;
+
 export interface RubricTier {
   /** Stable id for this tier, also what a Response.score points at - not required to be contiguous. */
   score: number;
@@ -25,15 +36,23 @@ export interface Question {
   seedAnswers?: Record<string, number>;
 }
 
+/** One citation supporting a Response's score - a question can rest on more than one. */
+export interface EvidenceItem {
+  /** Short name for the source - "EU RED II, Article 21", "IEX market rules". */
+  title: string;
+  /** A URL, statute reference or document name. */
+  source: string;
+  /** Free-text justification, specific to this one piece of evidence. */
+  note: string;
+}
+
 /** One country's response to one question. */
 export interface Response {
   questionId: string;
   countryCode: string;
   score: number;
-  /** Supporting citation - a URL, statute reference or document name. */
-  source: string;
-  /** Free-text justification for the chosen score. */
-  note: string;
+  /** Zero or more citations supporting this score - a bare score with none is still a valid response. */
+  evidence: EvidenceItem[];
   updatedAt: string;
   /** Seeded from the spreadsheet or from researched data, not entered in the app. */
   seeded?: boolean;

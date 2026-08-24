@@ -34,7 +34,7 @@ describe("jurisdiction resolution", () => {
   });
 
   it("marks inherited answers as inherited in the note", () => {
-    expect(find("AU-TAS", 54)?.note).toContain("Inherited from the AU answer");
+    expect(find("AU-TAS", 54)?.evidence[0]?.note).toContain("Inherited from the AU answer");
   });
 
   it("keeps France's exclaves from inheriting its EU answers", () => {
@@ -65,11 +65,19 @@ describe("jurisdiction resolution", () => {
     // does not.
     expect(find("AU-SA", 47)?.score).toBe(2);
     expect(find("AU-VIC", 47)?.score).toBe(1);
-    expect(find("AU-SA", 47)?.note).not.toContain("Inherited");
+    expect(find("AU-SA", 47)?.evidence[0]?.note).not.toContain("Inherited");
   });
 
-  it("pushes US federal answers to every state", () => {
-    expect(childrenOf("US")).toHaveLength(51);
+  it("pushes US federal answers to every state and insular territory", () => {
+    // 50 states + DC + Puerto Rico, Guam and American Samoa. A federal
+    // answer inherited this way is a simplification for the territories in
+    // particular - insular areas often have their own tax and customs
+    // treatment distinct from the mainland (Puerto Rico's own tax system,
+    // for one), so an inherited federal score there is a starting
+    // assumption to verify with a territory-specific source, not a
+    // guarantee, the same caveat any inherited (as opposed to
+    // directly-researched) answer carries.
+    expect(childrenOf("US")).toHaveLength(54);
     // Row 55: the 25D residential credit was terminated after 2025.
     expect(find("US-TX", 55)?.score).toBe(0);
     expect(find("US-CA", 55)?.score).toBe(0);
@@ -83,11 +91,11 @@ describe("jurisdiction resolution", () => {
     expect(find("US-NJ", 42)?.score).toBe(2);
     expect(find("US-TX", 42)?.score).toBe(0);
     expect(find("US-OH", 42)?.score).toBe(0);
-    expect(find("US-OH", 42)?.note).toContain("Inherited from the US answer");
+    expect(find("US-OH", 42)?.evidence[0]?.note).toContain("Inherited from the US answer");
     // Row 17 is Californian only, so a state without one has no answer at all.
     expect(find("US-OH", 17)).toBeUndefined();
     // Row 41 is Californian only, and must not read as inherited.
-    expect(find("US-CA", 41)?.note).not.toContain("Inherited");
+    expect(find("US-CA", 41)?.evidence[0]?.note).not.toContain("Inherited");
   });
 
   it("emits one answer per jurisdiction and question", () => {
@@ -105,7 +113,7 @@ describe("jurisdiction resolution", () => {
     // where none does the proxy must still be present.
     const proxied = responses.filter((r) => r.basis === "proxy-indicator");
     expect(proxied.length).toBeGreaterThan(100);
-    expect(proxied.every((r) => r.source.includes("worldbank"))).toBe(true);
+    expect(proxied.every((r) => r.evidence[0]?.source.includes("worldbank"))).toBe(true);
 
     for (const r of proxied) {
       const better = responses.find(
@@ -119,7 +127,7 @@ describe("jurisdiction resolution", () => {
   });
 
   it("cites a source on every answer", () => {
-    expect(responses.every((r) => r.source.includes("http"))).toBe(true);
+    expect(responses.every((r) => r.evidence[0]?.source.includes("http"))).toBe(true);
   });
 
   it("only uses scores that exist in the question's rubric", () => {

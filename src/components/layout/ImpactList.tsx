@@ -1,12 +1,11 @@
 import { Box, Chip, Stack, Typography } from "@mui/material";
 
 import type { ImpactItem } from "../../lib/types";
-import { impactColor, impactTextColor } from "../../lib/scoring";
+import { impactColor, impactLabel, impactTextColor } from "../../lib/scoring";
 
 interface Props {
   items: ImpactItem[];
   limit?: number;
-  onJump?: (questionId: string) => void;
 }
 
 /**
@@ -15,14 +14,14 @@ interface Props {
  * ranking, and a reader who disagrees with an ordering usually disagrees with
  * an impact score.
  */
-export default function ImpactList({ items, limit = 10, onJump }: Props) {
+export default function ImpactList({ items, limit = 10 }: Props) {
   const shown = items.slice(0, limit);
 
   if (shown.length === 0) {
     return (
       <Typography variant="body2" sx={{ p: 2 }}>
         Nothing to show yet - every answered question is already at full marks,
-        or none have been answered. Use Answer the questions to add some.
+        or none have been answered. Use Policy Score and Evidence to add some.
       </Typography>
     );
   }
@@ -32,15 +31,12 @@ export default function ImpactList({ items, limit = 10, onJump }: Props) {
       {shown.map((item) => (
         <Box
           key={item.question.id}
-          onClick={() => onJump?.(item.question.id)}
           sx={{
             p: 1.5,
             borderRadius: 2,
             border: "1px solid",
             borderColor: "divider",
             bgcolor: "background.paper",
-            cursor: onJump ? "pointer" : "default",
-            "&:hover": onJump ? { borderColor: "primary.light" } : undefined,
           }}
         >
           <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
@@ -48,32 +44,33 @@ export default function ImpactList({ items, limit = 10, onJump }: Props) {
               <Typography variant="overline" sx={{ display: "block" }}>
                 {item.section.title}
               </Typography>
-              <Typography variant="body1">{item.question.text}</Typography>
+              <Typography variant="body1" sx={{ overflowWrap: "break-word" }}>
+                {item.question.text}
+              </Typography>
             </Box>
+            {/* The raw weighted-points gain (e.g. "+12.0") used to sit here as
+                its own chip, but a wide number on a narrow tile could overflow
+                it - the question's Impact is the more useful, consistently
+                bounded thing to show at a glance, and it is shown once here
+                rather than duplicated below too. */}
             <Chip
               size="small"
-              label={`+${item.gain.toFixed(1)}`}
-              color="primary"
-              sx={{ flexShrink: 0 }}
-            />
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-            <Chip
-              size="small"
-              variant="outlined"
-              label={`Currently: ${item.question.rubric.find((t) => t.score === item.currentScore)?.label ?? item.currentScore}`}
-            />
-            <Chip
-              size="small"
-              label={`Impact ${item.question.weight}`}
+              label={`Impactfullness: ${impactLabel(item.question.weight)}`}
               sx={{
+                flexShrink: 0,
                 bgcolor: impactColor(item.question.weight),
                 color: impactTextColor(item.question.weight),
                 fontWeight: 600,
               }}
             />
           </Box>
+
+          {/* A rubric tier's label can run to a full sentence - a Chip clips
+              its label to one line with an ellipsis, so plain wrapping text
+              is used instead to keep the whole thing readable. */}
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1, overflowWrap: "break-word" }}>
+            Currently: {item.question.rubric.find((t) => t.score === item.currentScore)?.label ?? item.currentScore}
+          </Typography>
         </Box>
       ))}
     </Stack>

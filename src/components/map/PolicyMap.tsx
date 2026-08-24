@@ -6,7 +6,9 @@ import type {
   MapRef,
   StyleSpecification,
 } from "react-map-gl/maplibre";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, IconButton, Paper, Typography } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -46,7 +48,33 @@ interface Props {
   metric: "score" | "completeness";
   selectedCountry: string | null;
   onCountryClick: (code: string) => void;
+  /** Suppresses the legend even with nothing selected - the tour's opening scene wants an unobstructed view of the choropleth colours themselves, matching the sibling gridsim-frontend project's own clean opening globe. */
+  hideLegend?: boolean;
+  /** Swaps the choropleth for the "solar bloom" intro animation - see INTRO_* below. */
+  introBloom?: boolean;
 }
+
+/**
+ * Whole-world "solar bloom" for the tour's opening scene, ported from the
+ * sibling gridsim-frontend project's `StoryMap`: every country starts
+ * transparent and fades up to GSC Citrus yellow over its own randomised
+ * delay/duration, so the world lights up unevenly rather than snapping on
+ * at once. gridsim biases each country's starting opacity by real carbon-
+ * intensity data (cleaner grids start more "lit"); this app has no such
+ * per-country dataset to draw on, so the starting opacity is plain random
+ * instead - still reads as "random shades of yellow" settling into a solid
+ * colour, which is the effect asked for.
+ */
+const GSC_YELLOW = "#FBB114";
+const INTRO_MAX_OPACITY = 0.9;
+const INTRO_MIN_DELAY_MS = 0;
+const INTRO_MAX_DELAY_MS = 3500;
+const INTRO_MIN_DURATION_MS = 8000;
+const INTRO_MAX_DURATION_MS = 21000;
+const INTRO_MAX_MS = 26000;
+/** Push a feature-state update only when opacity moves by this much - fine enough to read as a smooth fade, coarse enough to avoid hundreds of updates every frame. */
+const INTRO_UPDATE_STEP = 0.02;
+const INTRO_FILL_OPACITY_EXPR = ["coalesce", ["feature-state", "introOp"], 0];
 
 /**
  * Fill expression driven by feature-state rather than by properties, so that
@@ -125,20 +153,24 @@ export function boundsOf(
   ];
 }
 
-export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick }: Props) {
+export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick, hideLegend, introBloom }: Props) {
   const mapRef = useRef<MapRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
   const [sourceReady, setSourceReady] = useState(false);
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
 
-  // The base style's own country-name labels compete with the choropleth and
-  // our own hover tooltip for the same information, so they are hidden rather
-  // than removed outright - kept in the style array (not deleted) in case
-  // anything ever needs to reference them by id via beforeId. Town, city and
-  // place labels are left alone; those still earn their place once zoomed
-  // into a selected country.
-  const HIDDEN_LABEL_LAYERS = new Set(["Country labels", "Country labels disputed"]);
+  // The base style's own country- and continent-name labels compete with the
+  // choropleth and our own hover tooltip for the same information, so they
+  // are hidden rather than removed outright - kept in the style array (not
+  // deleted) in case anything ever needs to reference them by id via
+  // beforeId. Town, city and place labels are left alone; those still earn
+  // their place once zoomed into a selected country.
+  const HIDDEN_LABEL_LAYERS = new Set([
+    "Country labels",
+    "Country labels disputed",
+    "Continent labels",
+  ]);
 
   const mapStyle = useMemo(() => {
     const style = structuredClone(mapStyleJson) as unknown as StyleSpecification;
@@ -195,6 +227,70 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
       );
     }
   }, [scores, sourceReady, metric]);
+
+  // The "solar bloom" intro animation - see the doc comment on the INTRO_*
+  // constants above. Runs once per mount of the intro scene (worldData and
+  // sourceReady don't change mid-run in practice) and cleans up its own
+  // rAF loop if introBloom turns off before it finishes.
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map || !sourceReady || !introBloom || !worldData) return;
+
+    const codes = new Set<string>();
+    for (const f of worldData.features) {
+      const code = f.properties?.code;
+      if (typeof code === "string") codes.add(code);
+    }
+
+    const rnd = (min: number, max: number) => min + Math.random() * (max - min);
+    const blooms = [...codes].map((code) => {
+      const delay = rnd(INTRO_MIN_DELAY_MS, INTRO_MAX_DELAY_MS);
+      const duration = Math.min(rnd(INTRO_MIN_DURATION_MS, INTRO_MAX_DURATION_MS), INTRO_MAX_MS - delay);
+      const startOp = rnd(0, INTRO_MAX_OPACITY);
+      return { code, delay, duration, startOp };
+    });
+
+    const lastBucket: Record<string, number> = {};
+    const bucketOf = (v: number) => Math.round(v / INTRO_UPDATE_STEP);
+    const setOp = (code: string, value: number) => {
+      map.setFeatureState({ source: "countries", id: code }, { introOp: value });
+    };
+
+    let raf = 0;
+    let cancelled = false;
+    let startTs = 0;
+
+    const frame = (ts: number) => {
+      if (cancelled) return;
+      if (!startTs) startTs = ts;
+      const elapsed = ts - startTs;
+      let allDone = true;
+      for (const { code, delay, duration, startOp } of blooms) {
+        const p = Math.min(1, Math.max(0, (elapsed - delay) / duration));
+        if (p < 1) allDone = false;
+        // Ease-out so countries brighten quickly then settle into full yellow.
+        const eased = 1 - Math.pow(1 - p, 1.6);
+        const value = startOp + (INTRO_MAX_OPACITY - startOp) * eased;
+        const bucket = bucketOf(value);
+        if (lastBucket[code] !== bucket) {
+          lastBucket[code] = bucket;
+          setOp(code, value);
+        }
+      }
+      if (!allDone) raf = requestAnimationFrame(frame);
+    };
+
+    for (const { code, startOp } of blooms) {
+      lastBucket[code] = bucketOf(startOp);
+      setOp(code, startOp);
+    }
+    raf = requestAnimationFrame(frame);
+
+    return () => {
+      cancelled = true;
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [introBloom, sourceReady, worldData]);
 
   const handleSourceData = useCallback((e: { sourceId?: string; isSourceLoaded?: boolean }) => {
     if (e.sourceId === "countries" && e.isSourceLoaded) setSourceReady(true);
@@ -264,21 +360,32 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   const fillLayer: LayerProps = {
     id: "country-fill",
     type: "fill",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    paint: { "fill-color": FILL_COLOR as any, "fill-opacity": 0.85 },
+    paint: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      "fill-color": (introBloom ? GSC_YELLOW : FILL_COLOR) as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      "fill-opacity": (introBloom ? INTRO_FILL_OPACITY_EXPR : 0.85) as any,
+      // Soft translucent edge baked into the fill itself, matching the
+      // sibling gridsim-frontend project's map - stacked with the crisper
+      // country-line layer below rather than replacing it.
+      "fill-outline-color": "rgba(255,255,255,0.35)",
+    },
   };
 
   const lineLayer: LayerProps = {
     id: "country-line",
     type: "line",
-    paint: { "line-color": "#FFFFFF", "line-width": 0.5 },
+    // Matches gridsim's own border layer - white at 1.25px, not the
+    // thinner 0.5px this used before.
+    paint: { "line-color": "#fff", "line-width": 1.25 },
   };
 
   const selectedLayer: LayerProps = {
     id: "country-selected",
     type: "line",
     filter: ["==", ["get", "code"], selectedCountry ?? " "],
-    paint: { "line-color": "#3B3838", "line-width": 2 },
+    // White, matching gridsim's own selected-country outline.
+    paint: { "line-color": "#ffffff", "line-width": 2 },
   };
 
   const hovered = hover ? scoreByCode.get(hover.code) : null;
@@ -305,6 +412,43 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           </Source>
         )}
       </MapGL>
+
+      {/* Top-right zoom controls, matching the sibling gridsim-frontend
+          project's own - hover only recolours the icon, not the button
+          chrome, per the user's correction away from that source's actual
+          hover (which also swaps background/outline). */}
+      <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: 10, display: "flex", flexDirection: "column", gap: 0.5 }}>
+        <IconButton
+          onClick={() => mapRef.current?.getMap().zoomIn({ duration: 300 })}
+          aria-label="Zoom in"
+          sx={{
+            bgcolor: "#ffffff",
+            borderRadius: 1,
+            boxShadow: 3,
+            width: 36,
+            height: 36,
+            color: "rgba(0, 0, 0, 0.54)",
+            "&:hover": { bgcolor: "#ffffff", color: "primary.main" },
+          }}
+        >
+          <AddIcon fontSize="small" />
+        </IconButton>
+        <IconButton
+          onClick={() => mapRef.current?.getMap().zoomOut({ duration: 300 })}
+          aria-label="Zoom out"
+          sx={{
+            bgcolor: "#ffffff",
+            borderRadius: 1,
+            boxShadow: 3,
+            width: 36,
+            height: 36,
+            color: "rgba(0, 0, 0, 0.54)",
+            "&:hover": { bgcolor: "#ffffff", color: "primary.main" },
+          }}
+        >
+          <RemoveIcon fontSize="small" />
+        </IconButton>
+      </Box>
 
       {hover && (
         <Paper
@@ -342,7 +486,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         </Paper>
       )}
 
-      {!selectedCountry && <MapLegend />}
+      {!selectedCountry && !hideLegend && <MapLegend />}
     </Box>
   );
 }

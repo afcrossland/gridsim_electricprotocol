@@ -81,8 +81,10 @@ describe("groupScores", () => {
 
   it("collapses the EU into one row, averaged over ranked members only", () => {
     // A handful of real member states, not all 27 - groupScores only sees
-    // whichever EU27 codes are actually present in `scores`.
-    const codes = ["DE", "FR", "IT", "GB"]; // GB is not in the EU, a control.
+    // whichever EU27 codes are actually present in `scores`. DE and IT have
+    // no exclaves, so they are the plain "ordinary member" case; France is
+    // covered separately below since it is also exclave-bearing.
+    const codes = ["DE", "IT", "GB"]; // GB is not in the EU, a control.
     const scores = scoresFor(codes);
     const grouped = groupScores(scores);
 
@@ -91,16 +93,15 @@ describe("groupScores", () => {
     expect(eu.hasOwnScore).toBe(false);
     expect(eu.name).toBe("European Union");
 
-    // Members are hidden from the top-level list...
+    // Ordinary members are hidden from the top-level list...
     expect(grouped.some((g) => g.code === "DE")).toBe(false);
-    expect(grouped.some((g) => g.code === "FR")).toBe(false);
     expect(grouped.some((g) => g.code === "IT")).toBe(false);
     // ...but a non-member is unaffected and stays a normal top-level row.
     const gb = grouped.find((g) => g.code === "GB")!;
     expect(gb).toBeDefined();
     expect(gb.hasOwnScore).toBe(true);
 
-    const members = scores.filter((s) => ["DE", "FR", "IT"].includes(s.code));
+    const members = scores.filter((s) => ["DE", "IT"].includes(s.code));
     const ranked = members.filter((s) => s.ranked);
     expect(eu.totalChildren).toBe(members.length);
     expect(eu.rankedChildren).toBe(ranked.length);
@@ -110,20 +111,26 @@ describe("groupScores", () => {
     }
   });
 
-  it("absorbs France into the EU row rather than showing its own exclave group", () => {
+  it("keeps France a normal top-level row, with its exclaves nested under it, even though it is also an EU member", () => {
     // The one case where both mechanisms apply to the same country: France is
-    // both an EU member and an exclave-bearing country. Bloc membership wins -
-    // France disappears from the top level entirely, the same way an
-    // Australian state would, rather than keeping its own top-level exclave
-    // row. Its exclaves are not shown inside the EU row either: only France's
-    // own CountryScore becomes an EU child, since EU membership does not
-    // recurse into a member's own children.
+    // both an EU member and an exclave-bearing country. Unlike an ordinary
+    // member (Germany), it is NOT hidden from the top level - it still needs
+    // somewhere for French Guiana to nest under, and a bare bloc-member entry
+    // has nowhere to attach children. It still counts toward the EU average.
     const codes = ["FR", "FR-GF", "DE"];
     const grouped = groupScores(scoresFor(codes));
 
-    expect(grouped.some((g) => g.code === "FR")).toBe(false);
+    const fr = grouped.find((g) => g.code === "FR")!;
+    expect(fr).toBeDefined();
+    expect(fr.hasOwnScore).toBe(true);
+    expect(fr.isGroup).toBe(true);
+    expect(fr.children.some((c) => c.code === "FR-GF")).toBe(true);
+
+    // French Guiana itself still does not get its own top-level row.
     expect(grouped.some((g) => g.code === "FR-GF")).toBe(false);
 
+    // France also still contributes to the EU row's average, the same as
+    // any other member.
     const eu = grouped.find((g) => g.code === "EU")!;
     expect(eu.children.some((c) => c.code === "FR")).toBe(true);
     expect(eu.children.some((c) => c.code === "FR-GF")).toBe(false);

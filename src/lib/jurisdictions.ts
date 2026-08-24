@@ -88,3 +88,62 @@ export function qualifiedName(code: string): string {
   if (!j.parent) return j.name;
   return `${j.name}, ${byCode.get(j.parent)?.name ?? j.parent}`;
 }
+
+/** Options for the Scoreboard's continent filter, in display order. */
+export const CONTINENTS = [
+  "Africa",
+  "Asia",
+  "Europe",
+  "North America",
+  "South America",
+  "Oceania",
+] as const;
+
+/**
+ * UN sub-region -> continent, for the Scoreboard's continent filter. Coarser
+ * than `region` (which has ~20 values) so the filter is a short, ordinary
+ * list rather than a near-duplicate of the country dropdown next to it.
+ *
+ * Antarctica is deliberately left unmapped - it is never a scoreable
+ * jurisdiction, so there is no reason to offer it as a filter option. The
+ * handful of remote, uninhabited "Seven seas (open ocean)" territories (South
+ * Georgia, Heard Island, etc.) are also left unmapped for the same reason.
+ */
+const CONTINENT_BY_REGION: Record<string, string> = {
+  "Northern Africa": "Africa",
+  "Eastern Africa": "Africa",
+  "Middle Africa": "Africa",
+  "Southern Africa": "Africa",
+  "Western Africa": "Africa",
+  "Central Asia": "Asia",
+  "Eastern Asia": "Asia",
+  "South-Eastern Asia": "Asia",
+  "Southern Asia": "Asia",
+  "Western Asia": "Asia",
+  "Eastern Europe": "Europe",
+  "Northern Europe": "Europe",
+  "Southern Europe": "Europe",
+  "Western Europe": "Europe",
+  Caribbean: "North America",
+  "Central America": "North America",
+  "Northern America": "North America",
+  "South America": "South America",
+  "Australia and New Zealand": "Oceania",
+  Melanesia: "Oceania",
+  Micronesia: "Oceania",
+  Polynesia: "Oceania",
+};
+
+/**
+ * A jurisdiction's continent, for filtering. Only meaningful for a top-level
+ * country (or a political bloc, handled by the caller) - a subnational
+ * jurisdiction's own `region` field holds its parent's *name*, not a UN
+ * sub-region (see the `region` doc comment above), so this looks the parent
+ * up instead of trusting the child's own field.
+ */
+export function continentOf(code: string): string | null {
+  const j = byCode.get(code);
+  if (!j) return null;
+  const region = j.parent ? byCode.get(j.parent)?.region : j.region;
+  return (region && CONTINENT_BY_REGION[region]) ?? null;
+}
