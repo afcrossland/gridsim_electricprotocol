@@ -110,7 +110,9 @@ export default function QuestionCard({ question, response, code, compareCode, co
           return (
             <Box
               key={tier.score}
-              onClick={() => setResponse(code, question.id, { score: tier.score })}
+              onClick={() => {
+                setResponse(code, question.id, { score: tier.score });
+              }}
               sx={{
                 position: "relative",
                 p: 1.25,

@@ -10,6 +10,7 @@ import {
   type ScoreboardFilters,
   type ScoreboardSort,
 } from "../lib/scoreboardFilters";
+import { diffResponses, type Suggestion } from "../lib/suggestions";
 import {
   WINDROSE,
   type CountryPanelTab,
@@ -79,6 +80,18 @@ interface ProtocolState {
   removedSectionIds: string[];
   /** Shipped question ids the admin deleted - filtered out of the live seed on every load. */
   removedQuestionIds: string[];
+  /** Every suggested change submitted so far, pending/accepted/rejected - persisted, same reasoning as responses: something a person actually did. */
+  suggestions: Suggestion[];
+  /**
+   * A country's responses exactly as they were the first time its page was
+   * opened this session - session-only, not persisted (same treatment as
+   * `page`/`selectedCountry`). Purely diffing scaffolding for "Submit
+   * revised evidence": what a suggestion's summary and reject-to-revert
+   * baseline are computed against. Losing it on reload (someone leaves and
+   * comes back) just means their next edit starts a fresh diff, which is an
+   * acceptable simplification rather than a bug.
+   */
+  editBaselines: Record<string, Response[]>;
 
   setThreshold: (threshold: number) => void;
   setMapMetric: (mapMetric: "score" | "completeness") => void;
@@ -108,6 +121,18 @@ interface ProtocolState {
     patch: Partial<EvidenceItem>,
   ) => void;
   removeEvidence: (countryCode: string, questionId: string, index: number) => void;
+
+  /** No-op if a baseline for this country already exists this session. */
+  captureEditBaseline: (countryCode: string) => void;
+  /** Diffs the country's live responses against its captured baseline, files the result as a new pending Suggestion, then re-captures the baseline as the just-submitted state. */
+  submitSuggestion: (input: {
+    countryCode: string;
+    countryName: string;
+    submitterName: string;
+    submitterOrganisation: string;
+  }) => void;
+  /** On "rejected", also restores every response the suggestion touched back to its pre-suggestion value. */
+  reviewSuggestion: (id: string, decision: "accepted" | "rejected") => void;
 
   // Admin console only
   updateSection: (id: string, patch: Partial<Section>) => void;
@@ -230,6 +255,8 @@ function initialState() {
     customQuestions: [],
     removedSectionIds: [],
     removedQuestionIds: [],
+    suggestions: [],
+    editBaselines: {},
   };
 }
 
@@ -349,6 +376,70 @@ export const useProtocolStore = create<ProtocolState>()(
             (r) => !(r.countryCode === countryCode && r.questionId === questionId),
           ),
         })),
+
+      captureEditBaseline: (countryCode) =>
+        set((state) => {
+          if (state.editBaselines[countryCode]) return state; // already captured this session
+          return {
+            editBaselines: {
+              ...state.editBaselines,
+              [countryCode]: state.responses.filter((r) => r.countryCode === countryCode),
+            },
+          };
+        }),
+
+      submitSuggestion: ({ countryCode, countryName, submitterName, submitterOrganisation }) =>
+        set((state) => {
+          const baseline = state.editBaselines[countryCode] ?? [];
+          const current = state.responses.filter((r) => r.countryCode === countryCode);
+          const changes = diffResponses(baseline, current, state.questions);
+          if (changes.length === 0) return state; // nothing to file
+
+          const suggestion: Suggestion = {
+            id: `sg-${Date.now().toString(36)}`,
+            countryCode,
+            countryName,
+            submitterName,
+            submitterOrganisation,
+            submittedAt: new Date().toISOString(),
+            status: "pending",
+            changes,
+            baseline,
+          };
+
+          return {
+            suggestions: [...state.suggestions, suggestion],
+            // Re-baseline to what was just submitted, so further edits diff cleanly against it.
+            editBaselines: { ...state.editBaselines, [countryCode]: current },
+          };
+        }),
+
+      reviewSuggestion: (id, decision) =>
+        set((state) => {
+          const suggestion = state.suggestions.find((s) => s.id === id);
+          if (!suggestion) return state;
+
+          const suggestions = state.suggestions.map((s) =>
+            s.id === id ? { ...s, status: decision } : s,
+          );
+
+          if (decision !== "rejected") return { suggestions };
+
+          // Restore exactly what this suggestion touched, nothing else -
+          // other questions' responses (including later, still-pending
+          // suggestions) are untouched.
+          const baselineByQuestion = new Map(suggestion.baseline.map((r) => [r.questionId, r]));
+          const touchedQuestionIds = new Set(suggestion.changes.map((c) => c.questionId));
+
+          const withoutTouched = state.responses.filter(
+            (r) => !(r.countryCode === suggestion.countryCode && touchedQuestionIds.has(r.questionId)),
+          );
+          const restored = [...touchedQuestionIds]
+            .map((qid) => baselineByQuestion.get(qid))
+            .filter((r): r is Response => r !== undefined);
+
+          return { suggestions, responses: [...withoutTouched, ...restored] };
+        }),
 
       updateSection: (id, patch) =>
         set((state) => {
@@ -530,6 +621,9 @@ export const useProtocolStore = create<ProtocolState>()(
       // leaves `initialState()`'s `false` default in place for them, and the
       // onboarding tour plays once for everyone who hasn't dismissed it
       // rather than being silently skipped for pre-existing visitors.
+      //
+      // `suggestions` (added after v10, also no bump) is likewise additive -
+      // an existing visitor's blob simply lacks the key and starts with none.
       version: 10,
 
       /**
@@ -551,7 +645,7 @@ export const useProtocolStore = create<ProtocolState>()(
           removedQuestionIds: state?.removedQuestionIds ?? [],
           sections,
           questions,
-        } as ProtocolState;
+        } as unknown as ProtocolState;
       },
 
       /**
@@ -587,6 +681,7 @@ export const useProtocolStore = create<ProtocolState>()(
         customQuestions: state.customQuestions,
         removedSectionIds: state.removedSectionIds,
         removedQuestionIds: state.removedQuestionIds,
+        suggestions: state.suggestions,
       }),
 
       /**
@@ -608,12 +703,25 @@ export const useProtocolStore = create<ProtocolState>()(
           );
         const { sections, questions } = buildLiveData(state);
 
+        // A response the user has actually edited replaces the seed's
+        // answer for that same (country, question) pair rather than sitting
+        // alongside it - a plain concatenation left both in the array
+        // simultaneously, which made a question look impossible to edit
+        // once it had ever been edited before: setResponse only ever
+        // updates the *first* matching entry it finds, so the older,
+        // untouched duplicate kept winning wherever responses get looked up
+        // by a Map keyed on questionId (last entry with that key wins a
+        // Map's construction, and that stale duplicate always sorted last).
+        const byKey = new Map<string, Response>();
+        for (const r of seedResponses()) byKey.set(`${r.countryCode}|${r.questionId}`, r);
+        for (const r of userEntered) byKey.set(`${r.countryCode}|${r.questionId}`, r);
+
         return {
           ...current,
           ...state,
           sections,
           questions,
-          responses: [...seedResponses(), ...userEntered],
+          responses: [...byKey.values()],
         };
       },
     },

@@ -18,12 +18,14 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 
 import type { Question, RubricTier } from "../../lib/types";
 import { impactColor, impactLabel, MAX_IMPACT } from "../../lib/scoring";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
+import SuggestionsReview from "./SuggestionsReview";
 
 /** How many questions currently live in a section a delete would wipe out - shown in the confirm prompt. */
 function confirmDeleteSection(title: string, questionCount: number): boolean {
@@ -37,8 +39,9 @@ interface Props {
 }
 
 const RAIL_WIDTH = 232;
-/** Pinned rail entry above the question groups - not a section id. */
+/** Pinned rail entries above the question groups - not section ids. */
 const SETTINGS_VIEW = "settings";
+const SUGGESTIONS_VIEW = "suggestions";
 
 /** Ceiling a tier's points can be set to - see MAX_TIER_POINTS in scoring.ts. */
 const POINTS_OPTIONS = [0, 1, 2, 3, 4];
@@ -81,7 +84,10 @@ export default function AdminConsole({ onBack }: Props) {
     return map;
   }, [sections, questions]);
 
+  const suggestions = useProtocolStore((s) => s.suggestions);
   const showingSettings = activeSectionId === SETTINGS_VIEW;
+  const showingSuggestions = activeSectionId === SUGGESTIONS_VIEW;
+  const pendingSuggestionCount = suggestions.filter((s) => s.status === "pending").length;
   const activeSection = sections.find((s) => s.id === activeSectionId) ?? null;
   const activeQuestions = questionsBySection.get(activeSectionId) ?? [];
   const threshold = Math.round(thresholdValue * 100);
@@ -213,6 +219,48 @@ export default function AdminConsole({ onBack }: Props) {
             >
               Settings
             </Typography>
+          </Box>
+
+          <Box
+            onClick={() => setActiveSectionId(SUGGESTIONS_VIEW)}
+            sx={
+              isMobile
+                ? {
+                    px: 1.5,
+                    py: 1,
+                    flexShrink: 0,
+                    width: 84,
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 0.5,
+                    borderBottom: "3px solid",
+                    borderColor: showingSuggestions ? "primary.main" : "transparent",
+                    "&:hover": { bgcolor: "action.hover" },
+                  }
+                : {
+                    px: 2,
+                    py: 1.25,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    bgcolor: showingSuggestions ? "action.selected" : "transparent",
+                    "&:hover": { bgcolor: "action.hover" },
+                  }
+            }
+          >
+            <RateReviewOutlinedIcon fontSize="small" />
+            <Typography
+              variant={isMobile ? "caption" : "body2"}
+              sx={{ fontWeight: showingSuggestions ? 600 : 400, textAlign: isMobile ? "center" : undefined, flex: isMobile ? undefined : 1 }}
+            >
+              Suggestions
+            </Typography>
+            {pendingSuggestionCount > 0 && (
+              <Chip size="small" label={pendingSuggestionCount} color="primary" sx={{ height: 18, fontSize: "0.7rem" }} />
+            )}
           </Box>
           {!isMobile && <Divider />}
 
@@ -359,6 +407,8 @@ export default function AdminConsole({ onBack }: Props) {
                 valueLabelFormat={(v) => `${v}%`}
               />
             </Paper>
+          ) : showingSuggestions ? (
+            <SuggestionsReview />
           ) : (
           <Stack spacing={2} sx={{ maxWidth: 900 }}>
             {activeSection && (

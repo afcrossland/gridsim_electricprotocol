@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode, type Ref, type UIEvent } from "react";
+import { useEffect, useMemo, useState, type ReactNode, type Ref, type UIEvent } from "react";
 import {
   Box,
   Button,
@@ -20,12 +20,14 @@ import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 import { rankImpact, scoreBand, scoreLabel, scoreSections } from "../../lib/scoring";
+import { diffResponses } from "../../lib/suggestions";
 import { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab, type CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
 import ImpactList from "./ImpactList";
 import QuestionCard from "./QuestionCard";
 import SectionWindrose from "./SectionWindrose";
 import SectionRail, { type RailSection } from "./SectionRail";
+import SubmitSuggestionDialog from "./SubmitSuggestionDialog";
 import FlagImg from "../ui/FlagImg";
 import JurisdictionSearch from "../map/JurisdictionSearch";
 import StatTile from "../ui/StatTile";
@@ -95,6 +97,8 @@ export default function CountryPanel({
   const responses = useProtocolStore((s) => s.responses);
   const compareCountry = useProtocolStore((s) => s.compareCountry);
   const setCompareCountry = useProtocolStore((s) => s.setCompareCountry);
+  const editBaselines = useProtocolStore((s) => s.editBaselines);
+  const captureEditBaseline = useProtocolStore((s) => s.captureEditBaseline);
   const theme = useTheme();
   // The section rail is a left-hand column on desktop, but that leaves too
   // little width for the answer area on a phone in portrait - below `sm` it
@@ -110,9 +114,30 @@ export default function CountryPanel({
   const tab = controlledTab ?? uncontrolledTab;
   const setTab = onTabChange ?? setUncontrolledTab;
   const [comparePickerAnchor, setComparePickerAnchor] = useState<HTMLElement | null>(null);
+  const [submitOpen, setSubmitOpen] = useState(false);
 
   const compareCode = inlineCompare ? compareCountry : null;
   const compareScore = compareCode ? allScores?.find((s) => s.code === compareCode) : undefined;
+
+  // First time this country's page is opened this session, snapshot its
+  // responses as the baseline "Submit revised evidence" diffs against -
+  // see captureEditBaseline's own doc comment for why this is a no-op on
+  // every subsequent render/re-selection of the same country.
+  useEffect(() => {
+    captureEditBaseline(code);
+  }, [code, captureEditBaseline]);
+
+  // Never let a bug in this diff take the whole page down with it - all it
+  // drives is the "Submit revised evidence" button's label/enabled state,
+  // so falling back to "nothing to report" is always a safe failure mode.
+  const pendingChanges = useMemo(() => {
+    try {
+      return diffResponses(editBaselines[code] ?? [], responses.filter((r) => r.countryCode === code), questions);
+    } catch (err) {
+      console.error("diffResponses failed", err);
+      return [];
+    }
+  }, [editBaselines, code, responses, questions]);
 
   const byQuestion = useMemo(
     () => new Map(responses.filter((r) => r.countryCode === code).map((r) => [r.questionId, r])),
@@ -284,9 +309,6 @@ export default function CountryPanel({
         <Box ref={contentRef} onScroll={onContentScroll} sx={{ flex: 1, overflowY: "auto", p: 3, minWidth: 0 }}>
           {tab === IMPACT ? (
             <>
-              <Typography variant="h2" gutterBottom>
-                Biggest policy wins
-              </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
                 Biggest policy wins based on policy score and evidence provided.
               </Typography>
@@ -346,6 +368,22 @@ export default function CountryPanel({
             </>
           ) : activeSection ? (
             <>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1.5 }}>
+                <Tooltip title={pendingChanges.length === 0 ? "Change an answer or its evidence first" : ""}>
+                  <span>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      disabled={pendingChanges.length === 0}
+                      onClick={() => setSubmitOpen(true)}
+                    >
+                      Submit revised evidence
+                      {pendingChanges.length > 0 ? ` (${pendingChanges.length})` : ""}
+                    </Button>
+                  </span>
+                </Tooltip>
+              </Box>
+
               <Stack spacing={2}>
                 {sectionQuestions.map((q) => (
                   <QuestionCard
@@ -362,6 +400,13 @@ export default function CountryPanel({
           ) : null}
         </Box>
       </Box>
+
+      <SubmitSuggestionDialog
+        open={submitOpen}
+        onClose={() => setSubmitOpen(false)}
+        countryCode={code}
+        countryName={score.name}
+      />
     </Box>
   );
 }
