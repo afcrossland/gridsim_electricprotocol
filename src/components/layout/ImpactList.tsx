@@ -2,6 +2,7 @@ import { Box, Chip, Stack, Typography } from "@mui/material";
 
 import type { ImpactItem } from "../../lib/types";
 import { impactColor, impactLabel, impactTextColor } from "../../lib/scoring";
+import { capitalizeFirst } from "../../lib/text";
 
 interface Props {
   items: ImpactItem[];
@@ -41,7 +42,7 @@ export default function ImpactList({ items, limit = 10 }: Props) {
         >
           <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="overline" sx={{ display: "block" }}>
+              <Typography variant="overline" sx={{ display: "block", color: "primary.dark", fontWeight: 700 }}>
                 {item.section.title}
               </Typography>
               <Typography variant="body1" sx={{ overflowWrap: "break-word" }}>
@@ -69,7 +70,13 @@ export default function ImpactList({ items, limit = 10 }: Props) {
               its label to one line with an ellipsis, so plain wrapping text
               is used instead to keep the whole thing readable. */}
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, overflowWrap: "break-word" }}>
-            Currently: {item.question.rubric.find((t) => t.score === item.currentScore)?.label ?? item.currentScore}
+            <Box component="span" sx={{ color: "warning.main", fontWeight: 600 }}>
+              Currently:
+            </Box>{" "}
+            {(() => {
+              const label = item.question.rubric.find((t) => t.score === item.currentScore)?.label;
+              return label ? capitalizeFirst(label) : item.currentScore;
+            })()}
           </Typography>
         </Box>
       ))}

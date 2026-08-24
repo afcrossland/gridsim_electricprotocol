@@ -8,6 +8,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import type { Question, Response } from "../../lib/types";
 import { impactColor, impactLabel, impactTextColor } from "../../lib/scoring";
 import { qualifiedName } from "../../lib/jurisdictions";
+import { capitalizeFirst } from "../../lib/text";
 import { useProtocolStore } from "../../stores/protocolStore";
 import FlagImg from "../ui/FlagImg";
 
@@ -150,7 +151,7 @@ export default function QuestionCard({ question, response, code, compareCode, co
                   pr: isCompareAnswer ? 3 : 0,
                 }}
               >
-                {tier.label}
+                {capitalizeFirst(tier.label)}
               </Typography>
             </Box>
           );

@@ -285,13 +285,10 @@ export default function CountryPanel({
           {tab === IMPACT ? (
             <>
               <Typography variant="h2" gutterBottom>
-                Highest impact changes
+                Biggest policy wins
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                Answered questions not yet at full marks, ranked by the weighted points
-                each would add. Unanswered questions are not included here - switch to{" "}
-                <strong>Policy Score and Evidence</strong> and filter to unanswered to find
-                those.
+                Biggest policy wins based on policy score and evidence provided.
               </Typography>
               <ImpactList items={impact} limit={20} />
             </>
@@ -313,7 +310,7 @@ export default function CountryPanel({
                     p: 2,
                   }}
                 >
-                  <Typography variant="overline" sx={{ display: "block" }}>
+                  <Typography variant="overline" sx={{ display: "block", color: "primary.dark" }}>
                     Score
                   </Typography>
                   <SectionWindrose
@@ -334,7 +331,7 @@ export default function CountryPanel({
                     p: 2,
                   }}
                 >
-                  <Typography variant="overline" sx={{ display: "block" }}>
+                  <Typography variant="overline" sx={{ display: "block", color: "primary.dark" }}>
                     Data completeness
                   </Typography>
                   <SectionWindrose

@@ -23,7 +23,10 @@ export default function WelcomeModal({ open, onClose }: Props) {
       sx={{
         position: "fixed",
         inset: 0,
-        zIndex: 200,
+        // Above ScrollStory's own z-index (300) - the Charter can now open
+        // on top of the still-running tour (its "Read the Citizens..."
+        // pill), not just after the tour has ended.
+        zIndex: 310,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -82,7 +85,7 @@ export default function WelcomeModal({ open, onClose }: Props) {
           />
           <Box>
             <Typography variant="overline" sx={{ display: "block", lineHeight: 1.2 }}>
-              Solar Policy Wiki
+              Solar Policy Explorer
             </Typography>
             <Typography variant="h2">{CHARTER.title}</Typography>
           </Box>
@@ -123,7 +126,7 @@ export default function WelcomeModal({ open, onClose }: Props) {
           fullWidth
           sx={{ mt: 3, flexShrink: 0 }}
         >
-          Explore the policy map
+          Return
         </Button>
       </Box>
     </Box>

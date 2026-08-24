@@ -62,9 +62,12 @@ export default function Scoreboard({ scores, selectedCountry, onSelect }: Props)
 
   return (
     <Box data-tour="scoreboard" sx={{ p: 2, overflowY: "auto", height: "100%", bgcolor: "#ffffff" }}>
+      {/* Same size/weight/colour as the sibling gridsim-frontend project's
+          own country-name heading at the top of its sidebar. */}
+      <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2, mb: 0.5 }}>
+        Policy Explorer
+      </Typography>
       <Typography variant="body2" sx={{ mb: 1.5 }}>
-        How well does a country's electricity policy let ordinary homes and
-        businesses generate, store and sell their own power?{" "}
         <strong>Pick a country on the map or in this list</strong> to see/edit its
         answers, the evidence behind each one, and the changes that would raise its
         score the most.

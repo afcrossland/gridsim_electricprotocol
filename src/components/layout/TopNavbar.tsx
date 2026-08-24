@@ -1,4 +1,4 @@
-import { AppBar, Box, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 
 import { useProtocolStore } from "../../stores/protocolStore";
 
@@ -81,7 +81,7 @@ export default function TopNavbar() {
                 lineHeight: 1.2,
               }}
             >
-              Solar Policy Wiki
+              Solar Policy Explorer
             </Typography>
             <Typography sx={{ fontSize: "0.65rem", color: "text.secondary", lineHeight: 1.3 }}>
               by The Global Solar Council&ensp;·&ensp;
@@ -107,22 +107,31 @@ export default function TopNavbar() {
 
           <Box sx={{ width: "1px", height: 20, bgcolor: "divider", mx: 0.5, alignSelf: "center" }} />
 
-          <Box data-tour="nav-links" sx={{ display: "flex", alignItems: "stretch" }}>
+          <Box data-tour="nav-links" sx={{ display: "flex", alignItems: "center" }}>
             <Box onClick={() => setWelcomeSeen(false)} sx={navItemSx(false)}>
-              About
+              Charter
             </Box>
             <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
               Help
             </Box>
-            {/* Stands in for auth: open to anyone until sign-in exists. */}
-            <Box onClick={() => setPage(page === "admin" ? "map" : "admin")} sx={navItemSx(page === "admin")}>
+
+            {/* Stands in for auth: open to anyone until sign-in exists. A
+                filled blue button rather than a plain link like the others -
+                it is the one destructive/editing entry point in the nav, so
+                it earns more visual weight. */}
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => setPage(page === "admin" ? "map" : "admin")}
+              sx={{ minWidth: 0, px: { xs: 1.25, sm: 2 }, ml: 1.5 }}
+            >
               <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
                 Admin console
               </Box>
               <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
                 Admin
               </Box>
-            </Box>
+            </Button>
           </Box>
         </Box>
       </Toolbar>

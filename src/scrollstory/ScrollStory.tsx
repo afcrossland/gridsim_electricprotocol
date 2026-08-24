@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -84,17 +84,24 @@ interface Props {
   onDismiss: () => void;
   /** Reports the active scene's id on every change - lets the app hide chrome (the sidebar, on the opening scene) that would otherwise show through the mostly-transparent overlay. */
   onSceneChange?: (sceneId: number) => void;
-  /** Ends the tour and opens the Charter welcome screen in its place - offered right on the opening scene for anyone who wants the Charter itself rather than the tour. */
+  /** Opens the Charter welcome screen on top of the tour - offered right on the opening scene for anyone who wants the Charter itself rather than the tour. Does not end the tour; see `paused`. */
   onOpenCharter?: () => void;
+  /** True while the Charter is open on top of the tour - suspends wheel/keyboard scene navigation so scrolling the Charter's own content doesn't also drive the tour underneath it. */
+  paused?: boolean;
 }
 
-export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter }: Props) {
+export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, paused = false }: Props) {
   const [activeScene, setActiveScene] = useState(0);
   const scene = SCENES[activeScene];
   const media = scene.media;
 
   const selectCountry = useProtocolStore((s) => s.selectCountry);
   const setCountryPanelTab = useProtocolStore((s) => s.setCountryPanelTab);
+
+  const pausedRef = useRef(paused);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
 
   const goToScene = useCallback(
     (index: number) => setActiveScene(Math.max(0, Math.min(index, SCENES.length - 1))),
@@ -110,6 +117,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter }:
   useEffect(() => {
     const lock = { until: 0 };
     const onWheel = (e: WheelEvent) => {
+      if (pausedRef.current) return;
       e.preventDefault();
       e.stopPropagation();
       const now = Date.now();
@@ -125,6 +133,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter }:
   // Keyboard navigation, same capturing pattern as the wheel handler above.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (pausedRef.current) return;
       if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
         e.preventDefault();
         e.stopPropagation();
@@ -398,7 +407,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter }:
         }}
       >
         {activeScene === 0 && (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, pointerEvents: "auto" }}>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, pointerEvents: "auto" }}>
             <Box
               sx={{
                 ...PILL,

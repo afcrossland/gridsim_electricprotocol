@@ -52,7 +52,7 @@ export const DEFAULT_TOUR_COUNTRY = "GB";
 export const SCENES: Scene[] = [
   {
     id: 0,
-    heading: "Welcome to the Solar Policy Assessment Tool",
+    heading: "Welcome to the Solar Policy Explorer",
     body: "Explore the international policy environment for behind-the-meter solar and storage.",
     layout: "hero",
     media: { kind: "map" },
@@ -188,7 +188,7 @@ export const SCENES: Scene[] = [
   {
     id: 10,
     heading: "Start exploring",
-    body: "Pick a jurisdiction, or browse the scoreboard to see who's leading.",
+    body: "Pick a jurisdiction, or browse the scoreboard and update missing policy information.",
     layout: "cta",
     media: { kind: "map" },
   },

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
 
 import AdminConsole from "./components/layout/AdminConsole";
@@ -35,16 +35,41 @@ export default function App() {
   // would otherwise show straight through the overlay's mostly-transparent
   // middle. Only tracked while the tour is up; irrelevant once dismissed.
   const [tourSceneId, setTourSceneId] = useState(0);
-  const hideSidebarForTour = !tourSeen && tourSceneId === 0;
-  // The map's "solar bloom" intro animation (see PolicyMap's introBloom prop)
-  // runs through the tour's opening scene and stays up behind the Charter if
-  // that follows straight on from it, so the two feel like one continuous
-  // opening - but only ever for that one first-run stretch. Once the Charter
-  // has actually been dismissed for the first time, this turns off for good;
-  // "About" reopening the Charter later must not re-trigger it.
+  const heroScene = !tourSeen && tourSceneId === 0;
+  // True through the tour's opening scene AND through the Charter modal
+  // immediately after it, so the two read as one continuous opening rather
+  // than the chrome (top bar, bottom toolbar, legend, sidebar) popping back
+  // in and out between them - the "solar bloom" map animation, and every
+  // other bit of hero-scene chrome-hiding below, are gated on this same
+  // flag. Only ever true for that one first-run stretch: once the Charter
+  // has actually been dismissed for the first time, `bloomActive` turns off
+  // for good, so "About" reopening the Charter later behaves normally
+  // (chrome stays visible, no bloom).
   const [bloomActive, setBloomActive] = useState(true);
-  if (bloomActive && welcomeSeen) setBloomActive(false);
-  const introBloom = bloomActive && (hideSidebarForTour || (!welcomeSeen && tourSeen));
+  // Edge-detected, not "is welcomeSeen true" as a static condition - that
+  // would immediately re-latch bloomActive back off on every render once
+  // welcomeSeen has ever been true, which defeats re-arming it below.
+  // Instead: turn off exactly when the Charter is actually dismissed (false
+  // -> true), and turn back on exactly when the tour is (re)launched (true
+  // -> false) - "Take the tour" in the nav can do that at any point, long
+  // after the very first run, and that replay should look the same as the
+  // original one rather than showing the map's normal colours and chrome
+  // through it.
+  const wasTourSeen = useRef(tourSeen);
+  const wasWelcomeSeen = useRef(welcomeSeen);
+  useEffect(() => {
+    if (wasTourSeen.current && !tourSeen) {
+      setBloomActive(true);
+    } else if (!wasWelcomeSeen.current && welcomeSeen && tourSeen) {
+      // Only once the tour has actually ended - dismissing the Charter
+      // while it was opened on top of the still-running hero scene (the
+      // pill, not About) just returns to the tour, so bloom stays armed.
+      setBloomActive(false);
+    }
+    wasTourSeen.current = tourSeen;
+    wasWelcomeSeen.current = welcomeSeen;
+  }, [tourSeen, welcomeSeen]);
+  const onboardingHero = bloomActive && (heroScene || (!welcomeSeen && tourSeen));
   // Desktop-only, view preference like `comparing` - not persisted, and
   // irrelevant on the mobile stacked layout, which has no side-by-side
   // sidebar to collapse in the first place.
@@ -105,8 +130,8 @@ export default function App() {
       metric={mapMetric}
       selectedCountry={selectedCountry}
       onCountryClick={handleSelectCountry}
-      hideLegend={hideSidebarForTour}
-      introBloom={introBloom}
+      hideLegend={onboardingHero}
+      introBloom={onboardingHero}
     />
   );
 
@@ -127,10 +152,10 @@ export default function App() {
 
   return (
     <Box sx={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column" }}>
-      {/* Hidden on the tour's opening scene too - an unobstructed view of
-          the coloured globe, matching the sibling gridsim-frontend
-          project's own clean opening scene. */}
-      {!hideSidebarForTour && <TopNavbar />}
+      {/* Hidden through the tour's opening scene and the Charter that
+          follows it - an unobstructed view of the coloured globe, matching
+          the sibling gridsim-frontend project's own clean opening scene. */}
+      {!onboardingHero && <TopNavbar />}
 
       {!tourSeen && (
         <ScrollStory
@@ -144,19 +169,25 @@ export default function App() {
           }}
           onSceneChange={setTourSceneId}
           onOpenCharter={() => {
-            setTourSeen(true);
             selectCountry(null);
             setWelcomeSeen(false);
           }}
+          // Suspends the tour's own wheel/keyboard scene-navigation while
+          // the Charter is open on top of it, so scrolling the Charter's
+          // own long text does not also drive the tour underneath.
+          paused={!welcomeSeen}
         />
       )}
 
-      {/* The Charter only shows once the tour has been dismissed - showing
-          both full-screen takeovers stacked on a first visit would bury the
-          tour's own dismiss controls under the modal. */}
-      <WelcomeModal open={!welcomeSeen && tourSeen} onClose={() => setWelcomeSeen(true)} />
+      {/* Opening the Charter from the hero's own "Read the Citizens..."
+          pill does not end the tour - it opens on top of it, and dismissing
+          it (Return) lands back on the tour exactly where it was, not on
+          the plain map. Reaching the Charter any other way (About, or the
+          tour's own natural end) has already set tourSeen, so this is the
+          one open condition either way. */}
+      <WelcomeModal open={!welcomeSeen} onClose={() => setWelcomeSeen(true)} />
 
-      {hideSidebarForTour ? (
+      {onboardingHero ? (
         <Box sx={{ flex: 1, position: "relative" }}>{map}</Box>
       ) : page === "admin" || page === "help" ? (
         // Full takeover - there is nothing useful to keep the map visible
@@ -278,9 +309,9 @@ export default function App() {
           sibling gridsim-frontend project - a page-level sibling of the
           map/sidebar content, not scoped to the map panel, so it spans the
           whole viewport regardless of whether a sidebar is open next to it.
-          Hidden on the tour's opening scene along with the top bar and
-          legend. */}
-      {!hideSidebarForTour && (
+          Hidden through the tour's opening scene and the Charter that
+          follows it, along with the top bar and legend. */}
+      {!onboardingHero && (
       <Box
         sx={{
           flexShrink: 0,

@@ -22,6 +22,7 @@ import { CONTINENTS } from "../../lib/jurisdictions";
 import { SCORE_BANDS } from "../../lib/scoring";
 import {
   NOT_ENOUGH_DATA_BAND,
+  continentOfGroup,
   isDefaultFilters,
   type ScoreboardSort,
 } from "../../lib/scoreboardFilters";
@@ -66,9 +67,13 @@ export default function ScoreboardFilters({ groups }: Props) {
   const countryOptions = useMemo(
     () =>
       [...groups]
+        // Narrowed to the selected continent(s), if any - picking Europe
+        // first means the country picker only offers European countries to
+        // pick from next, rather than the whole world.
+        .filter((g) => filters.continents.length === 0 || filters.continents.includes(continentOfGroup(g) ?? ""))
         .map((g) => ({ code: g.code, name: g.name }))
         .sort((a, b) => a.name.localeCompare(b.name)),
-    [groups],
+    [groups, filters.continents],
   );
   const selectedCountries = countryOptions.filter((c) => filters.countries.includes(c.code));
 
