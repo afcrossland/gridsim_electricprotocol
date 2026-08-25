@@ -2,10 +2,8 @@ import { useEffect, useMemo, useState, type ReactNode, type Ref, type UIEvent } 
 import {
   Box,
   Button,
-  Chip,
   Divider,
   IconButton,
-  Popover,
   Stack,
   Tab,
   Tabs,
@@ -15,27 +13,27 @@ import {
   useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
+import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors";
 import { rankImpact, scoreBand, scoreLabel, scoreSections } from "../../lib/scoring";
 import { diffResponses } from "../../lib/suggestions";
-import { SECTIONS, WINDROSE, type CountryPanelTab, type CountryScore } from "../../lib/types";
+import { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab, type CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
 import { generateCountryReportPdf, fmtReportDate, fmtTimestamp } from "../../utils/exportCountryReportPdf";
 import CountryReportDocument from "../report/CountryReportDocument";
+import ComparePicker from "./ComparePicker";
 import ImpactList from "./ImpactList";
 import QuestionCard from "./QuestionCard";
 import SectionWindrose from "./SectionWindrose";
 import SectionRail, { type RailSection } from "./SectionRail";
 import SubmitSuggestionDialog from "./SubmitSuggestionDialog";
 import FlagImg from "../ui/FlagImg";
-import JurisdictionSearch from "../map/JurisdictionSearch";
 import StatTile from "../ui/StatTile";
 
-export { SECTIONS, WINDROSE, type CountryPanelTab };
+export { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab };
 
 interface Props {
   code: string;
@@ -67,13 +65,13 @@ interface Props {
   sectionId?: string;
   onSectionChange?: (id: string) => void;
   /**
-   * Turns on the inline compare control (a button that opens a jurisdiction
-   * picker, or a chip for the current pick) plus the per-question compare
-   * tiles and the dual-series windrose. Off by default so CompareView's own
-   * two-panel usage of this component is unaffected - the old full-screen
-   * compare view is disconnected from the UI, not deleted, so it stays easy
-   * to bring back; this flag is what keeps the two from fighting over the
-   * same `compareCountry` state if it ever is.
+   * Turns on the inline compare control (a chip list plus an add button,
+   * capped at MAX_COMPARE_COUNTRIES) plus the per-question rubric flag
+   * clusters and the multi-series windrose. Off by default so CompareView's
+   * own two-panel usage of this component is unaffected - the old
+   * full-screen compare view is disconnected from the UI, not deleted, so
+   * it stays easy to bring back; this flag is what keeps the two from
+   * fighting over the same `compareCountries` state if it ever is.
    */
   inlineCompare?: boolean;
   /** Every jurisdiction's score, needed only to power the inline compare picker (JurisdictionSearch) - unused when inlineCompare is off. */
@@ -98,8 +96,9 @@ export default function CountryPanel({
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
-  const compareCountry = useProtocolStore((s) => s.compareCountry);
-  const setCompareCountry = useProtocolStore((s) => s.setCompareCountry);
+  const compareCountries = useProtocolStore((s) => s.compareCountries);
+  const addCompareCountry = useProtocolStore((s) => s.addCompareCountry);
+  const removeCompareCountry = useProtocolStore((s) => s.removeCompareCountry);
   const editBaselines = useProtocolStore((s) => s.editBaselines);
   const captureEditBaseline = useProtocolStore((s) => s.captureEditBaseline);
   const theme = useTheme();
@@ -116,12 +115,21 @@ export default function CountryPanel({
   const [uncontrolledTab, setUncontrolledTab] = useState<CountryPanelTab>(WINDROSE);
   const tab = controlledTab ?? uncontrolledTab;
   const setTab = onTabChange ?? setUncontrolledTab;
-  const [comparePickerAnchor, setComparePickerAnchor] = useState<HTMLElement | null>(null);
   const [submitOpen, setSubmitOpen] = useState(false);
   const [buildingReport, setBuildingReport] = useState(false);
 
-  const compareCode = inlineCompare ? compareCountry : null;
-  const compareScore = compareCode ? allScores?.find((s) => s.code === compareCode) : undefined;
+  const compareCodes = inlineCompare ? compareCountries : [];
+  // Colour assignment order = pick order, stable regardless of removals
+  // elsewhere in the list - see compareColorFor's own doc comment.
+  const compareEntries = useMemo(
+    () =>
+      compareCodes.map((c, i) => ({
+        code: c,
+        color: compareColorFor(i),
+        score: allScores?.find((s) => s.code === c),
+      })),
+    [compareCodes, allScores],
+  );
 
   // First time this country's page is opened this session, snapshot its
   // responses as the baseline "Submit revised evidence" diffs against -
@@ -148,12 +156,16 @@ export default function CountryPanel({
     [responses, code],
   );
 
-  const compareByQuestion = useMemo(
+  // Per comparator, its answer to every question - questionId -> Response.
+  const compareByQuestionByCode = useMemo(
     () =>
-      compareCode
-        ? new Map(responses.filter((r) => r.countryCode === compareCode).map((r) => [r.questionId, r]))
-        : null,
-    [responses, compareCode],
+      new Map(
+        compareCodes.map((c) => [
+          c,
+          new Map(responses.filter((r) => r.countryCode === c).map((r) => [r.questionId, r])),
+        ]),
+      ),
+    [responses, compareCodes],
   );
 
   const impact = useMemo(
@@ -166,9 +178,17 @@ export default function CountryPanel({
     [sections, questions, responses, code],
   );
 
-  const compareSectionScores = useMemo(
-    () => (compareCode ? scoreSections(protocol, sections, questions, responses, compareCode) : undefined),
-    [sections, questions, responses, compareCode],
+  // One SectionWindrose "series" per comparator - computed once here and fed
+  // to both the Score and Data completeness tiles, rather than each tile
+  // recomputing scoreSections for every comparator itself.
+  const compareWindroseSeries = useMemo(
+    () =>
+      compareEntries.map((entry) => ({
+        code: entry.code,
+        label: entry.score?.name ?? entry.code,
+        sections: scoreSections(protocol, sections, questions, responses, entry.code),
+      })),
+    [compareEntries, sections, questions, responses],
   );
 
   const railSections: RailSection[] = useMemo(
@@ -236,7 +256,7 @@ export default function CountryPanel({
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <Box sx={{ px: 3, py: 2 }}>
+      <Box sx={{ px: 3, pt: 2, pb: 1 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
           {onBack && (
             <Tooltip title="Back to scoreboard">
@@ -270,55 +290,13 @@ export default function CountryPanel({
           </Box>
 
           {headerAction}
-
-          {inlineCompare &&
-            (compareCode && compareScore ? (
-              <Chip
-                icon={<FlagImg code={compareCode} size={16} />}
-                label={`vs ${compareScore.name}`}
-                onDelete={() => setCompareCountry(null)}
-                sx={{ maxWidth: 220 }}
-              />
-            ) : (
-              <>
-                <Button
-                  size="small"
-                  data-tour="compare-button"
-                  startIcon={<CompareArrowsIcon fontSize="small" />}
-                  onClick={(e) => setComparePickerAnchor(e.currentTarget)}
-                >
-                  Compare
-                </Button>
-                <Popover
-                  open={Boolean(comparePickerAnchor)}
-                  anchorEl={comparePickerAnchor}
-                  onClose={() => setComparePickerAnchor(null)}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                  transformOrigin={{ vertical: "top", horizontal: "right" }}
-                >
-                  <Box sx={{ p: 2, width: 320 }}>
-                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                      Compare {score.name} against:
-                    </Typography>
-                    <JurisdictionSearch
-                      scores={allScores ?? []}
-                      selected={null}
-                      onSelect={(picked) => {
-                        setCompareCountry(picked);
-                        setComparePickerAnchor(null);
-                      }}
-                      // Portal to <body> rather than the default disabled-
-                      // portal behaviour - a disabled-portal dropdown is
-                      // clipped by this Popover's own Paper, which is what
-                      // made it unreadable rather than just misplaced.
-                      disablePortal={false}
-                    />
-                  </Box>
-                </Popover>
-              </>
-            ))}
         </Box>
       </Box>
+
+      {/* Matches the sibling gridsim-frontend project's own sidebar - a grey
+          rule under the country name, separating the header from whatever
+          comes next (there, the KPI cards; here, the tab bar). */}
+      <Divider sx={{ borderColor: "#E5E7EB" }} />
 
       {/* The single most useful thing to do with a country's page is see what
           would raise its score, so that gets a real tab rather than a rail
@@ -328,7 +306,7 @@ export default function CountryPanel({
           here as the first panel's real tab bar, or its header ends up
           shorter and everything below stops lining up between the two,
           including what the scroll-position mirror is actually syncing to. */}
-      <Box sx={{ display: "flex", alignItems: "center", px: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", px: 2, pt: 1 }}>
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
@@ -336,10 +314,13 @@ export default function CountryPanel({
           sx={{ flex: 1, minWidth: 0, visibility: hideTabs ? "hidden" : "visible" }}
         >
           <Tab value={WINDROSE} label="Summary" />
+          <Tab value={IMPACT} label="Biggest Policy Wins" />
           <Tab value={SECTIONS} label="Policy Score and Evidence" />
         </Tabs>
+
         <Button
           size="small"
+          variant="contained"
           startIcon={<DownloadIcon fontSize="small" />}
           disabled={buildingReport}
           onClick={handleDownloadReport}
@@ -348,6 +329,25 @@ export default function CountryPanel({
           {buildingReport ? "Building report..." : "Download report"}
         </Button>
       </Box>
+
+      {/* Its own row below the tabs, not squeezed onto the same line - up to
+          MAX_COMPARE_COUNTRIES chips (a jurisdiction name like "New South
+          Wales" is not short) plus the add button do not reliably fit
+          alongside three tabs and the download button on one line, and
+          wrapping them onto that same line pushed chips over the tab
+          labels rather than under them. */}
+      {inlineCompare && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", px: 2, pb: 1 }}>
+          <ComparePicker
+            primaryCode={code}
+            allScores={allScores ?? []}
+            compareEntries={compareEntries}
+            maxCount={MAX_COMPARE_COUNTRIES}
+            onAdd={addCompareCountry}
+            onRemove={removeCompareCountry}
+          />
+        </Box>
+      )}
       <Divider />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
@@ -370,7 +370,7 @@ export default function CountryPanel({
                 backed by evidence. A dashed marker just means there isn't
                 enough data yet - not a score of zero.
               </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
                 <Box
                   sx={{
                     flex: "1 1 320px",
@@ -387,9 +387,8 @@ export default function CountryPanel({
                   <SectionWindrose
                     sections={sectionScores}
                     metric="score"
-                    compareSections={compareSectionScores}
+                    compareSeries={compareWindroseSeries}
                     primaryLabel={score.name}
-                    compareLabel={compareScore?.name}
                   />
                 </Box>
                 <Box
@@ -408,13 +407,14 @@ export default function CountryPanel({
                   <SectionWindrose
                     sections={sectionScores}
                     metric="completeness"
-                    compareSections={compareSectionScores}
+                    compareSeries={compareWindroseSeries}
                     primaryLabel={score.name}
-                    compareLabel={compareScore?.name}
                   />
                 </Box>
               </Box>
-
+            </>
+          ) : tab === IMPACT ? (
+            <>
               <Typography variant="body2" sx={{ mb: 2 }}>
                 Biggest policy wins based on policy score and evidence provided.
               </Typography>
@@ -428,8 +428,12 @@ export default function CountryPanel({
                   question={q}
                   response={byQuestion.get(q.id)}
                   code={code}
-                  compareCode={compareCode ?? undefined}
-                  compareResponse={compareByQuestion?.get(q.id)}
+                  compareEntries={compareEntries.map((entry) => ({
+                    code: entry.code,
+                    color: entry.color,
+                    name: entry.score?.name,
+                    response: compareByQuestionByCode.get(entry.code)?.get(q.id),
+                  }))}
                 />
               ))}
             </Stack>
@@ -462,6 +466,16 @@ export default function CountryPanel({
               sections,
               questions,
               byQuestion,
+              compareEntries: compareEntries
+                .filter((entry) => entry.score)
+                .map((entry) => ({
+                  code: entry.code,
+                  name: entry.score!.name,
+                  color: entry.color,
+                  score: entry.score!,
+                  sections: compareWindroseSeries.find((s) => s.code === entry.code)?.sections ?? [],
+                  byQuestion: compareByQuestionByCode.get(entry.code) ?? new Map(),
+                })),
             }}
           />
         </Box>

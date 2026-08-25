@@ -1,19 +1,28 @@
 import { Box, Typography, useTheme } from "@mui/material";
 
+import { PRIMARY_SERIES_COLOR, compareColorFor } from "../../lib/compareColors";
 import type { CountryScore, Section } from "../../lib/types";
+
+export interface CompareSeries {
+  code: string;
+  label: string;
+  sections: { section: Section; score: CountryScore }[];
+}
 
 interface Props {
   sections: { section: Section; score: CountryScore }[];
   /** Which measure the bars show. Completeness is always known; score is withheld ("not enough data") below the ranking threshold. */
   metric: "score" | "completeness";
-  /** A second country's per-section scores, same shape as `sections` - when set, each axis splits into a paired wedge and a legend is shown. */
-  compareSections?: { section: Section; score: CountryScore }[];
+  /**
+   * Up to MAX_COMPARE_COUNTRIES other jurisdictions' per-section scores, same
+   * shape as `sections` - when set, the chart switches from single-series
+   * wedges to a multi-series line/radar chart (one line per jurisdiction,
+   * colour-coded via compareColorFor) with a legend, since a wedge split N
+   * ways stops being readable past two series.
+   */
+  compareSeries?: CompareSeries[];
   primaryLabel?: string;
-  compareLabel?: string;
 }
-
-/** GSC Citrus - distinct from the primary series' teal without introducing a new hue to the palette. */
-const COMPARE_COLOR = "#FBB114";
 
 const SIZE = 380;
 /** Rendered width - kept below SIZE so the chart stays a reasonable size side by side with its pair. */
@@ -27,6 +36,8 @@ const GAP_FRACTION = 0.18;
 const LABEL_WRAP_WIDTH = 14;
 /** Floor radius for a value label, so a near-zero bar's number does not sit on top of the centre. */
 const MIN_LABEL_RADIUS = 26;
+/** Fixed radius for an unranked/unknown vertex on the line chart - matches the wedge chart's own dashed-marker radius. */
+const UNKNOWN_RADIUS = 14;
 
 /** Angle of axis `i` of `n`, starting at 12 o'clock and going clockwise. */
 function angleOf(i: number, n: number): number {
@@ -60,95 +71,163 @@ function wrapLabel(text: string): string[] {
   return line2 ? [line1, line2] : [line1];
 }
 
-/**
- * A section-by-section profile for one country - a wind rose, one radial bar
- * per section rather than a connected line/polygon. Bars were chosen over a
- * spider-chart outline deliberately: a shared outline distorts area and
- * invites comparing shapes rather than the numbers, where separate wedges
- * keep every section an independent, directly comparable magnitude - the
- * same reasoning that makes a bar chart the default for "compare magnitude"
- * anywhere else in the app.
- *
- * One hue throughout (the country's own profile, not a comparison between
- * series - the score and completeness charts are two separate instances of
- * this component, not two series on one). Data completeness is always a
- * known number, but a section's *score* can be withheld below the ranking
- * threshold - in that case it gets a dashed marker instead of a bar at zero,
- * so a research gap never reads as a confirmed bad score.
- */
-/** Fraction of a paired axis slot spent on the gap between its two wedges. */
-const INNER_GAP_FRACTION = 0.14;
-
-interface Segment {
-  key: string;
-  angle: number;
-  halfWidth: number;
-  score: CountryScore;
-  color: string;
-  title: string;
+function valueOfScore(score: CountryScore, metric: "score" | "completeness"): number {
+  return metric === "completeness" ? score.completeness : score.score;
+}
+function knownOfScore(score: CountryScore, metric: "score" | "completeness"): boolean {
+  return metric === "completeness" || score.ranked;
 }
 
-export default function SectionWindrose({
-  sections,
-  metric,
-  compareSections,
-  primaryLabel = "This jurisdiction",
-  compareLabel = "Compared with",
-}: Props) {
+/**
+ * A section-by-section profile for one country - a wind rose, one radial bar
+ * per section rather than a connected line/polygon, UNLESS one or more other
+ * jurisdictions are being compared against it, in which case every
+ * jurisdiction (this one plus each comparator) becomes its own line/radar
+ * outline instead - wedges cannot split more than two ways and stay
+ * readable, but lines of different colours scale to several jurisdictions
+ * with a legend to tell them apart.
+ *
+ * Bars were chosen over an outline for the single-country case deliberately:
+ * a shared outline distorts area and invites comparing shapes rather than
+ * the numbers, where separate wedges keep every section an independent,
+ * directly comparable magnitude. That reasoning only holds for one series -
+ * once there are several, an outline per jurisdiction is the only way to
+ * keep them visually separable at all, and area-distortion is an acceptable
+ * trade against outright illegibility.
+ *
+ * One hue throughout in single mode (the country's own profile). In compare
+ * mode every jurisdiction, including the primary one, gets a fixed colour
+ * from lib/compareColors.ts - validated for categorical/CVD separation, not
+ * this app's usual brand aqua (see that file's doc comment for why).
+ */
+export default function SectionWindrose({ sections, metric, compareSeries, primaryLabel = "This jurisdiction" }: Props) {
   const theme = useTheme();
   const n = sections.length;
   if (n < 2) return null;
 
   const gridColor = theme.palette.divider;
   const labelColor = theme.palette.text.secondary;
+  const noun = metric === "completeness" ? "Data completeness" : "Score";
+
+  const compareMode = Boolean(compareSeries && compareSeries.length > 0);
+
+  if (compareMode) {
+    const series = [
+      { code: "__primary", label: primaryLabel, color: PRIMARY_SERIES_COLOR, sections },
+      ...compareSeries!.map((s, i) => ({ ...s, color: compareColorFor(i) })),
+    ];
+
+    const outlineFor = (s: (typeof series)[number]) =>
+      s.sections
+        .map(({ score }, i) => {
+          const angle = angleOf(i, n);
+          const known = knownOfScore(score, metric);
+          const radius = known ? valueOfScore(score, metric) * PLOT_RADIUS : UNKNOWN_RADIUS;
+          return pointAt(angle, radius);
+        });
+
+    return (
+      <Box>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1.5, mb: 1, flexWrap: "wrap" }}>
+          {series.map((s) => (
+            <LegendEntry key={s.code} color={s.color} label={s.label} />
+          ))}
+        </Box>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <svg
+            viewBox={`0 0 ${SIZE} ${SIZE}`}
+            style={{ width: "100%", maxWidth: DISPLAY_WIDTH, height: "auto" }}
+            role="img"
+            aria-label={`${noun} by section, compared across ${series.length} jurisdictions`}
+          >
+            {RINGS.map((level) => (
+              <circle
+                key={level}
+                cx={CENTER}
+                cy={CENTER}
+                r={level * PLOT_RADIUS}
+                fill="none"
+                stroke={gridColor}
+                strokeWidth={1}
+              />
+            ))}
+
+            {series.map((s) => {
+              const points = outlineFor(s);
+              const d = `M ${points.map((p) => `${p.x} ${p.y}`).join(" L ")} Z`;
+              return <path key={s.code} d={d} fill="none" stroke={s.color} strokeWidth={2} strokeLinejoin="round" />;
+            })}
+
+            {series.map((s) =>
+              s.sections.map(({ score }, i) => {
+                const angle = angleOf(i, n);
+                const known = knownOfScore(score, metric);
+                const radius = known ? valueOfScore(score, metric) * PLOT_RADIUS : UNKNOWN_RADIUS;
+                const p = pointAt(angle, radius);
+                return known ? (
+                  <circle key={`${s.code}-${i}`} cx={p.x} cy={p.y} r={3} fill={s.color}>
+                    <title>{`${s.label} - ${sections[i].section.title}: ${Math.round(valueOfScore(score, metric) * 100)}%`}</title>
+                  </circle>
+                ) : (
+                  <circle
+                    key={`${s.code}-${i}`}
+                    cx={p.x}
+                    cy={p.y}
+                    r={3.5}
+                    fill={theme.palette.background.paper}
+                    stroke={s.color}
+                    strokeWidth={1.5}
+                    strokeDasharray="1.5,1.5"
+                  >
+                    <title>{`${s.label} - ${sections[i].section.title}: not enough data`}</title>
+                  </circle>
+                );
+              }),
+            )}
+
+            {sections.map(({ section }, i) => {
+              const angle = angleOf(i, n);
+              const cos = Math.cos(angle);
+              const anchor = cos > 0.15 ? "start" : cos < -0.15 ? "end" : "middle";
+              const label = pointAt(angle, PLOT_RADIUS + 14);
+              const lines = wrapLabel(section.title);
+              return (
+                <text
+                  key={section.id}
+                  x={label.x}
+                  y={label.y}
+                  textAnchor={anchor}
+                  fontSize={13}
+                  fill={labelColor}
+                  dominantBaseline="middle"
+                >
+                  {lines.map((line, li) => (
+                    <tspan key={li} x={label.x} dy={li === 0 ? -((lines.length - 1) * 7) : 14}>
+                      {line}
+                    </tspan>
+                  ))}
+                </text>
+              );
+            })}
+          </svg>
+        </Box>
+      </Box>
+    );
+  }
+
   const seriesColor = theme.palette.primary.main;
   const halfWidth = ((2 * Math.PI) / n / 2) * (1 - GAP_FRACTION);
 
-  const valueOf = (score: CountryScore) => (metric === "completeness" ? score.completeness : score.score);
-  const knownOf = (score: CountryScore) => metric === "completeness" || score.ranked;
-  const noun = metric === "completeness" ? "Data completeness" : "Score";
-
-  const isDual = Boolean(compareSections && compareSections.length === n);
-  const subHalfWidth = isDual ? (halfWidth * (1 - INNER_GAP_FRACTION)) / 2 : halfWidth;
-  const subOffset = isDual ? subHalfWidth + (halfWidth * INNER_GAP_FRACTION) / 2 : 0;
-
-  // One or two wedges per axis, flattened into a single list so the wedge,
-  // label and marker passes below stay one map each regardless of whether
-  // this is a single-country or paired chart.
-  const segments: Segment[] = sections.flatMap(({ section, score }, i) => {
-    const angle = angleOf(i, n);
-    if (!isDual) {
-      return [{ key: section.id, angle, halfWidth: subHalfWidth, score, color: seriesColor, title: section.title }];
-    }
-    const compareScore = compareSections![i].score;
-    return [
-      {
-        key: `${section.id}-primary`,
-        angle: angle - subOffset,
-        halfWidth: subHalfWidth,
-        score,
-        color: seriesColor,
-        title: section.title,
-      },
-      {
-        key: `${section.id}-compare`,
-        angle: angle + subOffset,
-        halfWidth: subHalfWidth,
-        score: compareScore,
-        color: COMPARE_COLOR,
-        title: section.title,
-      },
-    ];
-  });
+  const segments = sections.map(({ section, score }, i) => ({
+    key: section.id,
+    angle: angleOf(i, n),
+    halfWidth,
+    score,
+    title: section.title,
+  }));
 
   return (
     <Box>
-      {isDual && (
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 1, flexWrap: "wrap" }}>
-          <LegendEntry color={seriesColor} label={primaryLabel} />
-          <LegendEntry color={COMPARE_COLOR} label={compareLabel} />
-        </Box>
-      )}
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <svg
           viewBox={`0 0 ${SIZE} ${SIZE}`}
@@ -170,13 +249,13 @@ export default function SectionWindrose({
           ))}
 
           {segments.map((seg) => {
-            const known = knownOf(seg.score);
-            const barRadius = known ? valueOf(seg.score) * PLOT_RADIUS : 0;
+            const known = knownOfScore(seg.score, metric);
+            const barRadius = known ? valueOfScore(seg.score, metric) * PLOT_RADIUS : 0;
 
             if (known) {
               return (
-                <path key={seg.key} d={wedgePath(seg.angle, seg.halfWidth, barRadius)} fill={seg.color} fillOpacity={0.85}>
-                  <title>{`${seg.title}: ${Math.round(valueOf(seg.score) * 100)}%`}</title>
+                <path key={seg.key} d={wedgePath(seg.angle, seg.halfWidth, barRadius)} fill={seriesColor} fillOpacity={0.85}>
+                  <title>{`${seg.title}: ${Math.round(valueOfScore(seg.score, metric) * 100)}%`}</title>
                 </path>
               );
             }
@@ -207,8 +286,8 @@ export default function SectionWindrose({
               number needs to stand on its own too. The white halo
               (paint-order + stroke) keeps it legible over the filled wedge. */}
           {segments.map((seg) => {
-            const known = knownOf(seg.score);
-            const barRadius = known ? valueOf(seg.score) * PLOT_RADIUS : 0;
+            const known = knownOfScore(seg.score, metric);
+            const barRadius = known ? valueOfScore(seg.score, metric) * PLOT_RADIUS : 0;
             const labelPoint = pointAt(seg.angle, Math.max(barRadius, MIN_LABEL_RADIUS));
             return (
               <text
@@ -217,19 +296,19 @@ export default function SectionWindrose({
                 y={labelPoint.y}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fontSize={isDual ? 11 : 12}
+                fontSize={12}
                 fontWeight={600}
                 fill={known ? theme.palette.text.primary : theme.palette.text.disabled}
                 stroke={theme.palette.background.paper}
                 strokeWidth={3}
                 paintOrder="stroke"
               >
-                {known ? `${Math.round(valueOf(seg.score) * 100)}%` : "–"}
+                {known ? `${Math.round(valueOfScore(seg.score, metric) * 100)}%` : "–"}
               </text>
             );
           })}
 
-          {/* Axis labels, wrapped to at most two lines and anchored by which side of the circle they fall on - centred on the whole (possibly paired) slot, not on either individual wedge. */}
+          {/* Axis labels, wrapped to at most two lines and anchored by which side of the circle they fall on. */}
           {sections.map(({ section }, i) => {
             const angle = angleOf(i, n);
             const cos = Math.cos(angle);

@@ -49,7 +49,11 @@ const PAGE: CSSProperties = {
 function PageHeader() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24, flexShrink: 0 }}>
-      <img src="/favicon.png" style={{ width: 30, height: 30, objectFit: "contain" }} alt="" />
+      <img
+        src={`${import.meta.env.BASE_URL}favicon.png`}
+        style={{ width: 30, height: 30, objectFit: "contain" }}
+        alt=""
+      />
       <div>
         <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", color: C.text, lineHeight: 1.1 }}>
           GLOBAL SOLAR COUNCIL
@@ -273,6 +277,16 @@ function ReportWindrose({
 
 // ─── Data shape ─────────────────────────────────────────────────────────────
 
+export interface CompareEntry {
+  code: string;
+  name: string;
+  /** Assigned via compareColorFor in lib/compareColors.ts - same colour as that jurisdiction's windrose line and rubric-tile flags. */
+  color: string;
+  score: CountryScore;
+  sections: { section: Section; score: CountryScore }[];
+  byQuestion: Map<string, Response>;
+}
+
 export interface CountryReportData {
   countryCode: string;
   countryName: string;
@@ -283,6 +297,8 @@ export interface CountryReportData {
   sections: Section[];
   questions: Question[];
   byQuestion: Map<string, Response>;
+  /** Empty outside compare mode - adds the ComparePage. */
+  compareEntries: CompareEntry[];
 }
 
 function flagUrl(code: string): string {
@@ -322,7 +338,6 @@ function Page1({ data, page, total }: { data: CountryReportData; page: number; t
           { label: "Overall score", value: score.ranked ? `${Math.round(score.score * 100)}%` : "N/A", color: band?.color },
           { label: "Data completeness", value: `${Math.round(score.completeness * 100)}%` },
           { label: "Questions answered", value: `${score.answered} / ${score.total}` },
-          { label: "Policy sections", value: String(data.sections.length) },
         ]}
       />
 
@@ -331,32 +346,10 @@ function Page1({ data, page, total }: { data: CountryReportData; page: number; t
         for how much of the assessment this country has filled in.
       </p>
 
-      <div style={{ marginTop: 24, flexShrink: 0 }}>
-        <SmallLabel>In this report</SmallLabel>
-        <ul style={{ margin: 0, paddingLeft: 18, color: C.textSm, fontSize: 12 }}>
-          <li>Score and data completeness, broken down by policy section</li>
-          <li>Biggest policy wins - the changes that would raise this score the most</li>
-          <li>The full question set, this country's current answer to each, and the evidence behind it</li>
-        </ul>
-      </div>
-
-      <PageFooter page={page} total={total} />
-    </div>
-  );
-}
-
-// ─── Page 2: By section ─────────────────────────────────────────────────────
-
-function Page2({ data, page, total }: { data: CountryReportData; page: number; total: number }) {
-  return (
-    <div className="report-page" style={PAGE}>
-      <PageHeader />
-      <SectionHeading mt={0}>Score and data completeness by section</SectionHeading>
-      <p style={{ fontSize: 12.5, color: C.textSm, marginBottom: 4, marginTop: 4, flexShrink: 0 }}>
+      <p style={{ fontSize: 12.5, color: C.textSm, marginTop: 20, marginBottom: 4, flexShrink: 0 }}>
         A dashed marker means there isn't enough evidence yet for that section - not a score of zero.
       </p>
-
-      <div style={{ display: "flex", gap: 12, marginTop: 12, flexShrink: 0 }}>
+      <div style={{ display: "flex", gap: 12, marginTop: 8, flexShrink: 0 }}>
         <div style={{ flex: 1, textAlign: "center" }}>
           <SmallLabel>Score</SmallLabel>
           <ReportWindrose sections={data.sectionScores} metric="score" />
@@ -367,8 +360,19 @@ function Page2({ data, page, total }: { data: CountryReportData; page: number; t
         </div>
       </div>
 
-      <SectionHeading mt={20}>By section</SectionHeading>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
+      <PageFooter page={page} total={total} />
+    </div>
+  );
+}
+
+// ─── Page 2: Summary of policy environment ─────────────────────────────────
+
+function Page2({ data, page, total }: { data: CountryReportData; page: number; total: number }) {
+  return (
+    <div className="report-page" style={PAGE}>
+      <PageHeader />
+      <SectionHeading mt={0}>Summary of policy environment</SectionHeading>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5, marginTop: 8 }}>
         <thead>
           <tr>
             {["Section", "Score", "Data completeness"].map((h, i) => (
@@ -410,15 +414,109 @@ function Page2({ data, page, total }: { data: CountryReportData; page: number; t
   );
 }
 
+// ─── Compare (only present when compareEntries is non-empty) ──────────────
+
+function ComparePage({ data, page, total }: { data: CountryReportData; page: number; total: number }) {
+  // Every column reads in plain grey except the primary country's own score
+  // values, emphasised in GSC Burnt Orange - the app's established "this is
+  // the one that matters most" colour (QuestionCard's selected-tile colour,
+  // ImpactList's "Currently:" label) - not the compare palette's per-country
+  // hues, which would otherwise make several columns look coloured/singled
+  // out at once instead of just the one this whole report is about.
+  const columns = [
+    { code: data.countryCode, name: data.countryName, sections: data.sectionScores },
+    ...data.compareEntries.map((e) => ({ code: e.code, name: e.name, sections: e.sections })),
+  ];
+  const scoreBySection = columns.map(
+    (col) => new Map(col.sections.map(({ section, score }) => [section.id, score])),
+  );
+
+  return (
+    <div className="report-page" style={PAGE}>
+      <PageHeader />
+      <SectionHeading mt={0}>Compare</SectionHeading>
+      <p style={{ fontSize: 12.5, color: C.textSm, marginBottom: 4, marginTop: 4, flexShrink: 0 }}>
+        Score by section - {data.countryName} against {data.compareEntries.length} other jurisdiction
+        {data.compareEntries.length === 1 ? "" : "s"} selected for comparison.
+      </p>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, marginTop: 12 }}>
+        <thead>
+          <tr>
+            <th
+              style={{
+                textAlign: "left",
+                padding: "6px 8px",
+                color: C.textXs,
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                borderBottom: `1px solid ${C.border}`,
+              }}
+            >
+              Section
+            </th>
+            {columns.map((col) => (
+              <th
+                key={col.code}
+                style={{
+                  textAlign: "right",
+                  padding: "6px 8px",
+                  color: C.textXs,
+                  fontSize: 9.5,
+                  fontWeight: 700,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  borderBottom: `1px solid ${C.border}`,
+                }}
+              >
+                {col.name}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.sections.map((section, i) => (
+            <tr key={section.id} style={{ background: i % 2 === 1 ? C.bg : C.white }}>
+              <td style={{ padding: "6px 8px", borderBottom: `1px solid ${C.border}` }}>{section.title}</td>
+              {columns.map((col, ci) => {
+                const score = scoreBySection[ci].get(section.id);
+                const isPrimary = ci === 0;
+                return (
+                  <td
+                    key={col.code}
+                    style={{
+                      padding: "6px 8px",
+                      textAlign: "right",
+                      borderBottom: `1px solid ${C.border}`,
+                      color: isPrimary && score?.ranked ? C.orange : C.textSm,
+                      fontWeight: isPrimary ? 700 : 600,
+                    }}
+                  >
+                    {score?.ranked ? `${Math.round(score.score * 100)}%` : "N/A"}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <PageFooter page={page} total={total} />
+    </div>
+  );
+}
+
 // ─── Biggest policy wins pages ──────────────────────────────────────────────
 
+type WinRow = { kind: "group"; section: Section } | { kind: "item"; item: ImpactItem };
+
 function WinsPage({
-  items,
+  rows,
   isFirst,
   page,
   total,
 }: {
-  items: ImpactItem[];
+  rows: WinRow[];
   isFirst: boolean;
   page: number;
   total: number;
@@ -437,11 +535,11 @@ function WinsPage({
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, marginTop: isFirst ? 0 : 24 }}>
         <thead>
           <tr>
-            {["Section", "Question", "Currently", "Impact"].map((h, i) => (
+            {["Question", "Currently", "Impact"].map((h, i) => (
               <th
                 key={h}
                 style={{
-                  textAlign: i >= 3 ? "right" : "left",
+                  textAlign: i >= 2 ? "right" : "left",
                   padding: "6px 8px",
                   color: C.textXs,
                   fontSize: 9.5,
@@ -457,35 +555,51 @@ function WinsPage({
           </tr>
         </thead>
         <tbody>
-          {items.map((item, i) => {
-            const tierLabel = item.question.rubric.find((t) => t.score === item.currentScore)?.label;
-            return (
-              <tr key={item.question.id} style={{ background: i % 2 === 1 ? C.bg : C.white }}>
-                <td style={{ padding: "6px 8px", borderBottom: `1px solid ${C.border}`, color: C.textSm, whiteSpace: "nowrap" }}>
-                  {item.section.title}
-                </td>
-                <td style={{ padding: "6px 8px", borderBottom: `1px solid ${C.border}` }}>{item.question.text}</td>
-                <td style={{ padding: "6px 8px", borderBottom: `1px solid ${C.border}`, color: C.orange }}>
-                  {tierLabel ? capitalizeFirst(tierLabel) : "-"}
-                </td>
-                <td style={{ padding: "6px 8px", textAlign: "right", borderBottom: `1px solid ${C.border}` }}>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      padding: "2px 7px",
-                      borderRadius: 4,
-                      fontSize: 10,
-                      fontWeight: 700,
-                      background: impactColor(item.question.weight),
-                      color: impactTextColor(item.question.weight),
-                    }}
-                  >
-                    {impactLabel(item.question.weight)}
-                  </span>
+          {rows.map((row, i) =>
+            row.kind === "group" ? (
+              <tr key={`g-${row.section.id}`}>
+                <td
+                  colSpan={3}
+                  style={{
+                    padding: "8px 8px 4px",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    color: C.tealDark,
+                  }}
+                >
+                  {row.section.title}
                 </td>
               </tr>
-            );
-          })}
+            ) : (
+              (() => {
+                const item = row.item;
+                const tierLabel = item.question.rubric.find((t) => t.score === item.currentScore)?.label;
+                return (
+                  <tr key={item.question.id} style={{ background: i % 2 === 1 ? C.bg : C.white }}>
+                    <td style={{ padding: "6px 8px", borderBottom: `1px solid ${C.border}` }}>{item.question.text}</td>
+                    <td style={{ padding: "6px 8px", borderBottom: `1px solid ${C.border}`, color: C.orange }}>
+                      {tierLabel ? capitalizeFirst(tierLabel) : "-"}
+                    </td>
+                    <td style={{ padding: "6px 8px", textAlign: "right", borderBottom: `1px solid ${C.border}` }}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "2px 7px",
+                          borderRadius: 4,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          background: impactColor(item.question.weight),
+                          color: impactTextColor(item.question.weight),
+                        }}
+                      >
+                        {impactLabel(item.question.weight)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })()
+            ),
+          )}
         </tbody>
       </table>
       <PageFooter page={page} total={total} />
@@ -495,20 +609,52 @@ function WinsPage({
 
 // ─── Full question set (appendix) pages ────────────────────────────────────
 
-type QaRow = { kind: "section"; section: Section } | { kind: "question"; question: Question; response?: Response };
+type QaRow =
+  | { kind: "section"; section: Section }
+  | { kind: "question"; question: Question; response?: Response; numberInSection: number };
 
-function QaPage({ rows, page, total }: { rows: QaRow[]; page: number; total: number }) {
+/** Group title inside the appendix - deliberately smaller/lighter than SectionHeading (the report's own page-level H1s), so it reads as a level below "Policy environment". */
+function GroupHeading({ children, mt = 20 }: { children: ReactNode; mt?: number }) {
+  return (
+    <div style={{ fontSize: 12.5, fontWeight: 700, color: C.tealDark, marginBottom: 6, marginTop: mt, flexShrink: 0 }}>
+      {children}
+    </div>
+  );
+}
+
+function QaPage({
+  rows,
+  compareEntries,
+  isFirstPage,
+  page,
+  total,
+}: {
+  rows: QaRow[];
+  compareEntries: CompareEntry[];
+  isFirstPage: boolean;
+  page: number;
+  total: number;
+}) {
   return (
     <div className="report-page" style={PAGE}>
       <PageHeader />
       <div style={{ flex: 1, overflow: "hidden" }}>
+        {isFirstPage && (
+          <div style={{ fontSize: 19, fontWeight: 700, color: C.text, marginBottom: 4 }}>Policy environment</div>
+        )}
         {rows.map((row, i) =>
           row.kind === "section" ? (
-            <SectionHeading key={`s-${row.section.id}`} mt={i === 0 ? 0 : 18}>
+            <GroupHeading key={`s-${row.section.id}`} mt={i === 0 && isFirstPage ? 8 : i === 0 ? 0 : 18}>
               {row.section.title}
-            </SectionHeading>
+            </GroupHeading>
           ) : (
-            <QaQuestionRow key={row.question.id} question={row.question} response={row.response} />
+            <QaQuestionRow
+              key={row.question.id}
+              question={row.question}
+              response={row.response}
+              number={row.numberInSection}
+              compareEntries={compareEntries}
+            />
           ),
         )}
       </div>
@@ -517,21 +663,43 @@ function QaPage({ rows, page, total }: { rows: QaRow[]; page: number; total: num
   );
 }
 
-function QaQuestionRow({ question, response }: { question: Question; response?: Response }) {
+function QaQuestionRow({
+  question,
+  response,
+  number,
+  compareEntries,
+}: {
+  question: Question;
+  response?: Response;
+  number: number;
+  compareEntries: CompareEntry[];
+}) {
   const tierLabel = response ? question.rubric.find((t) => t.score === response.score)?.label : undefined;
   return (
     <div style={{ padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
-      <div style={{ fontSize: 12, marginBottom: 4 }}>{question.text}</div>
+      <div
+        style={{
+          fontSize: 9.5,
+          fontWeight: 700,
+          color: C.textXs,
+          letterSpacing: "0.05em",
+          textTransform: "uppercase",
+          marginBottom: 2,
+        }}
+      >
+        Question {number}
+      </div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 4 }}>{question.text}</div>
       <div style={{ fontSize: 11.5, marginBottom: response?.evidence?.length ? 3 : 0 }}>
         <span style={{ color: C.textXs, fontWeight: 700, fontSize: 9.5, letterSpacing: "0.05em", textTransform: "uppercase" }}>
           Answer:{" "}
         </span>
-        <span style={{ color: tierLabel ? C.text : C.textXs, fontStyle: tierLabel ? "normal" : "italic" }}>
+        <span style={{ color: tierLabel ? C.text : C.textXs, fontWeight: 600, fontStyle: tierLabel ? "normal" : "italic" }}>
           {tierLabel ? capitalizeFirst(tierLabel) : "Not yet answered"}
         </span>
       </div>
       {response?.evidence?.length ? (
-        <div style={{ fontSize: 10.5, color: C.textSm }}>
+        <div style={{ fontSize: 10.5, color: C.textSm, marginBottom: compareEntries.length > 0 ? 4 : 0 }}>
           {response.evidence.map((e, i) => (
             <div key={i} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               &bull; {e.title || e.source || "Evidence"}
@@ -541,33 +709,82 @@ function QaQuestionRow({ question, response }: { question: Question; response?: 
         </div>
       ) : (
         response && (
-          <div style={{ fontSize: 10.5, color: C.orange, fontStyle: "italic" }}>No evidence provided</div>
+          <div style={{ fontSize: 10.5, color: C.orange, fontStyle: "italic", marginBottom: compareEntries.length > 0 ? 4 : 0 }}>
+            No evidence provided
+          </div>
         )
       )}
+
+      {/* One short answer + its evidence per comparator, after the primary's
+          own evidence - same order every question uses in this appendix, so
+          a reader always finds a given comparator in the same place. */}
+      {compareEntries.map((entry) => {
+        const compareResponse = entry.byQuestion.get(question.id);
+        const compareTierLabel = compareResponse
+          ? question.rubric.find((t) => t.score === compareResponse.score)?.label
+          : undefined;
+        return (
+          <div key={entry.code} style={{ fontSize: 10.5, borderLeft: `2px solid ${entry.color}`, paddingLeft: 6, marginTop: 2 }}>
+            <span style={{ fontWeight: 700, color: entry.color }}>Answer for {entry.name}: </span>
+            <span style={{ color: compareTierLabel ? C.textSm : C.textXs, fontStyle: compareTierLabel ? "normal" : "italic" }}>
+              {compareTierLabel ? capitalizeFirst(compareTierLabel) : "Not yet answered"}
+            </span>
+            {compareResponse?.evidence?.length ? (
+              <div style={{ color: C.textXs }}>
+                {compareResponse.evidence.map((e, i) => (
+                  <div key={i} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    &bull; {e.title || e.source || "Evidence"}
+                    {e.source && e.title ? ` - ${e.source}` : ""}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-// Approximate vertical "slots" a row costs, to chunk the appendix into pages
-// without measuring real DOM height (the report is captured off-screen, so
-// nothing has actually laid out yet when this decision is made). A section
-// heading costs a bit more than a bare question; a question with evidence
-// costs one slot per citation on top of its own - deliberately conservative
-// so a page is more likely to under-fill than to overflow and get clipped by
-// PAGE's own `overflow: hidden`.
-function slotsOf(row: QaRow): number {
-  if (row.kind === "section") return 1.5;
+// One "slot" = roughly one rendered text line (~20px at this section's font
+// sizes), to chunk the appendix into pages without measuring real DOM
+// height (the report is captured off-screen, so nothing has actually laid
+// out yet when this decision is made). An earlier version costed rows in
+// abstract weighted units against a budget of 12 - calibrated for a single
+// country with no comparators, it under-filled every page by roughly 3x
+// once compare mode added several extra lines per question, leaving most of
+// each page blank. Costing in actual estimated lines against the page's
+// real available line count (see QA_PAGE_BUDGET) keeps pages full
+// regardless of how many comparators are active.
+function slotsOf(row: QaRow, compareEntries: CompareEntry[]): number {
+  if (row.kind === "section") return 2.2;
+  const question = row.question;
+  const questionLines = Math.max(1, Math.ceil(question.text.length / 65));
   const evidenceCount = row.response?.evidence?.length ?? 0;
-  return 1 + evidenceCount * 0.6;
+  // Every evidence bullet is capped to one line by its own `nowrap` +
+  // ellipsis styling, so it costs exactly one slot regardless of length -
+  // "No evidence provided" is the same one line when there's none at all.
+  const primaryEvidenceLines = Math.max(1, evidenceCount);
+  let cost = 0.8 /* "Question N" label */ + questionLines * 0.85 + 0.8 /* answer line */ + primaryEvidenceLines * 0.85 + 0.8; /* row padding/border */
+  // Each comparator adds its own "Answer for X" line, plus one more per its evidence bullet (none shown at all when it has no evidence, unlike the primary).
+  for (const entry of compareEntries) {
+    const compareEvidenceCount = entry.byQuestion.get(question.id)?.evidence?.length ?? 0;
+    cost += 0.85 + compareEvidenceCount * 0.85;
+  }
+  return cost;
 }
-const QA_PAGE_BUDGET = 13;
+// ~965px of content height per page (1123 minus top/bottom padding, the
+// logo header, and room for the footer) at ~20px per line.
+const QA_PAGE_BUDGET = 44;
 
-function paginateQaRows(rows: QaRow[]): QaRow[][] {
+function paginateQaRows(rows: QaRow[], compareEntries: CompareEntry[]): QaRow[][] {
   const pages: QaRow[][] = [];
   let current: QaRow[] = [];
-  let used = 0;
+  // Only the very first page also carries the "Policy environment" H1 above
+  // the first group heading - reserve a couple of lines for it up front.
+  let used = 1.5;
   for (const row of rows) {
-    const cost = slotsOf(row);
+    const cost = slotsOf(row, compareEntries);
     // A section heading never starts a page as the very last thing on the
     // previous one - hold it back so it always leads at least one question.
     const isOrphanHeading = row.kind === "section" && used + cost > QA_PAGE_BUDGET - 1;
@@ -583,41 +800,125 @@ function paginateQaRows(rows: QaRow[]): QaRow[][] {
   return pages;
 }
 
-function chunk<T>(items: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
-  return out;
-}
-
 // ─── Root export ────────────────────────────────────────────────────────────
 
 const WINS_LIMIT = 20;
-const WINS_PER_PAGE = 14;
+
+// One "slot" ~= one rendered text line. The first recalibration (44, at 85
+// chars/line) still overflowed pages into the footer - it assumed the
+// Question column spans the full table width, but Question shares its row
+// with Currently and Impact, so it is only roughly the left half of it;
+// counting far fewer characters per line before a wrap means more real
+// lines than that estimate credited, which undercounted every row's true
+// height and packed too many onto a page. Narrower per-column character
+// counts and a lower budget (a deliberate under-estimate, same margin of
+// safety as the Q&A appendix) trade a little blank space for never again
+// overlapping the footer.
+const WINS_PAGE_BUDGET = 32;
+/** Roughly how many characters fit on one line of the Question/Currently columns at this table's font size and (much narrower than full-width) column widths. */
+const WINS_CHARS_PER_LINE = 52;
+const WINS_CURRENTLY_CHARS_PER_LINE = 40;
+
+function slotsOfWin(item: ImpactItem): number {
+  const tierLabel = item.question.rubric.find((t) => t.score === item.currentScore)?.label;
+  const currentlyText = tierLabel ? capitalizeFirst(tierLabel) : "-";
+  const questionLines = Math.ceil(item.question.text.length / WINS_CHARS_PER_LINE);
+  const currentlyLines = Math.ceil(currentlyText.length / WINS_CURRENTLY_CHARS_PER_LINE);
+  return Math.max(1, questionLines, currentlyLines) + 0.4; /* row padding/border, no per-line discount this time */
+}
+
+/**
+ * Groups the ranked wins by section, in the order each section is first
+ * encountered (i.e. the order of its single highest-ranked item) - "biggest
+ * wins" stays a ranking, this just makes which section each one belongs to
+ * a heading instead of a repeated column, and keeps a section's items
+ * together instead of interleaved with other sections'.
+ */
+function groupWinsBySection(items: ImpactItem[]): WinRow[] {
+  const bySection = new Map<string, ImpactItem[]>();
+  for (const item of items) {
+    const list = bySection.get(item.section.id);
+    if (list) list.push(item);
+    else bySection.set(item.section.id, [item]);
+  }
+  const rows: WinRow[] = [];
+  for (const sectionItems of bySection.values()) {
+    rows.push({ kind: "group", section: sectionItems[0].section });
+    for (const item of sectionItems) rows.push({ kind: "item", item });
+  }
+  return rows;
+}
+
+function slotsOfWinRow(row: WinRow): number {
+  return row.kind === "group" ? 1.6 : slotsOfWin(row.item);
+}
+
+function paginateWinRows(rows: WinRow[]): WinRow[][] {
+  const pages: WinRow[][] = [];
+  let current: WinRow[] = [];
+  // The first page alone carries the "Biggest policy wins" heading and
+  // intro paragraph above the table - reserve room for it up front so that
+  // page doesn't get the same row budget as a bare continuation page.
+  let used = 2.5;
+  for (const row of rows) {
+    const cost = slotsOfWinRow(row);
+    // A group heading never starts a page as the very last thing on the
+    // previous one - same orphan guard as the Q&A appendix's section
+    // headings, so a group's items always follow their heading onto
+    // whichever page it lands on rather than being split across the break.
+    const isOrphanHeading = row.kind === "group" && used + cost > WINS_PAGE_BUDGET - 1;
+    if ((used + cost > WINS_PAGE_BUDGET || isOrphanHeading) && current.length > 0) {
+      pages.push(current);
+      current = [];
+      used = 0;
+    }
+    current.push(row);
+    used += cost;
+  }
+  if (current.length > 0) pages.push(current);
+  return pages;
+}
 
 export default function CountryReportDocument({ data }: { data: CountryReportData }) {
   const wins = data.impact.slice(0, WINS_LIMIT);
-  const winPages = wins.length > 0 ? chunk(wins, WINS_PER_PAGE) : [];
+  const winPages = paginateWinRows(groupWinsBySection(wins));
 
   const qaRows: QaRow[] = data.sections.flatMap((section) => [
     { kind: "section" as const, section },
+    // Numbered from 1 within each group, not across the whole question set.
     ...data.questions
       .filter((q) => q.sectionId === section.id)
       .sort((a, b) => a.order - b.order)
-      .map((question) => ({ kind: "question" as const, question, response: data.byQuestion.get(question.id) })),
+      .map((question, i) => ({
+        kind: "question" as const,
+        question,
+        response: data.byQuestion.get(question.id),
+        numberInSection: i + 1,
+      })),
   ]);
-  const qaPages = paginateQaRows(qaRows);
+  const qaPages = paginateQaRows(qaRows, data.compareEntries);
 
-  const total = 2 + winPages.length + qaPages.length;
+  const hasCompare = data.compareEntries.length > 0;
+  const compareOffset = hasCompare ? 1 : 0;
+  const total = 2 + compareOffset + winPages.length + qaPages.length;
 
   return (
     <div id="country-report-root">
       <Page1 data={data} page={1} total={total} />
       <Page2 data={data} page={2} total={total} />
-      {winPages.map((items, i) => (
-        <WinsPage key={i} items={items} isFirst={i === 0} page={3 + i} total={total} />
+      {hasCompare && <ComparePage data={data} page={3} total={total} />}
+      {winPages.map((rows, i) => (
+        <WinsPage key={i} rows={rows} isFirst={i === 0} page={3 + compareOffset + i} total={total} />
       ))}
       {qaPages.map((rows, i) => (
-        <QaPage key={i} rows={rows} page={3 + winPages.length + i} total={total} />
+        <QaPage
+          key={i}
+          rows={rows}
+          compareEntries={data.compareEntries}
+          isFirstPage={i === 0}
+          page={3 + compareOffset + winPages.length + i}
+          total={total}
+        />
       ))}
     </div>
   );

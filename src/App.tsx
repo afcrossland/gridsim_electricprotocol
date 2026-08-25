@@ -80,8 +80,9 @@ export default function App() {
   const selectCountry = useProtocolStore((s) => s.selectCountry);
   const comparing = useProtocolStore((s) => s.comparing);
   const setComparing = useProtocolStore((s) => s.setComparing);
-  const compareCountry = useProtocolStore((s) => s.compareCountry);
-  const setCompareCountry = useProtocolStore((s) => s.setCompareCountry);
+  const compareCountries = useProtocolStore((s) => s.compareCountries);
+  const addCompareCountry = useProtocolStore((s) => s.addCompareCountry);
+  const clearCompareCountries = useProtocolStore((s) => s.clearCompareCountries);
 
   // Picking a jurisdiction - from the map, the search box or the scoreboard -
   // always means "show me that jurisdiction", so it backs out of the admin
@@ -104,12 +105,12 @@ export default function App() {
     for (const code of sourcedCountries()) codes.add(code);
     for (const r of responses) codes.add(r.countryCode);
     if (selectedCountry) codes.add(selectedCountry);
-    if (compareCountry) codes.add(compareCountry);
+    for (const code of compareCountries) codes.add(code);
 
     return [...codes].map((code) =>
       scoreCountry(protocol, questions, responses, code, qualifiedName(code), threshold),
     );
-  }, [questions, responses, selectedCountry, compareCountry, threshold]);
+  }, [questions, responses, selectedCountry, compareCountries, threshold]);
 
   const selectedScore = scores.find((s) => s.code === selectedCountry) ?? null;
 
@@ -208,11 +209,19 @@ export default function App() {
             scores={scores}
             primaryCode={selectedCountry}
             primaryScore={selectedScore}
-            compareCode={compareCountry}
+            // This legacy full-screen view only ever shows one comparator -
+            // see CompareView.tsx's own doc comment. Not reachable from the
+            // UI (nothing calls setComparing(true) any more), kept
+            // compiling against the new multi-compare array rather than
+            // deleted, same as before.
+            compareCode={compareCountries[0] ?? null}
             onHideCompare={() => setComparing(false)}
             onBackToScoreboard={() => handleSelectCountry(null)}
-            onPickCompare={setCompareCountry}
-            onRemoveCompare={() => setCompareCountry(null)}
+            onPickCompare={(code) => {
+              clearCompareCountries();
+              addCompareCountry(code);
+            }}
+            onRemoveCompare={() => clearCompareCountries()}
           />
         </Box>
       ) : isMobile ? (

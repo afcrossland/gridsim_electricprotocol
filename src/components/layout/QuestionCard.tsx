@@ -12,13 +12,20 @@ import { capitalizeFirst } from "../../lib/text";
 import { useProtocolStore } from "../../stores/protocolStore";
 import FlagImg from "../ui/FlagImg";
 
+export interface CompareEntry {
+  code: string;
+  /** Assigned via compareColorFor in lib/compareColors.ts - stable per jurisdiction for the whole session. */
+  color: string;
+  name?: string;
+  response?: Response;
+}
+
 interface Props {
   question: Question;
   response: Response | undefined;
   code: string;
-  /** Set only when a jurisdiction is being compared against - see CountryPanel's `inlineCompare`. */
-  compareCode?: string;
-  compareResponse?: Response;
+  /** Empty outside compare mode - see CountryPanel's `inlineCompare`. */
+  compareEntries?: CompareEntry[];
 }
 
 /**
@@ -46,7 +53,7 @@ const SELECTED_TINT = "rgba(239, 134, 76, 0.12)";
  * Admin Console, not here; this card only records an answer against whatever
  * the question currently says.
  */
-export default function QuestionCard({ question, response, code, compareCode, compareResponse }: Props) {
+export default function QuestionCard({ question, response, code, compareEntries = [] }: Props) {
   const setResponse = useProtocolStore((s) => s.setResponse);
   const deleteResponse = useProtocolStore((s) => s.deleteResponse);
   const addEvidence = useProtocolStore((s) => s.addEvidence);
@@ -101,14 +108,12 @@ export default function QuestionCard({ question, response, code, compareCode, co
       >
         {question.rubric.map((tier) => {
           const selected = response?.score === tier.score;
-          const isCompareAnswer = compareCode && compareResponse?.score === tier.score;
-          const compareEvidenceTitles = compareResponse?.evidence
-            .map((e) => e.title)
-            .filter(Boolean)
-            .join(", ");
-          const compareTooltip = compareCode
-            ? `${qualifiedName(compareCode)}${compareEvidenceTitles ? ` - ${compareEvidenceTitles}` : ""}`
-            : "";
+          // Every comparator who picked this exact tier, clustered along the
+          // tile's bottom edge rather than one badge each - up to
+          // MAX_COMPARE_COUNTRIES flags is still readable in a row, where
+          // stacking them over the label text (the old single-comparator
+          // treatment) would not be.
+          const tierComparators = compareEntries.filter((entry) => entry.response?.score === tier.score);
           return (
             <Box
               key={tier.score}
@@ -118,6 +123,7 @@ export default function QuestionCard({ question, response, code, compareCode, co
               sx={{
                 position: "relative",
                 p: 1.25,
+                pb: tierComparators.length > 0 ? 3 : 1.25,
                 borderRadius: 1.5,
                 cursor: "pointer",
                 border: "2px solid",
@@ -129,34 +135,43 @@ export default function QuestionCard({ question, response, code, compareCode, co
                 gap: 0.75,
               }}
             >
-              {isCompareAnswer && (
-                <Tooltip title={compareTooltip}>
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 6,
-                      right: 6,
-                      display: "flex",
-                      bgcolor: "background.paper",
-                      borderRadius: "50%",
-                      p: "2px",
-                      boxShadow: 1,
-                    }}
-                  >
-                    <FlagImg code={compareCode} size={16} />
-                  </Box>
-                </Tooltip>
-              )}
               <Typography
                 variant="body2"
                 sx={{
                   color: selected ? "text.primary" : undefined,
                   fontWeight: selected ? 600 : 400,
-                  pr: isCompareAnswer ? 3 : 0,
                 }}
               >
                 {capitalizeFirst(tier.label)}
               </Typography>
+
+              {tierComparators.length > 0 && (
+                <Box sx={{ position: "absolute", left: 8, bottom: 6, display: "flex", gap: "3px" }}>
+                  {tierComparators.map((entry) => {
+                    const evidenceTitles = entry.response?.evidence
+                      ?.map((e) => e.title)
+                      .filter(Boolean)
+                      .join(", ");
+                    const tooltip = `${entry.name ?? qualifiedName(entry.code)}${evidenceTitles ? ` - ${evidenceTitles}` : ""}`;
+                    return (
+                      <Tooltip key={entry.code} title={tooltip}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            bgcolor: "background.paper",
+                            borderRadius: "50%",
+                            border: "1.5px solid",
+                            borderColor: entry.color,
+                            p: "1px",
+                          }}
+                        >
+                          <FlagImg code={entry.code} size={14} />
+                        </Box>
+                      </Tooltip>
+                    );
+                  })}
+                </Box>
+              )}
             </Box>
           );
         })}

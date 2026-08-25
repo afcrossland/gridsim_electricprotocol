@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 
 import seed from "../data/protocol.seed.json";
 import { sourcedResponses } from "../data/sourcedAnswers";
+import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
 import { resolveTargets } from "../lib/jurisdictions";
 import {
   DEFAULT_SCOREBOARD_FILTERS,
@@ -48,10 +49,16 @@ interface ProtocolState {
   questions: Question[];
   responses: Response[];
   selectedCountry: string | null;
-  /** Whether the detail view is in side-by-side compare mode. Not persisted. */
+  /** Whether the detail view is in side-by-side compare mode (the legacy full-screen CompareView, kept but not wired into the UI). Not persisted. */
   comparing: boolean;
-  /** The second jurisdiction being compared against `selectedCountry`, or null if comparing hasn't picked one yet. Not persisted. */
-  compareCountry: string | null;
+  /**
+   * Jurisdictions being compared against `selectedCountry` on its windrose
+   * and rubric tiles, in the order picked - that order is also colour
+   * assignment order (see compareColorFor in lib/compareColors.ts), so
+   * removing one from the middle does not reshuffle everyone else's colour.
+   * Capped at MAX_COMPARE_COUNTRIES. Not persisted.
+   */
+  compareCountries: string[];
   /**
    * Which tab the main (non-compare) CountryPanel shows. Lifted out of that
    * component's own state - same as `page`, a view preference, not
@@ -100,7 +107,10 @@ interface ProtocolState {
   setTourSeen: (seen: boolean) => void;
   selectCountry: (code: string | null) => void;
   setComparing: (comparing: boolean) => void;
-  setCompareCountry: (code: string | null) => void;
+  /** No-ops past MAX_COMPARE_COUNTRIES or on a duplicate code. */
+  addCompareCountry: (code: string) => void;
+  removeCompareCountry: (code: string) => void;
+  clearCompareCountries: () => void;
   setCountryPanelTab: (tab: CountryPanelTab) => void;
   setScoreboardFilters: (patch: Partial<ScoreboardFilters>) => void;
   resetScoreboardFilters: () => void;
@@ -281,7 +291,7 @@ function initialState() {
     responses: seedResponses(),
     selectedCountry: null,
     comparing: false,
-    compareCountry: null,
+    compareCountries: [],
     countryPanelTab: WINDROSE as CountryPanelTab,
     scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS,
     scoreboardSort: DEFAULT_SCOREBOARD_SORT,
@@ -316,9 +326,17 @@ export const useProtocolStore = create<ProtocolState>()(
       // always means "look at this one", which is not compatible with
       // whatever compare state was left over from a previous detail view.
       selectCountry: (code) =>
-        set({ selectedCountry: code, comparing: false, compareCountry: null }),
+        set({ selectedCountry: code, comparing: false, compareCountries: [] }),
       setComparing: (comparing) => set({ comparing }),
-      setCompareCountry: (compareCountry) => set({ compareCountry }),
+      addCompareCountry: (code) =>
+        set((state) =>
+          state.compareCountries.includes(code) || state.compareCountries.length >= MAX_COMPARE_COUNTRIES
+            ? state
+            : { compareCountries: [...state.compareCountries, code] },
+        ),
+      removeCompareCountry: (code) =>
+        set((state) => ({ compareCountries: state.compareCountries.filter((c) => c !== code) })),
+      clearCompareCountries: () => set({ compareCountries: [] }),
       setCountryPanelTab: (countryPanelTab) => set({ countryPanelTab }),
       setScoreboardFilters: (patch) =>
         set((state) => ({ scoreboardFilters: { ...state.scoreboardFilters, ...patch } })),

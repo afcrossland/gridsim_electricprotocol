@@ -12,7 +12,7 @@ export interface SpotlightTarget {
 export interface AppTourState {
   /** null clears the selection (the interactive-select scene); undefined leaves it alone. */
   selectedCountry?: string | null;
-  countryPanelTab?: "sections" | "windrose";
+  countryPanelTab?: "impact" | "sections" | "windrose";
 }
 
 export type SceneMedia =
@@ -116,13 +116,29 @@ export const SCENES: Scene[] = [
       spotlight: {
         selector: '[data-tour="country-tabs"]',
         tag: "Summary",
-        caption: "Score and data completeness by section, plus the changes that would raise this jurisdiction's score the most, ranked by weighted points.",
+        caption: "Score and data completeness, broken down by section.",
         arrow: "up",
       },
     },
   },
   {
     id: 6,
+    heading: "",
+    body: "",
+    layout: "story",
+    media: {
+      kind: "app",
+      appState: { countryPanelTab: "impact" },
+      spotlight: {
+        selector: '[data-tour="country-tabs"]',
+        tag: "Biggest Policy Wins",
+        caption: "The changes that would raise this jurisdiction's score the most, ranked by weighted points.",
+        arrow: "up",
+      },
+    },
+  },
+  {
+    id: 7,
     heading: "",
     body: "",
     layout: "story",

@@ -1,13 +1,14 @@
 /**
- * A jurisdiction's detail view has two tabs - Summary (windrose + biggest
- * policy wins) and Policy Score and Evidence. Lives here, not in
- * CountryPanel itself, so the protocol store can reference the type/default
- * without a circular import (the store also needs CountryPanel's own
+ * A jurisdiction's detail view has three tabs - Summary, Biggest Policy
+ * Wins, and Policy Score and Evidence. Lives here, not in CountryPanel
+ * itself, so the protocol store can reference the type/default without a
+ * circular import (the store also needs CountryPanel's own
  * useProtocolStore hook).
  */
+export const IMPACT = "impact";
 export const SECTIONS = "sections";
 export const WINDROSE = "windrose";
-export type CountryPanelTab = typeof SECTIONS | typeof WINDROSE;
+export type CountryPanelTab = typeof IMPACT | typeof SECTIONS | typeof WINDROSE;
 
 export interface RubricTier {
   /** Stable id for this tier, also what a Response.score points at - not required to be contiguous. */
