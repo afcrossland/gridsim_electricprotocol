@@ -50,7 +50,7 @@ export type ScoreboardSort =
   | "score-desc"
   | "score-asc";
 
-export const DEFAULT_SCOREBOARD_SORT: ScoreboardSort = "completeness-desc";
+export const DEFAULT_SCOREBOARD_SORT: ScoreboardSort = "score-desc";
 
 export function isCompletenessSort(sort: ScoreboardSort): boolean {
   return sort === "completeness-desc" || sort === "completeness-asc";

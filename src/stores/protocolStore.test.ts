@@ -171,4 +171,28 @@ describe("persistence", () => {
     expect(rehydrated?.text).not.toContain("CER");
     expect(rehydrated?.text).not.toContain("CP");
   });
+
+  it("resetToSeed brings back the scroll-story intro, not just fresh data", () => {
+    // Simulate a returning visitor who has already dismissed the tour and
+    // the Charter, and wandered into the admin console - exactly the state
+    // "Reset everything to seed" is clicked from in practice.
+    useProtocolStore.setState({
+      tourSeen: true,
+      welcomeSeen: true,
+      page: "admin",
+      selectedCountry: "GB",
+    });
+
+    useProtocolStore.getState().resetToSeed();
+
+    const state = useProtocolStore.getState();
+    // App.tsx renders <ScrollStory /> whenever tourSeen is false, and its
+    // hero scene (the full-bleed globe, chrome hidden) only when welcomeSeen
+    // is also false - both must flip back for the tool to actually open on
+    // the scroll-story page rather than a plain reset map.
+    expect(state.tourSeen).toBe(false);
+    expect(state.welcomeSeen).toBe(false);
+    expect(state.page).toBe("map");
+    expect(state.selectedCountry).toBeNull();
+  });
 });
