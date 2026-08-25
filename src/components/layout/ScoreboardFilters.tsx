@@ -14,6 +14,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
@@ -23,6 +25,7 @@ import { SCORE_BANDS } from "../../lib/scoring";
 import {
   NOT_ENOUGH_DATA_BAND,
   continentOfGroup,
+  isCompletenessSort,
   isDefaultFilters,
   type ScoreboardSort,
 } from "../../lib/scoreboardFilters";
@@ -121,15 +124,32 @@ export default function ScoreboardFilters({ groups }: Props) {
           size="small"
           variant="standard"
           label="Sort by"
-          value={sort}
-          onChange={(e) => setSort(e.target.value as ScoreboardSort)}
-          sx={{ minWidth: 150 }}
+          value={isCompletenessSort(sort) ? "completeness" : "score"}
+          onChange={(e) => {
+            const direction = sort.endsWith("-desc") ? "desc" : "asc";
+            setSort(`${e.target.value}-${direction}` as ScoreboardSort);
+          }}
+          sx={{
+            minWidth: 130,
+            "& .MuiInputBase-input": { fontSize: "0.875rem" },
+            "& .MuiInputLabel-root": { fontSize: "0.875rem" },
+          }}
         >
-          <MenuItem value="completeness-desc">Data completeness: high to low</MenuItem>
-          <MenuItem value="completeness-asc">Data completeness: low to high</MenuItem>
-          <MenuItem value="score-desc">Score: high to low</MenuItem>
-          <MenuItem value="score-asc">Score: low to high</MenuItem>
+          <MenuItem value="completeness">Data completeness</MenuItem>
+          <MenuItem value="score">Score</MenuItem>
         </TextField>
+        <Tooltip title={sort.endsWith("-desc") ? "High to low" : "Low to high"}>
+          <IconButton
+            size="small"
+            onClick={() => {
+              const topic = isCompletenessSort(sort) ? "completeness" : "score";
+              const direction = sort.endsWith("-desc") ? "asc" : "desc";
+              setSort(`${topic}-${direction}` as ScoreboardSort);
+            }}
+          >
+            {sort.endsWith("-desc") ? <ArrowDownwardIcon fontSize="small" /> : <ArrowUpwardIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
       </Box>
 
       <Collapse in={expanded}>

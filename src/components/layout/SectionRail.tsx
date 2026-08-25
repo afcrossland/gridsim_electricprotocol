@@ -1,6 +1,6 @@
-import { Box, CircularProgress, LinearProgress, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Tooltip, Typography } from "@mui/material";
 
-import type { CountryScore, Section } from "../../lib/types";
+import type { Section } from "../../lib/types";
 
 export interface RailSection extends Section {
   answered: number;
@@ -10,10 +10,12 @@ export interface RailSection extends Section {
 interface Props {
   sections: RailSection[];
   selected: string;
-  score: CountryScore;
   onSelect: (id: string) => void;
   /** Horizontal scrolling strip instead of a left-hand column - for narrow screens, where a fixed-width sidebar would leave the answer area too cramped. */
   horizontal?: boolean;
+  /** Count of changes not yet submitted this session - drives the "Submit revised evidence" button pinned above the section list. */
+  pendingCount: number;
+  onSubmit: () => void;
 }
 
 const RAIL_WIDTH = 232;
@@ -24,7 +26,17 @@ const RAIL_WIDTH = 232;
  * "Highest impact" lives in the tab bar above this, not here, since it is the
  * single most important thing to find and a rail item was not visible enough.
  */
-export default function SectionRail({ sections, selected, score, onSelect, horizontal }: Props) {
+export default function SectionRail({ sections, selected, onSelect, horizontal, pendingCount, onSubmit }: Props) {
+  const submitButton = (
+    <Tooltip title={pendingCount === 0 ? "Change an answer or its evidence first" : ""}>
+      <span>
+        <Button size="small" variant="outlined" disabled={pendingCount === 0} onClick={onSubmit} fullWidth>
+          Submit revised evidence{pendingCount > 0 ? ` (${pendingCount})` : ""}
+        </Button>
+      </span>
+    </Tooltip>
+  );
+
   if (horizontal) {
     return (
       <Box
@@ -35,6 +47,7 @@ export default function SectionRail({ sections, selected, score, onSelect, horiz
           bgcolor: "background.paper",
         }}
       >
+        <Box sx={{ p: 1 }}>{submitButton}</Box>
         <Box sx={{ display: "flex", overflowX: "auto", px: 1 }}>
           {sections.map((section) => (
             <RailItem
@@ -63,6 +76,8 @@ export default function SectionRail({ sections, selected, score, onSelect, horiz
         bgcolor: "background.paper",
       }}
     >
+      <Box sx={{ p: 2, pb: 1, borderBottom: "1px solid", borderColor: "divider" }}>{submitButton}</Box>
+
       <Box sx={{ flex: 1, overflowY: "auto", py: 1 }}>
         <Typography variant="overline" sx={{ display: "block", px: 2, pt: 1, pb: 0.5 }}>
           Sections
@@ -77,23 +92,6 @@ export default function SectionRail({ sections, selected, score, onSelect, horiz
             trailing={<Ring answered={section.answered} total={section.total} />}
           />
         ))}
-      </Box>
-
-      <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-          <Typography variant="caption">Data completeness</Typography>
-          <Typography variant="caption" sx={{ fontWeight: 600 }}>
-            {Math.round(score.completeness * 100)}%
-          </Typography>
-        </Box>
-        <LinearProgress
-          variant="determinate"
-          value={score.completeness * 100}
-          sx={{ height: 6, borderRadius: 3 }}
-        />
-        <Typography variant="caption" sx={{ display: "block", mt: 0.5 }}>
-          {score.answered} of {score.total} questions
-        </Typography>
       </Box>
     </Box>
   );

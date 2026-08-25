@@ -11,6 +11,12 @@ interface Props {
   detail?: string;
   /** 0..1. Undefined hides the bar rather than drawing an empty one. */
   fill?: number;
+  /**
+   * "small" packs icon/label/value into one compact row instead of the
+   * stacked layout - for slotting a tile into a header alongside other
+   * controls rather than giving it a full card of its own.
+   */
+  size?: "default" | "small";
 }
 
 /**
@@ -19,7 +25,59 @@ interface Props {
  * icon/label/value/bar layout, used there for its "Renewable energy share"
  * row of cards and here for a jurisdiction's Score and Data completeness.
  */
-export default function StatTile({ icon, color, label, value, detail, fill }: Props) {
+export default function StatTile({ icon, color, label, value, detail, fill, size = "default" }: Props) {
+  if (size === "small") {
+    return (
+      <Box
+        sx={{
+          bgcolor: "#F9FAFB",
+          borderRadius: "8px",
+          py: "6px",
+          px: "10px",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          border: "0.5px solid #E5E7EB",
+        }}
+      >
+        <Box
+          sx={{
+            bgcolor: `${color}1F`,
+            borderRadius: "6px",
+            width: 22,
+            height: 22,
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color,
+            "& svg": { fontSize: "0.9rem" },
+          }}
+        >
+          {icon}
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography sx={{ fontSize: "0.9375rem", fontWeight: 700, color, lineHeight: 1.1 }} noWrap>
+            {value}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: "0.625rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "#9CA3AF",
+              fontWeight: 500,
+              lineHeight: 1.2,
+            }}
+            noWrap
+          >
+            {label}
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{

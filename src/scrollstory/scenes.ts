@@ -12,7 +12,7 @@ export interface SpotlightTarget {
 export interface AppTourState {
   /** null clears the selection (the interactive-select scene); undefined leaves it alone. */
   selectedCountry?: string | null;
-  countryPanelTab?: "impact" | "sections" | "windrose";
+  countryPanelTab?: "sections" | "windrose";
 }
 
 export type SceneMedia =
@@ -68,7 +68,7 @@ export const SCENES: Scene[] = [
       spotlight: {
         selector: '[data-tour="scoreboard"]',
         tag: "The scoreboard",
-        caption: "Ranked by data completeness first - how much is actually known, not just how well a place scores.",
+        caption: "Select a jurisdiction to view its details.",
         arrow: "right",
       },
     },
@@ -115,8 +115,8 @@ export const SCENES: Scene[] = [
       appState: { countryPanelTab: "windrose" },
       spotlight: {
         selector: '[data-tour="country-tabs"]',
-        tag: "By section",
-        caption: "Score and data completeness, broken down by section - worked out the same way as the headline figure.",
+        tag: "Summary",
+        caption: "Score and data completeness by section, plus the changes that would raise this jurisdiction's score the most, ranked by weighted points.",
         arrow: "up",
       },
     },
@@ -133,22 +133,6 @@ export const SCENES: Scene[] = [
         selector: '[data-tour="country-tabs"]',
         tag: "Policy Score and Evidence",
         caption: "Every question, its rubric, and the evidence behind each answer - editable by anyone.",
-        arrow: "up",
-      },
-    },
-  },
-  {
-    id: 7,
-    heading: "",
-    body: "",
-    layout: "story",
-    media: {
-      kind: "app",
-      appState: { countryPanelTab: "impact" },
-      spotlight: {
-        selector: '[data-tour="country-tabs"]',
-        tag: "Biggest Policy Wins",
-        caption: "The changes that would raise this jurisdiction's score the most, ranked by weighted points.",
         arrow: "up",
       },
     },

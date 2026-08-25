@@ -147,17 +147,6 @@ export default function AdminConsole({ onBack }: Props) {
         <Typography variant="h2" sx={{ flex: 1 }}>
           Admin console
         </Typography>
-        <Button
-          size="small"
-          color="warning"
-          onClick={() => {
-            if (confirm("Discard all local edits - questions, weights, rubrics and answers - and reload the shipped data?")) {
-              resetToSeed();
-            }
-          }}
-        >
-          Reset everything to seed
-        </Button>
       </Box>
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
@@ -368,6 +357,7 @@ export default function AdminConsole({ onBack }: Props) {
 
         <Box sx={{ flex: 1, overflowY: "auto", p: isMobile ? 2 : 3, minWidth: 0 }}>
           {showingSettings ? (
+            <>
             <Paper variant="outlined" sx={{ p: 2.5, maxWidth: 500 }}>
               <Typography variant="h6" gutterBottom>
                 Data completeness threshold
@@ -407,6 +397,29 @@ export default function AdminConsole({ onBack }: Props) {
                 valueLabelFormat={(v) => `${v}%`}
               />
             </Paper>
+
+            <Paper variant="outlined" sx={{ p: 2.5, maxWidth: 500, mt: 2, borderColor: "error.main" }}>
+              <Typography variant="h6" color="error.main" gutterBottom>
+                Danger zone
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                Discards every local edit - questions, weights, rubrics and
+                answers - and reloads the shipped data. This cannot be undone.
+              </Typography>
+              <Button
+                size="small"
+                color="error"
+                variant="outlined"
+                onClick={() => {
+                  if (confirm("Discard all local edits - questions, weights, rubrics and answers - and reload the shipped data?")) {
+                    resetToSeed();
+                  }
+                }}
+              >
+                Reset everything to seed
+              </Button>
+            </Paper>
+            </>
           ) : showingSuggestions ? (
             <SuggestionsReview />
           ) : (

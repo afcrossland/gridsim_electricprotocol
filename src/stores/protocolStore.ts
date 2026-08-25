@@ -329,7 +329,7 @@ export const useProtocolStore = create<ProtocolState>()(
           const responses = state.responses.slice();
           responses[i] = {
             ...responses[i],
-            evidence: [...responses[i].evidence, { title: "", source: "", note: "" }],
+            evidence: [...(responses[i].evidence ?? []), { title: "", source: "", note: "" }],
             updatedAt: new Date().toISOString(),
             seeded: false,
           };
@@ -341,8 +341,8 @@ export const useProtocolStore = create<ProtocolState>()(
           const i = state.responses.findIndex(
             (r) => r.countryCode === countryCode && r.questionId === questionId,
           );
-          if (i === -1 || !state.responses[i].evidence[index]) return state;
-          const evidence = state.responses[i].evidence.slice();
+          if (i === -1 || !state.responses[i].evidence?.[index]) return state;
+          const evidence = (state.responses[i].evidence ?? []).slice();
           evidence[index] = { ...evidence[index], ...patch };
           const responses = state.responses.slice();
           responses[i] = {
@@ -363,7 +363,7 @@ export const useProtocolStore = create<ProtocolState>()(
           const responses = state.responses.slice();
           responses[i] = {
             ...responses[i],
-            evidence: responses[i].evidence.filter((_, ei) => ei !== index),
+            evidence: (responses[i].evidence ?? []).filter((_, ei) => ei !== index),
             updatedAt: new Date().toISOString(),
             seeded: false,
           };
@@ -696,8 +696,15 @@ export const useProtocolStore = create<ProtocolState>()(
         const state = persisted as Partial<ProtocolState> | undefined;
         if (!state) return current;
 
+        // migrateResponseShape also runs here, not just in `migrate` below -
+        // `migrate` only fires on an actual version bump, so a response
+        // whose `evidence` field was missing (or otherwise stored pre-v10
+        // and never diffed against a bumped version) would otherwise flow
+        // through untouched on every ordinary load and crash the first
+        // reader that assumes `evidence` is always an array.
         const userEntered = (state.responses ?? [])
           .filter((r) => !r.seeded)
+          .map(migrateResponseShape)
           .flatMap((r) =>
             resolveTargets(r.countryCode).map((code) => ({ ...r, countryCode: code })),
           );

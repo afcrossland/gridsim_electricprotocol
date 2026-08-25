@@ -16,13 +16,16 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
+import DownloadIcon from "@mui/icons-material/DownloadOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 import { rankImpact, scoreBand, scoreLabel, scoreSections } from "../../lib/scoring";
 import { diffResponses } from "../../lib/suggestions";
-import { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab, type CountryScore } from "../../lib/types";
+import { SECTIONS, WINDROSE, type CountryPanelTab, type CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
+import { generateCountryReportPdf, fmtReportDate, fmtTimestamp } from "../../utils/exportCountryReportPdf";
+import CountryReportDocument from "../report/CountryReportDocument";
 import ImpactList from "./ImpactList";
 import QuestionCard from "./QuestionCard";
 import SectionWindrose from "./SectionWindrose";
@@ -32,7 +35,7 @@ import FlagImg from "../ui/FlagImg";
 import JurisdictionSearch from "../map/JurisdictionSearch";
 import StatTile from "../ui/StatTile";
 
-export { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab };
+export { SECTIONS, WINDROSE, type CountryPanelTab };
 
 interface Props {
   code: string;
@@ -115,6 +118,7 @@ export default function CountryPanel({
   const setTab = onTabChange ?? setUncontrolledTab;
   const [comparePickerAnchor, setComparePickerAnchor] = useState<HTMLElement | null>(null);
   const [submitOpen, setSubmitOpen] = useState(false);
+  const [buildingReport, setBuildingReport] = useState(false);
 
   const compareCode = inlineCompare ? compareCountry : null;
   const compareScore = compareCode ? allScores?.find((s) => s.code === compareCode) : undefined;
@@ -180,6 +184,45 @@ export default function CountryPanel({
     [sections, questions, byQuestion],
   );
 
+  // Jumps from a "Submit revised evidence" tile straight to the question it's
+  // about - closes the dialog, switches to the section that owns it, then
+  // scrolls once the section's questions have actually rendered (a single
+  // rAF landed before the section-switch's own re-render in testing, so this
+  // waits two).
+  const goToQuestion = (questionId: string) => {
+    const question = questions.find((q) => q.id === questionId);
+    if (!question) return;
+    setSubmitOpen(false);
+    setTab(SECTIONS);
+    setActiveSectionId(question.sectionId);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document
+          .getElementById(`question-${questionId}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+  };
+
+  // Mounts CountryReportDocument off-screen (see the render below), waits a
+  // couple of frames for it to actually lay out, then rasterises it into a
+  // PDF - same two-step shape as the sibling gridsim-frontend project's own
+  // report export (ResultsPanel.tsx's handleExportPdf there): render first,
+  // capture second, because html2canvas needs real painted pixels to read.
+  const handleDownloadReport = async () => {
+    setBuildingReport(true);
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    try {
+      await generateCountryReportPdf(
+        "country-report-root",
+        `Solar Policy Assessment - ${score.name} - ${fmtTimestamp()}.pdf`,
+      );
+    } finally {
+      setBuildingReport(false);
+    }
+  };
+
   const activeSection = railSections.find((s) => s.id === activeSectionId) ?? null;
   const sectionQuestions = useMemo(
     () =>
@@ -206,6 +249,26 @@ export default function CountryPanel({
           <Typography variant="h2" sx={{ flex: 1, minWidth: 0 }} noWrap>
             {score.name}
           </Typography>
+
+          <Box sx={{ flexShrink: 0 }}>
+            <StatTile
+              size="small"
+              icon={<TrendingUpIcon fontSize="small" />}
+              color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
+              label="Score"
+              value={score.ranked ? scoreLabel(score.score) : "N/A"}
+            />
+          </Box>
+          <Box sx={{ flexShrink: 0 }}>
+            <StatTile
+              size="small"
+              icon={<FactCheckIcon fontSize="small" />}
+              color={theme.palette.primary.main}
+              label="Data completeness"
+              value={`${Math.round(score.completeness * 100)}%`}
+            />
+          </Box>
+
           {headerAction}
 
           {inlineCompare &&
@@ -255,24 +318,6 @@ export default function CountryPanel({
               </>
             ))}
         </Box>
-
-        <Box sx={{ display: "flex", gap: 1.5 }}>
-          <StatTile
-            icon={<TrendingUpIcon fontSize="small" />}
-            color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
-            label="Score"
-            value={score.ranked ? scoreLabel(score.score) : "Not enough data to score yet"}
-            fill={score.ranked ? score.score : undefined}
-          />
-          <StatTile
-            icon={<FactCheckIcon fontSize="small" />}
-            color={theme.palette.primary.main}
-            label="Data completeness"
-            value={`${Math.round(score.completeness * 100)}%`}
-            detail={`${score.answered}/${score.total} answered`}
-            fill={score.completeness}
-          />
-        </Box>
       </Box>
 
       {/* The single most useful thing to do with a country's page is see what
@@ -283,16 +328,26 @@ export default function CountryPanel({
           here as the first panel's real tab bar, or its header ends up
           shorter and everything below stops lining up between the two,
           including what the scroll-position mirror is actually syncing to. */}
-      <Tabs
-        value={tab}
-        onChange={(_, v) => setTab(v)}
-        data-tour="country-tabs"
-        sx={{ px: 2, visibility: hideTabs ? "hidden" : "visible" }}
-      >
-        <Tab value={WINDROSE} label="Summary" />
-        <Tab value={SECTIONS} label="Policy Score and Evidence" />
-        <Tab value={IMPACT} label="Biggest Policy Wins" />
-      </Tabs>
+      <Box sx={{ display: "flex", alignItems: "center", px: 2 }}>
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          data-tour="country-tabs"
+          sx={{ flex: 1, minWidth: 0, visibility: hideTabs ? "hidden" : "visible" }}
+        >
+          <Tab value={WINDROSE} label="Summary" />
+          <Tab value={SECTIONS} label="Policy Score and Evidence" />
+        </Tabs>
+        <Button
+          size="small"
+          startIcon={<DownloadIcon fontSize="small" />}
+          disabled={buildingReport}
+          onClick={handleDownloadReport}
+          sx={{ flexShrink: 0 }}
+        >
+          {buildingReport ? "Building report..." : "Download report"}
+        </Button>
+      </Box>
       <Divider />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
@@ -300,28 +355,22 @@ export default function CountryPanel({
           <SectionRail
             sections={railSections}
             selected={activeSectionId}
-            score={score}
             onSelect={setActiveSectionId}
             horizontal={isMobile}
+            pendingCount={pendingChanges.length}
+            onSubmit={() => setSubmitOpen(true)}
           />
         )}
 
         <Box ref={contentRef} onScroll={onContentScroll} sx={{ flex: 1, overflowY: "auto", p: 3, minWidth: 0 }}>
-          {tab === IMPACT ? (
-            <>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                Biggest policy wins based on policy score and evidence provided.
-              </Typography>
-              <ImpactList items={impact} limit={20} />
-            </>
-          ) : tab === WINDROSE ? (
+          {tab === WINDROSE ? (
             <>
               <Typography variant="body2" sx={{ mb: 2 }}>
                 How {score.name} scores in each area, and how much of it is
                 backed by evidence. A dashed marker just means there isn't
                 enough data yet - not a score of zero.
               </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3 }}>
                 <Box
                   sx={{
                     flex: "1 1 320px",
@@ -365,38 +414,25 @@ export default function CountryPanel({
                   />
                 </Box>
               </Box>
+
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                Biggest policy wins based on policy score and evidence provided.
+              </Typography>
+              <ImpactList items={impact} limit={20} />
             </>
           ) : activeSection ? (
-            <>
-              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1.5 }}>
-                <Tooltip title={pendingChanges.length === 0 ? "Change an answer or its evidence first" : ""}>
-                  <span>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      disabled={pendingChanges.length === 0}
-                      onClick={() => setSubmitOpen(true)}
-                    >
-                      Submit revised evidence
-                      {pendingChanges.length > 0 ? ` (${pendingChanges.length})` : ""}
-                    </Button>
-                  </span>
-                </Tooltip>
-              </Box>
-
-              <Stack spacing={2}>
-                {sectionQuestions.map((q) => (
-                  <QuestionCard
-                    key={q.id}
-                    question={q}
-                    response={byQuestion.get(q.id)}
-                    code={code}
-                    compareCode={compareCode ?? undefined}
-                    compareResponse={compareByQuestion?.get(q.id)}
-                  />
-                ))}
-              </Stack>
-            </>
+            <Stack spacing={2}>
+              {sectionQuestions.map((q) => (
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  response={byQuestion.get(q.id)}
+                  code={code}
+                  compareCode={compareCode ?? undefined}
+                  compareResponse={compareByQuestion?.get(q.id)}
+                />
+              ))}
+            </Stack>
           ) : null}
         </Box>
       </Box>
@@ -406,7 +442,30 @@ export default function CountryPanel({
         onClose={() => setSubmitOpen(false)}
         countryCode={code}
         countryName={score.name}
+        onNavigateToQuestion={goToQuestion}
       />
+
+      {/* Mounted off-screen only while a download is in flight - handleDownloadReport
+          waits two animation frames for this to actually paint before html2canvas
+          captures it. Matches the sibling gridsim-frontend project's own report
+          export (ResultsPanel.tsx there mounts ReportDocument the same way). */}
+      {buildingReport && (
+        <Box sx={{ position: "fixed", top: 0, left: "-99999px", pointerEvents: "none" }} aria-hidden="true">
+          <CountryReportDocument
+            data={{
+              countryCode: code,
+              countryName: score.name,
+              generatedOn: fmtReportDate(),
+              score,
+              sectionScores,
+              impact,
+              sections,
+              questions,
+              byQuestion,
+            }}
+          />
+        </Box>
+      )}
     </Box>
   );
 }

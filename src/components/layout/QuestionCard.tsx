@@ -57,6 +57,7 @@ export default function QuestionCard({ question, response, code, compareCode, co
 
   return (
     <Paper
+      id={`question-${question.id}`}
       variant="outlined"
       sx={{
         p: 2,
@@ -64,6 +65,7 @@ export default function QuestionCard({ question, response, code, compareCode, co
         borderLeftWidth: 3,
         borderLeftStyle: response ? "solid" : "dashed",
         borderLeftColor: response ? "primary.main" : "grey.400",
+        scrollMarginTop: 16,
       }}
     >
       <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start", mb: 1.5 }}>
@@ -189,13 +191,13 @@ export default function QuestionCard({ question, response, code, compareCode, co
 
           <Collapse in={showEvidence}>
             <Stack spacing={1.5} sx={{ mt: 1 }}>
-              {response.evidence.length === 0 && (
+              {(response.evidence?.length ?? 0) === 0 && (
                 <Typography variant="body2" color="text.secondary">
                   No evidence added yet.
                 </Typography>
               )}
 
-              {response.evidence.map((item, i) => (
+              {(response.evidence ?? []).map((item, i) => (
                 <Box
                   key={i}
                   sx={{

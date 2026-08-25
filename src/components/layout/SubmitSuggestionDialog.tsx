@@ -11,6 +11,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 import { diffResponses, type SuggestionChange } from "../../lib/suggestions";
@@ -21,9 +22,26 @@ interface Props {
   onClose: () => void;
   countryCode: string;
   countryName: string;
+  /** Jumps the country panel to the section that owns this question and scrolls to it - used so a tile doubles as a shortcut back to where its evidence actually lives. */
+  onNavigateToQuestion: (questionId: string) => void;
 }
 
 type Step = "summary" | "details" | "done";
+
+/** One colour per change kind, so "what kind of change is this" reads at a glance across a list of tiles - distinct from the question's own colour and the answer text's colour. */
+const KIND_COLOR: Record<SuggestionChange["kind"], string> = {
+  score: "#008194", // GSC teal - matches the "Answer" chip
+  "evidence-added": "#2E7D32",
+  "evidence-removed": "#C62828",
+  "evidence-edited": "#EF864C", // GSC burnt orange
+};
+
+const KIND_LABEL: Record<SuggestionChange["kind"], string> = {
+  score: "Answer",
+  "evidence-added": "Evidence added",
+  "evidence-removed": "Evidence removed",
+  "evidence-edited": "Evidence edited",
+};
 
 /**
  * Everything changed for one country this session, reviewed and then filed
@@ -31,7 +49,13 @@ type Step = "summary" | "details" | "done";
  * (QuestionCard) - this is just the "package it up and hand it to a
  * reviewer" step, not a gate on the editing itself.
  */
-export default function SubmitSuggestionDialog({ open, onClose, countryCode, countryName }: Props) {
+export default function SubmitSuggestionDialog({
+  open,
+  onClose,
+  countryCode,
+  countryName,
+  onNavigateToQuestion,
+}: Props) {
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
   const editBaselines = useProtocolStore((s) => s.editBaselines);
@@ -62,17 +86,22 @@ export default function SubmitSuggestionDialog({ open, onClose, countryCode, cou
     }
   }, [open, editBaselines, countryCode, currentResponses, questions]);
 
-  // A new or changed answer needs something backing it up - flagged here
-  // rather than silently accepted, so an admin isn't the first person to
-  // notice a suggestion has no evidence behind it. Evidence-only changes
-  // (added/removed/edited) obviously already have evidence, so only score
-  // changes are checked.
-  const evidenceByQuestion = useMemo(
-    () => new Map(currentResponses.map((r) => [r.questionId, r.evidence])),
-    [currentResponses],
+  // A changed answer needs its evidence revised too, not just left over from
+  // whatever the old answer cited - flagged here rather than silently
+  // accepted, so an admin isn't the first person to notice a suggestion
+  // rests on evidence that no longer matches what it's meant to support.
+  // Evidence-only changes obviously come with revised evidence already, so
+  // only a score change needs to be paired with an evidence-added/-edited/
+  // -removed change on that same question to clear the flag.
+  const questionIdsWithEvidenceChange = useMemo(
+    () =>
+      new Set(
+        changes.filter((c) => c.kind !== "score").map((c) => c.questionId),
+      ),
+    [changes],
   );
   const isMissingEvidence = (change: SuggestionChange) =>
-    change.kind === "score" && (evidenceByQuestion.get(change.questionId)?.length ?? 0) === 0;
+    change.kind === "score" && !questionIdsWithEvidenceChange.has(change.questionId);
   const missingEvidenceCount = changes.filter(isMissingEvidence).length;
 
   const reset = () => {
@@ -110,8 +139,8 @@ export default function SubmitSuggestionDialog({ open, onClose, countryCode, cou
             {missingEvidenceCount > 0 && (
               <Typography variant="body2" color="warning.main" sx={{ mb: 2, fontWeight: 600 }}>
                 {missingEvidenceCount} answer{missingEvidenceCount === 1 ? "" : "s"} below{" "}
-                {missingEvidenceCount === 1 ? "has" : "have"} no evidence yet - add at least one
-                citation for each before this can be submitted.
+                {missingEvidenceCount === 1 ? "has" : "have"} not had its evidence revised - add or
+                edit at least one citation for each before this can be submitted.
               </Typography>
             )}
             <Stack spacing={1}>
@@ -120,29 +149,53 @@ export default function SubmitSuggestionDialog({ open, onClose, countryCode, cou
                 return (
                   <Box
                     key={i}
+                    onClick={() => onNavigateToQuestion(c.questionId)}
                     sx={{
                       p: 1.5,
                       borderRadius: 1.5,
                       border: "1px solid",
                       borderColor: flagged ? "warning.main" : "divider",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 0.5,
+                      "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                        {c.questionText}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1, mb: 0.5 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ display: "block", color: "primary.dark", fontWeight: 700 }}
+                        >
+                          {c.questionText}
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: 0.5, flexShrink: 0 }}>
+                          <Chip
+                            size="small"
+                            label={KIND_LABEL[c.kind]}
+                            sx={{
+                              bgcolor: `${KIND_COLOR[c.kind]}1F`,
+                              color: KIND_COLOR[c.kind],
+                              fontWeight: 600,
+                            }}
+                          />
+                          {flagged && (
+                            <Chip
+                              size="small"
+                              icon={<WarningAmberIcon fontSize="small" />}
+                              label="Evidence not revised"
+                              color="warning"
+                              variant="outlined"
+                            />
+                          )}
+                        </Box>
+                      </Box>
+                      <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 500 }}>
+                        {c.description}
                       </Typography>
-                      {flagged && (
-                        <Chip
-                          size="small"
-                          icon={<WarningAmberIcon fontSize="small" />}
-                          label="No evidence"
-                          color="warning"
-                          variant="outlined"
-                          sx={{ flexShrink: 0 }}
-                        />
-                      )}
                     </Box>
-                    <Typography variant="body2">{c.description}</Typography>
+                    <ChevronRightIcon fontSize="small" sx={{ color: "text.disabled", flexShrink: 0, mt: 0.25 }} />
                   </Box>
                 );
               })}
