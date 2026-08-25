@@ -186,12 +186,12 @@ describe("persistence", () => {
     useProtocolStore.getState().resetToSeed();
 
     const state = useProtocolStore.getState();
-    // App.tsx renders <ScrollStory /> whenever tourSeen is false, and its
-    // hero scene (the full-bleed globe, chrome hidden) only when welcomeSeen
-    // is also false - both must flip back for the tool to actually open on
-    // the scroll-story page rather than a plain reset map.
+    // App.tsx renders <ScrollStory /> whenever tourSeen is false. welcomeSeen
+    // must come back *true* (closed) - WelcomeModal opens on `!welcomeSeen`,
+    // so a false default would pop the Charter up over the scroll-story hero
+    // on every reset instead of showing the intro cleanly.
     expect(state.tourSeen).toBe(false);
-    expect(state.welcomeSeen).toBe(false);
+    expect(state.welcomeSeen).toBe(true);
     expect(state.page).toBe("map");
     expect(state.selectedCountry).toBeNull();
   });

@@ -267,7 +267,14 @@ function initialState() {
     threshold: protocol.completenessThreshold,
     mapMetric: "score" as const,
     page: "map" as const,
-    welcomeSeen: false,
+    // WelcomeModal (the Charter) is driven by `open={!welcomeSeen}` - unlike
+    // tourSeen, this one must default to *true* (closed) or the Charter pops
+    // up over the scroll-story hero on every fresh visit and every reset,
+    // before anyone has asked to see it. It only ever goes false when
+    // something actively opens the Charter - the nav link or the tour's own
+    // "Read the Charter" pill (App.tsx's onOpenCharter) - both explicit
+    // `setWelcomeSeen(false)` calls, never a default.
+    welcomeSeen: true,
     tourSeen: false,
     sections: protocol.sections.map((s) => ({ ...s })),
     questions: protocol.questions.map((q) => ({ ...q })),
