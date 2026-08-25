@@ -18,6 +18,8 @@ export interface Suggestion {
   changes: SuggestionChange[];
   /** This country's responses exactly as they were before this suggestion's edits - what "reject" reverts to. */
   baseline: Response[];
+  /** This country's responses exactly as they were when submitted - what "accept" applies, including re-accepting after a reject. */
+  proposed: Response[];
 }
 
 /**

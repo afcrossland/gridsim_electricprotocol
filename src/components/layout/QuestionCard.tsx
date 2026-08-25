@@ -75,7 +75,7 @@ export default function QuestionCard({ question, response, code, compareCode, co
               {question.subsection}
             </Typography>
           )}
-          <Typography variant="body1">{question.text}</Typography>
+          <Typography variant="body1" sx={{ fontWeight: 700 }}>{question.text}</Typography>
         </Box>
 
         <Chip

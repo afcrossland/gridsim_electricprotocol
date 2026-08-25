@@ -313,6 +313,40 @@
       "title": "MCS - MIS 3002 Solar PV Systems standard (v5.0, 2025): installation, wiring, commissioning and handover requirements aligned to BS 7671, including documentation of shading and yield",
       "url": "https://mcscertified.com/wp-content/uploads/2025/02/MIS-3002_Solar-PV-Systems-V5.0-Final-for-publication.pdf"
     },
+    "gb-seg-guidance": {
+      "title": "Ofgem: Smart Export Guarantee guidance for generators",
+      "url": "https://www.ofgem.gov.uk/guidance/smart-export-guarantee-guidance-generators",
+      "quality": "primary-official"
+    },
+    "gb-ofgem-bill-breakdown": {
+      "title": "Ofgem: Understand your electricity and gas bills",
+      "url": "https://www.ofgem.gov.uk/understand-your-electricity-and-gas-bills",
+      "quality": "primary-official"
+    },
+    "gb-gov-smart-meter-data": {
+      "title": "GOV.UK: Smart meters, how they work",
+      "url": "https://www.gov.uk/guidance/smart-meters-how-they-work",
+      "quality": "primary-official"
+    },
+    "gb-mcs-dno-notify": {
+      "title": "MCS: Notifying DNOs - the G98/G99 connection notification process",
+      "url": "https://mcscertified.com/installers/help-resources/notifying-dnos/"
+    },
+    "gb-gpdo-solar": {
+      "title": "The Town and Country Planning (General Permitted Development) (England) Order 2015, Schedule 2 Part 14 Class A - solar equipment on domestic premises",
+      "url": "https://www.legislation.gov.uk/uksi/2015/596/schedule/2/part/14/made",
+      "quality": "primary-official"
+    },
+    "gb-trade-tariff-solar": {
+      "title": "UK Trade Tariff tool: photovoltaic cells assembled in modules or made up into panels (commodity 8541430000)",
+      "url": "https://www.trade-tariff.service.gov.uk/trade-tariff/commodities/8541430000",
+      "quality": "primary-official"
+    },
+    "gb-elexon-insights": {
+      "title": "Elexon Insights Solution (Balancing Mechanism Reporting Service) - wholesale and balancing market prices",
+      "url": "https://bmrs.elexon.co.uk/",
+      "quality": "primary-official"
+    },
     "il-net-metering": {
       "title": "Illinois - full retail net metering closed to new residential and small commercial interconnections from 1 January 2025, replaced by supply-only net metering; existing customers grandfathered unless they take the Distributed Generation rebate (secondary source)",
       "url": "https://electrac.app/blog/net-metering-illinois-comed-guide"
@@ -1670,6 +1704,106 @@
       "basis": "national",
       "sourceId": "gb-mcs-recc",
       "note": "MCS certification is the recognised national qualification route for solar PV installers, requiring compliance with MIS 3002 and membership of an approved consumer code."
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "gb-seg-guidance",
+      "note": "The Smart Export Guarantee requires licensed electricity suppliers with at least 150,000 domestic customers to offer at least one export tariff to accredited small-scale generators - solar PV, wind, hydro, micro-CHP and anaerobic digestion, up to 5MW - so it is not restricted to one technology. But suppliers set their own tariff structure and rate (including flat, non-time-of-use rates), and only MCS-certified generators with a suitable export meter can participate, so it is not a universal time-of-use offer available to all customers, matching the middle tier rather than the top one."
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 18,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "gb-ofgem-bill-breakdown",
+      "note": "Ofgem's own consumer guidance sets out that bills are made up of wholesale costs (about a third of the price cap), network costs, social and environmental (policy) costs, other direct costs, supplier operating costs and margin, and VAT - and this is the breakdown that underlies the regulated price cap suppliers must follow. That covers wholesale/energy costs, network costs, system-operation-adjacent costs and taxes, meeting the top tier."
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 19,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "gb-gov-smart-meter-data",
+      "note": "Government guidance confirms smart electricity meters record consumption at half-hourly resolution and that the in-home display updates usage and cost information in near real time for electricity, with additional online and app access through suppliers and (with consent) third parties via the DCC. Half-hourly or better data is available in an electronic online format rather than only through a manual meter read, meeting the top tier."
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 21,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "gb-elexon-insights",
+      "note": "Elexon's Insights Solution publishes Great Britain's wholesale market index prices and system buy/sell prices free and without a login, with a near real-time IRIS feed for continuous monitoring, and the system operator separately publishes ancillary service auction and tender clearing prices after each round. Pricing across wholesale and ancillary markets is genuinely public, but ancillary clearing prices are published per auction round rather than continuously in real time, matching the 'fully transparent' tier rather than the higher tier that also requires real-time pricing."
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "gb-mcs-dno-notify",
+      "note": "For the great majority of domestic systems, Engineering Recommendation G98's 'fit and inform' process lets a customer install and use solar PV or a battery for self-consumption without prior permission from the network operator: the installer notifies the DNO after commissioning using a standard form, free of charge. Combined with permitted development rights for the panels themselves, there is no licence, quota or capacity cap blocking a customer from connecting and using behind-the-meter technology purely for self-consumption, meeting the only positive tier of this binary rubric."
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 38,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "gb-mcs-dno-notify",
+      "note": "Engineering Recommendation G98 covers installations under 16A per phase - the great majority of domestic solar and battery systems - and lets the installer commission the system first, then simply notify the Distribution Network Operator within 28 days using a standard form, with no prior permitting step and no DNO fee. That is a fit-and-inform regime rather than a permitting requirement, meeting the top tier."
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 39,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "gb-gpdo-solar",
+      "note": "Schedule 2 Part 14 Class A of the GPDO grants permitted development rights for installing microgeneration solar PV or solar thermal equipment on a dwellinghouse, block of flats, or a building within its curtilage, so no planning application is needed provided conditions on projection and roof height are met (equivalent regimes exist in Scotland and Wales). Only larger, more prominent, or listed-building installations fall outside permitted development and need consent, matching 'permitted activities... building consents only apply... above certain sizes.'"
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 41,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "gb-mcs-dno-notify",
+      "note": "The same G98 fit-and-inform route applies to grid connection itself: for installations under 16A per phase the installer notifies the DNO after commissioning rather than needing prior approval, and the process is free of charge. Only systems above that threshold move to the G99 route, which does require prior notice before installation, so the zero-cost automated route is exactly size-restricted the way the top tier allows for export to the grid."
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "gb-mcs-dno-notify",
+      "note": "G98 and G99 notifications are submitted as standard digital forms (Form B for G98, Form A3.1 for G99) to whichever regional DNO covers the installation's area - UK Power Networks, National Grid Electricity Distribution, Northern Powergrid, SSEN, Electricity North West or SP Energy Networks - each running its own online submission process. Registration is digital and follows a standardised national form, but is administered DNO-by-DNO rather than through one unified national portal, matching 'at least regionalised.'"
+    },
+    {
+      "countries": [
+        "GB"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "gb-trade-tariff-solar",
+      "note": "The UK government's own trade tariff lookup tool lists a most-favoured-nation duty rate of 0% for photovoltaic cells assembled into modules or panels under commodity code 8541430000, well under the 10% threshold for the top tier. 20% VAT can still apply on top of duty, but VAT is a separate consumption tax rather than a border tariff, and residential installations separately qualify for 0% VAT relief on energy-saving materials."
     },
     {
       "countries": [

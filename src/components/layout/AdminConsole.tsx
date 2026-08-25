@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -196,15 +197,21 @@ export default function AdminConsole({ onBack }: Props) {
                     display: "flex",
                     alignItems: "center",
                     gap: 1,
+                    borderLeft: "3px solid",
+                    borderColor: showingSettings ? "primary.main" : "transparent",
                     bgcolor: showingSettings ? "action.selected" : "transparent",
                     "&:hover": { bgcolor: "action.hover" },
                   }
             }
           >
-            <SettingsIcon fontSize="small" />
+            <SettingsIcon fontSize="small" sx={{ color: showingSettings ? "primary.dark" : undefined }} />
             <Typography
               variant={isMobile ? "caption" : "body2"}
-              sx={{ fontWeight: showingSettings ? 600 : 400, textAlign: isMobile ? "center" : undefined }}
+              sx={{
+                fontWeight: showingSettings ? 600 : 400,
+                color: showingSettings ? "primary.dark" : undefined,
+                textAlign: isMobile ? "center" : undefined,
+              }}
             >
               Settings
             </Typography>
@@ -235,23 +242,39 @@ export default function AdminConsole({ onBack }: Props) {
                     display: "flex",
                     alignItems: "center",
                     gap: 1,
+                    borderLeft: "3px solid",
+                    borderColor: showingSuggestions ? "primary.main" : "transparent",
                     bgcolor: showingSuggestions ? "action.selected" : "transparent",
                     "&:hover": { bgcolor: "action.hover" },
                   }
             }
           >
-            <RateReviewOutlinedIcon fontSize="small" />
+            <RateReviewOutlinedIcon fontSize="small" sx={{ color: showingSuggestions ? "primary.dark" : undefined }} />
             <Typography
               variant={isMobile ? "caption" : "body2"}
-              sx={{ fontWeight: showingSuggestions ? 600 : 400, textAlign: isMobile ? "center" : undefined, flex: isMobile ? undefined : 1 }}
+              sx={{
+                fontWeight: showingSuggestions ? 600 : 400,
+                color: showingSuggestions ? "primary.dark" : undefined,
+                textAlign: isMobile ? "center" : undefined,
+                flex: isMobile ? undefined : 1,
+              }}
             >
               Suggestions
             </Typography>
             {pendingSuggestionCount > 0 && (
-              <Chip size="small" label={pendingSuggestionCount} color="primary" sx={{ height: 18, fontSize: "0.7rem" }} />
+              <Chip size="small" label={pendingSuggestionCount} color="secondary" sx={{ height: 18, fontSize: "0.7rem", fontWeight: 700 }} />
             )}
           </Box>
           {!isMobile && <Divider />}
+
+          {!isMobile && (
+            <Box sx={{ px: 2, py: 1.25, display: "flex", alignItems: "center", gap: 1 }}>
+              <CategoryOutlinedIcon fontSize="small" sx={{ color: "primary.dark" }} />
+              <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.dark" }}>
+                Groups
+              </Typography>
+            </Box>
+          )}
 
           {sections.map((section) =>
             isMobile ? (
@@ -307,6 +330,8 @@ export default function AdminConsole({ onBack }: Props) {
                   display: "flex",
                   alignItems: "center",
                   gap: 0.5,
+                  borderLeft: "3px solid",
+                  borderColor: activeSectionId === section.id ? "primary.main" : "transparent",
                   bgcolor: activeSectionId === section.id ? "action.selected" : "transparent",
                   "&:hover": { bgcolor: "action.hover" },
                 }}
@@ -314,8 +339,11 @@ export default function AdminConsole({ onBack }: Props) {
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography
                     variant="body2"
-                    noWrap
-                    sx={{ fontWeight: activeSectionId === section.id ? 600 : 400 }}
+                    sx={{
+                      fontWeight: activeSectionId === section.id ? 600 : 400,
+                      color: activeSectionId === section.id ? "primary.dark" : undefined,
+                      overflowWrap: "break-word",
+                    }}
                   >
                     {section.title}
                   </Typography>
@@ -357,9 +385,9 @@ export default function AdminConsole({ onBack }: Props) {
 
         <Box sx={{ flex: 1, overflowY: "auto", p: isMobile ? 2 : 3, minWidth: 0 }}>
           {showingSettings ? (
-            <>
-            <Paper variant="outlined" sx={{ p: 2.5, maxWidth: 500 }}>
-              <Typography variant="h6" gutterBottom>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+            <Paper variant="outlined" sx={{ p: 2.5, flex: "1 1 380px" }}>
+              <Typography variant="h6" gutterBottom sx={{ color: "primary.dark" }}>
                 Data completeness threshold
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
@@ -398,7 +426,7 @@ export default function AdminConsole({ onBack }: Props) {
               />
             </Paper>
 
-            <Paper variant="outlined" sx={{ p: 2.5, maxWidth: 500, mt: 2, borderColor: "error.main" }}>
+            <Paper variant="outlined" sx={{ p: 2.5, flex: "1 1 380px", borderColor: "error.main" }}>
               <Typography variant="h6" color="error.main" gutterBottom>
                 Danger zone
               </Typography>
@@ -419,11 +447,11 @@ export default function AdminConsole({ onBack }: Props) {
                 Reset everything to seed
               </Button>
             </Paper>
-            </>
+            </Box>
           ) : showingSuggestions ? (
             <SuggestionsReview />
           ) : (
-          <Stack spacing={2} sx={{ maxWidth: 900 }}>
+          <Stack spacing={2}>
             {activeSection && (
               <TextField
                 size="small"
@@ -431,12 +459,13 @@ export default function AdminConsole({ onBack }: Props) {
                 label="Group name"
                 value={activeSection.title}
                 onChange={(e) => updateSection(activeSection.id, { title: e.target.value })}
+                multiline
                 sx={{ maxWidth: 400 }}
               />
             )}
 
             {activeQuestions.map((question) => (
-              <Paper key={question.id} variant="outlined" sx={{ p: 2 }}>
+              <Paper key={question.id} variant="outlined" sx={{ p: 2, borderTop: "3px solid", borderTopColor: "primary.main" }}>
                 <QuestionHeader
                   question={question}
                   isMobile={isMobile}
@@ -457,7 +486,26 @@ export default function AdminConsole({ onBack }: Props) {
 
                 <Stack spacing={1}>
                   {question.rubric.map((tier, i) => (
-                    <Box key={tier.score} sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <Box key={tier.score} sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+                      <Box
+                        title={`Score ${tier.score}`}
+                        sx={{
+                          mt: "10px",
+                          width: 22,
+                          height: 22,
+                          flexShrink: 0,
+                          borderRadius: "50%",
+                          bgcolor: "warning.main",
+                          color: "warning.contrastText",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {tier.score}
+                      </Box>
                       <TextField
                         fullWidth
                         size="small"
@@ -465,6 +513,7 @@ export default function AdminConsole({ onBack }: Props) {
                         label="Answer"
                         value={tier.label}
                         onChange={(e) => setTierField(question, i, { label: e.target.value })}
+                        multiline
                       />
                       <TextField
                         select
@@ -496,6 +545,7 @@ export default function AdminConsole({ onBack }: Props) {
 
                 <Button
                   size="small"
+                  color="warning"
                   startIcon={<AddIcon />}
                   sx={{ mt: 1 }}
                   onClick={() => addTier(question)}
@@ -504,7 +554,11 @@ export default function AdminConsole({ onBack }: Props) {
                 </Button>
 
                 {questionOverrides[question.id] && (
-                  <Chip size="small" sx={{ mt: 1 }} label="Edited from the shipped version" />
+                  <Chip
+                    size="small"
+                    sx={{ mt: 1, bgcolor: "secondary.main", color: "secondary.contrastText", fontWeight: 600 }}
+                    label="Edited from the shipped version"
+                  />
                 )}
               </Paper>
             ))}

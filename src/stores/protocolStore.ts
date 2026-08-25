@@ -218,6 +218,7 @@ function buildLiveData(persisted: {
  */
 function seedResponses(): Response[] {
   const out: Response[] = [];
+  const seedScore = new Map<string, number>(); // `${countryCode}|${questionId}` -> spreadsheet score
   for (const q of protocol.questions) {
     for (const [countryCode, score] of Object.entries(q.seedAnswers ?? {})) {
       out.push({
@@ -228,9 +229,37 @@ function seedResponses(): Response[] {
         updatedAt: new Date(0).toISOString(),
         seeded: true,
       });
+      seedScore.set(`${countryCode}|${q.id}`, score);
     }
   }
-  return [...out, ...sourcedResponses(protocol.questions)];
+
+  // A spreadsheet answer is a country's own hand-completed survey response -
+  // the primary record for that (country, question) pair. sourced-answers.json's
+  // "national" entries are usually written to attach a citation to that exact
+  // same score (confirmed for GB rows 13/51/52/57, which all match), not to
+  // compete with it - but indicator-answers.json's proxy layer is a blunt,
+  // automated stand-in meant only for countries with *no* spreadsheet answer,
+  // and was silently winning here on the previous plain concatenation (GB row
+  // 12: spreadsheet says 1, a generic World-Bank-lending-rate proxy said 2,
+  // and the proxy won purely because it happened to sort last). A sourced
+  // answer only replaces the spreadsheet's bare entry when it agrees with it
+  // (contributing its evidence); a genuine conflict is logged rather than
+  // silently overriding a country's own survey response.
+  const byKey = new Map<string, Response>();
+  for (const r of out) byKey.set(`${r.countryCode}|${r.questionId}`, r);
+  for (const r of sourcedResponses(protocol.questions)) {
+    const key = `${r.countryCode}|${r.questionId}`;
+    const spreadsheet = seedScore.get(key);
+    if (spreadsheet !== undefined && spreadsheet !== r.score) {
+      console.warn(
+        `sourced answer for ${key} (score ${r.score}) conflicts with the spreadsheet's own score ` +
+          `(${spreadsheet}) - keeping the spreadsheet score, discarding the sourced evidence`,
+      );
+      continue;
+    }
+    byKey.set(key, r);
+  }
+  return [...byKey.values()];
 }
 
 function initialState() {
@@ -405,6 +434,7 @@ export const useProtocolStore = create<ProtocolState>()(
             status: "pending",
             changes,
             baseline,
+            proposed: current,
           };
 
           return {
@@ -423,19 +453,22 @@ export const useProtocolStore = create<ProtocolState>()(
             s.id === id ? { ...s, status: decision } : s,
           );
 
-          if (decision !== "rejected") return { suggestions };
-
-          // Restore exactly what this suggestion touched, nothing else -
-          // other questions' responses (including later, still-pending
-          // suggestions) are untouched.
-          const baselineByQuestion = new Map(suggestion.baseline.map((r) => [r.questionId, r]));
+          // Both directions are reversible, not just reject - accepting (or
+          // re-accepting a previously-rejected suggestion) applies exactly
+          // what was proposed at submission time, and rejecting (including
+          // re-rejecting a previously-accepted one) restores exactly the
+          // pre-suggestion baseline. Only the questions this suggestion
+          // actually touched are affected either way; other responses
+          // (including later, still-pending suggestions) are untouched.
+          const source = (decision === "accepted" ? suggestion.proposed : suggestion.baseline) ?? [];
+          const byQuestion = new Map(source.map((r) => [r.questionId, r]));
           const touchedQuestionIds = new Set(suggestion.changes.map((c) => c.questionId));
 
           const withoutTouched = state.responses.filter(
             (r) => !(r.countryCode === suggestion.countryCode && touchedQuestionIds.has(r.questionId)),
           );
           const restored = [...touchedQuestionIds]
-            .map((qid) => baselineByQuestion.get(qid))
+            .map((qid) => byQuestion.get(qid))
             .filter((r): r is Response => r !== undefined);
 
           return { suggestions, responses: [...withoutTouched, ...restored] };

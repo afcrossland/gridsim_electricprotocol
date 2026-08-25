@@ -53,7 +53,7 @@ export const SCENES: Scene[] = [
   {
     id: 0,
     heading: "Welcome to the Solar Policy Explorer",
-    body: "Explore the international policy environment for behind-the-meter solar and storage.",
+    body: "Explore the international policy environment for behind-the-meter solar and storage. Identify impactful policy gaps to accelerate the energy transition",
     layout: "hero",
     media: { kind: "map" },
   },

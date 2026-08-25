@@ -130,13 +130,13 @@ export default function ScoreboardFilters({ groups }: Props) {
             setSort(`${e.target.value}-${direction}` as ScoreboardSort);
           }}
           sx={{
-            minWidth: 130,
+            minWidth: 180,
             "& .MuiInputBase-input": { fontSize: "0.875rem" },
             "& .MuiInputLabel-root": { fontSize: "0.875rem" },
           }}
         >
           <MenuItem value="completeness">Data completeness</MenuItem>
-          <MenuItem value="score">Score</MenuItem>
+          <MenuItem value="score">Policy environment score</MenuItem>
         </TextField>
         <Tooltip title={sort.endsWith("-desc") ? "High to low" : "Low to high"}>
           <IconButton

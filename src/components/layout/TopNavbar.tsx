@@ -1,4 +1,5 @@
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { useProtocolStore } from "../../stores/protocolStore";
 
@@ -96,24 +97,32 @@ export default function TopNavbar() {
 
         {/* Plain underlined links, not buttons - see navItemSx. */}
         <Box sx={{ display: "flex", alignItems: "stretch", height: "100%" }}>
-          <Box onClick={() => setTourSeen(false)} sx={navItemSx(false)}>
-            <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-              Take the tour
-            </Box>
-            <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-              Tour
-            </Box>
-          </Box>
+          {page !== "admin" && (
+            <>
+              <Box onClick={() => setTourSeen(false)} sx={navItemSx(false)}>
+                <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                  Take the tour
+                </Box>
+                <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+                  Tour
+                </Box>
+              </Box>
 
-          <Box sx={{ width: "1px", height: 20, bgcolor: "divider", mx: 0.5, alignSelf: "center" }} />
+              <Box sx={{ width: "1px", height: 20, bgcolor: "divider", mx: 0.5, alignSelf: "center" }} />
+            </>
+          )}
 
           <Box data-tour="nav-links" sx={{ display: "flex", alignItems: "center" }}>
-            <Box onClick={() => setWelcomeSeen(false)} sx={navItemSx(false)}>
-              Charter
-            </Box>
-            <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
-              Help
-            </Box>
+            {page !== "admin" && (
+              <>
+                <Box onClick={() => setWelcomeSeen(false)} sx={navItemSx(false)}>
+                  Charter
+                </Box>
+                <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
+                  Help
+                </Box>
+              </>
+            )}
 
             {/* Stands in for auth: open to anyone until sign-in exists. A
                 filled blue button rather than a plain link like the others -
@@ -122,6 +131,7 @@ export default function TopNavbar() {
             <Button
               size="small"
               variant="contained"
+              startIcon={<LockOutlinedIcon fontSize="small" />}
               onClick={() => setPage(page === "admin" ? "map" : "admin")}
               sx={{ minWidth: 0, px: { xs: 1.25, sm: 2 }, ml: 1.5 }}
             >

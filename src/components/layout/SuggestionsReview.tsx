@@ -4,11 +4,19 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import type { Suggestion } from "../../lib/suggestions";
 import { useProtocolStore } from "../../stores/protocolStore";
+import FlagImg from "../ui/FlagImg";
 
 const STATUS_COLOR: Record<Suggestion["status"], "warning" | "success" | "error"> = {
   pending: "warning",
   accepted: "success",
   rejected: "error",
+};
+
+/** Border/tint colour for the whole row, not just the status Chip, so accepted/rejected read at a glance across the list. */
+const STATUS_BORDER: Record<Suggestion["status"], string> = {
+  pending: "warning.main",
+  accepted: "success.main",
+  rejected: "error.main",
 };
 
 /**
@@ -41,7 +49,7 @@ export default function SuggestionsReview() {
   }
 
   return (
-    <Stack spacing={1.5} sx={{ maxWidth: 700 }}>
+    <Stack spacing={1.5}>
       {sorted.map((s) => (
         <SuggestionRow key={s.id} suggestion={s} onReview={reviewSuggestion} />
       ))}
@@ -59,12 +67,20 @@ function SuggestionRow({
   const [expanded, setExpanded] = useState(suggestion.status === "pending");
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
+    <Paper
+      variant="outlined"
+      sx={{ p: 2, borderLeft: "4px solid", borderLeftColor: STATUS_BORDER[suggestion.status] }}
+    >
       <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="subtitle1">{suggestion.countryName}</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+            <FlagImg code={suggestion.countryCode} size={18} />
+            <Typography variant="subtitle1">{suggestion.countryName}</Typography>
+          </Box>
           <Typography variant="body2" color="text.secondary">
-            {suggestion.submitterName} - {suggestion.submitterOrganisation}
+            <Box component="span" sx={{ fontWeight: 600 }}>From:</Box> {suggestion.submitterName}
+            {" · "}
+            <Box component="span" sx={{ fontWeight: 600 }}>Organisation:</Box> {suggestion.submitterOrganisation}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {new Date(suggestion.submittedAt).toLocaleString()} - {suggestion.changes.length} change
@@ -72,7 +88,12 @@ function SuggestionRow({
           </Typography>
         </Box>
 
-        <Chip size="small" label={suggestion.status} color={STATUS_COLOR[suggestion.status]} />
+        <Chip
+          size="small"
+          label={suggestion.status}
+          color={STATUS_COLOR[suggestion.status]}
+          sx={{ fontWeight: 700, textTransform: "capitalize" }}
+        />
 
         <IconButton size="small" onClick={() => setExpanded((v) => !v)}>
           <ExpandMoreIcon
@@ -94,16 +115,18 @@ function SuggestionRow({
           ))}
         </Stack>
 
-        {suggestion.status === "pending" && (
-          <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
-            <Button size="small" variant="contained" onClick={() => onReview(suggestion.id, "accepted")}>
+        <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
+          {suggestion.status !== "accepted" && (
+            <Button size="small" variant="contained" color="success" onClick={() => onReview(suggestion.id, "accepted")}>
               Accept
             </Button>
+          )}
+          {suggestion.status !== "rejected" && (
             <Button size="small" variant="outlined" color="error" onClick={() => onReview(suggestion.id, "rejected")}>
               Reject
             </Button>
-          </Box>
-        )}
+          )}
+        </Box>
       </Collapse>
     </Paper>
   );
