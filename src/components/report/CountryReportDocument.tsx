@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { capitalizeFirst } from "../../lib/text";
 import { impactColor, impactLabel, impactTextColor, scoreBand } from "../../lib/scoring";
-import type { CountryScore, ImpactItem, Question, Response, Section } from "../../lib/types";
+import type { CountryScore, EvidenceItem, ImpactItem, Question, Response, Section } from "../../lib/types";
 
 // Design tokens - the GSC brand palette (src/mui-theme.tsx), plain hex rather
 // than MUI theme tokens. Ported from the sibling gridsim-frontend project's
@@ -700,12 +700,7 @@ function QaQuestionRow({
       </div>
       {response?.evidence?.length ? (
         <div style={{ fontSize: 10.5, color: C.textSm, marginBottom: compareEntries.length > 0 ? 4 : 0 }}>
-          {response.evidence.map((e, i) => (
-            <div key={i} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              &bull; {e.title || e.source || "Evidence"}
-              {e.source && e.title ? ` - ${e.source}` : ""}
-            </div>
-          ))}
+          {response.evidence.map((e, i) => <EvidenceCitation key={i} title={e.title} source={e.source} />)}
         </div>
       ) : (
         response && (
@@ -731,17 +726,35 @@ function QaQuestionRow({
             </span>
             {compareResponse?.evidence?.length ? (
               <div style={{ color: C.textXs }}>
-                {compareResponse.evidence.map((e, i) => (
-                  <div key={i} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    &bull; {e.title || e.source || "Evidence"}
-                    {e.source && e.title ? ` - ${e.source}` : ""}
-                  </div>
-                ))}
+                {compareResponse.evidence.map((e, i) => <EvidenceCitation key={i} title={e.title} source={e.source} />)}
               </div>
             ) : null}
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/** Title on its own line, Source on its own line beneath it - each capped to one line by its own `nowrap` + ellipsis, matching the fixed one-line-per-evidence-field cost slotsOf assumes. */
+function EvidenceCitation({ title, source }: { title: string; source: string }) {
+  const lineStyle = { overflow: "hidden" as const, textOverflow: "ellipsis" as const, whiteSpace: "nowrap" as const };
+  if (!title && !source) {
+    return <div style={lineStyle}>&bull; Evidence</div>;
+  }
+  return (
+    <div style={{ marginBottom: 2 }}>
+      {title && (
+        <div style={lineStyle}>
+          &bull; <span style={{ fontWeight: 700 }}>Title:</span> {title}
+        </div>
+      )}
+      {source && (
+        <div style={{ ...lineStyle, paddingLeft: title ? 10 : 0 }}>
+          {!title && <>&bull; </>}
+          <span style={{ fontWeight: 700 }}>Source:</span> {source}
+        </div>
+      )}
     </div>
   );
 }
@@ -756,20 +769,23 @@ function QaQuestionRow({
 // each page blank. Costing in actual estimated lines against the page's
 // real available line count (see QA_PAGE_BUDGET) keeps pages full
 // regardless of how many comparators are active.
+/** Title and Source now render on their own line each (both capped to one line by their own `nowrap` + ellipsis), so a single citation with both fields costs two lines, not one. */
+function citationLines(evidence: EvidenceItem[] | undefined): number {
+  if (!evidence || evidence.length === 0) return 0;
+  return evidence.reduce((sum, e) => sum + Math.max(1, (e.title ? 1 : 0) + (e.source ? 1 : 0)), 0);
+}
+
 function slotsOf(row: QaRow, compareEntries: CompareEntry[]): number {
   if (row.kind === "section") return 2.2;
   const question = row.question;
   const questionLines = Math.max(1, Math.ceil(question.text.length / 65));
-  const evidenceCount = row.response?.evidence?.length ?? 0;
-  // Every evidence bullet is capped to one line by its own `nowrap` +
-  // ellipsis styling, so it costs exactly one slot regardless of length -
-  // "No evidence provided" is the same one line when there's none at all.
-  const primaryEvidenceLines = Math.max(1, evidenceCount);
+  // "No evidence provided" is one line when there's none at all - every
+  // other case is the real per-field line count (see citationLines).
+  const primaryEvidenceLines = Math.max(1, citationLines(row.response?.evidence));
   let cost = 0.8 /* "Question N" label */ + questionLines * 0.85 + 0.8 /* answer line */ + primaryEvidenceLines * 0.85 + 0.8; /* row padding/border */
-  // Each comparator adds its own "Answer for X" line, plus one more per its evidence bullet (none shown at all when it has no evidence, unlike the primary).
+  // Each comparator adds its own "Answer for X" line, plus its own citation lines (none shown at all when it has no evidence, unlike the primary).
   for (const entry of compareEntries) {
-    const compareEvidenceCount = entry.byQuestion.get(question.id)?.evidence?.length ?? 0;
-    cost += 0.85 + compareEvidenceCount * 0.85;
+    cost += 0.85 + citationLines(entry.byQuestion.get(question.id)?.evidence) * 0.85;
   }
   return cost;
 }
@@ -783,12 +799,18 @@ function paginateQaRows(rows: QaRow[], compareEntries: CompareEntry[]): QaRow[][
   // Only the very first page also carries the "Policy environment" H1 above
   // the first group heading - reserve a couple of lines for it up front.
   let used = 1.5;
-  for (const row of rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
     const cost = slotsOf(row, compareEntries);
-    // A section heading never starts a page as the very last thing on the
-    // previous one - hold it back so it always leads at least one question.
-    const isOrphanHeading = row.kind === "section" && used + cost > QA_PAGE_BUDGET - 1;
-    if ((used + cost > QA_PAGE_BUDGET || isOrphanHeading) && current.length > 0) {
+    // A section heading must fit on the page together with its actual first
+    // question, not just "leave a little room" - a flat 1-slot margin was
+    // not enough to guarantee a real (possibly multi-line, possibly with
+    // several comparators) question would follow, so a heading could still
+    // land alone at the very bottom of a page with its own content pushed
+    // to the next one. A section is always immediately followed by at
+        // least one question row, so this lookahead is always safe.
+    const nextCost = row.kind === "section" && rows[i + 1] ? slotsOf(rows[i + 1], compareEntries) : 0;
+    if (used + cost + nextCost > QA_PAGE_BUDGET && current.length > 0) {
       pages.push(current);
       current = [];
       used = 0;
@@ -860,14 +882,18 @@ function paginateWinRows(rows: WinRow[]): WinRow[][] {
   // intro paragraph above the table - reserve room for it up front so that
   // page doesn't get the same row budget as a bare continuation page.
   let used = 2.5;
-  for (const row of rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
     const cost = slotsOfWinRow(row);
-    // A group heading never starts a page as the very last thing on the
-    // previous one - same orphan guard as the Q&A appendix's section
-    // headings, so a group's items always follow their heading onto
-    // whichever page it lands on rather than being split across the break.
-    const isOrphanHeading = row.kind === "group" && used + cost > WINS_PAGE_BUDGET - 1;
-    if ((used + cost > WINS_PAGE_BUDGET || isOrphanHeading) && current.length > 0) {
+    // A group heading must fit on the page together with its actual first
+    // item's real cost, not just "leave a little room" - a flat 1-slot
+    // margin was not enough to guarantee a real (possibly multi-line) item
+    // would follow, so a heading could land alone at the bottom of a page
+    // with its own content pushed to the next one (exactly what happened to
+    // "Tariffs" before this fix). A group is always immediately followed by
+    // at least one item, so this lookahead is always safe.
+    const nextCost = row.kind === "group" && rows[i + 1] ? slotsOfWinRow(rows[i + 1]) : 0;
+    if (used + cost + nextCost > WINS_PAGE_BUDGET && current.length > 0) {
       pages.push(current);
       current = [];
       used = 0;
