@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Divider, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useTheme } from "@mui/material";
 
 import AdminConsole from "./components/layout/AdminConsole";
 import CompareView from "./components/layout/CompareView";
@@ -148,7 +148,12 @@ export default function App() {
         allScores={scores}
       />
     ) : (
-      <Scoreboard scores={scores} selectedCountry={selectedCountry} onSelect={handleSelectCountry} />
+      <Scoreboard
+        scores={scores}
+        selectedCountry={selectedCountry}
+        onSelect={handleSelectCountry}
+        hideHeading={isMobile}
+      />
     );
 
   return (
@@ -229,6 +234,16 @@ export default function App() {
           <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
         ) : (
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            {/* Scoreboard's own "Policy Explorer" heading sits below the map
+                in the mobile stacked layout - moved up here instead, ahead
+                of the map, so it isn't buried under a 42vh map before a
+                visitor even sees what the page is. Scoreboard is told to
+                suppress its own copy of it via hideHeading. */}
+            <Box sx={{ px: 2, pt: 1.5, pb: 1, flexShrink: 0, bgcolor: "#ffffff" }}>
+              <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2 }}>
+                Policy Explorer
+              </Typography>
+            </Box>
             <Box sx={{ height: "42vh", flexShrink: 0, position: "relative" }}>{map}</Box>
             <Divider />
             <Box sx={{ flex: 1, minHeight: 0, bgcolor: "#ffffff", overflow: "hidden" }}>

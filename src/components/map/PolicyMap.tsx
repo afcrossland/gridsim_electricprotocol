@@ -6,7 +6,7 @@ import type {
   MapRef,
   StyleSpecification,
 } from "react-map-gl/maplibre";
-import { Box, IconButton, Paper, Typography } from "@mui/material";
+import { Box, IconButton, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import type { FeatureCollection } from "geojson";
@@ -159,6 +159,16 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
   const [sourceReady, setSourceReady] = useState(false);
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
+
+  // MapLegend switches to a full-width banner pinned across the top of the
+  // map on the same breakpoint. The zoom buttons' own fixed top:16 sits
+  // inside that banner's own height, and the buttons' higher z-index (10 vs
+  // the banner's 1) lets them paint over its top-right corner, hiding
+  // whatever legend content is there. Dropping the buttons below the
+  // banner's height avoids the two ever sharing the same strip of the map.
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const showingLegendBanner = isMobile && !selectedCountry && !hideLegend;
 
   // The base style's own country- and continent-name labels compete with the
   // choropleth and our own hover tooltip for the same information, so they
@@ -417,7 +427,17 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           project's own - hover only recolours the icon, not the button
           chrome, per the user's correction away from that source's actual
           hover (which also swaps background/outline). */}
-      <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: 10, display: "flex", flexDirection: "column", gap: 0.5 }}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: showingLegendBanner ? 64 : 16,
+          right: 16,
+          zIndex: 10,
+          display: "flex",
+          flexDirection: "column",
+          gap: 0.5,
+        }}
+      >
         <IconButton
           onClick={() => mapRef.current?.getMap().zoomIn({ duration: 300 })}
           aria-label="Zoom in"

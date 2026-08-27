@@ -1,4 +1,4 @@
-import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -127,20 +127,31 @@ export default function TopNavbar() {
             {/* Stands in for auth: open to anyone until sign-in exists. A
                 filled blue button rather than a plain link like the others -
                 it is the one destructive/editing entry point in the nav, so
-                it earns more visual weight. */}
+                it earns more visual weight. Icon-only on a phone - "Admin
+                console"/"Admin" text left too little room next to the other
+                nav items and the padlock alone is enough to recognise. */}
+            <Tooltip title="Admin console">
+              <IconButton
+                onClick={() => setPage(page === "admin" ? "map" : "admin")}
+                sx={{
+                  display: { xs: "inline-flex", sm: "none" },
+                  ml: 1.5,
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
+                  "&:hover": { bgcolor: "primary.dark" },
+                }}
+              >
+                <LockOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
             <Button
               size="small"
               variant="contained"
               startIcon={<LockOutlinedIcon fontSize="small" />}
               onClick={() => setPage(page === "admin" ? "map" : "admin")}
-              sx={{ minWidth: 0, px: { xs: 1.25, sm: 2 }, ml: 1.5 }}
+              sx={{ display: { xs: "none", sm: "inline-flex" }, ml: 1.5 }}
             >
-              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-                Admin console
-              </Box>
-              <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-                Admin
-              </Box>
+              Admin console
             </Button>
           </Box>
         </Box>

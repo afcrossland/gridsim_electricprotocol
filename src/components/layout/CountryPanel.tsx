@@ -257,7 +257,19 @@ export default function CountryPanel({
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
       <Box sx={{ px: 3, pt: 2, pb: 1 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+        {/* Name row and stat-tile row are separate on mobile - one shared
+            row squeezed the country name toward nothing on a narrow screen,
+            since the tiles and headerAction refused to shrink and nothing
+            wrapped. Desktop keeps them on one line, where there's room. */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            mb: isMobile ? 1 : 1.5,
+            flexWrap: isMobile ? "wrap" : "nowrap",
+          }}
+        >
           {onBack && (
             <Tooltip title="Back to scoreboard">
               <IconButton size="small" onClick={onBack}>
@@ -270,7 +282,34 @@ export default function CountryPanel({
             {score.name}
           </Typography>
 
-          <Box sx={{ flexShrink: 0 }}>
+          {!isMobile && (
+            <>
+              <Box sx={{ flexShrink: 0 }}>
+                <StatTile
+                  size="small"
+                  icon={<TrendingUpIcon fontSize="small" />}
+                  color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
+                  label="Score"
+                  value={score.ranked ? scoreLabel(score.score) : "N/A"}
+                />
+              </Box>
+              <Box sx={{ flexShrink: 0 }}>
+                <StatTile
+                  size="small"
+                  icon={<FactCheckIcon fontSize="small" />}
+                  color={theme.palette.primary.main}
+                  label="Data completeness"
+                  value={`${Math.round(score.completeness * 100)}%`}
+                />
+              </Box>
+            </>
+          )}
+
+          {headerAction}
+        </Box>
+
+        {isMobile && (
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
             <StatTile
               size="small"
               icon={<TrendingUpIcon fontSize="small" />}
@@ -278,8 +317,6 @@ export default function CountryPanel({
               label="Score"
               value={score.ranked ? scoreLabel(score.score) : "N/A"}
             />
-          </Box>
-          <Box sx={{ flexShrink: 0 }}>
             <StatTile
               size="small"
               icon={<FactCheckIcon fontSize="small" />}
@@ -288,9 +325,7 @@ export default function CountryPanel({
               value={`${Math.round(score.completeness * 100)}%`}
             />
           </Box>
-
-          {headerAction}
-        </Box>
+        )}
       </Box>
 
       {/* Matches the sibling gridsim-frontend project's own sidebar - a grey
@@ -306,18 +341,40 @@ export default function CountryPanel({
           here as the first panel's real tab bar, or its header ends up
           shorter and everything below stops lining up between the two,
           including what the scroll-position mirror is actually syncing to. */}
-      <Box sx={{ display: "flex", alignItems: "center", px: 2, pt: 1 }}>
+      <Box sx={{ px: 2, pt: 1 }}>
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
           data-tour="country-tabs"
-          sx={{ flex: 1, minWidth: 0, visibility: hideTabs ? "hidden" : "visible" }}
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          sx={{ minWidth: 0, visibility: hideTabs ? "hidden" : "visible" }}
         >
           <Tab value={WINDROSE} label="Summary" />
           <Tab value={IMPACT} label="Biggest Policy Wins" />
           <Tab value={SECTIONS} label="Policy Score and Evidence" />
         </Tabs>
+      </Box>
 
+      {/* Its own row below the tabs, not squeezed onto the same line - the
+          download button sharing a row with the tabs rendered on top of
+          them once the tabs had room to be scrollable/wrap on a narrow
+          screen; up to MAX_COMPARE_COUNTRIES compare chips (a jurisdiction
+          name like "New South Wales" is not short) plus the add button
+          don't reliably fit alongside three tabs either. Compare and
+          Download sit together here instead. */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 1, px: 2, pb: 1, flexWrap: "wrap" }}>
+        {inlineCompare && (
+          <ComparePicker
+            primaryCode={code}
+            allScores={allScores ?? []}
+            compareEntries={compareEntries}
+            maxCount={MAX_COMPARE_COUNTRIES}
+            onAdd={addCompareCountry}
+            onRemove={removeCompareCountry}
+          />
+        )}
         <Button
           size="small"
           variant="contained"
@@ -329,25 +386,6 @@ export default function CountryPanel({
           {buildingReport ? "Building report..." : "Download report"}
         </Button>
       </Box>
-
-      {/* Its own row below the tabs, not squeezed onto the same line - up to
-          MAX_COMPARE_COUNTRIES chips (a jurisdiction name like "New South
-          Wales" is not short) plus the add button do not reliably fit
-          alongside three tabs and the download button on one line, and
-          wrapping them onto that same line pushed chips over the tab
-          labels rather than under them. */}
-      {inlineCompare && (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", px: 2, pb: 1 }}>
-          <ComparePicker
-            primaryCode={code}
-            allScores={allScores ?? []}
-            compareEntries={compareEntries}
-            maxCount={MAX_COMPARE_COUNTRIES}
-            onAdd={addCompareCountry}
-            onRemove={removeCompareCountry}
-          />
-        </Box>
-      )}
       <Divider />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>

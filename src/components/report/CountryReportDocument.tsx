@@ -737,8 +737,22 @@ function QaQuestionRow({
 }
 
 /** Title on its own line, Source on its own line beneath it - each capped to one line by its own `nowrap` + ellipsis, matching the fixed one-line-per-evidence-field cost slotsOf assumes. */
+/**
+ * html2canvas does not reliably render CSS `text-overflow: ellipsis` - a
+ * long title silently clipped mid-word at the page edge instead of showing
+ * "…" (visible in real exports, not just a theoretical risk). Truncating
+ * the string itself before it ever reaches the DOM sidesteps that: plain
+ * text always renders correctly, and it also makes citationLines' one-
+ * line-per-field pagination estimate exact rather than hoping the CSS
+ * enforces it.
+ */
+function truncate(text: string, maxChars: number): string {
+  return text.length > maxChars ? `${text.slice(0, maxChars - 1).trimEnd()}…` : text;
+}
+const EVIDENCE_FIELD_MAX_CHARS = 92;
+
 function EvidenceCitation({ title, source }: { title: string; source: string }) {
-  const lineStyle = { overflow: "hidden" as const, textOverflow: "ellipsis" as const, whiteSpace: "nowrap" as const };
+  const lineStyle = { overflow: "hidden" as const, whiteSpace: "nowrap" as const };
   if (!title && !source) {
     return <div style={lineStyle}>&bull; Evidence</div>;
   }
@@ -746,13 +760,13 @@ function EvidenceCitation({ title, source }: { title: string; source: string }) 
     <div style={{ marginBottom: 2 }}>
       {title && (
         <div style={lineStyle}>
-          &bull; <span style={{ fontWeight: 700 }}>Title:</span> {title}
+          &bull; <span style={{ fontWeight: 700 }}>Title:</span> {truncate(title, EVIDENCE_FIELD_MAX_CHARS)}
         </div>
       )}
       {source && (
         <div style={{ ...lineStyle, paddingLeft: title ? 10 : 0 }}>
           {!title && <>&bull; </>}
-          <span style={{ fontWeight: 700 }}>Source:</span> {source}
+          <span style={{ fontWeight: 700 }}>Source:</span> {truncate(source, EVIDENCE_FIELD_MAX_CHARS)}
         </div>
       )}
     </div>

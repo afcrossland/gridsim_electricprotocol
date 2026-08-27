@@ -39,6 +39,8 @@ interface Props {
   scores: CountryScore[];
   selectedCountry: string | null;
   onSelect: (code: string) => void;
+  /** Omits the "Policy Explorer" heading and its description - the mobile stacked layout shows that above the map instead, ahead of this list. */
+  hideHeading?: boolean;
 }
 
 /**
@@ -52,7 +54,7 @@ interface Props {
  * score, and a reader deciding where to research next wants the thin rows,
  * not just the impressive ones.
  */
-export default function Scoreboard({ scores, selectedCountry, onSelect }: Props) {
+export default function Scoreboard({ scores, selectedCountry, onSelect, hideHeading }: Props) {
   const filters = useProtocolStore((s) => s.scoreboardFilters);
   const sort = useProtocolStore((s) => s.scoreboardSort);
   const allGroups = groupScores(scores);
@@ -62,16 +64,20 @@ export default function Scoreboard({ scores, selectedCountry, onSelect }: Props)
 
   return (
     <Box data-tour="scoreboard" sx={{ p: 2, overflowY: "auto", height: "100%", bgcolor: "#ffffff" }}>
-      {/* Same size/weight/colour as the sibling gridsim-frontend project's
-          own country-name heading at the top of its sidebar. */}
-      <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2, mb: 0.5 }}>
-        Policy Explorer
-      </Typography>
-      <Typography variant="body2" sx={{ mb: 1.5 }}>
-        <strong>Pick a country on the map or in this list</strong> to see/edit its
-        answers, the evidence behind each one, and the changes that would raise its
-        score the most.
-      </Typography>
+      {!hideHeading && (
+        <>
+          {/* Same size/weight/colour as the sibling gridsim-frontend project's
+              own country-name heading at the top of its sidebar. */}
+          <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2, mb: 0.5 }}>
+            Policy Explorer
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 1.5 }}>
+            <strong>Pick a country on the map or in this list</strong> to see/edit its
+            answers, the evidence behind each one, and the changes that would raise its
+            score the most.
+          </Typography>
+        </>
+      )}
 
       <ScoreboardFilters groups={allGroups} />
 

@@ -86,7 +86,7 @@ export default function ComparePicker({ primaryCode, allScores, compareEntries, 
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Box sx={{ width: 320, maxHeight: 420, display: "flex", flexDirection: "column" }}>
+        <Box sx={{ width: 320, maxWidth: "calc(100vw - 32px)", maxHeight: 420, display: "flex", flexDirection: "column" }}>
           <Box sx={{ p: 1.5, pb: 1 }}>
             <TextField
               size="small"
