@@ -236,7 +236,7 @@ export default function CountryPanel({
     try {
       await generateCountryReportPdf(
         "country-report-root",
-        `Solar Policy Assessment - ${score.name} - ${fmtTimestamp()}.pdf`,
+        `Solar Policy Explorer - ${score.name} - ${fmtTimestamp()}.pdf`,
       );
     } finally {
       setBuildingReport(false);

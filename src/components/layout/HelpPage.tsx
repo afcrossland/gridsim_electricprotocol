@@ -1,5 +1,7 @@
-import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
+import { CHARTER } from "../../data/charter";
 
 interface Props {
   onBack: () => void;
@@ -13,7 +15,7 @@ interface Topic {
 const TOPICS: Topic[] = [
   {
     heading: "What this is",
-    body: "Solar Policy Wiki scores countries, states and provinces against the Electric Protocol - a set of policy questions asking how easy it is for ordinary homes and businesses to generate, store and sell their own power.",
+    body: "Solar Policy Explorer scores countries, states and provinces against the Electric Protocol - a set of policy questions asking how easy it is for ordinary homes and businesses to generate, store and sell their own power.",
   },
   {
     heading: "The questions",
@@ -35,17 +37,15 @@ const TOPICS: Topic[] = [
     heading: "Jurisdictions",
     body: "Most rows are countries. A few (the US, Australia, Canada) are shown as their states or provinces instead, since policy there varies too much to average into one national score. The European Union is shown as one consolidated row on the scoreboard, though every member still has its own full jurisdiction page.",
   },
-  {
-    heading: "Admin console",
-    body: "Where the underlying question set lives: editing question text and impact, adding or removing topic groups and questions, adjusting each question's possible answers, and setting the data completeness threshold used across the app.",
-  },
 ];
 
 /**
  * Single-page reference for the app's own concepts - scoring, evidence,
- * jurisdictions - as opposed to the Charter (the argument for why any of this
- * matters, shown in the About modal) or the admin console (where the data
- * that feeds these concepts is actually edited).
+ * jurisdictions - plus the Citizens Electrification Charter itself (the
+ * argument for why any of this matters) up top. The Charter used to also
+ * have its own nav link opening a modal, but that was redundant with the
+ * onboarding tour's own "Read the Citizens Electrification Charter" pill -
+ * this is now the one place to read it outside the tour.
  */
 export default function HelpPage({ onBack }: Props) {
   return (
@@ -71,6 +71,29 @@ export default function HelpPage({ onBack }: Props) {
 
       <Box sx={{ flex: 1, overflowY: "auto", p: 3, display: "flex", justifyContent: "center" }}>
         <Stack spacing={3} sx={{ maxWidth: 720, width: "100%" }}>
+          <Box>
+            <Typography variant="h5" gutterBottom sx={{ color: "primary.dark", fontWeight: 700 }}>
+              {CHARTER.title}
+            </Typography>
+            {CHARTER.intro.map((para) => (
+              <Typography key={para.slice(0, 32)} variant="body2" sx={{ mb: 1.5 }}>
+                {para}
+              </Typography>
+            ))}
+            <Stack spacing={2} sx={{ mt: 2 }}>
+              {CHARTER.rights.map((right) => (
+                <Box key={right.heading}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    {right.heading}
+                  </Typography>
+                  <Typography variant="body2">{right.body}</Typography>
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+
+          <Divider />
+
           {TOPICS.map((topic) => (
             <Box key={topic.heading}>
               <Typography variant="h6" gutterBottom>

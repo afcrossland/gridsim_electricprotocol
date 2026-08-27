@@ -28,7 +28,6 @@ function navItemSx(active: boolean) {
 }
 
 export default function TopNavbar() {
-  const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
   const setTourSeen = useProtocolStore((s) => s.setTourSeen);
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
@@ -62,17 +61,12 @@ export default function TopNavbar() {
             alt=""
             sx={{ height: 34, width: 34, flexShrink: 0 }}
           />
-          {/* Full name/subtitle only where there is room for it and three nav
-              buttons too - a phone gets the icon alone rather than a wrapped
-              title. Format, sizing and colour match the sibling gridsim-
-              frontend project's own header exactly. */}
-          <Box
-            sx={{
-              display: { xs: "none", sm: "flex" },
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
+          {/* The name alone now fits next to the logo on a phone too, once
+              the Charter link freed up room in the nav - only the fuller
+              "by GSC · tagline" subtitle stays desktop-only. Format, sizing
+              and colour match the sibling gridsim-frontend project's own
+              header exactly. */}
+          <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <Typography
               sx={{
                 fontWeight: 700,
@@ -84,7 +78,7 @@ export default function TopNavbar() {
             >
               Solar Policy Explorer
             </Typography>
-            <Typography sx={{ fontSize: "0.65rem", color: "text.secondary", lineHeight: 1.3 }}>
+            <Typography sx={{ fontSize: "0.65rem", color: "text.secondary", lineHeight: 1.3, display: { xs: "none", sm: "block" } }}>
               by The Global Solar Council&ensp;·&ensp;
               <Box component="span" sx={{ color: "#D97706", fontStyle: "italic", fontWeight: 600 }}>
                 Solar. Storage. Future Secured.
@@ -113,15 +107,15 @@ export default function TopNavbar() {
           )}
 
           <Box data-tour="nav-links" sx={{ display: "flex", alignItems: "center" }}>
+            {/* The Charter link used to live here too, but it's already
+                reachable from the tour's own "Read the Citizens
+                Electrification Charter" pill - a second nav entry pointing
+                at the same modal was redundant. Its text now opens the Help
+                page instead, so it's still readable without the tour. */}
             {page !== "admin" && (
-              <>
-                <Box onClick={() => setWelcomeSeen(false)} sx={navItemSx(false)}>
-                  Charter
-                </Box>
-                <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
-                  Help
-                </Box>
-              </>
+              <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
+                Help
+              </Box>
             )}
 
             {/* Stands in for auth: open to anyone until sign-in exists. A

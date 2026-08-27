@@ -59,7 +59,7 @@ function PageHeader() {
           GLOBAL SOLAR COUNCIL
         </div>
         <div style={{ fontSize: 9, letterSpacing: "0.1em", color: C.textXs, lineHeight: 1.2 }}>
-          SOLAR POLICY ASSESSMENT TOOL
+          SOLAR POLICY EXPLORER
         </div>
       </div>
     </div>

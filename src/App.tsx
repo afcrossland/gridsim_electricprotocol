@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Divider, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
 
 import AdminConsole from "./components/layout/AdminConsole";
 import CompareView from "./components/layout/CompareView";
@@ -74,6 +74,11 @@ export default function App() {
   // irrelevant on the mobile stacked layout, which has no side-by-side
   // sidebar to collapse in the first place.
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Mobile-only: map and list used to be stacked (a short map permanently
+  // eating the top of the screen), which left too little room for either -
+  // a toggle between the two full-height existing views instead, list first
+  // since browsing the ranked list is the more common way in.
+  const [mobileView, setMobileView] = useState<"map" | "list">("list");
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
   const selectedCountry = useProtocolStore((s) => s.selectedCountry);
@@ -124,6 +129,14 @@ export default function App() {
   // desktop-only for the same reason - there is no offer to compare on
   // mobile, rather than an unusable cramped version of it.
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  // True whenever the mobile Map/List toggle itself is showing (as opposed
+  // to a country's own full-screen page). The bottom bar's search box moved
+  // to the same spot above the content in both of those views, so it's
+  // hidden down here the whole time the toggle is active; the
+  // Score/Completeness choice only affects the map, so it stays hidden only
+  // for the List side of the toggle specifically.
+  const mobileToggleActive = isMobile && !(selectedCountry && selectedScore);
+  const mobileListActive = mobileToggleActive && mobileView === "list";
 
   const map = (
     <PolicyMap
@@ -234,21 +247,54 @@ export default function App() {
           <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
         ) : (
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            {/* Scoreboard's own "Policy Explorer" heading sits below the map
-                in the mobile stacked layout - moved up here instead, ahead
-                of the map, so it isn't buried under a 42vh map before a
-                visitor even sees what the page is. Scoreboard is told to
-                suppress its own copy of it via hideHeading. */}
-            <Box sx={{ px: 2, pt: 1.5, pb: 1, flexShrink: 0, bgcolor: "#ffffff" }}>
-              <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2 }}>
-                Policy Explorer
-              </Typography>
+            {/* Scoreboard's own "Policy Explorer" heading stays suppressed
+                (hideHeading) here too - the top bar now shows the app's own
+                name on mobile as well, so a second "Policy Explorer" title
+                directly beneath it was redundant. Just the Map/List toggle
+                remains, switching between the same two full views (`map`
+                and `list`) used on desktop, rather than the two being
+                squeezed onto the screen together the way a short
+                fixed-height map used to be. */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                gap: 1,
+                px: 2,
+                pt: 1.5,
+                pb: 1,
+                flexShrink: 0,
+                bgcolor: "#ffffff",
+              }}
+            >
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={mobileView}
+                onChange={(_, next) => next && setMobileView(next)}
+              >
+                <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
+                  List
+                </ToggleButton>
+                <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
+                  Map
+                </ToggleButton>
+              </ToggleButtonGroup>
             </Box>
-            <Box sx={{ height: "42vh", flexShrink: 0, position: "relative" }}>{map}</Box>
             <Divider />
-            <Box sx={{ flex: 1, minHeight: 0, bgcolor: "#ffffff", overflow: "hidden" }}>
-              {list}
+            {/* Search sits in the same place above the content regardless of
+                which of the two views is showing - moved up here from the
+                bottom bar, which is a map-only control now that Map/List is
+                a toggle rather than the map always being on screen. */}
+            <Box sx={{ px: 2, pt: 1.5, flexShrink: 0, bgcolor: "#ffffff" }}>
+              <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={handleSelectCountry} />
             </Box>
+            {mobileView === "map" ? (
+              <Box sx={{ flex: 1, minHeight: 0, position: "relative" }}>{map}</Box>
+            ) : (
+              <Box sx={{ flex: 1, minHeight: 0, bgcolor: "#ffffff", overflow: "hidden" }}>{list}</Box>
+            )}
           </Box>
         )
       ) : (
@@ -349,13 +395,19 @@ export default function App() {
           gap: 1.5,
         }}
       >
-        <Box sx={{ width: 280, maxWidth: "60%" }}>
-          <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={handleSelectCountry} />
-        </Box>
+        {/* Hidden whenever the mobile Map/List toggle is active - search
+            already sits above the content in both of those views (see
+            above) instead of down here. */}
+        {!mobileToggleActive && (
+          <Box sx={{ width: 280, maxWidth: "60%" }}>
+            <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={handleSelectCountry} />
+          </Box>
+        )}
 
         {/* What the map paints - moved here from the legend card so the
             legend only ever displays the current choice, rather than also
             being where it's made. */}
+        {!mobileListActive && (
         <ToggleButtonGroup
           size="small"
           exclusive
@@ -369,6 +421,7 @@ export default function App() {
             Completeness
           </ToggleButton>
         </ToggleButtonGroup>
+        )}
 
         <Box sx={{ flex: 1 }} />
         <LanguageSwitcher />

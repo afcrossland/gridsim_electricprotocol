@@ -145,9 +145,17 @@ export default function AdminConsole({ onBack }: Props) {
             <ArrowBackIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h2" sx={{ flex: 1 }}>
-          Admin console
-        </Typography>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="h2">Admin console</Typography>
+          {/* Used to live as its own topic on the Help page - moved here
+              instead, since it's about this screen specifically and reads
+              better in place than as a cross-reference. */}
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+            Where the underlying question set lives: editing question text and impact, adding or
+            removing topic groups and questions, adjusting each question's possible answers, and
+            setting the data completeness threshold used across the app.
+          </Typography>
+        </Box>
       </Box>
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
