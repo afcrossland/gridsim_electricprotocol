@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Collapse, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
 
 import AdminConsole from "./components/layout/AdminConsole";
 import CompareView from "./components/layout/CompareView";
@@ -79,6 +79,7 @@ export default function App() {
   // a toggle between the two full-height existing views instead, list first
   // since browsing the ranked list is the more common way in.
   const [mobileView, setMobileView] = useState<"map" | "list">("list");
+  const [listScrolled, setListScrolled] = useState(false);
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
   const selectedCountry = useProtocolStore((s) => s.selectedCountry);
@@ -166,11 +167,12 @@ export default function App() {
         selectedCountry={selectedCountry}
         onSelect={handleSelectCountry}
         hideHeading={isMobile}
+        onScrollTopChange={setListScrolled}
       />
     );
 
   return (
-    <Box sx={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
       {/* Hidden through the tour's opening scene and the Charter that
           follows it - an unobstructed view of the coloured globe, matching
           the sibling gridsim-frontend project's own clean opening scene. */}
@@ -255,41 +257,56 @@ export default function App() {
                 and `list`) used on desktop, rather than the two being
                 squeezed onto the screen together the way a short
                 fixed-height map used to be. */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-                gap: 1,
-                px: 2,
-                pt: 1.5,
-                pb: 1,
-                flexShrink: 0,
-                bgcolor: "#ffffff",
-              }}
-            >
-              <ToggleButtonGroup
-                size="small"
-                exclusive
-                value={mobileView}
-                onChange={(_, next) => next && setMobileView(next)}
+            {/* Collapses away once the list beneath is scrolled, trading the
+                Map/List toggle for more visible list - it's still reachable
+                by scrolling back to the top. Map view never shrinks this,
+                since listScrolled only tracks the list's own scroll. */}
+            <Collapse in={!(mobileListActive && listScrolled)}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  gap: 1,
+                  px: 2,
+                  pt: 1.5,
+                  pb: 1,
+                  bgcolor: "#ffffff",
+                }}
               >
-                <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                  List
-                </ToggleButton>
-                <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                  Map
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-            <Divider />
+                <ToggleButtonGroup
+                  size="small"
+                  exclusive
+                  value={mobileView}
+                  onChange={(_, next) => next && setMobileView(next)}
+                >
+                  <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
+                    List
+                  </ToggleButton>
+                  <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
+                    Map
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+              <Divider />
+            </Collapse>
             {/* Search sits in the same place above the content regardless of
                 which of the two views is showing - moved up here from the
                 bottom bar, which is a map-only control now that Map/List is
-                a toggle rather than the map always being on screen. */}
-            <Box sx={{ px: 2, pt: 1.5, flexShrink: 0, bgcolor: "#ffffff" }}>
+                a toggle rather than the map always being on screen. Its own
+                padding shrinks along with the toggle row above. */}
+            <Box
+              sx={{
+                px: 2,
+                py: mobileListActive && listScrolled ? 0.75 : 1.5,
+                flexShrink: 0,
+                bgcolor: "#ffffff",
+                transition: "padding 150ms ease",
+              }}
+            >
               <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={handleSelectCountry} />
             </Box>
+            <Divider />
             {mobileView === "map" ? (
               <Box sx={{ flex: 1, minHeight: 0, position: "relative" }}>{map}</Box>
             ) : (

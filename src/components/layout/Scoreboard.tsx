@@ -41,6 +41,8 @@ interface Props {
   onSelect: (code: string) => void;
   /** Omits the "Policy Explorer" heading and its description - the mobile stacked layout shows that above the map instead, ahead of this list. */
   hideHeading?: boolean;
+  /** Fires with whether this list is scrolled away from the top - lets a parent shrink header chrome above it (e.g. the mobile Map/List toggle row) to give the list more room. */
+  onScrollTopChange?: (scrolled: boolean) => void;
 }
 
 /**
@@ -54,7 +56,7 @@ interface Props {
  * score, and a reader deciding where to research next wants the thin rows,
  * not just the impressive ones.
  */
-export default function Scoreboard({ scores, selectedCountry, onSelect, hideHeading }: Props) {
+export default function Scoreboard({ scores, selectedCountry, onSelect, hideHeading, onScrollTopChange }: Props) {
   const filters = useProtocolStore((s) => s.scoreboardFilters);
   const sort = useProtocolStore((s) => s.scoreboardSort);
   const allGroups = groupScores(scores);
@@ -63,7 +65,11 @@ export default function Scoreboard({ scores, selectedCountry, onSelect, hideHead
     .sort((a, b) => compareGroups(a, b, sort));
 
   return (
-    <Box data-tour="scoreboard" sx={{ p: 2, overflowY: "auto", height: "100%", bgcolor: "#ffffff" }}>
+    <Box
+      data-tour="scoreboard"
+      sx={{ p: 2, overflowY: "auto", height: "100%", bgcolor: "#ffffff" }}
+      onScroll={(e) => onScrollTopChange?.(e.currentTarget.scrollTop > 8)}
+    >
       {!hideHeading && (
         <>
           {/* Same size/weight/colour as the sibling gridsim-frontend project's

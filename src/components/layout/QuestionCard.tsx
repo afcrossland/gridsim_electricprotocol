@@ -1,5 +1,18 @@
 import { useState } from "react";
-import { Box, Button, Chip, Collapse, IconButton, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  Collapse,
+  IconButton,
+  Paper,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -61,13 +74,15 @@ export default function QuestionCard({ question, response, code, compareEntries 
   const removeEvidence = useProtocolStore((s) => s.removeEvidence);
 
   const [showEvidence, setShowEvidence] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <Paper
       id={`question-${question.id}`}
       variant="outlined"
       sx={{
-        p: 2,
+        p: isMobile ? 1.5 : 2,
         borderColor: "divider",
         borderLeftWidth: 3,
         borderLeftStyle: response ? "solid" : "dashed",
@@ -75,8 +90,16 @@ export default function QuestionCard({ question, response, code, compareEntries 
         scrollMarginTop: 16,
       }}
     >
-      <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start", mb: 1.5 }}>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? 0.75 : 1,
+          alignItems: "flex-start",
+          mb: 1.5,
+        }}
+      >
+        <Box sx={{ flex: 1, minWidth: 0, width: isMobile ? "100%" : undefined }}>
           {question.subsection && (
             <Typography variant="overline" sx={{ display: "block" }}>
               {question.subsection}

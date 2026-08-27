@@ -131,7 +131,7 @@ export const SCENES: Scene[] = [
       appState: { countryPanelTab: "impact" },
       spotlight: {
         selector: '[data-tour="country-tabs"]',
-        tag: "Biggest Policy Wins",
+        tag: "Policy Wins",
         caption: "The changes that would raise this jurisdiction's score the most, ranked by weighted points.",
         arrow: "up",
       },
@@ -147,7 +147,7 @@ export const SCENES: Scene[] = [
       appState: { countryPanelTab: "sections" },
       spotlight: {
         selector: '[data-tour="country-tabs"]',
-        tag: "Policy Score and Evidence",
+        tag: "Policy Landscape",
         caption: "Every question, its rubric, and the evidence behind each answer - editable by anyone.",
         arrow: "up",
       },

@@ -1,6 +1,6 @@
 /**
- * A jurisdiction's detail view has three tabs - Summary, Biggest Policy
- * Wins, and Policy Score and Evidence. Lives here, not in CountryPanel
+ * A jurisdiction's detail view has three tabs - Summary, Policy Wins, and
+ * Policy Landscape. Lives here, not in CountryPanel
  * itself, so the protocol store can reference the type/default without a
  * circular import (the store also needs CountryPanel's own
  * useProtocolStore hook).

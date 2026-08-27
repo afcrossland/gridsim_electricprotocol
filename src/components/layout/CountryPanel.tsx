@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode, type Ref, type UIEvent } 
 import {
   Box,
   Button,
+  Collapse,
   Divider,
   IconButton,
   Stack,
@@ -117,6 +118,19 @@ export default function CountryPanel({
   const setTab = onTabChange ?? setUncontrolledTab;
   const [submitOpen, setSubmitOpen] = useState(false);
   const [buildingReport, setBuildingReport] = useState(false);
+
+  // Collapses the stat tiles and the Compare/Download row once the content
+  // below is scrolled, on Policy Wins and Policy Landscape specifically -
+  // those are the two tabs with a real scrolling list, so shrinking the
+  // header there buys back the most visible content. Reset on tab/country
+  // change so reopening a section starts from the expanded header.
+  const [contentScrolled, setContentScrolled] = useState(false);
+  useEffect(() => setContentScrolled(false), [tab, code]);
+  const headerShrunk = isMobile && contentScrolled && (tab === IMPACT || tab === SECTIONS);
+  const handleContentScroll = (e: UIEvent<HTMLDivElement>) => {
+    onContentScroll?.(e);
+    setContentScrolled(e.currentTarget.scrollTop > 8);
+  };
 
   const compareCodes = inlineCompare ? compareCountries : [];
   // Colour assignment order = pick order, stable regardless of removals
@@ -309,22 +323,24 @@ export default function CountryPanel({
         </Box>
 
         {isMobile && (
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
-            <StatTile
-              size="small"
-              icon={<TrendingUpIcon fontSize="small" />}
-              color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
-              label="Score"
-              value={score.ranked ? scoreLabel(score.score) : "N/A"}
-            />
-            <StatTile
-              size="small"
-              icon={<FactCheckIcon fontSize="small" />}
-              color={theme.palette.primary.main}
-              label="Data completeness"
-              value={`${Math.round(score.completeness * 100)}%`}
-            />
-          </Box>
+          <Collapse in={!headerShrunk}>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
+              <StatTile
+                size="small"
+                icon={<TrendingUpIcon fontSize="small" />}
+                color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
+                label="Score"
+                value={score.ranked ? scoreLabel(score.score) : "N/A"}
+              />
+              <StatTile
+                size="small"
+                icon={<FactCheckIcon fontSize="small" />}
+                color={theme.palette.primary.main}
+                label="Data completeness"
+                value={`${Math.round(score.completeness * 100)}%`}
+              />
+            </Box>
+          </Collapse>
         )}
       </Box>
 
@@ -346,14 +362,14 @@ export default function CountryPanel({
           value={tab}
           onChange={(_, v) => setTab(v)}
           data-tour="country-tabs"
-          variant="scrollable"
+          variant={isMobile ? "fullWidth" : "scrollable"}
           scrollButtons="auto"
           allowScrollButtonsMobile
           sx={{ minWidth: 0, visibility: hideTabs ? "hidden" : "visible" }}
         >
           <Tab value={WINDROSE} label="Summary" />
-          <Tab value={IMPACT} label="Biggest Policy Wins" />
-          <Tab value={SECTIONS} label="Policy Score and Evidence" />
+          <Tab value={IMPACT} label="Policy Wins" />
+          <Tab value={SECTIONS} label="Policy Landscape" />
         </Tabs>
       </Box>
 
@@ -364,28 +380,43 @@ export default function CountryPanel({
           name like "New South Wales" is not short) plus the add button
           don't reliably fit alongside three tabs either. Compare and
           Download sit together here instead. */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 1, px: 2, pb: 1, flexWrap: "wrap" }}>
-        {inlineCompare && (
-          <ComparePicker
-            primaryCode={code}
-            allScores={allScores ?? []}
-            compareEntries={compareEntries}
-            maxCount={MAX_COMPARE_COUNTRIES}
-            onAdd={addCompareCountry}
-            onRemove={removeCompareCountry}
-          />
-        )}
-        <Button
-          size="small"
-          variant="contained"
-          startIcon={<DownloadIcon fontSize="small" />}
-          disabled={buildingReport}
-          onClick={handleDownloadReport}
-          sx={{ flexShrink: 0 }}
+      <Collapse in={!headerShrunk}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: isMobile ? "center" : "flex-start",
+            alignItems: "center",
+            gap: 1,
+            px: 2,
+            py: 1.5,
+            flexWrap: "wrap",
+            bgcolor: "#F9FAFB",
+            borderTop: "1px solid",
+            borderColor: "divider",
+          }}
         >
-          {buildingReport ? "Building report..." : "Download report"}
-        </Button>
-      </Box>
+          {inlineCompare && (
+            <ComparePicker
+              primaryCode={code}
+              allScores={allScores ?? []}
+              compareEntries={compareEntries}
+              maxCount={MAX_COMPARE_COUNTRIES}
+              onAdd={addCompareCountry}
+              onRemove={removeCompareCountry}
+            />
+          )}
+          <Button
+            size="small"
+            variant="contained"
+            startIcon={<DownloadIcon fontSize="small" />}
+            disabled={buildingReport}
+            onClick={handleDownloadReport}
+            sx={{ flexShrink: 0 }}
+          >
+            {buildingReport ? "Building report..." : "Download report"}
+          </Button>
+        </Box>
+      </Collapse>
       <Divider />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
@@ -400,7 +431,11 @@ export default function CountryPanel({
           />
         )}
 
-        <Box ref={contentRef} onScroll={onContentScroll} sx={{ flex: 1, overflowY: "auto", p: 3, minWidth: 0 }}>
+        <Box
+          ref={contentRef}
+          onScroll={handleContentScroll}
+          sx={{ flex: 1, overflowY: "auto", p: isMobile ? 1.5 : 3, minWidth: 0 }}
+        >
           {tab === WINDROSE ? (
             <>
               <Typography variant="body2" sx={{ mb: 2 }}>

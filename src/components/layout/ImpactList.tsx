@@ -22,7 +22,7 @@ export default function ImpactList({ items, limit = 10 }: Props) {
     return (
       <Typography variant="body2" sx={{ p: 2 }}>
         Nothing to show yet - every answered question is already at full marks,
-        or none have been answered. Use Policy Score and Evidence to add some.
+        or none have been answered. Use Policy Landscape to add some.
       </Typography>
     );
   }
