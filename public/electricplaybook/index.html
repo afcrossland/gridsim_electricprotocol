@@ -140,11 +140,9 @@
     padding: 34px 28px 28px;
     text-align: center;
     color: var(--ink);
-    text-decoration: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: pointer;
     transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s ease;
   }
 
@@ -176,6 +174,13 @@
     line-height: 1.55;
   }
 
+  .actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
   .cta {
     display: inline-flex;
     align-items: center;
@@ -185,14 +190,27 @@
     color: #fff;
     padding: 10px 22px;
     border-radius: 22px;
+    text-decoration: none;
+    cursor: pointer;
     transition: filter 0.15s ease, transform 0.15s ease;
   }
 
   .tile.grid .cta { background: var(--citrus-dark); }
   .tile.policy .cta { background: var(--aqua); }
-  .tile:hover .cta { filter: brightness(1.08); transform: translateX(2px); }
+  a.cta:hover { filter: brightness(1.08); transform: translateX(2px); }
 
   .cta svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .secondary {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .tile.grid .secondary { color: var(--citrus-dark); }
+  .tile.policy .secondary { color: var(--aqua-dark); }
+  .secondary:hover { text-decoration: underline; }
 
   /* Not open yet - greyed out, static, no hover affordance or working link. */
   .tile.economics {
@@ -216,6 +234,13 @@
     filter: none;
     transform: none;
   }
+
+  .tile.economics .secondary {
+    color: #9CA3AF;
+    cursor: default;
+  }
+
+  .tile.economics .secondary:hover { text-decoration: none; }
 </style>
 </head>
 <body>
@@ -229,31 +254,40 @@
   </header>
 
   <main>
-    <a class="tile grid" href="#" onclick="return false" aria-label="Open the Future Grids Simulator (demo only)">
+    <div class="tile grid">
       <img class="logo" src="../favicon.png" alt="" />
-      <h2>Future Grids<br />Simulator</h2>
+      <h2>Future Grid<br />Simulator</h2>
       <p class="body">Explore the role solar + storage can play in different energy environments. Simulate a different electric future</p>
-      <span class="cta">
-        Click to explore
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </span>
-    </a>
+      <div class="actions">
+        <a class="cta" href="#" onclick="return false" aria-label="Open the Future Grids Simulator (demo only)">
+          Click to explore
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="secondary" href="#" onclick="return false">Show me how</a>
+      </div>
+    </div>
 
-    <a class="tile policy" href="#" onclick="return false" aria-label="Open the Solar Policy Explorer (demo only)">
+    <div class="tile policy">
       <img class="logo" src="../favicon.png" alt="" />
       <h2>Solar Policy<br />Explorer</h2>
       <p class="body">Explore the international policy environment for solar + storage. Identify policy gaps to accelerate the energy transition.</p>
-      <span class="cta">
-        Click to explore
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </span>
-    </a>
+      <div class="actions">
+        <a class="cta" href="#" onclick="return false" aria-label="Open the Solar Policy Explorer (demo only)">
+          Click to explore
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="secondary" href="#" onclick="return false">Show me how</a>
+      </div>
+    </div>
 
     <div class="tile economics" aria-disabled="true">
       <img class="logo" src="../favicon.png" alt="" />
       <h2>Solar Economics<br />Explorer</h2>
       <p class="body">Explore the costs of solar and storage vs grid electricity in different energy environments.</p>
-      <span class="cta">Coming soon</span>
+      <div class="actions">
+        <span class="cta">Coming soon</span>
+        <span class="secondary">Show me how</span>
+      </div>
     </div>
   </main>
 
