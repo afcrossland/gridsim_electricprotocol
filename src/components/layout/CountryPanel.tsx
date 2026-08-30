@@ -14,7 +14,9 @@ import {
   useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CheckIcon from "@mui/icons-material/Check";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
@@ -118,6 +120,14 @@ export default function CountryPanel({
   const setTab = onTabChange ?? setUncontrolledTab;
   const [submitOpen, setSubmitOpen] = useState(false);
   const [buildingReport, setBuildingReport] = useState(false);
+
+  // Read-only until "Edit" is clicked - rubric tiles, evidence fields and
+  // the clear-response control all gate on this (see QuestionCard's own
+  // `editMode` prop). Resets to read-only on every country switch, so
+  // browsing a new jurisdiction never silently inherits an edit session
+  // left open on the last one.
+  const [editMode, setEditMode] = useState(false);
+  useEffect(() => setEditMode(false), [code]);
 
   // Collapses the stat tiles and the Compare/Download row once the content
   // below is scrolled, on Policy Wins and Policy Landscape specifically -
@@ -319,6 +329,18 @@ export default function CountryPanel({
             </>
           )}
 
+          <Tooltip title={editMode ? "Finish editing" : "Edit this jurisdiction's answers"}>
+            <Button
+              size="small"
+              variant={editMode ? "contained" : "outlined"}
+              startIcon={editMode ? <CheckIcon fontSize="small" /> : <EditOutlinedIcon fontSize="small" />}
+              onClick={() => setEditMode((v) => !v)}
+              sx={{ flexShrink: 0 }}
+            >
+              {editMode ? "Done" : "Edit"}
+            </Button>
+          </Tooltip>
+
           {headerAction}
         </Box>
 
@@ -390,7 +412,7 @@ export default function CountryPanel({
             px: 2,
             py: 1.5,
             flexWrap: "wrap",
-            bgcolor: "#F9FAFB",
+            bgcolor: "action.hover",
             borderTop: "1px solid",
             borderColor: "divider",
           }}
@@ -448,7 +470,7 @@ export default function CountryPanel({
                   sx={{
                     flex: "1 1 320px",
                     textAlign: "center",
-                    bgcolor: "#F9FAFB",
+                    bgcolor: "action.hover",
                     border: "0.5px solid #E5E7EB",
                     borderRadius: "8px",
                     p: 2,
@@ -468,7 +490,7 @@ export default function CountryPanel({
                   sx={{
                     flex: "1 1 320px",
                     textAlign: "center",
-                    bgcolor: "#F9FAFB",
+                    bgcolor: "action.hover",
                     border: "0.5px solid #E5E7EB",
                     borderRadius: "8px",
                     p: 2,
@@ -501,6 +523,7 @@ export default function CountryPanel({
                   question={q}
                   response={byQuestion.get(q.id)}
                   code={code}
+                  editMode={editMode}
                   compareEntries={compareEntries.map((entry) => ({
                     code: entry.code,
                     color: entry.color,

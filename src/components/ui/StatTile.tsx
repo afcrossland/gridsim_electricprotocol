@@ -30,7 +30,7 @@ export default function StatTile({ icon, color, label, value, detail, fill, size
     return (
       <Box
         sx={{
-          bgcolor: "#F9FAFB",
+          bgcolor: "action.hover",
           borderRadius: "8px",
           py: "6px",
           px: "10px",
@@ -65,7 +65,7 @@ export default function StatTile({ icon, color, label, value, detail, fill, size
               fontSize: "0.625rem",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
-              color: "#9CA3AF",
+              color: "text.disabled",
               fontWeight: 500,
               lineHeight: 1.2,
             }}
@@ -81,7 +81,7 @@ export default function StatTile({ icon, color, label, value, detail, fill, size
   return (
     <Box
       sx={{
-        bgcolor: "#F9FAFB",
+        bgcolor: "action.hover",
         borderRadius: "8px",
         p: "12px",
         display: "flex",
@@ -112,7 +112,7 @@ export default function StatTile({ icon, color, label, value, detail, fill, size
           fontSize: "0.6875rem",
           textTransform: "uppercase",
           letterSpacing: "0.05em",
-          color: "#9CA3AF",
+          color: "text.disabled",
           fontWeight: 500,
           lineHeight: 1,
         }}
@@ -122,7 +122,7 @@ export default function StatTile({ icon, color, label, value, detail, fill, size
 
       <Typography sx={{ fontSize: "1.5rem", fontWeight: 700, color, lineHeight: 1 }}>{value}</Typography>
 
-      {detail && <Typography sx={{ fontSize: "0.6875rem", color: "#9CA3AF" }}>{detail}</Typography>}
+      {detail && <Typography sx={{ fontSize: "0.6875rem", color: "text.disabled" }}>{detail}</Typography>}
 
       {fill !== undefined && (
         <Box sx={{ bgcolor: "#F3F4F6", height: "3px", borderRadius: "2px", width: "100%" }}>

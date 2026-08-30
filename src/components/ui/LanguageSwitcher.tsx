@@ -29,7 +29,7 @@ export default function LanguageSwitcher() {
           fontSize: "0.8125rem",
           fontWeight: 500,
           userSelect: "none",
-          "&:hover": { bgcolor: "grey.200" },
+          "&:hover": { bgcolor: "action.hover" },
         }}
       >
         <LanguageIcon sx={{ fontSize: 16, flexShrink: 0 }} />

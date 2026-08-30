@@ -48,7 +48,7 @@ export default function FlagImg({ code, size = 20 }: { code: string; size?: numb
           width: size,
           height,
           borderRadius: 0.5,
-          bgcolor: "grey.200",
+          bgcolor: "action.selected",
           flexShrink: 0,
         }}
       />

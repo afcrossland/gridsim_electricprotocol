@@ -70,6 +70,37 @@ export default function App() {
     wasWelcomeSeen.current = welcomeSeen;
   }, [tourSeen, welcomeSeen]);
   const onboardingHero = bloomActive && (heroScene || (!welcomeSeen && tourSeen));
+
+  // A link into the app (e.g. from the Electric Futures Playbook mockup)
+  // can skip the first-run tour with ?skipIntro - useful for anyone who's
+  // already seen an equivalent "welcome" framing on the page that sent them
+  // here. Once set, tourSeen persists as usual, so this only ever needs to
+  // fire on that first visit; the param is stripped right after so a reload
+  // or reshare of the resulting URL doesn't carry it along.
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has("skipIntro")) return;
+    setTourSeen(true);
+    setBloomActive(false);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("skipIntro");
+    window.history.replaceState({}, "", url);
+    // Only ever meant to run once, against the URL the page loaded with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // The inverse - a link that wants to open straight into the tour even if
+  // this visitor (or browser) has already seen it, e.g. the playbook's own
+  // "Show me how". Same trigger the nav's "Take the tour" uses (setTourSeen
+  // false); the bloom re-arm effect above already reacts to that transition,
+  // so there's nothing else to set here.
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has("showTour")) return;
+    setTourSeen(false);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("showTour");
+    window.history.replaceState({}, "", url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Desktop-only, view preference like `comparing` - not persisted, and
   // irrelevant on the mobile stacked layout, which has no side-by-side
   // sidebar to collapse in the first place.
@@ -271,7 +302,7 @@ export default function App() {
                   px: 2,
                   pt: 1.5,
                   pb: 1,
-                  bgcolor: "#ffffff",
+                  bgcolor: "background.paper",
                 }}
               >
                 <ToggleButtonGroup
@@ -300,7 +331,7 @@ export default function App() {
                 px: 2,
                 py: mobileListActive && listScrolled ? 0.75 : 1.5,
                 flexShrink: 0,
-                bgcolor: "#ffffff",
+                bgcolor: "background.paper",
                 transition: "padding 150ms ease",
               }}
             >
@@ -310,7 +341,7 @@ export default function App() {
             {mobileView === "map" ? (
               <Box sx={{ flex: 1, minHeight: 0, position: "relative" }}>{map}</Box>
             ) : (
-              <Box sx={{ flex: 1, minHeight: 0, bgcolor: "#ffffff", overflow: "hidden" }}>{list}</Box>
+              <Box sx={{ flex: 1, minHeight: 0, bgcolor: "background.paper", overflow: "hidden" }}>{list}</Box>
             )}
           </Box>
         )
@@ -357,7 +388,7 @@ export default function App() {
                 zIndex: 20,
                 width: 20,
                 height: 56,
-                bgcolor: "#ffffff",
+                bgcolor: "background.paper",
                 border: "1px solid",
                 borderColor: "divider",
                 borderRight: "none",
@@ -367,7 +398,7 @@ export default function App() {
                 justifyContent: "center",
                 cursor: "pointer",
                 boxShadow: "-2px 0 6px rgba(0,0,0,0.06)",
-                "&:hover": { bgcolor: "grey.50" },
+                "&:hover": { bgcolor: "action.hover" },
                 transition: "background-color 150ms ease",
               }}
             >
@@ -380,7 +411,7 @@ export default function App() {
               sx={{
                 width: "100%",
                 height: "100%",
-                bgcolor: "#ffffff",
+                bgcolor: "background.paper",
                 display: sidebarCollapsed ? "none" : "flex",
                 flexDirection: "column",
                 overflow: "hidden",
@@ -403,7 +434,7 @@ export default function App() {
         sx={{
           flexShrink: 0,
           height: 48,
-          bgcolor: "grey.100",
+          bgcolor: "background.paper",
           borderTop: "1px solid",
           borderColor: "divider",
           display: "flex",

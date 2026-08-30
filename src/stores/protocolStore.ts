@@ -45,6 +45,8 @@ interface ProtocolState {
   welcomeSeen: boolean;
   /** False until the visitor dismisses (or skips) the scroll-driven onboarding tour. */
   tourSeen: boolean;
+  /** Light/dark theme preference - persisted so it survives reload, same treatment as any other user-chosen setting. */
+  mode: "light" | "dark";
   sections: Section[];
   questions: Question[];
   responses: Response[];
@@ -105,6 +107,7 @@ interface ProtocolState {
   setPage: (page: "map" | "admin" | "help") => void;
   setWelcomeSeen: (seen: boolean) => void;
   setTourSeen: (seen: boolean) => void;
+  setMode: (mode: "light" | "dark") => void;
   selectCountry: (code: string | null) => void;
   setComparing: (comparing: boolean) => void;
   /** No-ops past MAX_COMPARE_COUNTRIES or on a duplicate code. */
@@ -286,6 +289,7 @@ function initialState() {
     // `setWelcomeSeen(false)` calls, never a default.
     welcomeSeen: true,
     tourSeen: false,
+    mode: "light" as const,
     sections: protocol.sections.map((s) => ({ ...s })),
     questions: protocol.questions.map((q) => ({ ...q })),
     responses: seedResponses(),
@@ -322,6 +326,7 @@ export const useProtocolStore = create<ProtocolState>()(
       setPage: (page) => set({ page }),
       setWelcomeSeen: (welcomeSeen) => set({ welcomeSeen }),
       setTourSeen: (tourSeen) => set({ tourSeen }),
+      setMode: (mode) => set({ mode }),
       // Picking a jurisdiction - from the map, search, or the scoreboard -
       // always means "look at this one", which is not compatible with
       // whatever compare state was left over from a previous detail view.
@@ -682,6 +687,10 @@ export const useProtocolStore = create<ProtocolState>()(
       //
       // `suggestions` (added after v10, also no bump) is likewise additive -
       // an existing visitor's blob simply lacks the key and starts with none.
+      //
+      // `mode` (added after v10, also no bump) is likewise additive - an
+      // existing visitor's blob simply lacks the key and starts on `light`,
+      // same as initialState()'s default.
       version: 10,
 
       /**
@@ -732,6 +741,7 @@ export const useProtocolStore = create<ProtocolState>()(
         mapMetric: state.mapMetric,
         welcomeSeen: state.welcomeSeen,
         tourSeen: state.tourSeen,
+        mode: state.mode,
         responses: state.responses.filter((r) => !r.seeded),
         questionOverrides: state.questionOverrides,
         sectionOverrides: state.sectionOverrides,

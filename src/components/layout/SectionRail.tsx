@@ -47,7 +47,7 @@ export default function SectionRail({ sections, selected, onSelect, horizontal, 
           bgcolor: "background.paper",
         }}
       >
-        <Box sx={{ p: 1 }}>{submitButton}</Box>
+        <Box data-tour="submit-suggestion" sx={{ p: 1 }}>{submitButton}</Box>
         <Box sx={{ display: "flex", overflowX: "auto", px: 1 }}>
           {sections.map((section) => (
             <RailItem
@@ -76,7 +76,7 @@ export default function SectionRail({ sections, selected, onSelect, horizontal, 
         bgcolor: "background.paper",
       }}
     >
-      <Box sx={{ p: 2, pb: 1, borderBottom: "1px solid", borderColor: "divider" }}>{submitButton}</Box>
+      <Box data-tour="submit-suggestion" sx={{ p: 2, pb: 1, borderBottom: "1px solid", borderColor: "divider" }}>{submitButton}</Box>
 
       <Box sx={{ flex: 1, overflowY: "auto", py: 1 }}>
         <Typography variant="overline" sx={{ display: "block", px: 2, pt: 1, pb: 0.5 }}>
@@ -179,7 +179,7 @@ function Ring({ answered, total, size = 30 }: { answered: number; total: number;
         value={100}
         size={size}
         thickness={4}
-        sx={{ color: "grey.200" }}
+        sx={{ color: "action.disabledBackground" }}
       />
       <CircularProgress
         variant="determinate"

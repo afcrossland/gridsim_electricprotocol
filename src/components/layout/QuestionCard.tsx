@@ -39,6 +39,8 @@ interface Props {
   code: string;
   /** Empty outside compare mode - see CountryPanel's `inlineCompare`. */
   compareEntries?: CompareEntry[];
+  /** Gates every write action (rubric tiles, evidence fields, clear response) behind CountryPanel's Edit toggle - off by default, a read-only view of whatever's already answered. */
+  editMode?: boolean;
 }
 
 /**
@@ -66,7 +68,7 @@ const SELECTED_TINT = "rgba(239, 134, 76, 0.12)";
  * Admin Console, not here; this card only records an answer against whatever
  * the question currently says.
  */
-export default function QuestionCard({ question, response, code, compareEntries = [] }: Props) {
+export default function QuestionCard({ question, response, code, compareEntries = [], editMode = false }: Props) {
   const setResponse = useProtocolStore((s) => s.setResponse);
   const deleteResponse = useProtocolStore((s) => s.deleteResponse);
   const addEvidence = useProtocolStore((s) => s.addEvidence);
@@ -86,7 +88,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
         borderColor: "divider",
         borderLeftWidth: 3,
         borderLeftStyle: response ? "solid" : "dashed",
-        borderLeftColor: response ? "primary.main" : "grey.400",
+        borderLeftColor: response ? "primary.main" : "text.disabled",
         scrollMarginTop: 16,
       }}
     >
@@ -120,6 +122,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
       </Box>
 
       <Box
+        data-tour="question-rubric"
         sx={{
           display: "grid",
           gridTemplateColumns: {
@@ -140,19 +143,23 @@ export default function QuestionCard({ question, response, code, compareEntries 
           return (
             <Box
               key={tier.score}
-              onClick={() => {
-                setResponse(code, question.id, { score: tier.score });
-              }}
+              onClick={
+                editMode
+                  ? () => {
+                      setResponse(code, question.id, { score: tier.score });
+                    }
+                  : undefined
+              }
               sx={{
                 position: "relative",
                 p: 1.25,
                 pb: tierComparators.length > 0 ? 3 : 1.25,
                 borderRadius: 1.5,
-                cursor: "pointer",
+                cursor: editMode ? "pointer" : "default",
                 border: "2px solid",
                 borderColor: selected ? SELECTED : "divider",
                 bgcolor: selected ? SELECTED_TINT : "transparent",
-                "&:hover": { borderColor: selected ? SELECTED : "primary.light" },
+                ...(editMode && { "&:hover": { borderColor: selected ? SELECTED : "primary.light" } }),
                 display: "flex",
                 flexDirection: "column",
                 gap: 0.75,
@@ -220,11 +227,13 @@ export default function QuestionCard({ question, response, code, compareEntries 
             </Button>
 
             <Box sx={{ flex: 1 }} />
-            <Tooltip title="Clear this response">
-              <IconButton size="small" onClick={() => deleteResponse(code, question.id)}>
-                <RestartAltIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {editMode && (
+              <Tooltip title="Clear this response">
+                <IconButton size="small" onClick={() => deleteResponse(code, question.id)}>
+                  <RestartAltIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
 
           <Collapse in={showEvidence}>
@@ -255,6 +264,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
                       label="Title"
                       placeholder="Name of the law, decision or document"
                       value={item.title}
+                      slotProps={{ input: { readOnly: !editMode } }}
                       onChange={(e) =>
                         updateEvidence(code, question.id, i, { title: e.target.value })
                       }
@@ -265,6 +275,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
                       label="Source"
                       placeholder="Link, statute or document reference"
                       value={item.source}
+                      slotProps={{ input: { readOnly: !editMode } }}
                       onChange={(e) =>
                         updateEvidence(code, question.id, i, { source: e.target.value })
                       }
@@ -276,27 +287,32 @@ export default function QuestionCard({ question, response, code, compareEntries 
                       size="small"
                       label="Notes"
                       value={item.note}
+                      slotProps={{ input: { readOnly: !editMode } }}
                       onChange={(e) =>
                         updateEvidence(code, question.id, i, { note: e.target.value })
                       }
                     />
                   </Stack>
-                  <Tooltip title="Remove this evidence">
-                    <IconButton size="small" onClick={() => removeEvidence(code, question.id, i)}>
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
+                  {editMode && (
+                    <Tooltip title="Remove this evidence">
+                      <IconButton size="small" onClick={() => removeEvidence(code, question.id, i)}>
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </Box>
               ))}
 
-              <Button
-                size="small"
-                startIcon={<AddIcon />}
-                sx={{ alignSelf: "flex-start" }}
-                onClick={() => addEvidence(code, question.id)}
-              >
-                Add evidence
-              </Button>
+              {editMode && (
+                <Button
+                  size="small"
+                  startIcon={<AddIcon />}
+                  sx={{ alignSelf: "flex-start" }}
+                  onClick={() => addEvidence(code, question.id)}
+                >
+                  Add evidence
+                </Button>
+              )}
             </Stack>
           </Collapse>
         </>

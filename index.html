@@ -1,13 +1,294 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Solar Policy Explorer</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<title>Electric Futures Playbook</title>
+<style>
+  @font-face {
+    font-family: 'Eastman Grotesque';
+    src: url('/fonts/Eastman-Grotesque-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Eastman Grotesque';
+    src: url('/fonts/Eastman-Grotesque-Demi-Bold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Eastman Grotesque';
+    src: url('/fonts/Eastman-Grotesque-Extrabold.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --aqua: #00ABBB;
+    --aqua-dark: #008194;
+    --citrus: #FBB114;
+    --citrus-dark: #C98600;
+    --ink: #0F1B22;
+    --muted: #6B7280;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: 'Eastman Grotesque', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #fff;
+    background:
+      radial-gradient(680px 480px at 22% 32%, rgba(0,171,187,0.32), transparent 60%),
+      radial-gradient(680px 480px at 78% 68%, rgba(251,177,20,0.20), transparent 60%),
+      linear-gradient(180deg, #0A141A 0%, #0D1B22 55%, #0A141A 100%);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(28px, 5vh, 56px) 20px;
+  }
+
+  /* Faint schematic grid, standing in for "the grid" without needing a real map. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 65% at 50% 45%, #000 40%, transparent 90%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 65% at 50% 45%, #000 40%, transparent 90%);
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: clamp(32px, 6vh, 64px);
+  }
+
+  .wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .wordmark img { height: 34px; width: 34px; display: block; }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  header p {
+    margin: 10px 0 0;
+    color: rgba(255,255,255,0.62);
+    font-size: 0.9375rem;
+  }
+
+  header p .tagline {
+    color: var(--citrus);
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(260px, 340px));
+    gap: clamp(20px, 3vw, 32px);
+    width: 100%;
+    max-width: 1140px;
+  }
+
+  @media (max-width: 980px) {
+    main { grid-template-columns: repeat(2, minmax(280px, 380px)); max-width: 720px; }
+  }
+
+  @media (max-width: 620px) {
+    main { grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+  }
+
+  .tile {
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    padding: 34px 28px 28px;
+    text-align: center;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s ease;
+  }
+
+  .tile:hover, .tile:focus-visible {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 44px rgba(0,0,0,0.45);
+    outline: none;
+  }
+
+  .tile img.logo { height: 42px; width: 42px; display: block; margin: 0 auto 16px; }
+
+  .tile h2 {
+    margin: 0 0 10px;
+    font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+    font-weight: 800;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+  }
+
+  .tile.grid h2 { color: var(--citrus-dark); }
+  .tile.policy h2 { color: var(--aqua-dark); }
+  .tile.economics h2 { color: #6B7280; }
+
+  .tile p.body {
+    flex: 1 0 auto;
+    margin: 0 0 22px;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 22px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.15s ease;
+  }
+
+  .tile.grid .cta { background: var(--citrus-dark); }
+  .tile.policy .cta { background: var(--aqua); }
+  a.cta:hover { filter: brightness(1.08); transform: translateX(2px); }
+
+  .cta svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .secondary {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .tile.grid .secondary { color: var(--citrus-dark); }
+  .tile.policy .secondary { color: var(--aqua-dark); }
+  .secondary:hover { text-decoration: underline; }
+
+  /* Not open yet - greyed out, static, no hover affordance or working link. */
+  .tile.economics {
+    cursor: default;
+    filter: grayscale(1);
+  }
+
+  .tile.economics:hover {
+    transform: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  }
+
+  .tile.economics img.logo { opacity: 0.55; }
+
+  .tile.economics .cta {
+    background: #E5E7EB;
+    color: #6B7280;
+  }
+
+  .tile.economics:hover .cta {
+    filter: none;
+    transform: none;
+  }
+
+  .tile.economics .secondary {
+    color: #9CA3AF;
+    cursor: default;
+  }
+
+  .tile.economics .secondary:hover { text-decoration: none; }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="wordmark">
+      <img src="/favicon.png" alt="" />
+      <h1>Electric Futures Playbook</h1>
+    </div>
+    <p>by The Global Solar Council &ensp;&middot;&ensp; <span class="tagline">Solar. Storage. Future Secured.</span></p>
+  </header>
+
+  <main>
+    <div class="tile grid">
+      <img class="logo" src="/favicon.png" alt="" />
+      <h2>Future Grid<br />Simulator</h2>
+      <p class="body">Explore the role solar + storage can play in different energy environments. Simulate a different electric future</p>
+      <div class="actions">
+        <a class="cta" href="#" onclick="return false" aria-label="Show me how the Future Grids Simulator works">
+          Show me how
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="secondary" href="https://futuregridsimulator.globalsolarcouncil.org/">Click to explore</a>
+      </div>
+    </div>
+
+    <div class="tile policy">
+      <img class="logo" src="/favicon.png" alt="" />
+      <h2>Solar Policy<br />Explorer</h2>
+      <p class="body">Explore the international policy environment for solar + storage. Identify policy gaps to accelerate the energy transition.</p>
+      <div class="actions">
+        <a class="cta" href="policy/?showTour=1" aria-label="Show me how the Solar Policy Explorer works">
+          Show me how
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="secondary" href="policy/?skipIntro=1">Click to explore</a>
+      </div>
+    </div>
+
+    <div class="tile economics" aria-disabled="true">
+      <img class="logo" src="/favicon.png" alt="" />
+      <h2>Solar Economics<br />Explorer</h2>
+      <p class="body">Explore the costs of solar and storage vs grid electricity in different energy environments.</p>
+      <div class="actions">
+        <span class="cta">Coming soon</span>
+        <span class="secondary">Show me how</span>
+      </div>
+    </div>
+  </main>
+
+</body>
 </html>

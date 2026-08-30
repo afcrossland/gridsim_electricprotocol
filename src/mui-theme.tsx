@@ -15,19 +15,99 @@ declare module '@mui/material/Typography' {
 }
 
 import { createTheme } from '@mui/material/styles';
-import type { Theme } from '@mui/material/styles';
+import type { Theme, PaletteMode } from '@mui/material/styles';
 import type { CSSObject } from '@emotion/react';
 
 // GSC Brand Colors:
 // Primary:   Aqua #00ABBB | Peach #F6AB84 | Citrus #FBB114
 // Secondary: Teal #008194 | Burnt Orange #EF864C | Off White #F4F1E9 | Deep Gray #3B3838 | Bright Yellow #FFF34A (gradients only)
+//
+// Brand hues (primary/secondary/error/warning/info/success) stay the same in
+// both modes - only the neutrals (background, text, dividers, surface
+// borders/shadows baked into component overrides below) flip. Dark mode's
+// neutrals are warm, not blue-black, to stay in the same family as the
+// brand's own Deep Gray/Off White pair rather than reaching for a generic
+// slate palette.
+const NEUTRAL = {
+  light: {
+    bgDefault: '#F4F1E9',   // GSC Off White
+    bgPaper: '#FFFFFF',
+    surfaceAlt: '#F9FAFB',  // subtle info-card tint, e.g. windrose panels
+    textPrimary: '#3B3838', // GSC Deep Gray
+    textSecondary: '#6B7280',
+    textDisabled: '#9CA3AF',
+    divider: '#E5E7EB',
+    border: '#e6e6e6',
+    borderSubtle: '#f0f0f0',
+    tooltipBg: '#FFFFFF',
+    railBg: '#f6f8f9',
+    railBorder: '#e9f1f2',
+  },
+  dark: {
+    bgDefault: '#171D1E',
+    bgPaper: '#20272A',
+    surfaceAlt: '#263033',
+    textPrimary: '#F4F1E9', // GSC Off White, swapped in as dark mode's primary text
+    textSecondary: '#B8C0C2',
+    textDisabled: '#748083',
+    divider: 'rgba(244,241,233,0.12)',
+    border: 'rgba(244,241,233,0.16)',
+    borderSubtle: 'rgba(244,241,233,0.08)',
+    tooltipBg: '#2B3336',
+    railBg: '#1B2224',
+    railBorder: 'rgba(244,241,233,0.1)',
+  },
+} as const;
 
-const theme: Theme = createTheme({
+/**
+ * Builds the app's MUI theme for a given mode. Called once per mode change
+ * (see ThemedApp in main.tsx, which memoises on `mode`) rather than kept as
+ * a single static theme - dark mode needs its own neutrals throughout the
+ * component overrides below, not just the top-level palette.
+ */
+export function getTheme(mode: PaletteMode = 'light'): Theme {
+  const n = mode === 'dark' ? NEUTRAL.dark : NEUTRAL.light;
+  // GSC Teal (#008194) is the same colour every one of these literals below
+  // used to hardcode - see the note on palette.primary.dark for why it
+  // swaps to a plain grey text tone in dark mode instead.
+  const TEAL_ACCENT = mode === 'dark' ? n.textSecondary : '#008194';
+  // GSC Aqua (#00ABBB) used as a solid FILL (a button, a selected tab/toggle
+  // pill, a chip) rather than as text/border/accent - a slate grey instead
+  // in dark mode, same reasoning as TEAL_ACCENT above but a fill needs a
+  // colour with enough weight to still read as "filled" against the dark
+  // page background, not the lighter text-secondary tone TEAL_ACCENT uses.
+  // Badge is the one deliberate exception - it keeps aqua in both modes.
+  const FILL_ACCENT = mode === 'dark' ? '#4B5563' : '#00ABBB';
+  // GSC Aqua used as TEXT/border/icon (not a fill) - collapses to the same
+  // grey as TEAL_ACCENT in dark mode (aqua-as-text has the identical
+  // low-contrast problem teal-as-text did), but - unlike TEAL_ACCENT -
+  // stays AQUA in light mode rather than teal, since these spots were aqua
+  // before dark mode existed and light mode isn't changing.
+  const AQUA_TEXT = mode === 'dark' ? TEAL_ACCENT : '#00ABBB';
+  const FILL_ACCENT_TINT = mode === 'dark' ? 'rgba(75,85,99,0.35)' : 'rgba(0,171,187,0.12)';
+  const FILL_ACCENT_TINT_HOVER = mode === 'dark' ? 'rgba(75,85,99,0.5)' : 'rgba(0,171,187,0.2)';
+
+  return createTheme({
   palette: {
+    mode,
     primary: {
-      main: '#00ABBB',        // GSC Aqua
+      // GSC Aqua in light mode. In dark mode this collapses to the same
+      // grey as primary.dark below - aqua-as-text (Compare, windrose
+      // labels, the "Solar Policy Explorer" wordmark, active nav links,
+      // unselected tab text, borders) reads the same way teal did: fine on
+      // white, low-contrast/muddy on a dark surface. Aqua survives in dark
+      // mode only where a component explicitly opts back in with a literal
+      // hex rather than this token - currently just Badge, on purpose.
+      main: mode === 'dark' ? TEAL_ACCENT : '#00ABBB',
       light: '#5FCCD8',
-      dark: '#008194',        // GSC Teal
+      // GSC Teal in light mode - it's the darker of the two accent colours,
+      // used as an accent-heading text colour throughout (Help, Admin
+      // console, ImpactList, windrose card titles). That relationship
+      // inverts on a dark background: teal reads as muddy/low-contrast
+      // there, so dark mode swaps it for a plain light grey text tone
+      // instead - still reads as "the accent-heading colour", not primary
+      // body text.
+      dark: TEAL_ACCENT,
       contrastText: '#ffffff',
     },
     secondary: {
@@ -49,7 +129,7 @@ const theme: Theme = createTheme({
     info: {
       main: '#00ABBB',        // GSC Aqua
       light: '#5FCCD8',
-      dark: '#008194',        // GSC Teal
+      dark: TEAL_ACCENT,       // GSC Teal
     },
     success: {
       main: '#1D9E75',
@@ -69,15 +149,15 @@ const theme: Theme = createTheme({
       900: '#111827',
     },
     text: {
-      primary: '#3B3838',     // GSC Deep Gray
-      secondary: '#6B7280',
-      disabled: '#9CA3AF',
+      primary: n.textPrimary,
+      secondary: n.textSecondary,
+      disabled: n.textDisabled,
     },
     background: {
-      default: '#F4F1E9',     // GSC Off White
-      paper: '#FFFFFF',
+      default: n.bgDefault,
+      paper: n.bgPaper,
     },
-    divider: '#E5E7EB',
+    divider: n.divider,
   },
 
   typography: {
@@ -92,56 +172,56 @@ const theme: Theme = createTheme({
       fontSize: '1.75rem',
       fontWeight: 700,
       letterSpacing: '-0.02em',
-      color: '#3B3838',
+      color: n.textPrimary,
     },
     h2: {
       fontSize: '1.375rem',
       fontWeight: 600,
       letterSpacing: '-0.01em',
-      color: '#3B3838',
+      color: n.textPrimary,
     },
     h3: {
       fontSize: '1rem',
       fontWeight: 500,
-      color: '#3B3838',
+      color: n.textPrimary,
     },
     h4: {
       fontSize: '1.25rem',
       fontWeight: 600,
-      color: '#00ABBB',
+      color: AQUA_TEXT,
     },
     h5: {
       fontSize: '1.125rem',
       fontWeight: 600,
-      color: '#3B3838',
+      color: n.textPrimary,
     },
     h6: {
       fontSize: '1rem',
       fontWeight: 600,
-      color: '#00ABBB',
+      color: AQUA_TEXT,
     },
     h7: {
       fontSize: '1rem',
       fontWeight: 600,
-      color: '#3B3838',
+      color: n.textPrimary,
     },
     subtitle1: {
       fontSize: '0.875rem',
       fontWeight: 500,
-      color: '#3B3838',
+      color: n.textPrimary,
     },
     subtitle2: {
       fontSize: '0.8125rem',
       fontWeight: 500,
-      color: '#6B7280',
+      color: n.textSecondary,
     },
     body1: {
       fontSize: '0.875rem',
-      color: '#3B3838',
+      color: n.textPrimary,
     },
     body2: {
       fontSize: '0.8125rem',
-      color: '#6B7280',
+      color: n.textSecondary,
     },
     button: {
       fontSize: '0.875rem',
@@ -150,14 +230,14 @@ const theme: Theme = createTheme({
     },
     caption: {
       fontSize: '0.6875rem',
-      color: '#6B7280',
+      color: n.textSecondary,
     },
     overline: {
       fontSize: '0.6875rem',
       fontWeight: 500,
       textTransform: 'uppercase',
       letterSpacing: '0.05em',
-      color: '#6B7280',
+      color: n.textSecondary,
     },
   },
 
@@ -215,21 +295,21 @@ const theme: Theme = createTheme({
           },
         },
         containedPrimary: {
-          backgroundColor: '#00ABBB',
+          backgroundColor: FILL_ACCENT,
           color: '#ffffff',
           '&:hover': {
-            backgroundColor: '#008194',
+            backgroundColor: TEAL_ACCENT,
           },
         },
         outlined: {
-          border: '1px solid #e6e6e6',
+          border: `1px solid ${n.border}`,
           '&:hover': {
             border: '1px solid #00ABBB',
             backgroundColor: 'rgba(0,171,187,0.04)',
           },
         },
         text: {
-          color: '#00ABBB',
+          color: AQUA_TEXT,
           '&:hover': {
             backgroundColor: 'rgba(0,171,187,0.08)',
           },
@@ -240,11 +320,11 @@ const theme: Theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: '#ffffff',
+          backgroundColor: n.bgPaper,
           borderRadius: 8,
           padding: 12,
           boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-          border: '1px solid #f0f0f0',
+          border: `1px solid ${n.borderSubtle}`,
           transition: 'transform 0.18s ease, box-shadow 0.18s ease',
           '&:hover': {
             transform: 'translateY(-4px)',
@@ -257,11 +337,11 @@ const theme: Theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: '#ffffff',
+          backgroundColor: n.bgPaper,
           borderRadius: 8,
         },
         outlined: {
-          border: '1px solid #f0f0f0',
+          border: `1px solid ${n.borderSubtle}`,
         },
         elevation1: {
           boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
@@ -281,7 +361,7 @@ const theme: Theme = createTheme({
           minHeight: 40,
         },
         indicator: {
-          backgroundColor: '#00ABBB',
+          backgroundColor: FILL_ACCENT,
           height: 3,
           borderRadius: '3px 3px 0 0',
         },
@@ -295,7 +375,7 @@ const theme: Theme = createTheme({
           padding: '8px 16px',
           fontWeight: 600,
           fontSize: '0.8125rem',
-          color: '#00ABBB',
+          color: AQUA_TEXT,
           textTransform: 'none',
           borderRadius: '8px 8px 0 0',
           border: '1px solid transparent',
@@ -305,7 +385,7 @@ const theme: Theme = createTheme({
           },
           '&.Mui-selected': {
             color: '#ffffff',
-            backgroundColor: '#00ABBB',
+            backgroundColor: FILL_ACCENT,
             boxShadow: 'inset 0 -2px 0 rgba(0,0,0,0.03)',
           },
         },
@@ -320,16 +400,16 @@ const theme: Theme = createTheme({
           fontWeight: 500,
         },
         filled: {
-          backgroundColor: 'rgba(0,171,187,0.12)',
-          color: '#008194',
+          backgroundColor: FILL_ACCENT_TINT,
+          color: TEAL_ACCENT,
           '&:hover': {
-            backgroundColor: 'rgba(0,171,187,0.2)',
+            backgroundColor: FILL_ACCENT_TINT_HOVER,
           },
         },
         outlined: {
-          borderColor: '#e6e6e6',
+          borderColor: n.border,
           '&:hover': {
-            borderColor: '#00ABBB',
+            borderColor: AQUA_TEXT,
             backgroundColor: 'rgba(0,171,187,0.04)',
           },
         },
@@ -339,13 +419,16 @@ const theme: Theme = createTheme({
     MuiSlider: {
       styleOverrides: {
         root: {
+          // Deliberately not mode-aware, unlike everything else in this
+          // file - a thin track/small thumb, not a filled panel, so aqua
+          // reads fine on a dark surface the same way it does on light.
           color: '#00ABBB',
           height: 6,
         },
         thumb: {
           width: 16,
           height: 16,
-          backgroundColor: '#ffffff',
+          backgroundColor: n.bgPaper,
           border: '2px solid #00ABBB',
           boxShadow: '0 2px 4px rgba(0,0,0,0.12)',
           '&:hover': {
@@ -363,11 +446,11 @@ const theme: Theme = createTheme({
         rail: {
           height: 6,
           borderRadius: 3,
-          backgroundColor: '#f3f6f7',
+          backgroundColor: n.surfaceAlt,
         },
         valueLabel: {
-          backgroundColor: '#ffffff',
-          color: '#3B3838',
+          backgroundColor: n.bgPaper,
+          color: n.textPrimary,
           borderRadius: 8,
           boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
           padding: '6px 8px',
@@ -382,13 +465,13 @@ const theme: Theme = createTheme({
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
             '& fieldset': {
-              borderColor: '#e6e6e6',
+              borderColor: n.border,
             },
             '&:hover fieldset': {
-              borderColor: '#00ABBB',
+              borderColor: AQUA_TEXT,
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#00ABBB',
+              borderColor: AQUA_TEXT,
               borderWidth: 2,
             },
           },
@@ -403,7 +486,7 @@ const theme: Theme = createTheme({
       styleOverrides: {
         root: {
           fontSize: '0.875rem',
-          color: '#3B3838',
+          color: n.textPrimary,
         },
       },
     },
@@ -413,13 +496,13 @@ const theme: Theme = createTheme({
         root: {
           borderRadius: 8,
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#e6e6e6',
+            borderColor: n.border,
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#00ABBB',
+            borderColor: AQUA_TEXT,
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#00ABBB',
+            borderColor: AQUA_TEXT,
             borderWidth: 2,
           },
         },
@@ -442,7 +525,7 @@ const theme: Theme = createTheme({
           borderRadius: 6,
           fontSize: '0.8125rem',
           fontWeight: 600,
-          color: '#008194',
+          color: TEAL_ACCENT,
           textTransform: 'none',
           backgroundColor: 'transparent',
           transition: 'all 0.15s ease',
@@ -450,10 +533,10 @@ const theme: Theme = createTheme({
             backgroundColor: 'rgba(0,171,187,0.12)',
           },
           '&.Mui-selected': {
-            backgroundColor: '#00ABBB',
+            backgroundColor: FILL_ACCENT,
             color: '#ffffff',
             '&:hover': {
-              backgroundColor: '#008194',
+              backgroundColor: TEAL_ACCENT,
             },
           },
         },
@@ -463,10 +546,10 @@ const theme: Theme = createTheme({
     MuiToggleButtonGroup: {
       styleOverrides: {
         root: {
-          backgroundColor: '#f6f8f9',
+          backgroundColor: n.railBg,
           padding: 4,
           borderRadius: 8,
-          border: '1px solid #e9f1f2',
+          border: `1px solid ${n.railBorder}`,
         },
       },
     },
@@ -474,7 +557,7 @@ const theme: Theme = createTheme({
     MuiDivider: {
       styleOverrides: {
         root: {
-          borderColor: 'rgba(0, 0, 0, 0.06)',
+          borderColor: n.divider,
         },
       },
     },
@@ -484,7 +567,7 @@ const theme: Theme = createTheme({
         root: {
           paddingTop: 6,
           paddingBottom: 6,
-          borderBottom: '1px dashed #f2f2f2',
+          borderBottom: `1px dashed ${n.borderSubtle}`,
           fontSize: '0.8125rem',
           minHeight: 28,
           '&:hover': {
@@ -497,16 +580,16 @@ const theme: Theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor: '#ffffff',
-          color: '#3B3838',
+          backgroundColor: n.tooltipBg,
+          color: n.textPrimary,
           padding: '8px 10px',
           borderRadius: 8,
           boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
           fontSize: '0.75rem',
-          border: '1px solid #f0f0f0',
+          border: `1px solid ${n.borderSubtle}`,
         },
         arrow: {
-          color: '#ffffff',
+          color: n.tooltipBg,
         },
       },
     },
@@ -526,9 +609,9 @@ const theme: Theme = createTheme({
         root: {
           fontSize: '1.25rem',
           fontWeight: 700,
-          color: '#00ABBB',
+          color: AQUA_TEXT,
           paddingBottom: 8,
-          borderBottom: '1px solid #eeeeee',
+          borderBottom: `1px solid ${n.borderSubtle}`,
         },
       },
     },
@@ -536,8 +619,8 @@ const theme: Theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#ffffff',
-          color: '#3B3838',
+          backgroundColor: n.bgPaper,
+          color: n.textPrimary,
           boxShadow: '-2px 0 8px rgba(0,0,0,0.1)',
         },
       },
@@ -546,7 +629,7 @@ const theme: Theme = createTheme({
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#ffffff',
+          backgroundColor: n.bgPaper,
           boxShadow: '-6px 0 28px rgba(9,20,26,0.06)',
           padding: '14px 16px 20px 16px',
         },
@@ -568,7 +651,7 @@ const theme: Theme = createTheme({
         root: {
           height: 10,
           borderRadius: 6,
-          backgroundColor: '#f3f6f7',
+          backgroundColor: n.surfaceAlt,
         },
         bar: {
           borderRadius: 6,
@@ -580,7 +663,7 @@ const theme: Theme = createTheme({
     MuiCircularProgress: {
       styleOverrides: {
         root: {
-          color: '#00ABBB',
+          color: AQUA_TEXT,
         },
       },
     },
@@ -592,7 +675,7 @@ const theme: Theme = createTheme({
         },
         standardInfo: {
           backgroundColor: 'rgba(0,171,187,0.12)',
-          color: '#008194',
+          color: TEAL_ACCENT,
         },
         standardSuccess: {
           backgroundColor: 'rgba(226, 250, 236, 0.7)',
@@ -614,7 +697,7 @@ const theme: Theme = createTheme({
             transform: 'translateX(16px)',
             color: '#fff',
             '& + .MuiSwitch-track': {
-              backgroundColor: '#00ABBB',
+              backgroundColor: AQUA_TEXT,
               opacity: 1,
             },
           },
@@ -626,7 +709,7 @@ const theme: Theme = createTheme({
         },
         track: {
           borderRadius: 13,
-          backgroundColor: '#e6e6e6',
+          backgroundColor: n.border,
           opacity: 1,
         },
       },
@@ -635,9 +718,9 @@ const theme: Theme = createTheme({
     MuiCheckbox: {
       styleOverrides: {
         root: {
-          color: '#e6e6e6',
+          color: n.border,
           '&.Mui-checked': {
-            color: '#00ABBB',
+            color: AQUA_TEXT,
           },
         },
       },
@@ -646,9 +729,9 @@ const theme: Theme = createTheme({
     MuiRadio: {
       styleOverrides: {
         root: {
-          color: '#e6e6e6',
+          color: n.border,
           '&.Mui-checked': {
-            color: '#00ABBB',
+            color: AQUA_TEXT,
           },
         },
       },
@@ -694,7 +777,11 @@ const theme: Theme = createTheme({
       sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
     },
   },
-});
+  });
+}
+
+/** Static light-mode theme - kept as the default export for anything that doesn't need to react to mode (none of the app's own code should import this directly; use `useTheme()` inside components instead, which resolves to whichever theme ThemedApp currently has mounted). */
+const theme: Theme = getTheme('light');
 
 export interface CustomMixins {
   tile: CSSObject;

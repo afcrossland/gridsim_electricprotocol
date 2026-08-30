@@ -1,4 +1,6 @@
 import { AppBar, Box, Button, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -31,14 +33,18 @@ export default function TopNavbar() {
   const setTourSeen = useProtocolStore((s) => s.setTourSeen);
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
-  const selectCountry = useProtocolStore((s) => s.selectCountry);
+  const mode = useProtocolStore((s) => s.mode);
+  const setMode = useProtocolStore((s) => s.setMode);
 
-  // Home: clear the selected jurisdiction and leave whatever full-screen view
-  // is open, which also returns the map to its opening view and zoom via the
-  // same effect that runs when a selection is cleared any other way.
+  // The logo leaves this app entirely, back to the Electric Futures
+  // Playbook splash - the site root now (this app itself moved to
+  // /policy/, see vite.config.ts). A real page navigation, not SPA state,
+  // since that page is a separate static file outside React's own
+  // routing. BASE_URL (not a hardcoded "/") so this still resolves
+  // correctly under GitHub Pages' repo-name subpath as well as a custom
+  // domain served at the root.
   const goHome = () => {
-    setPage("map");
-    selectCountry(null);
+    window.location.href = import.meta.env.BASE_URL;
   };
 
   return (
@@ -89,6 +95,12 @@ export default function TopNavbar() {
 
         <Box sx={{ flex: 1 }} />
 
+        <Tooltip title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+          <IconButton size="small" onClick={() => setMode(mode === "dark" ? "light" : "dark")} sx={{ mr: 0.5 }}>
+            {mode === "dark" ? <LightModeOutlinedIcon fontSize="small" /> : <DarkModeOutlinedIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
+
         {/* Plain underlined links, not buttons - see navItemSx. */}
         <Box sx={{ display: "flex", alignItems: "stretch", height: "100%" }}>
           {page !== "admin" && (
@@ -130,9 +142,14 @@ export default function TopNavbar() {
                 sx={{
                   display: { xs: "inline-flex", sm: "none" },
                   ml: 1.5,
-                  bgcolor: "primary.main",
+                  // A literal, mode-matched fill rather than the primary.main/
+                  // primary.dark tokens - those are text-oriented greys in
+                  // dark mode now (too light to pair with white text/icons as
+                  // a filled background), so this mirrors what FILL_ACCENT
+                  // resolves to for the desktop "Admin console" button instead.
+                  bgcolor: mode === "dark" ? "#4B5563" : "primary.main",
                   color: "primary.contrastText",
-                  "&:hover": { bgcolor: "primary.dark" },
+                  "&:hover": { bgcolor: mode === "dark" ? "#5B6570" : "primary.dark" },
                 }}
               >
                 <LockOutlinedIcon fontSize="small" />

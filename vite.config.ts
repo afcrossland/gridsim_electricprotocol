@@ -3,6 +3,7 @@
 import { defineConfig } from "vitest/config";
 import { loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -17,6 +18,22 @@ export default defineConfig(({ mode }) => {
      * root only needs VITE_BASE=/ instead of a code change.
      */
     base: env.VITE_BASE || "/",
+
+    /**
+     * Two HTML entries, not the default single root one - the site root is
+     * now the static Electric Futures Playbook splash (`index.html`, no JS
+     * bundle of its own), and the actual Solar Policy Explorer app moved to
+     * `/policy/`. Both still get the same `base` prefix above regardless of
+     * where their own HTML file sits in the output tree.
+     */
+    build: {
+      rollupOptions: {
+        input: {
+          main: fileURLToPath(new URL("./index.html", import.meta.url)),
+          policy: fileURLToPath(new URL("./policy/index.html", import.meta.url)),
+        },
+      },
+    },
 
     test: {
       environment: "jsdom",

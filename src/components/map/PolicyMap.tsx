@@ -13,7 +13,8 @@ import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import World from "../../assets/jurisdictions.geojson?url";
-import mapStyleJson from "../../assets/map_gsc.json";
+import mapStyleJsonLight from "../../assets/map_gsc.json";
+import mapStyleJsonDark from "../../assets/map_gsc_dark.json";
 import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP, scoreLabel } from "../../lib/scoring";
 import { qualifiedName } from "../../lib/jurisdictions";
 import FlagImg from "../ui/FlagImg";
@@ -183,7 +184,8 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   ]);
 
   const mapStyle = useMemo(() => {
-    const style = structuredClone(mapStyleJson) as unknown as StyleSpecification;
+    const base = theme.palette.mode === "dark" ? mapStyleJsonDark : mapStyleJsonLight;
+    const style = structuredClone(base) as unknown as StyleSpecification;
     const key = import.meta.env.VITE_MAPTILER_KEY;
     const source = (style.sources as Record<string, { url?: string }>)?.maptiler_planet_v4;
     if (source?.url) source.url = source.url.replace("placeholder", key);
@@ -196,7 +198,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     }
 
     return style;
-  }, []);
+  }, [theme.palette.mode]);
 
   useEffect(() => {
     let mounted = true;
@@ -442,13 +444,13 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           onClick={() => mapRef.current?.getMap().zoomIn({ duration: 300 })}
           aria-label="Zoom in"
           sx={{
-            bgcolor: "#ffffff",
+            bgcolor: "background.paper",
             borderRadius: 1,
             boxShadow: 3,
             width: 36,
             height: 36,
-            color: "rgba(0, 0, 0, 0.54)",
-            "&:hover": { bgcolor: "#ffffff", color: "primary.main" },
+            color: "text.secondary",
+            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
           }}
         >
           <AddIcon fontSize="small" />
@@ -457,13 +459,13 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           onClick={() => mapRef.current?.getMap().zoomOut({ duration: 300 })}
           aria-label="Zoom out"
           sx={{
-            bgcolor: "#ffffff",
+            bgcolor: "background.paper",
             borderRadius: 1,
             boxShadow: 3,
             width: 36,
             height: 36,
-            color: "rgba(0, 0, 0, 0.54)",
-            "&:hover": { bgcolor: "#ffffff", color: "primary.main" },
+            color: "text.secondary",
+            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
           }}
         >
           <RemoveIcon fontSize="small" />

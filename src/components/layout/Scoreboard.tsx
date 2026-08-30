@@ -67,14 +67,14 @@ export default function Scoreboard({ scores, selectedCountry, onSelect, hideHead
   return (
     <Box
       data-tour="scoreboard"
-      sx={{ p: 2, overflowY: "auto", height: "100%", bgcolor: "#ffffff" }}
+      sx={{ p: 2, overflowY: "auto", height: "100%", bgcolor: "background.paper" }}
       onScroll={(e) => onScrollTopChange?.(e.currentTarget.scrollTop > 8)}
     >
       {!hideHeading && (
         <>
           {/* Same size/weight/colour as the sibling gridsim-frontend project's
               own country-name heading at the top of its sidebar. */}
-          <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "#1A1A1A", lineHeight: 1.2, mb: 0.5 }}>
+          <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "text.primary", lineHeight: 1.2, mb: 0.5 }}>
             Policy Explorer
           </Typography>
           <Typography variant="body2" sx={{ mb: 1.5 }}>
@@ -156,7 +156,7 @@ function Row({
           borderColor: selected ? "primary.main" : "#E5E7EB",
           cursor: "pointer",
           overflow: "hidden",
-          bgcolor: selected ? "action.selected" : "#F9FAFB",
+          bgcolor: selected ? "action.selected" : "action.hover",
           transition: "background-color 120ms ease, border-color 120ms ease",
           "&:hover": { bgcolor: selected ? "action.selected" : "#F3F4F6" },
           "&:hover .row-chevron": { color: "primary.main", transform: "translateX(2px)" },
@@ -217,7 +217,7 @@ function Row({
 
       {group.isGroup && (
         <Collapse in={expanded}>
-          <Stack spacing={0.5} sx={{ pl: 3, pt: 0.75, bgcolor: "#ffffff" }}>
+          <Stack spacing={0.5} sx={{ pl: 3, pt: 0.75, bgcolor: "background.paper" }}>
             {[...group.children]
               .sort((a, b) => compareGroups(a, b, sort))
               .map((child) => (
@@ -264,7 +264,7 @@ function ChildRow({
         borderColor: selected ? "primary.main" : "transparent",
         cursor: "pointer",
         bgcolor: selected ? "action.selected" : "transparent",
-        "&:hover": { bgcolor: selected ? "action.selected" : "#F9FAFB" },
+        "&:hover": { bgcolor: selected ? "action.selected" : "action.hover" },
       }}
     >
       {/* Plain name, not the qualified "State, Country" form CountryScore

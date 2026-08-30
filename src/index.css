@@ -22,7 +22,8 @@
   font-family: 'Eastman Grotesque', -apple-system, BlinkMacSystemFont, sans-serif;
   font-optical-sizing: auto;
   font-weight: 400;
-  color-scheme: light;
+  /* color-scheme is set by CssBaseline from theme.palette.mode, not fixed
+     here - it needs to flip with the light/dark toggle. */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

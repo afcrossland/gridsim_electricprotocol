@@ -74,7 +74,7 @@ export default function JurisdictionSearch({ scores, selected, onSelect, disable
         // The dropdown below needs a positioned ancestor to anchor to - see
         // the `disablePortal` note on the Autocomplete itself.
         position: "relative",
-        bgcolor: "#ffffff",
+        bgcolor: "background.paper",
         border: "1px solid",
         borderColor: "divider",
       }}

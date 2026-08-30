@@ -154,6 +154,38 @@ export const SCENES: Scene[] = [
     },
   },
   {
+    id: 11,
+    heading: "",
+    body: "",
+    layout: "story",
+    media: {
+      kind: "app",
+      appState: { countryPanelTab: "sections" },
+      spotlight: {
+        selector: '[data-tour="question-rubric"]',
+        tag: "Edit an answer",
+        caption: "Click a rubric tier to record what's actually in place, then use Evidence to add the citation behind it - a law, a regulator decision, or a market operator's own data.",
+        arrow: "up",
+      },
+    },
+  },
+  {
+    id: 12,
+    heading: "",
+    body: "",
+    layout: "story",
+    media: {
+      kind: "app",
+      appState: { countryPanelTab: "sections" },
+      spotlight: {
+        selector: '[data-tour="submit-suggestion"]',
+        tag: "Submit for review",
+        caption: "Bundle everything you've changed this session into one suggestion, with your name and organisation - an admin reviews it before it's accepted or reverted.",
+        arrow: "left",
+      },
+    },
+  },
+  {
     id: 8,
     heading: "",
     body: "",

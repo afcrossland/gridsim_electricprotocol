@@ -19,6 +19,10 @@ export default function MapLegend() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const gradient = SCORE_RAMP.map((s) => `${s.color} ${s.stop * 100}%`).join(", ");
+  // Floating glass card over the live map, not a themed app surface - a
+  // literal rgba (rather than theme.palette.background.paper) so it stays
+  // translucent over whatever the map is showing underneath, in both modes.
+  const glassBg = theme.palette.mode === "dark" ? "rgba(32,39,42,0.92)" : "rgba(255,255,255,0.92)";
 
   if (isMobile) {
     return (
@@ -35,7 +39,7 @@ export default function MapLegend() {
           display: "flex",
           alignItems: "center",
           gap: 1.25,
-          bgcolor: "rgba(255,255,255,0.92)",
+          bgcolor: glassBg,
           backdropFilter: "blur(8px)",
           borderBottom: "1px solid",
           borderColor: "divider",
@@ -77,10 +81,11 @@ export default function MapLegend() {
         width: "min(20vw, 100%)",
         px: 1.5,
         py: 1.25,
-        bgcolor: "rgba(255,255,255,0.92)",
+        bgcolor: glassBg,
         backdropFilter: "blur(8px)",
         borderRadius: "8px",
-        border: "1px solid rgba(0,0,0,0.08)",
+        border: "1px solid",
+        borderColor: "divider",
         boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
       }}
     >
@@ -89,7 +94,7 @@ export default function MapLegend() {
           fontSize: "0.625rem",
           fontWeight: 600,
           letterSpacing: "0.06em",
-          color: "#6B7280",
+          color: "text.secondary",
           textTransform: "uppercase",
           mb: 0.75,
           lineHeight: 1.3,
@@ -117,7 +122,7 @@ export default function MapLegend() {
             sx={{
               position: "absolute",
               fontSize: "0.625rem",
-              color: "#9CA3AF",
+              color: "text.disabled",
               lineHeight: 1,
               top: 2,
               left: pct === 100 ? undefined : `${pct}%`,
