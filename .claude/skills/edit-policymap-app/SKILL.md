@@ -1,14 +1,21 @@
 ---
 name: edit-policymap-app
-description: Use when making code changes to the Solar Policy Wiki app (ep_policymap) - UI components, the Zustand store, the map, scoring logic, or the geometry/import build scripts. Covers the verification workflow, the store's persistence contract, the jurisdiction model, and house style rules (no em dashes, no CER/CP acronyms) that are easy to violate by accident.
+description: Use when making code changes to the Solar Policy Explorer app (ep_policymap) - UI components, the Zustand store, the map, scoring logic, or the geometry/import build scripts. Covers the verification workflow, the store's persistence contract, the jurisdiction model, and house style rules (no em dashes, no CER/CP acronyms) that are easy to violate by accident.
 ---
 
-# Editing the Solar Policy Wiki app
+# Editing the Solar Policy Explorer app
 
 This is a React 19 + TypeScript + Vite app (MUI 7, Zustand, MapLibre via
 react-map-gl) that scores countries and states against the Electric Protocol.
 No backend - the shared dataset is JSON files in git; a visitor's own answers
 live in their browser's localStorage only.
+
+The site has two Vite HTML entries, not one: the repo-root `index.html` is a
+static splash page (the "Electric Futures Playbook") with no bundle of its
+own, and this app actually lives at `/policy/` (`policy/index.html` mounts
+`src/main.tsx`). See `vite.config.ts`'s `build.rollupOptions.input` and the
+README's "Site structure" section before touching either entry file or the
+build config.
 
 ## Before you start
 
@@ -21,7 +28,7 @@ get wrong even after reading it.
 
 ```sh
 npx tsc -b        # typecheck
-npx vitest run    # 28 tests as of writing
+npx vitest run    # 66 tests as of writing
 npm run build:dev # production build, catches anything the other two miss
 ```
 
@@ -33,11 +40,15 @@ redundant with typecheck.
 ## The store's persistence contract - the single most important rule here
 
 `src/stores/protocolStore.ts` uses Zustand's `persist` middleware with a
-**strict split**: `partialize` writes only `role`, `threshold`, `mapMetric`,
-`sections`, `questions`, and `responses.filter(r => !r.seeded)` to
-localStorage. Seeded answers (from `protocol.seed.json`, `sourced-answers.json`,
-`indicator-answers.json`) are **never persisted** - they are rebuilt fresh from
-the JSON files on every load via `merge`.
+**strict split**: `partialize` writes only user-authored preferences and
+actions - `threshold`, `mapMetric`, `welcomeSeen`, `tourSeen`, `mode` (the
+light/dark toggle), `responses.filter(r => !r.seeded)`, admin edits
+(`questionOverrides`, `sectionOverrides`, `customSections`, `customQuestions`,
+`removedSectionIds`, `removedQuestionIds`), and `suggestions`. Seeded answers
+(from `protocol.seed.json`, `sourced-answers.json`, `indicator-answers.json`)
+and the live `sections`/`questions` arrays are **never persisted directly** -
+they are rebuilt fresh from the JSON files (with the sparse overrides above
+reapplied) on every load via `merge`.
 
 **Why this matters**: earlier in this project's history, seeded answers were
 persisted like everything else. Every time new research was added to the data

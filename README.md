@@ -1,4 +1,4 @@
-# Solar Policy Wiki
+# Solar Policy Explorer
 
 A web platform for scoring electricity policy against the Electric Protocol: a world map coloured by score, a per-country questionnaire with
 sources, a ranked list of the highest-impact changes each country could make,
@@ -6,7 +6,30 @@ and a scoreboard.
 
 Built on the same foundations as `gridsim-frontend` - React 19 + TypeScript +
 Vite, MUI 7 with the GSC theme and Eastman Grotesque, MapLibre via
-`react-map-gl`, Zustand for state, Firebase Hosting for deploys.
+`react-map-gl`, Zustand for state, GitHub Pages for deploys.
+
+## Site structure
+
+The built site has two HTML entries, not one - see `vite.config.ts`'s
+`build.rollupOptions.input`:
+
+- **`/`** - `index.html` at the repo root is a static, unbundled splash page
+  (the "Electric Futures Playbook") linking out to this app and to the
+  sibling `gridsim-frontend` site. It has no JS bundle of its own; its fonts
+  and favicon live in `public/`.
+- **`/policy/`** - `policy/index.html` is the actual React app's entry point
+  (mounts `src/main.tsx`, same as any normal Vite SPA). Everything else in
+  this README describes what lives here.
+
+Both entries share the same `base` (see Deployment below), so asset URLs
+resolve correctly under either the GitHub Pages subpath or a custom domain
+regardless of which entry references them.
+
+Two URL params the app itself understands, both meant for links coming from
+the playbook splash: `?skipIntro=1` marks the onboarding tour as already seen
+(skips straight to the app), `?showTour=1` forces the tour open even for a
+returning visitor. Both strip themselves from the URL after taking effect -
+see the two mount-time effects near the top of `App.tsx`.
 
 ## Running it
 
@@ -261,38 +284,82 @@ answers cannot top the board.
 `weight × (2 − current answer)`. Unanswered questions are included, since an
 unknown is as much of an opportunity as a known zero.
 
-## Roles
+## Editing and the Admin console
 
-There is no authentication yet. The navbar toggles between:
+There is no authentication - the padlock button in the nav opens the Admin
+console for anyone. It's a stand-in for auth rather than a real gate: it lets
+add/edit/delete on questions, weights and rubric wording, and it's where
+suggestions get reviewed (below). There is no separate "Registered" role or
+role toggle any more; the app just has questions anyone can answer and an
+Admin console anyone can open.
 
-- **Registered** - answer questions, attach sources and notes.
-- **Admin** - the above, plus add/edit/delete questions, edit weights and
-  rubric wording, and clear any response.
+A country's own page is read-only until its **Edit** button (top right of the
+panel) is clicked - rubric tiles, evidence fields and the clear-response
+control all gate on this. It resets to read-only on every jurisdiction
+switch, so browsing a new country never silently inherits an edit session
+left open on the last one.
+
+Editing itself is still live and immediate, not held back for approval - what
+*is* held back is attribution and review. **Submit revised evidence** (in the
+section rail, once something has actually changed this session) bundles
+every edit made to that country since its page was opened into one
+`Suggestion` (`src/lib/suggestions.ts`), asks for the submitter's name and
+organisation, and files it under Admin console → Suggestions. An admin
+Accepts it (no-op - the data's already live) or Rejects it, which reverts
+exactly the responses that suggestion touched back to their pre-edit
+baseline, nothing more. This only lives in the submitter's own browser today
+- there's no backend to make a suggestion visible to anyone else's browser
+yet, tracked as a known gap rather than a bug.
 
 State persists to `localStorage` behind the actions in
 `src/stores/protocolStore.ts`. Nothing above that layer knows where data lives,
-so adding Firestore means reimplementing those actions and leaving the
+so adding a real backend means reimplementing those actions and leaving the
 components alone.
 
-**Only user-authored state is persisted** - role, admin edits to questions, and
-answers someone typed. Seeded answers are derived from `protocol.seed.json` and
-`sourced-answers.json` and are rebuilt on every load. Persisting them meant a
-cached copy shadowed later data updates, so newly researched jurisdictions did
-not appear until the store version was bumped by hand. Adding data to the JSON
-files is now sufficient on its own; `version` only needs bumping when the
-*shape* of stored state changes. `protocolStore.test.ts` locks this in.
+**Only user-authored state is persisted** - admin edits to questions, answers
+someone typed, submitted suggestions, and small preferences like the
+light/dark toggle (see Dark mode below). Seeded answers are derived from
+`protocol.seed.json` and `sourced-answers.json` and are rebuilt on every load.
+Persisting them meant a cached copy shadowed later data updates, so newly
+researched jurisdictions did not appear until the store version was bumped by
+hand. Adding data to the JSON files is now sufficient on its own; `version`
+only needs bumping when the *shape* of stored state changes.
+`protocolStore.test.ts` locks this in.
+
+## Dark mode
+
+`src/mui-theme.tsx` exports `getTheme(mode)`, not a single static theme -
+brand hues (aqua, citrus, teal, orange) stay the same in both modes; only
+neutrals (backgrounds, text, dividers, and every literal colour baked into
+the MUI component overrides) flip. `main.tsx` mounts a small `ThemedApp` that
+reads `mode` from the store and rebuilds the theme via `useMemo` when it
+changes; the toggle itself is the sun/moon icon in the nav.
+
+The live map gets its own dark variant too - `src/assets/map_gsc_dark.json`
+is a transformed copy of the base MapTiler style (`map_gsc.json`: dark
+background/water, light label text, dark label halos), picked by
+`PolicyMap.tsx` based on `theme.palette.mode`. The country-score choropleth
+colours themselves (`SCORE_RAMP`) are unchanged in both modes, since that's
+the actual data being visualised, not UI chrome.
 
 ## Layout
 
 ```
+index.html               root entry - the static playbook splash, no bundle
+policy/index.html         app entry - mounts src/main.tsx
+public/fonts/, favicon.png   assets both entries reference by root-absolute path
 src/
-  lib/scoring.ts        score, completeness and impact ranking (+ tests)
-  lib/types.ts          shared domain types
+  main.tsx               mounts ThemedApp (theme + store wiring) -> App
+  mui-theme.tsx           getTheme(mode) - see Dark mode above
+  scrollstory/            the scroll-driven onboarding tour (ScrollStory, scenes.ts)
+  lib/scoring.ts          score, completeness and impact ranking (+ tests)
+  lib/types.ts            shared domain types
+  lib/suggestions.ts       Suggestion diffing - see Editing and the Admin console
   stores/protocolStore.ts   all mutable state and every mutation
-  components/map/       PolicyMap choropleth + legend
-  components/layout/    TopNavbar, Scoreboard, CountryPanel, ImpactList
+  components/map/         PolicyMap choropleth + legend (light/dark map styles)
+  components/layout/      TopNavbar, Scoreboard, CountryPanel, ImpactList, AdminConsole
   data/protocol.seed.json   generated - edit the importer, not this file
-scripts/import_xlsx.py  the one-time spreadsheet import
+scripts/import_xlsx.py    the one-time spreadsheet import
 ```
 
 `src/assets/world.geojson` comes from GridSim and is grid-level, so a country

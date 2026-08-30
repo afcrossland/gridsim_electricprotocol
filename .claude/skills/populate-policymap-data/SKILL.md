@@ -1,6 +1,6 @@
 ---
 name: populate-policymap-data
-description: Use when researching and adding policy answers to the Solar Policy Wiki (ep_policymap) - filling in a country/state/province against the Electric Protocol's 39 questions, or building a bulk data source. Covers the citation requirement, the rubric-matching rule, the specificity and evidence-basis system, and where to look for high-leverage sources.
+description: Use when researching and adding policy answers to the Solar Policy Explorer (ep_policymap) - filling in a country/state/province against the Electric Protocol's 39 questions, or building a bulk data source. Covers the citation requirement, the rubric-matching rule, the specificity and evidence-basis system, and where to look for high-leverage sources.
 ---
 
 # Populating Electric Protocol answers
