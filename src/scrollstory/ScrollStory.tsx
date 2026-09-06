@@ -243,7 +243,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, p
             <Box sx={{ pt: 2, borderTop: "1px solid #E5E7EB" }}>
               <Typography sx={{ fontSize: "0.8125rem", color: "#9CA3AF", lineHeight: 1.4 }}>
                 by The Global Solar Council&ensp;·&ensp;
-                <Box component="span" sx={{ color: "#D97706", fontStyle: "italic", fontWeight: 600 }}>
+                <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
                   Solar. Storage. Future Secured.
                 </Box>
               </Typography>

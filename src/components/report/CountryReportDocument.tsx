@@ -20,7 +20,7 @@ const C = {
   border: "#E5E7EB",
   bg: "#F9FAFB",
   white: "#FFFFFF",
-  orange: "#EF864C", // GSC Burnt Orange
+  orange: "#FBB114", // GSC Citrus
   citrus: "#FBB114", // GSC Citrus
 };
 

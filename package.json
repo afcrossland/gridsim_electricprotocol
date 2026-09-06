@@ -12,7 +12,8 @@
     "test": "vitest",
     "import:xlsx": "python3 scripts/import_xlsx.py",
     "build:geometry": "python3 scripts/build_geometry.py",
-    "build:indicators": "python3 scripts/build_indicator_answers.py"
+    "build:indicators": "python3 scripts/build_indicator_answers.py",
+    "export:consultant-review": "vitest run --config scripts/vitest.extract.config.ts && python3 scripts/export_consultant_review.py"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

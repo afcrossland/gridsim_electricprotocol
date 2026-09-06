@@ -13,3 +13,8 @@ tsconfig*.tsbuildinfo
 
 __pycache__/
 *.pyc
+
+# Consultant-review export: regenerable build artifact + its intermediate
+# data snapshot, not source - see scripts/export_consultant_review.py.
+/Solar Policy Explorer - Consultant Review.xlsx
+scripts/_countryData.json

@@ -44,15 +44,15 @@ interface Props {
 }
 
 /**
- * GSC Burnt Orange, used for the chosen rubric tier.
+ * GSC Citrus, used for the chosen rubric tier.
  *
  * Aqua was too close to the card's own border and to the unselected outline to
- * read at a glance. Orange is reserved for this one meaning - "this is the
+ * read at a glance. Citrus is reserved for this one meaning - "this is the
  * answer" - so the unanswered marker below uses a neutral dashed edge rather
  * than competing for the same colour.
  */
-const SELECTED = "#EF864C";
-const SELECTED_TINT = "rgba(239, 134, 76, 0.12)";
+const SELECTED = "#FBB114";
+const SELECTED_TINT = "rgba(251, 177, 20, 0.12)";
 
 /**
  * One question as a compact card.

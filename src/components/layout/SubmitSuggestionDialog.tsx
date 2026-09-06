@@ -33,7 +33,7 @@ const KIND_COLOR: Record<SuggestionChange["kind"], string> = {
   score: "#008194", // GSC teal - matches the "Answer" chip
   "evidence-added": "#2E7D32",
   "evidence-removed": "#C62828",
-  "evidence-edited": "#EF864C", // GSC burnt orange
+  "evidence-edited": "#FBB114", // GSC citrus
 };
 
 const KIND_LABEL: Record<SuggestionChange["kind"], string> = {

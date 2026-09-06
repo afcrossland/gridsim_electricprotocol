@@ -86,7 +86,7 @@ export default function TopNavbar() {
             </Typography>
             <Typography sx={{ fontSize: "0.65rem", color: "text.secondary", lineHeight: 1.3, display: { xs: "none", sm: "block" } }}>
               by The Global Solar Council&ensp;·&ensp;
-              <Box component="span" sx={{ color: "#D97706", fontStyle: "italic", fontWeight: 600 }}>
+              <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
                 Solar. Storage. Future Secured.
               </Box>
             </Typography>

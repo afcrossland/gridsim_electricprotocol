@@ -156,3 +156,14 @@ picks the wrong winner.
   fixture would miss (it caught the France bug above). Prefer this pattern for
   new tests over hand-rolled fixtures when the real data is small enough to
   load fast.
+- **A one-off script that needs the app's own TS logic** (not just the JSON
+  data files) can run via Vitest rather than adding a TS-runner dependency -
+  see `scripts/extractCountryData.ts` and its own
+  `scripts/vitest.extract.config.ts` (`test.include` pointing only at that
+  one file, so it never joins the real test suite). It has no `it()`/
+  `describe()` of its own - the useful work happens as an import-time side
+  effect, with one no-op test at the bottom purely so Vitest exits 0. Only
+  reach for this when the logic actually needs importing (merge/scoring
+  logic that must not be re-derived elsewhere, per the persistence-contract
+  section above) - a script that only reads the JSON data files directly
+  should stay plain Python, matching every other script in this directory.

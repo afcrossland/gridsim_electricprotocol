@@ -22,6 +22,10 @@ import type { CSSObject } from '@emotion/react';
 // Primary:   Aqua #00ABBB | Peach #F6AB84 | Citrus #FBB114
 // Secondary: Teal #008194 | Burnt Orange #EF864C | Off White #F4F1E9 | Deep Gray #3B3838 | Bright Yellow #FFF34A (gradients only)
 //
+// Burnt Orange is part of the brand palette above but not used anywhere in
+// this theme any more - `warning` was moved onto the Citrus swatch (same as
+// `secondary`) rather than its own distinct orange.
+//
 // Brand hues (primary/secondary/error/warning/info/success) stay the same in
 // both modes - only the neutrals (background, text, dividers, surface
 // borders/shadows baked into component overrides below) flip. Dark mode's
@@ -122,9 +126,9 @@ export function getTheme(mode: PaletteMode = 'light'): Theme {
       dark: '#a32d2d',
     },
     warning: {
-      main: '#EF864C',        // GSC Burnt Orange
-      light: '#F3A07A',
-      dark: '#C86C38',
+      main: '#FBB114',        // GSC Citrus - same swatch as secondary
+      light: '#FCCA4A',
+      dark: '#D4960F',
     },
     info: {
       main: '#00ABBB',        // GSC Aqua

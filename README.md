@@ -47,6 +47,7 @@ npm run build:dev     # typecheck + production build
 npm run import:xlsx   # regenerate seed data from the spreadsheet
 npm run build:geometry    # regenerate map geometry from Natural Earth
 npm run build:indicators  # regenerate World Bank indicator answers
+npm run export:consultant-review  # build the consultant-review spreadsheet
 ```
 
 ## Deployment
@@ -325,6 +326,39 @@ researched jurisdictions did not appear until the store version was bumped by
 hand. Adding data to the JSON files is now sufficient on its own; `version`
 only needs bumping when the *shape* of stored state changes.
 `protocolStore.test.ts` locks this in.
+
+## Consultant review export
+
+`npm run export:consultant-review` builds `Solar Policy Explorer -
+Consultant Review.xlsx` at the repo root - one tab per mappable jurisdiction
+(ordered most-complete first, so the substantive tabs aren't buried behind
+dozens of near-empty ones), one row per question: question area, question
+text, an **Answer** column that's a real dropdown built from that specific
+question's own rubric labels (pre-filled with the current answer where one
+exists), then evidence title/source/notes. A question with more than one
+evidence entry stacks them in the same three cells rather than repeating the
+row.
+
+It's a two-step build, both wired into that one npm script:
+
+1. `scripts/extractCountryData.ts` imports the app's own
+   `sourcedResponses()`/`sourcedCountries()`/`scoreCountry()` and writes
+   `scripts/_countryData.json` - a snapshot of exactly what the live app
+   would show, not a separate re-derivation of the specificity/evidence-basis
+   merge logic or the completeness formula. It runs via `vitest run
+   --config scripts/vitest.extract.config.ts` rather than a real test - that
+   config's `test.include` points only at this one file so it never runs as
+   part of the normal test suite; reusing Vitest here is deliberately a
+   trick to get Vite's existing TS/JSON transform pipeline for free instead
+   of adding a TS-runner dependency (`tsx` et al.) for one script.
+2. `scripts/export_consultant_review.py` reads that JSON and writes the
+   actual workbook with `openpyxl`. Each question's dropdown options live on
+   a hidden `RubricLists` sheet (one column per question) rather than as an
+   inline Excel list, since several rubric tiers are full sentences longer
+   than Excel's ~255-character inline-list limit.
+
+Both the `.xlsx` and `scripts/_countryData.json` are gitignored - build
+artifacts, regenerate rather than commit.
 
 ## Dark mode
 
