@@ -26,10 +26,14 @@ dropping the AC row entirely, so each country now has exactly one row per
 month again.
 
 Usage note: this is a **one-time read for now**, run by hand when the data
-needs refreshing, not wired into a build step or scheduled job yet -
-Andrew is still confirming Ember's terms for redistributing this data via
-the app, and this script does not run automatically anywhere. Re-run it
-manually:
+needs refreshing, not wired into a build step or scheduled job yet.
+Redistributing this data via the app is confirmed fine, 2026-09-10 -
+Ember's data is published under a Creative Commons Attribution 4.0
+licence (https://creativecommons.org/licenses/by/4.0/), which permits
+this as long as Ember is credited (see the app's own Help page) and any
+computed/derived figures are flagged as such, not presented as Ember's
+own numbers verbatim. This script still doesn't run automatically
+anywhere - re-run it manually:
 
     python3 scripts/build_ember_solar.py
 """

@@ -8,6 +8,7 @@ interface Props {
 interface Topic {
   heading: string;
   body: string;
+  link?: { href: string; label: string };
 }
 
 const TOPICS: Topic[] = [
@@ -21,7 +22,8 @@ const TOPICS: Topic[] = [
   },
   {
     heading: "Where the data comes from",
-    body: "All the numbers come from Ember, a real energy research group. Solar capacity and solar's share of electricity are two different Ember datasets, which is why some countries only have one of the two charts. Population numbers (used for the per-person view) come from the World Bank. Nothing on this map is made up or guessed.",
+    body: "All the numbers come from Ember, a real energy research group, and the World Bank. Solar capacity and solar's share of electricity are two different Ember datasets, which is why some countries only have one of the two charts. Population numbers (used for the per-person view) come from the World Bank. Both publish their data under a Creative Commons licence, which is why we can use it here as long as we say where it came from and say when we've changed it - so two things worth knowing: the per-person figures are Ember's number divided by the World Bank's population, and the yearly share-of-electricity figures are added up from Ember's own monthly numbers, not copied straight from either source. Nothing on this map is made up or guessed.",
+    link: { href: "https://creativecommons.org/licenses/by/4.0/", label: "Creative Commons Attribution 4.0 licence" },
   },
   {
     heading: "Why some countries are missing",
@@ -29,7 +31,7 @@ const TOPICS: Topic[] = [
   },
   {
     heading: "How often the data updates",
-    body: "This is a demo. The data is loaded once by hand, not updated automatically. The numbers you see are correct as of when this demo was built, not necessarily today.",
+    body: "The data is loaded once by hand, not updated automatically. The numbers you see are correct as of when this app was last updated, not necessarily today.",
   },
 ];
 
@@ -72,6 +74,19 @@ export default function HelpPage({ onBack }: Props) {
                 {topic.heading}
               </Typography>
               <Typography variant="body2">{topic.body}</Typography>
+              {topic.link && (
+                <Typography variant="body2" sx={{ mt: 0.5 }}>
+                  <Box
+                    component="a"
+                    href={topic.link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ color: "primary.main" }}
+                  >
+                    {topic.link.label}
+                  </Box>
+                </Typography>
+              )}
             </Box>
           ))}
         </Stack>

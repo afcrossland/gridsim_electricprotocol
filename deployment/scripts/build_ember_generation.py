@@ -25,8 +25,9 @@ since generation is reported from grid operator data even where a
 country's own installed-capacity register is thin.
 
 Usage note: same one-time-read status as build_ember_solar.py - run by
-hand, not wired into a build step or scheduled job, pending Andrew
-confirming Ember's terms for redistributing this data via the app.
+hand, not wired into a build step or scheduled job. Redistributing this
+data via the app is confirmed fine, 2026-09-10 - see build_ember_solar.py's
+own docstring for the Creative Commons Attribution 4.0 licence details.
 
     python3 scripts/build_ember_generation.py
 """

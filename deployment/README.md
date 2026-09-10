@@ -93,9 +93,21 @@ sizing and positioning.
 
 All three are **one-time reads, not a live pipeline** - re-run the
 relevant script by hand to refresh; nothing calls any of them
-automatically, and Andrew is still confirming Ember's terms for
-redistributing its data via the app before this goes further than a local
-demo.
+automatically.
+
+**Redistribution confirmed, 2026-09-10**: Ember publishes its data under a
+[Creative Commons Attribution 4.0 licence](https://creativecommons.org/licenses/by/4.0/)
+(World Bank population data is CC BY 4.0 too), which explicitly permits
+redistributing it - including via an app like this one - as long as Ember
+is credited and any changes made to the data are indicated, rather than
+presenting a computed figure as if it were Ember's own verbatim number.
+Both conditions are handled: the app's Help page (`HelpPage.tsx`) credits
+both sources with a link to the licence, and states plainly that the
+per-capita figures (Ember ÷ World Bank population) and the annual
+generation-mix shares (summed from Ember's monthly numbers) are computed
+here, not copied straight from either source. This was the one open
+question blocking the data imports from being more than a local demo -
+now resolved.
 
 - **Installed Capacity** - Ember's monthly capacity CSV
   (files.ember-energy.org/public-downloads/capacity/outputs/monthly_capacity_wind_solar_public_release_file.csv)
