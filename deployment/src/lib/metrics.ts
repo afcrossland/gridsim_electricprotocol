@@ -48,30 +48,20 @@ export function domainForMetric(metric: Metric): [number, number] {
 }
 
 /**
- * Orange to teal/aqua, low value to high - replaced the original single-hue
- * Aqua sequential ramp 2026-09-10 at Andrew's request, trying the same
- * two-brand-colour idea first explored (then reverted) on Policy Explorer's
- * own score ramp - see that app's `lib/scoring.ts` for the fuller history.
- * Both ends are drawn from the GSC brand palette (see mui-theme.tsx's own
- * brand-colour comment): Burnt Orange (#EF864C) at the low end, Aqua
- * (#00ABBB, the same hue as `primary.main`) at the high end.
- *
- * **Fixed 2026-09-10**: the original midpoint was a muted grey-tan
- * (#D8D3C6), picked as a "neutral" stop between the two brand colours -
- * but a neutral that close to `COLOR_NO_DATA` (#E5E7EB) read as "no data"
- * on the map rather than "medium value". Replaced with GSC's own Citrus
- * (#FBB114), a real brand colour rather than an invented neutral, and
- * rebuilt the two remaining stops as actual RGB midpoints between their
- * neighbours (Burnt Orange↔Citrus, Citrus↔Aqua) rather than hand-picked -
- * the ramp now reads as a coherent sunset-to-ocean gradient (orange, gold,
- * yellow, green, teal) with every stop clearly distinct from grey.
+ * Red to green, low value to high - dropped the orange-to-teal/aqua idea
+ * 2026-09-10 (see the git history of this file for that version and the
+ * two rounds of tuning it went through) in favour of the same red-to-green
+ * scale Policy Explorer's own `SCORE_RAMP` uses (`ep_policymap/src/lib/scoring.ts`)
+ * - same five stops, same hex values, kept as a separate copy here rather
+ * than a shared import since the two apps' colour ramps aren't otherwise
+ * linked and Policy Explorer's own ramp is scoped to that app's `scoring.ts`.
  */
 export const RAMP_STOPS = [
-  { stop: 0, color: "#EF864C" },
-  { stop: 0.25, color: "#F59B30" },
-  { stop: 0.5, color: "#FBB114" },
-  { stop: 0.75, color: "#7DAE67" },
-  { stop: 1, color: "#00ABBB" },
+  { stop: 0, color: "#c0392b" },
+  { stop: 0.25, color: "#f47c2c" },
+  { stop: 0.5, color: "#f9a825" },
+  { stop: 0.75, color: "#c8e07b" },
+  { stop: 1, color: "#1a9850" },
 ];
 
 export const COLOR_NO_DATA = "#E5E7EB";

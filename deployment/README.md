@@ -237,24 +237,23 @@ directly than a one-line log message.
 
 ## Colour ramp
 
-`lib/metrics.ts`'s `RAMP_STOPS` changed 2026-09-10 from a single-hue Aqua
-sequential ramp to orange-to-teal/aqua (low value to high) - Burnt Orange
-(#EF864C) to Aqua (#00ABBB), both drawn from the GSC brand palette (see
-mui-theme.tsx's own brand-colour comment). This was tried on Policy
-Explorer's own score ramp first, then reverted there and applied here
-instead once it turned out that's what Andrew actually wanted to try it
-on - see `ep_policymap/src/lib/scoring.ts`'s own comment on `SCORE_RAMP`
-for that history, which is still red-to-green, unchanged.
+`lib/metrics.ts`'s `RAMP_STOPS` went through three versions on
+2026-09-10 before settling:
 
-**Fixed, 2026-09-10 (same day)**: the original midpoint was a muted
-grey-tan (#D8D3C6), picked as a "neutral" stop between the two brand
-colours - but it read as `COLOR_NO_DATA` (#E5E7EB) on the actual map, not
-as "medium value", since the two greys were close enough to be
-indistinguishable at a glance. Replaced with GSC's own Citrus (#FBB114) -
-a real brand colour, not an invented neutral - and rebuilt the remaining
-two stops as actual RGB midpoints between their neighbours rather than
-hand-picked, so the ramp now reads as a coherent gradient (orange, gold,
-yellow, green, teal) with every stop clearly distinct from grey.
+1. A single-hue Aqua sequential ramp (the original).
+2. Orange-to-teal/aqua (Burnt Orange → Aqua, both GSC brand colours) -
+   tried on Policy Explorer's own score ramp first, reverted there once it
+   turned out Andrew meant to try it here instead.
+3. The same orange-to-teal idea, but with the midpoint fixed from a muted
+   grey-tan (which read as `COLOR_NO_DATA` on the actual map, not "medium
+   value") to GSC's own Citrus yellow.
+
+**Settled on red-to-green instead** - dropping the teal/aqua idea
+entirely, per Andrew's own follow-up call once he'd seen it live. Now the
+exact same five stops as Policy Explorer's own `SCORE_RAMP`
+(`ep_policymap/src/lib/scoring.ts`): `#c0392b` → `#f47c2c` → `#f9a825` →
+`#c8e07b` → `#1a9850`, kept as a separate copy here rather than a shared
+import - the two apps' ramps aren't otherwise linked.
 
 ## Notable files
 
