@@ -3,126 +3,94 @@
 annual electricity generation, a second, wider-coverage dataset alongside
 src/data/ember_solar.json's installed-capacity numbers.
 
-Source: Ember's public monthly generation release -
-https://files.ember-energy.org/public-downloads/generation/outputs/release_generation_monthly_global.csv
-(~28MB, no key required). Confirmed by inspection 2026-09-09: one row per
-area/month/electricity-source, with both `Generation (TWh)` and
-`Share of generation (%)` columns. `Share of generation (%)` is itself a
-*monthly* figure, so it can't be read off directly for an annual share -
-this script sums each country's monthly Solar and Total generation TWh
-across a calendar year and divides, rather than averaging the monthly
-percentages (which would distort seasonal countries). A year is only kept
-if all 12 months of both Solar and Total generation rows are present, so
-the in-progress current year is dropped rather than shown as a misleadingly
-low partial-year share.
+Source: Ember's own Data API, `GET /v1/electricity-generation/yearly`
+(https://api.ember-energy.org/v1/docs) - migrated 2026-09-10 off Ember's
+public monthly-generation CSV download, which this script used to sum
+itself into annual figures. Two calls, one for `series=Solar` and one for
+`series=Total generation` (both queryable directly - confirmed live,
+`Total generation` always reports `share_of_generation_pct: 100`, i.e. it
+really is the whole-generation denominator, not a category needing its own
+aggregation), matched up by (country, year). No summing of monthly figures
+needed any more, and confirmed by a live call to cover **194 countries**
+for Solar 2024, versus the 77 the old CSV-summing approach reached (that
+approach required a country to report *all 12 months* of both Solar and
+Total generation before counting a year at all, which these already-annual
+API figures don't need).
 
-Filtered to `Area type == "Country or economy"` (drops Ember's own
-regional/bloc rollups like "ASEAN", "G20", "World") and
-`Is aggregated source == "False"` (Solar is not itself a roll-up of other
-sources). 77 countries carry a "Solar" series this way - Ember's generation
-data has meaningfully wider country coverage than its capacity file's 25,
-since generation is reported from grid operator data even where a
-country's own installed-capacity register is thin.
+**Correction, 2026-09-10**: an earlier version of this migration derived
+`totalTWh` as `solarTWh / (sharePct / 100)` instead of querying `Total
+generation` directly, then dropped every row with `share_of_generation_pct
+<= 0` to dodge the division-by-zero this caused - which turned out to
+throw away 3,070 genuinely valid rows (a country's real "0% solar" years
+before it had any, not bad data - only 1 row in the whole dataset was an
+actual negative-share anomaly). Fixed by fetching `Total generation`
+directly instead of deriving it, so a zero-share year is a real data point
+now, not an indeterminate 0/0.
 
 Usage note: same one-time-read status as build_ember_solar.py - run by
 hand, not wired into a build step or scheduled job. Redistributing this
 data via the app is confirmed fine, 2026-09-10 - see build_ember_solar.py's
 own docstring for the Creative Commons Attribution 4.0 licence details.
+Needs EMBER_API_KEY - see _ember_api.py.
 
     python3 scripts/build_ember_generation.py
 """
 
-import csv
 import json
 import sys
-import urllib.request
-from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pycountry
-
-SOURCE_URL = (
-    "https://files.ember-energy.org/public-downloads/generation/outputs/"
-    "release_generation_monthly_global.csv"
-)
+from _ember_api import fetch, iso3_to_iso2
 
 OUT_PATH = Path(__file__).resolve().parent.parent / "src" / "data" / "ember_generation.json"
 
 
-def iso3_to_iso2(iso3: str) -> str | None:
-    try:
-        country = pycountry.countries.get(alpha_3=iso3)
-        return country.alpha_2 if country else None
-    except (LookupError, AttributeError):
-        return None
+def build() -> dict:
+    solar_rows = fetch("/electricity-generation/yearly", series="Solar", is_aggregate_entity="false")
+    total_rows = fetch("/electricity-generation/yearly", series="Total generation", is_aggregate_entity="false")
 
-
-def download(url: str, dest: Path) -> None:
-    print(f"Downloading {url} ...", file=sys.stderr)
-    urllib.request.urlretrieve(url, dest)
-    print(f"Saved to {dest} ({dest.stat().st_size / 1e6:.1f} MB)", file=sys.stderr)
-
-
-def build(csv_path: Path) -> dict:
-    # (iso3, year) -> month -> TWh, for Solar and for Total generation separately.
-    solar_months: dict[tuple[str, int], dict[int, float]] = defaultdict(dict)
-    total_months: dict[tuple[str, int], dict[int, float]] = defaultdict(dict)
-    names: dict[str, str] = {}
-
-    with csv_path.open(encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row["Area type"] != "Country or economy":
-                continue
-            source = row["Electricity source"]
-            if source not in ("Solar", "Total generation"):
-                continue
-            # "Solar" is a real, non-aggregated source; "Total generation"
-            # is itself the sum of every source, so it's the one row where
-            # Is aggregated source is expected to say True - only Solar
-            # needs the aggregate-exclusion check.
-            if source == "Solar" and row["Is aggregated source"] != "False":
-                continue
-
-            iso3 = row["ISO 3 code"]
-            if not iso3:
-                continue
-            names[iso3] = row["Area"]
-
-            date = row["Date"]  # e.g. "2019-01-01"
-            year, month = int(date[:4]), int(date[5:7])
-            twh = float(row["Generation (TWh)"]) if row["Generation (TWh)"] else None
-            if twh is None:
-                continue
-
-            bucket = solar_months if source == "Solar" else total_months
-            bucket[(iso3, year)][month] = twh
-
-    countries: dict[str, dict] = {}
-    unmapped: set[str] = set()
-
-    all_keys = sorted(set(solar_months) & set(total_months))
-    by_iso3: dict[str, list] = defaultdict(list)
-
-    for iso3, year in all_keys:
-        solar_by_month = solar_months[(iso3, year)]
-        total_by_month = total_months[(iso3, year)]
-        if len(solar_by_month) != 12 or len(total_by_month) != 12:
-            continue  # partial year (in-progress current year, or a gap) - skip rather than mislead
-        solar_twh = sum(solar_by_month.values())
-        total_twh = sum(total_by_month.values())
-        if total_twh <= 0:
+    # (iso3, year) -> total generation TWh
+    totals: dict[tuple[str, int], float] = {}
+    for row in total_rows:
+        iso3 = row.get("entity_code")
+        if not iso3 or row["generation_twh"] is None:
             continue
-        by_iso3[iso3].append(
+        totals[(iso3, int(row["date"]))] = row["generation_twh"]
+
+    names: dict[str, str] = {}
+    by_iso3: dict[str, list[dict]] = {}
+    skipped_invalid = 0
+    skipped_no_total = 0
+
+    for row in solar_rows:
+        iso3 = row.get("entity_code")
+        if not iso3:
+            continue
+        solar_twh = row["generation_twh"]
+        share_pct = row["share_of_generation_pct"]
+        if solar_twh is None or share_pct is None or solar_twh < 0 or share_pct < 0:
+            skipped_invalid += 1
+            continue
+
+        year = int(row["date"])
+        total_twh = totals.get((iso3, year))
+        if total_twh is None or total_twh <= 0:
+            skipped_no_total += 1
+            continue
+
+        names[iso3] = row["entity"]
+        by_iso3.setdefault(iso3, []).append(
             {
                 "year": year,
                 "solarTWh": round(solar_twh, 4),
                 "totalTWh": round(total_twh, 4),
-                "sharePct": round(solar_twh / total_twh * 100, 3),
+                "sharePct": round(share_pct, 3),
             }
         )
 
+    countries: dict[str, dict] = {}
+    unmapped: set[str] = set()
     for iso3, series in by_iso3.items():
         code = iso3_to_iso2(iso3)
         if not code:
@@ -133,6 +101,10 @@ def build(csv_path: Path) -> dict:
 
     if unmapped:
         print(f"WARNING: no ISO2 mapping for {sorted(unmapped)}", file=sys.stderr)
+    if skipped_invalid:
+        print(f"Skipped {skipped_invalid} Solar rows with a negative share/generation or missing value", file=sys.stderr)
+    if skipped_no_total:
+        print(f"Skipped {skipped_no_total} rows with no matching Total generation figure for that year", file=sys.stderr)
 
     return countries
 
@@ -153,25 +125,19 @@ def report_new_countries(out_path: Path, new_codes: set[str]) -> None:
 
 
 def main() -> None:
-    csv_path = Path(__file__).resolve().parent / "_ember_generation_download_cache.csv"
-    if not csv_path.exists():
-        download(SOURCE_URL, csv_path)
-    else:
-        print(f"Reusing cached download at {csv_path}", file=sys.stderr)
-
-    countries = build(csv_path)
+    countries = build()
     report_new_countries(OUT_PATH, set(countries.keys()))
 
     output = {
-        "source": SOURCE_URL,
+        "source": "https://api.ember-energy.org/v1/electricity-generation/yearly",
         "fetchedAt": datetime.now(timezone.utc).isoformat(),
         "note": (
             "Solar's share of each country's own total annual electricity "
             "generation (%), not installed capacity - a different question "
-            "from ember_solar.json. Annual figures are built by summing "
-            "12 months of Solar and Total generation TWh and dividing; a "
-            "year is only included if both series have all 12 months "
-            "(the in-progress current year is dropped, not shown partial)."
+            "from ember_solar.json. solarTWh, sharePct and totalTWh all come "
+            "straight from Ember's API (two series, Solar and Total "
+            "generation, matched by country and year) - none of them are "
+            "computed here."
         ),
         "countries": countries,
     }

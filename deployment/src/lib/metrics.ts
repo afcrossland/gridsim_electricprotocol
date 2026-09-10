@@ -53,18 +53,24 @@ export function domainForMetric(metric: Metric): [number, number] {
  * two-brand-colour idea first explored (then reverted) on Policy Explorer's
  * own score ramp - see that app's `lib/scoring.ts` for the fuller history.
  * Both ends are drawn from the GSC brand palette (see mui-theme.tsx's own
- * brand-colour comment) rather than arbitrary hex values: Burnt Orange
- * (#EF864C) at the low end, Aqua (#00ABBB, the same hue as `primary.main`)
- * at the high end. The three intermediate stops are hand-tuned
- * tints/neutral blends between those two anchors, not a mechanical
- * interpolation, so the ramp still reads as five distinct colours rather
- * than muddying through grey in the middle.
+ * brand-colour comment): Burnt Orange (#EF864C) at the low end, Aqua
+ * (#00ABBB, the same hue as `primary.main`) at the high end.
+ *
+ * **Fixed 2026-09-10**: the original midpoint was a muted grey-tan
+ * (#D8D3C6), picked as a "neutral" stop between the two brand colours -
+ * but a neutral that close to `COLOR_NO_DATA` (#E5E7EB) read as "no data"
+ * on the map rather than "medium value". Replaced with GSC's own Citrus
+ * (#FBB114), a real brand colour rather than an invented neutral, and
+ * rebuilt the two remaining stops as actual RGB midpoints between their
+ * neighbours (Burnt Orange↔Citrus, Citrus↔Aqua) rather than hand-picked -
+ * the ramp now reads as a coherent sunset-to-ocean gradient (orange, gold,
+ * yellow, green, teal) with every stop clearly distinct from grey.
  */
 export const RAMP_STOPS = [
   { stop: 0, color: "#EF864C" },
-  { stop: 0.25, color: "#F3AC7E" },
-  { stop: 0.5, color: "#D8D3C6" },
-  { stop: 0.75, color: "#6FC9D3" },
+  { stop: 0.25, color: "#F59B30" },
+  { stop: 0.5, color: "#FBB114" },
+  { stop: 0.75, color: "#7DAE67" },
   { stop: 1, color: "#00ABBB" },
 ];
 

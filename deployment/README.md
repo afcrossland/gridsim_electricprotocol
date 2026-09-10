@@ -103,29 +103,36 @@ is credited and any changes made to the data are indicated, rather than
 presenting a computed figure as if it were Ember's own verbatim number.
 Both conditions are handled: the app's Help page (`HelpPage.tsx`) credits
 both sources with a link to the licence, and states plainly that the
-per-capita figures (Ember ÷ World Bank population) and the annual
-generation-mix shares (summed from Ember's monthly numbers) are computed
-here, not copied straight from either source. This was the one open
-question blocking the data imports from being more than a local demo -
-now resolved.
+per-capita figure (Ember ÷ World Bank population) is the only number this
+app computes itself - installed capacity and solar's share of electricity
+both come straight from Ember, unchanged. This was the one open question
+blocking the data imports from being more than a local demo - now
+resolved.
 
-- **Installed Capacity** - two Ember sources combined, per country, since
-  2026-09-10:
-  - The **monthly** capacity CSV
-    (files.ember-energy.org/public-downloads/capacity/outputs/monthly_capacity_wind_solar_public_release_file.csv) -
-    25 countries, roughly monthly cadence, reaching into 2026.
-  - The **yearly generation** CSV's own `Capacity (GW)` column
-    (files.ember-energy.org/public-downloads/generation/outputs/release_generation_yearly_global.csv,
-    ~16MB) - confirmed by inspection: 173 countries have a nonzero Solar
-    capacity figure for 2023, 168 for 2024 (2025 is a partial year at time
-    of writing - only 84 so far). Filtered to `Electricity source ==
-    "Solar"` and `Area type == "Country or economy"`.
+**Migrated onto Ember's official Data API, 2026-09-10** (Andrew has an
+API key, `deployment/.env`, gitignored - see `scripts/_ember_api.py`).
+Cross-checked against the old CSV-sourced data before switching over in
+each case - see the differences reported below, and the git history of
+this file for the fuller comparison.
+
+- **Installed Capacity** - two sources combined, per country:
+  - **Monthly**, via `GET /v1/installed-capacity/monthly`
+    (api.ember-energy.org/v1/docs) - 25 countries, reaching into 2026.
+    **Checked against the old CSV file it replaced: exact match, all 25
+    countries, every point, no differences at all.**
+  - **Annual**, still Ember's yearly generation CSV's own `Capacity (GW)`
+    column (files.ember-energy.org/public-downloads/generation/outputs/release_generation_yearly_global.csv,
+    ~16MB) - **no API equivalent exists for this one**: confirmed both via
+    the OpenAPI spec (no `/installed-capacity/yearly` listed) and a live
+    call (404s). 173 countries have a nonzero Solar capacity figure for
+    2023, 168 for 2024 (2025 is a partial year at time of writing - only
+    84 so far).
 
   Combined into `src/data/ember_solar.json` by `scripts/build_ember_solar.py`:
   **each country takes whichever source's own latest point is more
   recent** (Andrew's instruction) - in practice this means all 25
   monthly-covered countries use the monthly series (it already reaches
-  further forward than the annual file's 2025 cap), and the other ~180
+  further forward than the annual source's 2025 cap), and the other ~180
   countries use the annual one, but the choice is made by comparing actual
   dates per country, not assumed. **206 countries total** as of the last
   build (25 monthly, 181 annual) - up from 25. A country's JSON entry is
@@ -139,34 +146,56 @@ now resolved.
   Four French overseas departments (French Guiana, Guadeloupe, Martinique,
   Réunion) needed remapping from Ember's own plain ISO 3166-1 codes
   (`GF`/`GP`/`MQ`/`RE`) to this app's `FR-GF`/`FR-GP`/`FR-MQ`/`FR-RE`
-  exclave codes (`FR_EXCLAVE_REMAP` in the script) - otherwise their real
-  data would have landed on codes with no matching map feature and gone
-  nowhere. All 206 codes now resolve against `jurisdictions.json`,
-  verified directly.
+  exclave codes (`FR_EXCLAVE_REMAP`, now in the shared `_ember_api.py`
+  since both import scripts need it) - otherwise their real data would
+  have landed on codes with no matching map feature and gone nowhere. All
+  206 codes now resolve against `jurisdictions.json`, verified directly.
 
-  **Bug found and fixed, 2026-09-09** (monthly source only): Ember reports
-  two permanently parallel rows per country-month - one `GWAC`-rated, one
-  `GWDC`-rated - not a mid-series unit-convention switch as this script's
-  docstring first (wrongly) assumed. An earlier version of the script kept
-  both and sorted only by (year, month), so the two series interleaved and
+  **Bug found and fixed, 2026-09-09** (monthly source only, from back
+  when it was still the CSV): Ember reports two permanently parallel rows
+  per country-month - one `GWAC`-rated, one `GWDC`-rated - not a
+  mid-series unit-convention switch as this script's docstring first
+  (wrongly) assumed. An earlier version of the script kept both and
+  sorted only by (year, month), so the two series interleaved and
   capacity looked like it went up and down month to month - each row on
   its own actually climbs steadily. Fixed by keeping only the `GWDC` (DC
-  nameplate) row and dropping the `GWAC` one; re-run and verified
-  monotonic (the handful of tiny remaining dips, e.g. US Jan→Feb 2019, are
-  genuine small month-to-month figures, not an artefact).
+  nameplate) rating - the API's own `/installed-capacity/monthly` only
+  ever returns the one figure per month per country, so this is no longer
+  even a filtering decision this script has to make.
 
-- **Share of Electricity** - Ember's monthly generation CSV
-  (files.ember-energy.org/public-downloads/generation/outputs/release_generation_monthly_global.csv,
-  ~28MB) built into `src/data/ember_generation.json` by
-  `scripts/build_ember_generation.py`, covering **77 countries** - wider
-  reach than the capacity file, since generation is reported from grid
-  operator data even where a country's own capacity register is thin.
-  Annual, not monthly, per Andrew's instruction: each year sums 12 months
-  of Solar and Total generation TWh and divides, rather than averaging
-  monthly `Share of generation (%)` values (which would distort seasonal
-  countries); a year is only included if both series have all 12 months,
-  so the in-progress current year is dropped rather than shown as a
-  misleadingly low partial year.
+- **Share of Electricity**, via `GET /v1/electricity-generation/yearly`
+  (two calls, `series=Solar` and `series=Total generation`, matched by
+  country and year) - built into `src/data/ember_generation.json` by
+  `scripts/build_ember_generation.py`, covering **208 countries**, up
+  from 77.
+
+  **Correction, 2026-09-10**: an earlier version of this migration derived
+  `totalTWh` as `solarTWh / (sharePct / 100)` instead of querying `Total
+  generation` directly, then had to drop every row with
+  `share_of_generation_pct <= 0` to dodge the resulting division by zero -
+  which turned out to throw away 3,070 genuinely valid rows (a country's
+  real "0% solar" years before it had any solar at all, not bad data).
+  Fixed by fetching `Total generation` as its own series instead (it's
+  directly queryable, and always reports `share_of_generation_pct: 100`,
+  confirming it really is the whole-generation denominator) - a zero-share
+  year is a real data point now, not an indeterminate 0/0.
+
+  **Checked against the old CSV-summing approach it replaced** (which
+  summed 12 months of the *monthly* generation release into an annual
+  figure) **across all 705 overlapping country-years: real, substantial
+  differences, not noise** - median total-generation difference 5.8%, and
+  well over half the points differing by more than 5%, up to 46% for a
+  handful of small countries. Traced the cause directly: Ember's *yearly*
+  release (which both the API and this app's own already-committed
+  capacity-leg CSV pull from) does not match summing its *monthly*
+  release - e.g. Australia's own yearly-release `Total generation` for
+  2001 is 224.26 TWh, matching the new API figure exactly, not the
+  174.65 TWh the old monthly-summing approach produced. The yearly release
+  is Ember's own fuller, separately-compiled dataset, not simply monthly
+  data added up - so the new figures are the more authoritative of the
+  two, but this is a real, visible change to historical numbers already
+  shown in the app, not just a coverage increase, and Andrew signed off on
+  proceeding with that in mind.
 
 - **Population** (for the per-capita metric) - World Bank Open Data,
   indicator `SP.POP.TOTL`, most recent value per country, built into
@@ -175,7 +204,8 @@ now resolved.
   not publish a Taiwan figure under its own code); see that script's
   docstring for the source. Shown directly to the reader in the country
   detail header's top right, since a per-capita number is meaningless
-  without knowing the population assumption behind it.
+  without knowing the population assumption behind it. Still World
+  Bank's own Open Data API, unaffected by the Ember migration above.
 
 Clicking a country plots its latest figure on the map and opens its full
 history as a chart in the sidebar (`CountryDetail.tsx` /
@@ -194,28 +224,37 @@ entirely - every metric now reads real data only, with no placeholder
 fallback for a country either Ember dataset doesn't cover (it just shows
 no data / gets excluded from that metric's ranking).
 
-**Resolved, 2026-09-10**: all three importers now flag new countries on
-re-run. Each gets a `report_new_countries(out_path, new_codes)` diffing
-the freshly-built country-code set against whatever `src/data/*.json`
-already contains on disk (its own previous build), printing "NEW
-COUNTRIES since last build: [...]" or "No new countries since last build."
-Only additions are flagged, not removals - a country dropping out of
-Ember's or the World Bank's data is a much rarer, more alarming event than
-one appearing, and would be more likely to warrant investigating the raw
-CSV/API response directly than a one-line log message.
+**Resolved, 2026-09-10**: all three importers still flag new countries on
+re-run, even after the API migration above. Each gets a
+`report_new_countries(out_path, new_codes)` diffing the freshly-built
+country-code set against whatever `src/data/*.json` already contains on
+disk (its own previous build), printing "NEW COUNTRIES since last build:
+[...]" or "No new countries since last build." Only additions are
+flagged, not removals - a country dropping out of Ember's or the World
+Bank's data is a much rarer, more alarming event than one appearing, and
+would be more likely to warrant investigating the raw API/CSV response
+directly than a one-line log message.
 
 ## Colour ramp
 
 `lib/metrics.ts`'s `RAMP_STOPS` changed 2026-09-10 from a single-hue Aqua
 sequential ramp to orange-to-teal/aqua (low value to high) - Burnt Orange
 (#EF864C) to Aqua (#00ABBB), both drawn from the GSC brand palette (see
-mui-theme.tsx's own brand-colour comment) rather than arbitrary hex values,
-with three hand-tuned intermediate stops rather than a mechanical
-interpolation. This was tried on Policy Explorer's own score ramp first,
-then reverted there and applied here instead once it turned out that's
-what Andrew actually wanted to try it on - see `ep_policymap/src/lib/scoring.ts`'s
-own comment on `SCORE_RAMP` for that history, which is still red-to-green,
-unchanged.
+mui-theme.tsx's own brand-colour comment). This was tried on Policy
+Explorer's own score ramp first, then reverted there and applied here
+instead once it turned out that's what Andrew actually wanted to try it
+on - see `ep_policymap/src/lib/scoring.ts`'s own comment on `SCORE_RAMP`
+for that history, which is still red-to-green, unchanged.
+
+**Fixed, 2026-09-10 (same day)**: the original midpoint was a muted
+grey-tan (#D8D3C6), picked as a "neutral" stop between the two brand
+colours - but it read as `COLOR_NO_DATA` (#E5E7EB) on the actual map, not
+as "medium value", since the two greys were close enough to be
+indistinguishable at a glance. Replaced with GSC's own Citrus (#FBB114) -
+a real brand colour, not an invented neutral - and rebuilt the remaining
+two stops as actual RGB midpoints between their neighbours rather than
+hand-picked, so the ramp now reads as a coherent gradient (orange, gold,
+yellow, green, teal) with every stop clearly distinct from grey.
 
 ## Notable files
 
@@ -263,6 +302,19 @@ unchanged.
 - `scripts/dissolve_subdivided.py` - see the note on `lib/jurisdictions.ts`
   above. Run once already; only needs re-running if the geometry gets
   re-copied fresh from the Policy Explorer's own root `src/`.
+
+  **Bug found and fixed, 2026-09-10**: the script correctly dissolved
+  AU/US/CA's states/provinces into one country-level shape each and
+  flipped the *country's* `mappable` to `true`, but never flipped the
+  *states/provinces'* own `mappable` back to `false` even though their
+  individual features no longer existed - so `CountrySearch.tsx`'s
+  `.filter(j => j.mappable)` kept listing all 8/54/13 of them in the
+  country dropdown, even though clicking one had no feature left to
+  select. Fixed the script for future re-runs, and patched the
+  already-dissolved `jurisdictions.json` directly (re-running the script
+  as-is wouldn't have caught this retroactively - the geometry step bails
+  out immediately once a country's child features are already gone, so it
+  never reaches the mappable-flipping code a second time).
 
 Not done:
 

@@ -22,7 +22,7 @@ const TOPICS: Topic[] = [
   },
   {
     heading: "Where the data comes from",
-    body: "All the numbers come from Ember, a real energy research group, and the World Bank. Solar capacity and solar's share of electricity are two different Ember datasets, which is why some countries only have one of the two charts. Population numbers (used for the per-person view) come from the World Bank. Both publish their data under a Creative Commons licence, which is why we can use it here as long as we say where it came from and say when we've changed it - so two things worth knowing: the per-person figures are Ember's number divided by the World Bank's population, and the yearly share-of-electricity figures are added up from Ember's own monthly numbers, not copied straight from either source. Nothing on this map is made up or guessed.",
+    body: "All the numbers come from Ember, a real energy research group, and the World Bank. Solar capacity and solar's share of electricity are two different Ember datasets, which is why some countries only have one of the two charts. Population numbers (used for the per-person view) come from the World Bank. Both publish their data under a Creative Commons licence, which is why we can use it here as long as we say where it came from and say when we've changed it - so one thing worth knowing: the only number on this map we work out ourselves is the per-person figure (Ember's number divided by the World Bank's population). Everything else - installed capacity and solar's share of electricity - comes straight from Ember, unchanged. Nothing on this map is made up or guessed.",
     link: { href: "https://creativecommons.org/licenses/by/4.0/", label: "Creative Commons Attribution 4.0 licence" },
   },
   {

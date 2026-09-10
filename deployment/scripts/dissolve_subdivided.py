@@ -68,6 +68,17 @@ def main() -> None:
         for entry in index:
             if entry["code"] == country_code:
                 entry["mappable"] = True
+            elif entry["code"] in children:
+                # Its own feature no longer exists - dissolved into the
+                # parent above - so it must stop being "mappable" too.
+                # Missed the first time this script ran (2026-09-09): the
+                # geometry was correctly dissolved and the country flipped
+                # to mappable, but every state/province kept mappable=true,
+                # so CountrySearch.tsx's `.filter(j => j.mappable)` still
+                # listed all 8/54/13 of them in the country dropdown even
+                # though clicking one had nothing left to click on. Fixed
+                # 2026-09-10.
+                entry["mappable"] = False
 
     GEOJSON_PATH.write_text(json.dumps(geojson, separators=(",", ":")))
     INDEX_PATH.write_text(json.dumps(index, separators=(",", ":"), ensure_ascii=False))

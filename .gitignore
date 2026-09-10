@@ -24,8 +24,13 @@ scripts/_countryData.json
 
 # Deployment Explorer's own one-time-import download caches - see
 # deployment/scripts/build_*.py. The built src/data/*.json outputs they
-# produce are committed; these raw downloads are not.
-deployment/scripts/_ember_capacity_download_cache.csv
-deployment/scripts/_ember_generation_download_cache.csv
+# produce are committed; these raw downloads are not. Only one CSV cache
+# left as of 2026-09-10 - build_ember_solar.py's monthly leg and all of
+# build_ember_generation.py moved onto Ember's API (no CSV to cache), the
+# annual-capacity leg is still Ember's yearly-release CSV (no API
+# equivalent exists for it yet - see build_ember_solar.py's docstring).
 deployment/scripts/_ember_generation_yearly_download_cache.csv
 deployment/scripts/_population_download_cache.json
+
+# Andrew's Ember API key (EMBER_API_KEY) - see _ember_api.py.
+deployment/.env

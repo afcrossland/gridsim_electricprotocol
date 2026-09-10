@@ -2,34 +2,35 @@
 """Build src/data/ember_solar.json - the real solar-capacity "database" this
 app reads from for the Installed Capacity metric.
 
-Two sources now, combined per country - 2026-09-10:
+Two sources, combined per country:
 
-1. **Monthly** - Ember's monthly wind/solar capacity release
-   (https://files.ember-energy.org/public-downloads/capacity/outputs/monthly_capacity_wind_solar_public_release_file.csv,
-   ~1.2MB). Confirmed by inspection: one row per country/month/technology,
-   `Source` includes "Solar" as its own row (no rooftop/utility split),
-   `Is aggregate area` distinguishes real countries from regional rollups.
-   Only **25 countries** carry a "Solar" series here. Every one of those 25
-   reports two permanently parallel rows per month - `GWAC` and `GWDC` -
-   not a mid-series unit-convention switch (an earlier version of this
-   script wrongly assumed that and interleaved them, which made capacity
-   look like it went up and down); only `GWDC` (DC nameplate - the more
-   common "installed capacity" convention, e.g. IRENA/IEA) is kept.
+1. **Monthly** - Ember's own Data API, `GET /v1/installed-capacity/monthly`
+   (https://api.ember-energy.org/v1/docs), migrated 2026-09-10 off Ember's
+   public CSV download (files.ember-energy.org/.../monthly_capacity_wind_solar_public_release_file.csv) -
+   see _ember_api.py's own docstring for how that migration was checked.
+   Confirmed by a live call: **25 countries**, `capacity_gw` field, full
+   history from 2016-01 through the latest available month (2026-08 as of
+   this writing) returned in one call. Cross-checked against the old
+   CSV-sourced output before switching over - see the git history of this
+   file for the comparison report; the two sources agreed exactly.
 
 2. **Annual** - Ember's yearly generation release's own `Capacity (GW)`
    column (https://files.ember-energy.org/public-downloads/generation/outputs/release_generation_yearly_global.csv,
-   ~16MB), filtered to `Electricity source == "Solar"` and
-   `Area type == "Country or economy"`. Confirmed by inspection 2026-09-10:
-   **173 countries** have a nonzero Solar capacity figure for 2023, 168 for
-   2024 - 2025 itself is a partial year at the time of writing (only 84
-   countries so far), so this is a genuinely broader source than the
-   monthly file, just coarser (one point a year, not one a month).
+   ~16MB - **still a CSV, not the API**: confirmed 2026-09-10 that no
+   `/installed-capacity/yearly` endpoint exists - the OpenAPI spec doesn't
+   list one, and calling it directly 404s. This is the one piece of this
+   script's data with no API path yet), filtered to
+   `Electricity source == "Solar"` and `Area type == "Country or economy"`.
+   Confirmed by inspection: **173 countries** have a nonzero Solar capacity
+   figure for 2023, 168 for 2024 - 2025 itself is a partial year at the
+   time of writing (only 84 countries so far), so this is a genuinely
+   broader source than the monthly one, just coarser (one point a year).
 
 **Each country takes whichever source's own latest point is more recent**
 (Andrew's instruction) - a country with monthly data reaching further
 forward than its own annual figure uses the monthly series (true for all
-25 monthly-covered countries in practice, since the monthly file already
-reaches into 2026 and the annual file caps out at 2025, but compared
+25 monthly-covered countries in practice, since the monthly source already
+reaches into 2026 and the annual one caps out at 2025, but compared
 properly per country rather than assumed); everyone else uses the annual
 series. A country's entry is `"granularity": "monthly"` with a `series` of
 `{year, month, gw}` points, or `"granularity": "annual"` with an
@@ -45,7 +46,7 @@ licence (https://creativecommons.org/licenses/by/4.0/), which permits
 this as long as Ember is credited (see the app's own Help page) and any
 computed/derived figures are flagged as such, not presented as Ember's
 own numbers verbatim. This script still doesn't run automatically
-anywhere - re-run it manually:
+anywhere - re-run it manually (needs EMBER_API_KEY - see _ember_api.py):
 
     python3 scripts/build_ember_solar.py
 """
@@ -57,37 +58,15 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pycountry
+from _ember_api import fetch, iso3_to_iso2
 
-MONTHLY_URL = (
-    "https://files.ember-energy.org/public-downloads/capacity/outputs/"
-    "monthly_capacity_wind_solar_public_release_file.csv"
-)
-ANNUAL_URL = (
+ANNUAL_CSV_URL = (
     "https://files.ember-energy.org/public-downloads/generation/outputs/"
     "release_generation_yearly_global.csv"
 )
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 OUT_PATH = SCRIPTS_DIR.parent / "src" / "data" / "ember_solar.json"
-
-# French overseas departments - Ember (via ISO 3166-1) gives these their own
-# plain alpha-2 code (GF, GP, MQ, RE), but this app's own map geometry
-# splits them out as exclaves of France under "FR-XX" codes instead (see
-# scripts/build_geometry.py's EXCLAVES and the root README's "Overseas
-# exclaves" section) - remapped here so their real data actually lands on
-# a mappable jurisdiction rather than silently going nowhere.
-FR_EXCLAVE_REMAP = {"GF": "FR-GF", "GP": "FR-GP", "MQ": "FR-MQ", "RE": "FR-RE", "YT": "FR-YT"}
-
-
-def iso3_to_iso2(iso3: str) -> str | None:
-    try:
-        country = pycountry.countries.get(alpha_3=iso3)
-        if not country:
-            return None
-        return FR_EXCLAVE_REMAP.get(country.alpha_2, country.alpha_2)
-    except (LookupError, AttributeError):
-        return None
 
 
 def download(url: str, dest: Path) -> None:
@@ -96,7 +75,7 @@ def download(url: str, dest: Path) -> None:
     print(f"Saved to {dest} ({dest.stat().st_size / 1e3:.0f} KB)", file=sys.stderr)
 
 
-def fetch(url: str, cache_name: str) -> Path:
+def fetch_csv(url: str, cache_name: str) -> Path:
     path = SCRIPTS_DIR / cache_name
     if not path.exists():
         download(url, path)
@@ -105,27 +84,23 @@ def fetch(url: str, cache_name: str) -> Path:
     return path
 
 
-def build_monthly(csv_path: Path) -> dict[str, dict]:
-    """iso3 -> {name, series: [{year, month, gw}]} - GWDC only, see module docstring."""
+def build_monthly_from_api() -> dict[str, dict]:
+    """iso3 -> {name, series: [{year, month, gw}]} - via the Ember API, see module docstring."""
+    rows = fetch("/installed-capacity/monthly", series="Solar", is_aggregate_entity="false")
     countries: dict[str, dict] = {}
-    with csv_path.open(encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row["Source"] != "Solar" or row["Is aggregate area"] != "0":
-                continue
-            if row["Unit"] != "GWDC":
-                continue  # drop the parallel GWAC row - see module docstring
-            iso3 = row["ISO 3 Code"]
-            entry = countries.setdefault(iso3, {"name": row["Area"], "series": []})
-            entry["series"].append(
-                {"year": int(row["Year"]), "month": int(row["Month"]), "gw": float(row["Installed Capacity"])}
-            )
+    for row in rows:
+        iso3 = row.get("entity_code")
+        if not iso3:
+            continue
+        year, month = int(row["date"][:4]), int(row["date"][5:7])
+        entry = countries.setdefault(iso3, {"name": row["entity"], "series": []})
+        entry["series"].append({"year": year, "month": month, "gw": row["capacity_gw"]})
     for entry in countries.values():
         entry["series"].sort(key=lambda r: (r["year"], r["month"]))
     return countries
 
 
-def build_annual(csv_path: Path) -> dict[str, dict]:
+def build_annual_from_csv(csv_path: Path) -> dict[str, dict]:
     """iso3 -> {name, series: [{year, gw}]} - every year with a Capacity (GW) value, including real zeros."""
     countries: dict[str, dict] = {}
     with csv_path.open(encoding="utf-8-sig") as f:
@@ -190,11 +165,12 @@ def report_new_countries(out_path: Path, new_codes: set[str]) -> None:
 
 
 def main() -> None:
-    monthly_csv = fetch(MONTHLY_URL, "_ember_capacity_download_cache.csv")
-    annual_csv = fetch(ANNUAL_URL, "_ember_generation_yearly_download_cache.csv")
+    print("Fetching monthly capacity from the Ember API ...", file=sys.stderr)
+    monthly = build_monthly_from_api()
 
-    monthly = build_monthly(monthly_csv)
-    annual = build_annual(annual_csv)
+    annual_csv = fetch_csv(ANNUAL_CSV_URL, "_ember_generation_yearly_download_cache.csv")
+    annual = build_annual_from_csv(annual_csv)
+
     countries, unmapped = combine(monthly, annual)
 
     if unmapped:
@@ -205,17 +181,21 @@ def main() -> None:
     report_new_countries(OUT_PATH, set(countries.keys()))
 
     output = {
-        "source": {"monthly": MONTHLY_URL, "annual": ANNUAL_URL},
+        "source": {
+            "monthly": "https://api.ember-energy.org/v1/installed-capacity/monthly",
+            "annual": ANNUAL_CSV_URL,
+        },
         "fetchedAt": datetime.now(timezone.utc).isoformat(),
         "note": (
             "Solar installed capacity (GW). Each country takes whichever "
-            "source's own latest point is more recent: the monthly file "
-            "(DC nameplate rating, ~monthly cadence, 25 countries) or the "
-            "yearly file's own Capacity (GW) column (one point a year, "
-            "wider coverage). A country's entry is either "
-            '"granularity": "monthly" with a `series` of {year, month, gw} '
-            'points, or "granularity": "annual" with an `annualSeries` of '
-            "{year, gw} points - never both."
+            "source's own latest point is more recent: Ember's Data API "
+            "(monthly cadence, 25 countries) or the yearly generation "
+            "CSV's own Capacity (GW) column (one point a year, wider "
+            "coverage - no API equivalent exists for this one). A "
+            'country\'s entry is either "granularity": "monthly" with a '
+            "`series` of {year, month, gw} points, or "
+            '"granularity": "annual" with an `annualSeries` of {year, gw} '
+            "points - never both."
         ),
         "countries": countries,
     }
