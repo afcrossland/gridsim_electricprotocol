@@ -18,3 +18,13 @@ __pycache__/
 # data snapshot, not source - see scripts/export_consultant_review.py.
 /Solar Policy Explorer - Consultant Review.xlsx
 scripts/_countryData.json
+
+# Same reasoning - see scripts/export_questions_doc.py.
+/Electric Protocol - Questions and Answers.docx
+
+# Deployment Explorer's own one-time-import download caches - see
+# deployment/scripts/build_*.py. The built src/data/*.json outputs they
+# produce are committed; these raw downloads are not.
+deployment/scripts/_ember_capacity_download_cache.csv
+deployment/scripts/_ember_generation_download_cache.csv
+deployment/scripts/_population_download_cache.json

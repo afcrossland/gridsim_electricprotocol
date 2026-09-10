@@ -83,9 +83,10 @@ US_TERRITORIES = {"PR", "GU", "AS"}
 # against the given lon/lat window; any part not claimed by an exclave stays
 # with the country. Only France is split today. Natural Earth's admin-0 layer
 # shows the same shape - one polygon spanning a mainland and a distant
-# territory - for Norway (Svalbard), the Netherlands (the Caribbean
-# municipalities) and Chile (Easter Island), which are not yet split; revisit
-# if answers ever get written for those specifically.
+# territory - for Chile (Easter Island), which is not yet split; revisit if
+# answers ever get written for it specifically. Norway, the Netherlands and
+# Spain were the same until 2026-09-10 (clicking Norway selected Svalbard's
+# answers too, etc.) - fixed below.
 EXCLAVES: dict[str, list[dict]] = {
     "FR": [
         {"code": "FR-GF", "name": "French Guiana", "bounds": (-60, -48, 0, 8)},
@@ -93,6 +94,28 @@ EXCLAVES: dict[str, list[dict]] = {
         {"code": "FR-MQ", "name": "Martinique", "bounds": (-61.5, -60.5, 14.2, 15.0)},
         {"code": "FR-RE", "name": "Réunion", "bounds": (54.8, 56.0, -21.6, -20.7)},
         {"code": "FR-YT", "name": "Mayotte", "bounds": (44.8, 45.4, -13.2, -12.5)},
+    ],
+    # Caribbean Netherlands (Bonaire, Sint Eustatius, Saba) - three separate
+    # Natural Earth polygon parts, one bounds box since they share a single
+    # real-world ISO 3166-1 code (BQ, not three separate ones the way
+    # France's overseas departments each get their own).
+    "NL": [
+        {"code": "BQ", "name": "Bonaire, Sint Eustatius and Saba", "bounds": (-69, -62, 11.5, 18)},
+    ],
+    # Canary Islands - seven Natural Earth parts, one bounds box, one code.
+    # The Balearic Islands (also on Spain's admin-0 shape) stay attached to
+    # the mainland - unlike the Canaries, they're on the mainland's own
+    # synchronous grid, not a separate isolated one.
+    "ES": [
+        {"code": "ES-CN", "name": "Canary Islands", "bounds": (-18.5, -13, 27.3, 29.5)},
+    ],
+    # Svalbard and Jan Mayen - two distinct, non-adjacent Norwegian
+    # territories, each its own bounds box/code (a shared code would need
+    # two def entries under one code, which split_exclaves does not support -
+    # it would emit the same claimed parts twice, once per entry).
+    "NO": [
+        {"code": "NO-21", "name": "Svalbard", "bounds": (9, 34, 73, 81)},
+        {"code": "NO-22", "name": "Jan Mayen", "bounds": (-10, -6, 70, 72)},
     ],
 }
 

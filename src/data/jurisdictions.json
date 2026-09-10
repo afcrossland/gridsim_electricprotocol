@@ -1936,6 +1936,14 @@
     "mappable": true
   },
   {
+    "code": "BQ",
+    "name": "Bonaire, Sint Eustatius and Saba",
+    "level": "subnational",
+    "parent": "NL",
+    "region": "Netherlands",
+    "mappable": true
+  },
+  {
     "code": "CA-AB",
     "name": "Alberta",
     "level": "subnational",
@@ -2040,6 +2048,14 @@
     "mappable": true
   },
   {
+    "code": "ES-CN",
+    "name": "Canary Islands",
+    "level": "subnational",
+    "parent": "ES",
+    "region": "Spain",
+    "mappable": true
+  },
+  {
     "code": "FR-GF",
     "name": "French Guiana",
     "level": "subnational",
@@ -2085,6 +2101,22 @@
     "level": "subnational",
     "parent": "US",
     "region": "United States of America",
+    "mappable": true
+  },
+  {
+    "code": "NO-21",
+    "name": "Svalbard",
+    "level": "subnational",
+    "parent": "NO",
+    "region": "Norway",
+    "mappable": true
+  },
+  {
+    "code": "NO-22",
+    "name": "Jan Mayen",
+    "level": "subnational",
+    "parent": "NO",
+    "region": "Norway",
     "mappable": true
   },
   {

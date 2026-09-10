@@ -33,6 +33,8 @@
     --aqua-dark: #008194;
     --citrus: #FBB114;
     --citrus-dark: #C98600;
+    --peach: #F6AB84;
+    --peach-dark: #B85C2E;
     --ink: #0F1B22;
     --muted: #6B7280;
   }
@@ -116,13 +118,14 @@
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: repeat(3, minmax(260px, 340px));
-    gap: clamp(20px, 3vw, 32px);
+    grid-template-columns: repeat(4, minmax(230px, 300px));
+    justify-content: center;
+    gap: clamp(18px, 2.5vw, 28px);
     width: 100%;
-    max-width: 1140px;
+    max-width: 1380px;
   }
 
-  @media (max-width: 980px) {
+  @media (max-width: 1240px) {
     main { grid-template-columns: repeat(2, minmax(280px, 380px)); max-width: 720px; }
   }
 
@@ -161,6 +164,7 @@
     letter-spacing: -0.02em;
   }
 
+  .tile.deployment h2 { color: var(--peach-dark); }
   .tile.grid h2 { color: var(--citrus-dark); }
   .tile.policy h2 { color: var(--aqua-dark); }
   .tile.economics h2 { color: #6B7280; }
@@ -194,6 +198,7 @@
     transition: filter 0.15s ease, transform 0.15s ease;
   }
 
+  .tile.deployment .cta { background: var(--peach-dark); }
   .tile.grid .cta { background: var(--citrus-dark); }
   .tile.policy .cta { background: var(--aqua); }
   a.cta:hover { filter: brightness(1.08); transform: translateX(2px); }
@@ -207,6 +212,7 @@
     cursor: pointer;
   }
 
+  .tile.deployment .secondary { color: var(--peach-dark); }
   .tile.grid .secondary { color: var(--citrus-dark); }
   .tile.policy .secondary { color: var(--aqua-dark); }
   .secondary:hover { text-decoration: underline; }
@@ -253,16 +259,16 @@
   </header>
 
   <main>
-    <div class="tile grid">
+    <div class="tile deployment">
       <img class="logo" src="/favicon.png" alt="" />
-      <h2>Future Grid<br />Simulator</h2>
-      <p class="body">Explore the role solar + storage can play in different energy environments. Simulate a different electric future</p>
+      <h2>Solar Deployment<br />Explorer</h2>
+      <p class="body">See how much solar and storage is actually installed, by country.</p>
       <div class="actions">
-        <a class="cta" href="#" onclick="return false" aria-label="Show me how the Future Grids Simulator works">
+        <a class="cta" href="/deployment/?showTour=1" aria-label="Show me how the Solar Deployment Explorer works">
           Show me how
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
         </a>
-        <a class="secondary" href="https://futuregridsimulator.globalsolarcouncil.org/">Click to explore</a>
+        <a class="secondary" href="/deployment/">Click to explore</a>
       </div>
     </div>
 
@@ -276,6 +282,19 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
         </a>
         <a class="secondary" href="policy/?skipIntro=1">Click to explore</a>
+      </div>
+    </div>
+
+    <div class="tile grid">
+      <img class="logo" src="/favicon.png" alt="" />
+      <h2>Future Grid<br />Simulator</h2>
+      <p class="body">Explore the role solar + storage can play in different energy environments. Simulate a different electric future</p>
+      <div class="actions">
+        <a class="cta" href="#" onclick="return false" aria-label="Show me how the Future Grids Simulator works">
+          Show me how
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="secondary" href="https://futuregridsimulator.globalsolarcouncil.org/">Click to explore</a>
       </div>
     </div>
 

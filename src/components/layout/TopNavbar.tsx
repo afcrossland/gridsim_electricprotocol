@@ -95,12 +95,6 @@ export default function TopNavbar() {
 
         <Box sx={{ flex: 1 }} />
 
-        <Tooltip title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
-          <IconButton size="small" onClick={() => setMode(mode === "dark" ? "light" : "dark")} sx={{ mr: 0.5 }}>
-            {mode === "dark" ? <LightModeOutlinedIcon fontSize="small" /> : <DarkModeOutlinedIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-
         {/* Plain underlined links, not buttons - see navItemSx. */}
         <Box sx={{ display: "flex", alignItems: "stretch", height: "100%" }}>
           {page !== "admin" && (
@@ -166,6 +160,12 @@ export default function TopNavbar() {
             </Button>
           </Box>
         </Box>
+
+        <Tooltip title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+          <IconButton size="small" onClick={() => setMode(mode === "dark" ? "light" : "dark")} sx={{ ml: 0.5 }}>
+            {mode === "dark" ? <LightModeOutlinedIcon fontSize="small" /> : <DarkModeOutlinedIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
       </Toolbar>
     </AppBar>
   );

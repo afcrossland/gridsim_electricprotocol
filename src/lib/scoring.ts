@@ -323,6 +323,10 @@ function syntheticGroup(code: string, name: string, children: CountryScore[]): G
  * too harsh at this end of the scale - so the lowest stop is its ordinary
  * red instead, with an extra orange step added between that and the amber
  * stop so the ramp still reads as five distinct, evenly-spaced colours.
+ *
+ * (An orange-to-teal/aqua variant of this ramp was tried 2026-09-10, then
+ * reverted - Andrew's actual intent was to try that scale on the
+ * Deployment Explorer, not here. See that app's own `lib/metrics.ts`.)
  */
 export const SCORE_RAMP = [
   { stop: 0.0, color: "#c0392b" },

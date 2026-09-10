@@ -25,9 +25,7 @@ import { SCORE_BANDS } from "../../lib/scoring";
 import {
   NOT_ENOUGH_DATA_BAND,
   continentOfGroup,
-  isCompletenessSort,
   isDefaultFilters,
-  type ScoreboardSort,
 } from "../../lib/scoreboardFilters";
 import type { GroupedScore } from "../../lib/types";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -53,8 +51,8 @@ export default function ScoreboardFilters({ groups }: Props) {
   const filters = useProtocolStore((s) => s.scoreboardFilters);
   const setFilters = useProtocolStore((s) => s.setScoreboardFilters);
   const resetFilters = useProtocolStore((s) => s.resetScoreboardFilters);
-  const sort = useProtocolStore((s) => s.scoreboardSort);
-  const setSort = useProtocolStore((s) => s.setScoreboardSort);
+  const sortDirection = useProtocolStore((s) => s.scoreboardSortDirection);
+  const setSortDirection = useProtocolStore((s) => s.setScoreboardSortDirection);
   const active = !isDefaultFilters(filters);
 
   const [expanded, setExpanded] = useState(false);
@@ -119,35 +117,13 @@ export default function ScoreboardFilters({ groups }: Props) {
 
         <Box sx={{ flex: 1 }} />
 
-        <TextField
-          select
-          size="small"
-          variant="standard"
-          label="Sort by"
-          value={isCompletenessSort(sort) ? "completeness" : "score"}
-          onChange={(e) => {
-            const direction = sort.endsWith("-desc") ? "desc" : "asc";
-            setSort(`${e.target.value}-${direction}` as ScoreboardSort);
-          }}
-          sx={{
-            minWidth: 180,
-            "& .MuiInputBase-input": { fontSize: "0.875rem" },
-            "& .MuiInputLabel-root": { fontSize: "0.875rem" },
-          }}
-        >
-          <MenuItem value="completeness">Data completeness</MenuItem>
-          <MenuItem value="score">Policy environment score</MenuItem>
-        </TextField>
-        <Tooltip title={sort.endsWith("-desc") ? "High to low" : "Low to high"}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              const topic = isCompletenessSort(sort) ? "completeness" : "score";
-              const direction = sort.endsWith("-desc") ? "asc" : "desc";
-              setSort(`${topic}-${direction}` as ScoreboardSort);
-            }}
-          >
-            {sort.endsWith("-desc") ? <ArrowDownwardIcon fontSize="small" /> : <ArrowUpwardIcon fontSize="small" />}
+        {/* What the list sorts by is the map's own metric toggle
+            (score/completeness) now, not a choice made here too - see
+            Scoreboard.tsx. Only the direction is still a Scoreboard-only
+            preference. */}
+        <Tooltip title={sortDirection === "desc" ? "High to low" : "Low to high"}>
+          <IconButton size="small" onClick={() => setSortDirection(sortDirection === "desc" ? "asc" : "desc")}>
+            {sortDirection === "desc" ? <ArrowDownwardIcon fontSize="small" /> : <ArrowUpwardIcon fontSize="small" />}
           </IconButton>
         </Tooltip>
       </Box>

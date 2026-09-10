@@ -58,7 +58,13 @@ interface Props {
  */
 export default function Scoreboard({ scores, selectedCountry, onSelect, hideHeading, onScrollTopChange }: Props) {
   const filters = useProtocolStore((s) => s.scoreboardFilters);
-  const sort = useProtocolStore((s) => s.scoreboardSort);
+  // What the list is sorted by is always the map's own metric toggle
+  // (score/completeness), not a separate setting - see the store's own
+  // comment on scoreboardSortDirection. Only the direction is a Scoreboard-
+  // specific preference.
+  const mapMetric = useProtocolStore((s) => s.mapMetric);
+  const direction = useProtocolStore((s) => s.scoreboardSortDirection);
+  const sort = `${mapMetric}-${direction}` as ScoreboardSort;
   const allGroups = groupScores(scores);
   const grouped = allGroups
     .filter((g) => matchesFilters(g, filters))

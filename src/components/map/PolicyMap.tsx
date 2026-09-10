@@ -9,6 +9,7 @@ import type {
 import { Box, IconButton, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -48,7 +49,7 @@ interface Props {
   /** Which measure to paint. Completeness ignores the ranking threshold. */
   metric: "score" | "completeness";
   selectedCountry: string | null;
-  onCountryClick: (code: string) => void;
+  onCountryClick: (code: string | null) => void;
   /** Suppresses the legend even with nothing selected - the tour's opening scene wants an unobstructed view of the choropleth colours themselves, matching the sibling gridsim-frontend project's own clean opening globe. */
   hideLegend?: boolean;
   /** Swaps the choropleth for the "solar bloom" intro animation - see INTRO_* below. */
@@ -469,6 +470,21 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           }}
         >
           <RemoveIcon fontSize="small" />
+        </IconButton>
+        <IconButton
+          onClick={() => onCountryClick(null)}
+          aria-label="Back to full map view"
+          sx={{
+            bgcolor: "background.paper",
+            borderRadius: 1,
+            boxShadow: 3,
+            width: 36,
+            height: 36,
+            color: "text.secondary",
+            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
+          }}
+        >
+          <ZoomOutMapIcon fontSize="small" />
         </IconButton>
       </Box>
 

@@ -5,12 +5,7 @@ import seed from "../data/protocol.seed.json";
 import { sourcedResponses } from "../data/sourcedAnswers";
 import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
 import { resolveTargets } from "../lib/jurisdictions";
-import {
-  DEFAULT_SCOREBOARD_FILTERS,
-  DEFAULT_SCOREBOARD_SORT,
-  type ScoreboardFilters,
-  type ScoreboardSort,
-} from "../lib/scoreboardFilters";
+import { DEFAULT_SCOREBOARD_FILTERS, type ScoreboardFilters } from "../lib/scoreboardFilters";
 import { diffResponses, type Suggestion } from "../lib/suggestions";
 import {
   WINDROSE,
@@ -71,8 +66,13 @@ interface ProtocolState {
   countryPanelTab: CountryPanelTab;
   /** Scoreboard's continent/country/score filters. Not persisted - a view preference, reset on reload like `page`. */
   scoreboardFilters: ScoreboardFilters;
-  /** How the Scoreboard list is ordered. Not persisted, same as scoreboardFilters. */
-  scoreboardSort: ScoreboardSort;
+  /**
+   * Which way the Scoreboard list is ordered - what it's ordered *by* is not
+   * a separate setting any more (removed 2026-09-09): the list always sorts
+   * by whatever `mapMetric` the map/legend toggle is currently showing, so
+   * the two never disagree. Not persisted, same as scoreboardFilters.
+   */
+  scoreboardSortDirection: "asc" | "desc";
   /**
    * Admin edits to a shipped question's text/weight/rubric, keyed by question
    * id and persisted standalone rather than the full `questions` array - see
@@ -117,7 +117,7 @@ interface ProtocolState {
   setCountryPanelTab: (tab: CountryPanelTab) => void;
   setScoreboardFilters: (patch: Partial<ScoreboardFilters>) => void;
   resetScoreboardFilters: () => void;
-  setScoreboardSort: (sort: ScoreboardSort) => void;
+  setScoreboardSortDirection: (direction: "asc" | "desc") => void;
 
   setResponse: (
     countryCode: string,
@@ -298,7 +298,7 @@ function initialState() {
     compareCountries: [],
     countryPanelTab: WINDROSE as CountryPanelTab,
     scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS,
-    scoreboardSort: DEFAULT_SCOREBOARD_SORT,
+    scoreboardSortDirection: "desc" as const,
     questionOverrides: {},
     sectionOverrides: {},
     customSections: [],
@@ -346,7 +346,7 @@ export const useProtocolStore = create<ProtocolState>()(
       setScoreboardFilters: (patch) =>
         set((state) => ({ scoreboardFilters: { ...state.scoreboardFilters, ...patch } })),
       resetScoreboardFilters: () => set({ scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS }),
-      setScoreboardSort: (scoreboardSort) => set({ scoreboardSort }),
+      setScoreboardSortDirection: (scoreboardSortDirection) => set({ scoreboardSortDirection }),
 
       setResponse: (countryCode, questionId, patch) =>
         set((state) => {

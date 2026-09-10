@@ -10,7 +10,7 @@ Vite, MUI 7 with the GSC theme and Eastman Grotesque, MapLibre via
 
 ## Site structure
 
-The built site has two HTML entries, not one - see `vite.config.ts`'s
+The built site has three HTML entries, not one - see `vite.config.ts`'s
 `build.rollupOptions.input`:
 
 - **`/`** - `index.html` at the repo root is a static, unbundled splash page
@@ -20,16 +20,29 @@ The built site has two HTML entries, not one - see `vite.config.ts`'s
 - **`/policy/`** - `policy/index.html` is the actual React app's entry point
   (mounts `src/main.tsx`, same as any normal Vite SPA). Everything else in
   this README describes what lives here.
+- **`/deployment/`** - the Solar Deployment Explorer, moved in 2026-09-09
+  from the standalone `ep_deploymentexplorer` project so everything serves
+  from one dev server on one port (`npm run dev` here now covers all three).
+  `deployment/index.html` mounts its **own** `deployment/src/main.tsx` - a
+  separate source tree from this project's root `src/` (which the policy
+  app uses), since they're two different apps that can't share one
+  `main.tsx`. See `deployment/README.md` for everything specific to that app
+  (its Ember/World Bank data imports, its own component conventions); this
+  README is still the Policy Explorer's own.
 
-Both entries share the same `base` (see Deployment below), so asset URLs
-resolve correctly under either the GitHub Pages subpath or a custom domain
-regardless of which entry references them.
+All three entries share the same `base` (see Deployment below), so asset
+URLs resolve correctly under either the GitHub Pages subpath or a custom
+domain regardless of which entry references them.
 
-Two URL params the app itself understands, both meant for links coming from
-the playbook splash: `?skipIntro=1` marks the onboarding tour as already seen
+Three URL params the app itself understands, all meant for links coming
+from elsewhere: `?skipIntro=1` marks the onboarding tour as already seen
 (skips straight to the app), `?showTour=1` forces the tour open even for a
-returning visitor. Both strip themselves from the URL after taking effect -
-see the two mount-time effects near the top of `App.tsx`.
+returning visitor, and `?country=CODE` (added 2026-09-10, for the
+Deployment Explorer's own cross-link tiles - see its README) opens straight
+into that country's page, implicitly behaving like `skipIntro` too (a
+reader arriving already knowing which country they want doesn't need the
+first-run tour). All three strip themselves from the URL after taking
+effect - see the mount-time effects near the top of `App.tsx`.
 
 ## Running it
 
@@ -48,7 +61,13 @@ npm run import:xlsx   # regenerate seed data from the spreadsheet
 npm run build:geometry    # regenerate map geometry from Natural Earth
 npm run build:indicators  # regenerate World Bank indicator answers
 npm run export:consultant-review  # build the consultant-review spreadsheet
+npm run export:questions-doc      # build the Word doc of questions and answers
 ```
+
+The Deployment Explorer's own data imports are plain Python scripts, not
+wired into `package.json` (they're one-time reads run by hand, not part of
+this project's regular workflow) - `python3 deployment/scripts/build_ember_solar.py`
+etc. See `deployment/README.md`.
 
 ## Deployment
 
@@ -152,10 +171,39 @@ confused: Australia has no "AU" shape and every answer written against it has
 to be pushed down to its states, but France still has an "FR" shape and an
 answer written against it must stay there. `isSubdivided` and `resolveTargets`
 key off `mappable`, not off "has children" - France now has children (its five
-exclaves) without being subdivided. Natural Earth's admin-0 layer shows the
-same attached-territory shape for Norway (Svalbard), the Netherlands (the
-Caribbean municipalities) and Chile (Easter Island), none of which are split
-yet.
+exclaves) without being subdivided.
+
+**Fixed 2026-09-10**: Natural Earth's admin-0 layer showed this same
+attached-territory shape for Norway, the Netherlands and Spain too, and
+clicking the mainland actually selected the exclave's answers/data
+alongside it - reported as "the Netherlands view is showing non-mainland
+parts in the Caribbean when I click on it" (and the same for Norway
+including Svalbard, Spain including the Canary Islands). Fixed the same
+way as France, three new `EXCLAVES` entries:
+
+- **Norway** → `NO-21` (Svalbard) and `NO-22` (Jan Mayen) - two separate
+  bounds boxes/codes, not one combined box, since `split_exclaves` doesn't
+  support two definitions sharing one code (it would emit the same claimed
+  parts twice, once per matching definition).
+- **Netherlands** → `BQ` (Bonaire, Sint Eustatius and Saba) - three
+  Natural Earth polygon parts under one bounds box and one code, since
+  unlike France's overseas departments these three share a single
+  real-world ISO 3166-1 code rather than having one each.
+- **Spain** → `ES-CN` (Canary Islands) - seven parts, one bounds box, one
+  code. The Balearic Islands (also on Spain's admin-0 shape) deliberately
+  stay attached to the mainland - unlike the Canaries, they're on the
+  mainland's own synchronous grid, not a separate isolated one.
+
+Chile (Easter Island) is the one case left unsplit - revisit if answers
+ever get written for it specifically. Re-running `npm run build:geometry`
+after an `EXCLAVES` change reuses the cached Natural Earth download in
+`.cache/`, so it doesn't need network access unless that cache is cleared.
+**Remember to also refresh the Deployment Explorer's own geometry copy**
+after any change here - `deployment/src/assets/jurisdictions.geojson` and
+`deployment/src/data/jurisdictions.json` are copies of this project's own
+`src/assets/`/`src/data/` files, not symlinks, and then need
+`python3 deployment/scripts/dissolve_subdivided.py` re-run on top to
+restore that app's own AU/US/CA country-level dissolution.
 
 ### Answer inheritance
 
@@ -360,6 +408,28 @@ It's a two-step build, both wired into that one npm script:
 Both the `.xlsx` and `scripts/_countryData.json` are gitignored - build
 artifacts, regenerate rather than commit.
 
+`npm run export:questions-doc` builds a simpler companion document - `Electric
+Protocol - Questions and Answers.docx`, every question grouped by section with
+its rubric as a table, styled with the same GSC colours as the app itself
+(`scripts/export_questions_doc.py`: Aqua section headers, Teal table headers,
+Citrus subtitle, a question's Impactfullness badge computed with the exact
+same colour gradient as its in-app chip - see `impactColor()` in
+`src/lib/scoring.ts`, replicated in Python rather than imported since this
+script has no per-country answer data to need the Vitest-runner trick for).
+Also gitignored, also a plain regenerate.
+
+## Scoreboard sorting
+
+The Scoreboard list has no independent "sort by" setting - `ScoreboardFilters.tsx`
+used to carry its own Score/Completeness dropdown alongside the map's own
+Score/Completeness toggle (`mapMetric`), which meant the two could silently
+disagree (map coloured by one measure, list ordered by the other). Removed
+2026-09-09: the list now always sorts by whatever `mapMetric` currently is
+(`Scoreboard.tsx` derives its `ScoreboardSort` from `mapMetric` +
+`scoreboardSortDirection` on the fly), and only the high/low direction arrow
+remains as a Scoreboard-only preference. `scoreboardSortDirection` replaced
+the old `scoreboardSort` field in the store - not persisted, same as before.
+
 ## Dark mode
 
 `src/mui-theme.tsx` exports `getTheme(mode)`, not a single static theme -
@@ -376,11 +446,38 @@ background/water, light label text, dark label halos), picked by
 colours themselves (`SCORE_RAMP`) are unchanged in both modes, since that's
 the actual data being visualised, not UI chrome.
 
+The toggle itself moved to the far top-right of `TopNavbar.tsx`, 2026-09-09
+- after the nav links (Help, Admin console), not before them - so it's the
+rightmost element in the bar, matching the Deployment Explorer's own
+`TopNavbar.tsx` position exactly rather than sitting mid-bar ahead of the
+nav.
+
+## Map controls
+
+`PolicyMap.tsx`'s top-right zoom buttons (hand-built `IconButton`s, not
+MapLibre's own `NavigationControl` - see the sibling gridsim-frontend
+project's identical treatment) got a third button below zoom in/out,
+2026-09-10: **back to full map view** (`ZoomOutMapIcon`), which just calls
+`onCountryClick(null)` - clearing `selectedCountry` already triggers the
+existing `fitBounds(WORLD_BOUNDS)` effect on its own, so the button needed
+no new camera logic, only `onCountryClick`'s prop type widened from
+`(code: string) => void` to `(code: string | null) => void` (the handler
+passed in from `App.tsx`, `handleSelectCountry`, already accepted null).
+
+## Playbook tile order
+
+`index.html`'s tiles were reordered 2026-09-10: Solar Deployment Explorer,
+Solar Policy Explorer, Future Grid Simulator, then the still-greyed-out
+Solar Economics Explorer last. Pure markup reorder in the static HTML, no
+component involved.
+
 ## Layout
 
 ```
 index.html               root entry - the static playbook splash, no bundle
 policy/index.html         app entry - mounts src/main.tsx
+deployment/index.html     Solar Deployment Explorer entry - mounts deployment/src/main.tsx
+                          (a separate app entirely - see deployment/README.md)
 public/fonts/, favicon.png   assets both entries reference by root-absolute path
 src/
   main.tsx               mounts ThemedApp (theme + store wiring) -> App
@@ -394,6 +491,9 @@ src/
   components/layout/      TopNavbar, Scoreboard, CountryPanel, ImpactList, AdminConsole
   data/protocol.seed.json   generated - edit the importer, not this file
 scripts/import_xlsx.py    the one-time spreadsheet import
+deployment/src/, deployment/scripts/   Solar Deployment Explorer's own source
+                          and one-time data imports - entirely separate from
+                          everything above; see deployment/README.md
 ```
 
 `src/assets/world.geojson` comes from GridSim and is grid-level, so a country

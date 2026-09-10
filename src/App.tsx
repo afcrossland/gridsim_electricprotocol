@@ -129,6 +129,26 @@ export default function App() {
     selectCountry(code);
   };
 
+  // A link into the app can open straight into a specific country's page -
+  // e.g. the Deployment Explorer's country detail panel linking back here
+  // for the same country. Same param-stripping pattern as skipIntro/showTour
+  // above, and combined with an implicit skip of the first-run tour: a
+  // reader arriving already knowing which country they want came from
+  // somewhere that already framed the app, so the onboarding tour would be
+  // redundant on top of it.
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("country");
+    if (!code) return;
+    setTourSeen(true);
+    setBloomActive(false);
+    handleSelectCountry(code.toUpperCase());
+    const url = new URL(window.location.href);
+    url.searchParams.delete("country");
+    window.history.replaceState({}, "", url);
+    // Only ever meant to run once, against the URL the page loaded with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Every jurisdiction with an answer, plus the ones the spreadsheet shipped
   // with, so an empty Sri Lanka is still visible as something to fill in.
   // Countries that have been subdivided resolve to their states, since those

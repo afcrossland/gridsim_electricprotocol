@@ -20,17 +20,24 @@ export default defineConfig(({ mode }) => {
     base: env.VITE_BASE || "/",
 
     /**
-     * Two HTML entries, not the default single root one - the site root is
-     * now the static Electric Futures Playbook splash (`index.html`, no JS
-     * bundle of its own), and the actual Solar Policy Explorer app moved to
-     * `/policy/`. Both still get the same `base` prefix above regardless of
-     * where their own HTML file sits in the output tree.
+     * Three HTML entries, not the default single root one - the site root
+     * is the static Electric Futures Playbook splash (`index.html`, no JS
+     * bundle of its own), the Solar Policy Explorer app lives at `/policy/`,
+     * and the Solar Deployment Explorer app (moved in from the standalone
+     * ep_deploymentexplorer project, 2026-09-09, so everything serves from
+     * one dev server on one port) lives at `/deployment/`. All three still
+     * get the same `base` prefix above regardless of where their own HTML
+     * file sits in the output tree. `/deployment/` has its own `src/` tree
+     * (`deployment/src/`), separate from this project's root `src/` (which
+     * the policy app itself uses) - two different apps, so they can't share
+     * one `main.tsx`.
      */
     build: {
       rollupOptions: {
         input: {
           main: fileURLToPath(new URL("./index.html", import.meta.url)),
           policy: fileURLToPath(new URL("./policy/index.html", import.meta.url)),
+          deployment: fileURLToPath(new URL("./deployment/index.html", import.meta.url)),
         },
       },
     },
