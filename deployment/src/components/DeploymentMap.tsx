@@ -12,6 +12,7 @@ import World from "../assets/jurisdictions.geojson?url";
 import mapStyleJsonLight from "../assets/map_gsc.json";
 import mapStyleJsonDark from "../assets/map_gsc_dark.json";
 import MapLegend from "./MapLegend";
+import TotalCapacityTile from "./TotalCapacityTile";
 import { canonicalCode, jurisdictionName, resolveTargets } from "../lib/jurisdictions";
 import {
   COLOR_NO_DATA,
@@ -239,6 +240,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick 
       </MapGL>
 
       <MapLegend title={legendTitle} />
+      <TotalCapacityTile />
 
       {/* Top-right zoom controls, ported verbatim from ep_policymap's own
           PolicyMap.tsx (hand-built IconButtons, not MapLibre's

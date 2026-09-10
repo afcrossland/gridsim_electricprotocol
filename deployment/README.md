@@ -305,6 +305,17 @@ needed no new camera logic, only `onCountryClick`'s prop type widened from
 already passes its plain `setSelectedCountry`, which accepted null from the
 start).
 
+**World total stat tile**, added 2026-09-10 (`TotalCapacityTile.tsx`) -
+a small floating card, bottom-left of the map (the one empty corner -
+`MapLegend` has top-left, the zoom controls have top-right), showing the
+world total installed capacity across every country in `ember_solar.json`
+(`lib/emberSolar.ts`'s new `totalInstalledGW()` - each country's own
+latest available month, summed; countries don't all share the same latest
+month, so this is "the most current snapshot per country" rather than one
+point in time for the whole world). Always shows the same figure
+regardless of which metric is active on the map - it's a fact about the
+world, not a reading of the current view.
+
 ## Header
 
 `TopNavbar.tsx`'s Ember badge reads "Data from [Ember logo]" (was "Powered

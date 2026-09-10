@@ -34,3 +34,14 @@ export function latestSolarMW(code: string): number | null {
   if (!series || series.length === 0) return null;
   return series[series.length - 1].gw * 1000;
 }
+
+/**
+ * World total installed solar capacity, in GW - each country's own latest
+ * available month, summed (not all 25 countries necessarily share the same
+ * latest month, so this is "the most current snapshot per country", not a
+ * single point in time across all of them). Shown as a headline stat tile
+ * on the map, not tied to whichever metric is currently selected.
+ */
+export function totalInstalledGW(): number {
+  return Object.values(EMBER_SOLAR).reduce((sum, c) => sum + c.series[c.series.length - 1].gw, 0);
+}
