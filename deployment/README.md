@@ -237,8 +237,8 @@ directly than a one-line log message.
 
 ## Colour ramp
 
-`lib/metrics.ts`'s `RAMP_STOPS` went through three versions on
-2026-09-10 before settling:
+`lib/metrics.ts`'s `RAMP_STOPS` went through several versions on
+2026-09-10:
 
 1. A single-hue Aqua sequential ramp (the original).
 2. Orange-to-teal/aqua (Burnt Orange → Aqua, both GSC brand colours) -
@@ -246,14 +246,28 @@ directly than a one-line log message.
    turned out Andrew meant to try it here instead.
 3. The same orange-to-teal idea, but with the midpoint fixed from a muted
    grey-tan (which read as `COLOR_NO_DATA` on the actual map, not "medium
-   value") to GSC's own Citrus yellow.
+   value") to GSC's own Citrus yellow: `#EF864C` → `#F59B30` → `#FBB114` →
+   `#7DAE67` → `#00ABBB`.
+4. Dropped teal entirely for the same red-to-green scale as Policy
+   Explorer's own `SCORE_RAMP` (`ep_policymap/src/lib/scoring.ts`):
+   `#c0392b` → `#f47c2c` → `#f9a825` → `#c8e07b` → `#1a9850`.
+5. Tried dropping that ramp's dark-red low stop and starting from its own
+   amber midpoint instead (`#F9A825` → `#E0C450` → `#C8E07B` → `#71BC66`
+   → `#1A9850`) - didn't work for Andrew either.
+6. Back to amber-to-teal (version 3's colours), with the same "drop the
+   low stop, start from amber" fix applied instead: Burnt Orange dropped,
+   starting from `#FBB114` and stretching `#7DAE67` (green) → `#00ABBB`
+   (aqua) across the full range - but a straight RGB blend between amber
+   and aqua passes through green in the middle (R drops, G stays high, B
+   rises - that's just what those two endpoints blend through in RGB
+   space), and Andrew didn't want a green stop in an amber-to-teal ramp
+   either.
 
-**Settled on red-to-green instead** - dropping the teal/aqua idea
-entirely, per Andrew's own follow-up call once he'd seen it live. Now the
-exact same five stops as Policy Explorer's own `SCORE_RAMP`
-(`ep_policymap/src/lib/scoring.ts`): `#c0392b` → `#f47c2c` → `#f9a825` →
-`#c8e07b` → `#1a9850`, kept as a separate copy here rather than a shared
-import - the two apps' ramps aren't otherwise linked.
+**Settled**: amber to teal/aqua, routed through a pale warm cream
+midpoint instead of green - `#FBB114` → `#F8CB6E` → `#F5E6C8` → `#7AC8C1`
+→ `#00ABBB`. The cream is warm enough not to read as `COLOR_NO_DATA`
+(#E5E7EB, a cool grey) the way the original neutral-grey midpoint attempt
+(version 3's predecessor) did.
 
 ## Notable files
 

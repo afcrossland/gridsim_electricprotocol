@@ -48,20 +48,22 @@ export function domainForMetric(metric: Metric): [number, number] {
 }
 
 /**
- * Red to green, low value to high - dropped the orange-to-teal/aqua idea
- * 2026-09-10 (see the git history of this file for that version and the
- * two rounds of tuning it went through) in favour of the same red-to-green
- * scale Policy Explorer's own `SCORE_RAMP` uses (`ep_policymap/src/lib/scoring.ts`)
- * - same five stops, same hex values, kept as a separate copy here rather
- * than a shared import since the two apps' colour ramps aren't otherwise
- * linked and Policy Explorer's own ramp is scoped to that app's `scoring.ts`.
+ * Amber to teal/aqua, low value to high, with a warm cream midpoint -
+ * fixed 2026-09-10: a straight RGB blend from amber (#FBB114) to aqua
+ * (#00ABBB) naturally passes through green in the middle (R drops, G stays
+ * high, B rises - a green midpoint is just what that particular pair of
+ * endpoints blends through in RGB space), and Andrew didn't want a green
+ * stop in an amber-to-teal ramp. Routed through a pale warm cream instead
+ * (#F5E6C8) - distinct from both amber and teal, and, importantly, warm
+ * enough not to read as `COLOR_NO_DATA` (#E5E7EB, a cool grey) the way an
+ * earlier neutral-grey midpoint attempt did.
  */
 export const RAMP_STOPS = [
-  { stop: 0, color: "#c0392b" },
-  { stop: 0.25, color: "#f47c2c" },
-  { stop: 0.5, color: "#f9a825" },
-  { stop: 0.75, color: "#c8e07b" },
-  { stop: 1, color: "#1a9850" },
+  { stop: 0, color: "#FBB114" },
+  { stop: 0.25, color: "#F8CB6E" },
+  { stop: 0.5, color: "#F5E6C8" },
+  { stop: 0.75, color: "#7AC8C1" },
+  { stop: 1, color: "#00ABBB" },
 ];
 
 export const COLOR_NO_DATA = "#E5E7EB";
