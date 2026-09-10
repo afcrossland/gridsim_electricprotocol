@@ -314,7 +314,11 @@ latest available month, summed; countries don't all share the same latest
 month, so this is "the most current snapshot per country" rather than one
 point in time for the whole world). Always shows the same figure
 regardless of which metric is active on the map - it's a fact about the
-world, not a reading of the current view.
+world, not a reading of the current view. Captioned "As of MMM-YYYY"
+(added 2026-09-10, `latestSolarMonth()`) - the most recent month any
+country's own figure reaches, with a tooltip noting some countries'
+figures trail behind it, since Ember doesn't publish every country on the
+same schedule.
 
 ## Header
 

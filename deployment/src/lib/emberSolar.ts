@@ -45,3 +45,22 @@ export function latestSolarMW(code: string): number | null {
 export function totalInstalledGW(): number {
   return Object.values(EMBER_SOLAR).reduce((sum, c) => sum + c.series[c.series.length - 1].gw, 0);
 }
+
+/**
+ * The most recent (year, month) any country's own latest figure reaches -
+ * the "As of" date on the total-installed tile. Some countries' own latest
+ * month trails behind this (Ember doesn't publish every country on the
+ * same schedule), so this reads as the freshest the total ever gets, not a
+ * guarantee every country's contribution is this current.
+ */
+export function latestSolarMonth(): { year: number; month: number } {
+  return Object.values(EMBER_SOLAR).reduce(
+    (latest, c) => {
+      const p = c.series[c.series.length - 1];
+      return p.year > latest.year || (p.year === latest.year && p.month > latest.month)
+        ? { year: p.year, month: p.month }
+        : latest;
+    },
+    { year: 0, month: 0 },
+  );
+}
