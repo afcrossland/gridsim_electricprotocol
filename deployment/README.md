@@ -109,21 +109,51 @@ here, not copied straight from either source. This was the one open
 question blocking the data imports from being more than a local demo -
 now resolved.
 
-- **Installed Capacity** - Ember's monthly capacity CSV
-  (files.ember-energy.org/public-downloads/capacity/outputs/monthly_capacity_wind_solar_public_release_file.csv)
-  built into `src/data/ember_solar.json` by `scripts/build_ember_solar.py`,
-  covering 25 countries.
+- **Installed Capacity** - two Ember sources combined, per country, since
+  2026-09-10:
+  - The **monthly** capacity CSV
+    (files.ember-energy.org/public-downloads/capacity/outputs/monthly_capacity_wind_solar_public_release_file.csv) -
+    25 countries, roughly monthly cadence, reaching into 2026.
+  - The **yearly generation** CSV's own `Capacity (GW)` column
+    (files.ember-energy.org/public-downloads/generation/outputs/release_generation_yearly_global.csv,
+    ~16MB) - confirmed by inspection: 173 countries have a nonzero Solar
+    capacity figure for 2023, 168 for 2024 (2025 is a partial year at time
+    of writing - only 84 so far). Filtered to `Electricity source ==
+    "Solar"` and `Area type == "Country or economy"`.
 
-  **Bug found and fixed, 2026-09-09**: Ember reports two permanently
-  parallel rows per country-month - one `GWAC`-rated, one `GWDC`-rated -
-  not a mid-series unit-convention switch as this script's docstring first
-  (wrongly) assumed. An earlier version of the script kept both and sorted
-  only by (year, month), so the two series interleaved and capacity looked
-  like it went up and down month to month - each row on its own actually
-  climbs steadily. Fixed by keeping only the `GWDC` (DC nameplate) row and
-  dropping the `GWAC` one; re-run and verified monotonic (the handful of
-  tiny remaining dips, e.g. US Jan→Feb 2019, are genuine small
-  month-to-month figures, not an artefact).
+  Combined into `src/data/ember_solar.json` by `scripts/build_ember_solar.py`:
+  **each country takes whichever source's own latest point is more
+  recent** (Andrew's instruction) - in practice this means all 25
+  monthly-covered countries use the monthly series (it already reaches
+  further forward than the annual file's 2025 cap), and the other ~180
+  countries use the annual one, but the choice is made by comparing actual
+  dates per country, not assumed. **206 countries total** as of the last
+  build (25 monthly, 181 annual) - up from 25. A country's JSON entry is
+  either `"granularity": "monthly"` with a `series` of `{year, month, gw}`
+  points, or `"granularity": "annual"` with an `annualSeries` of
+  `{year, gw}` points, never both, so `CountryDetail.tsx`'s chart is never
+  asked to mix monthly and yearly cadence in one line -
+  `lib/emberSolar.ts`'s `EmberCountry` type is a discriminated union on
+  `granularity` for exactly this reason.
+
+  Four French overseas departments (French Guiana, Guadeloupe, Martinique,
+  Réunion) needed remapping from Ember's own plain ISO 3166-1 codes
+  (`GF`/`GP`/`MQ`/`RE`) to this app's `FR-GF`/`FR-GP`/`FR-MQ`/`FR-RE`
+  exclave codes (`FR_EXCLAVE_REMAP` in the script) - otherwise their real
+  data would have landed on codes with no matching map feature and gone
+  nowhere. All 206 codes now resolve against `jurisdictions.json`,
+  verified directly.
+
+  **Bug found and fixed, 2026-09-09** (monthly source only): Ember reports
+  two permanently parallel rows per country-month - one `GWAC`-rated, one
+  `GWDC`-rated - not a mid-series unit-convention switch as this script's
+  docstring first (wrongly) assumed. An earlier version of the script kept
+  both and sorted only by (year, month), so the two series interleaved and
+  capacity looked like it went up and down month to month - each row on
+  its own actually climbs steadily. Fixed by keeping only the `GWDC` (DC
+  nameplate) row and dropping the `GWAC` one; re-run and verified
+  monotonic (the handful of tiny remaining dips, e.g. US Jan→Feb 2019, are
+  genuine small month-to-month figures, not an artefact).
 
 - **Share of Electricity** - Ember's monthly generation CSV
   (files.ember-energy.org/public-downloads/generation/outputs/release_generation_monthly_global.csv,
