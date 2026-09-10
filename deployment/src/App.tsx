@@ -45,12 +45,27 @@ export default function App({ mode, setMode }: Props) {
 
   // A link into the app can force the tour open even for a returning
   // visitor - same ?showTour=1 param and param-stripping pattern as Policy
-  // Explorer's own App.tsx, used by the Playbook homepage's "Demo" button.
+  // Explorer's own App.tsx, used by the Playbook homepage's "Show me how"
+  // button.
   useEffect(() => {
     if (!new URLSearchParams(window.location.search).has("showTour")) return;
     setTourOpen(true);
     const url = new URL(window.location.href);
     url.searchParams.delete("showTour");
+    window.history.replaceState({}, "", url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // The inverse - marks the tour as already seen without opening it, so a
+  // first-ever visitor arriving via the Playbook's "Click to explore" link
+  // doesn't get the tour anyway despite never having seen it. Same
+  // ?skipIntro=1 param Policy Explorer's own "Click to explore" link uses.
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has("skipIntro")) return;
+    setTourOpen(false);
+    localStorage.setItem(TOUR_SEEN_KEY, "1");
+    const url = new URL(window.location.href);
+    url.searchParams.delete("skipIntro");
     window.history.replaceState({}, "", url);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

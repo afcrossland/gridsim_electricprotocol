@@ -362,13 +362,17 @@ Explorer's own `src/scrollstory/` (13 scenes), per Andrew's "only needs
 
 Opens automatically on a visitor's first-ever visit, tracked via a plain
 `localStorage` flag (`deployment-tour-seen`) rather than a persisted store
-field - this app has no Zustand store the way Policy Explorer does. It
-also opens on `?showTour=1` (added 2026-09-10, same param-stripping
-pattern as Policy Explorer's own App.tsx) - the Playbook homepage's "Show
-me how" button (`index.html`) now links to `/deployment/?showTour=1` instead of
-being a dead `href="#"` link with no real destination. A "Take the tour"
-link in `TopNavbar.tsx` (same `navItemSx` style as the Help link next to
-it) reopens it any time.
+field - this app has no Zustand store the way Policy Explorer does. Two
+URL params override that, both mirroring Policy Explorer's own App.tsx
+(same param-stripping pattern) and both used by the Playbook homepage's
+tile (`index.html`): `?showTour=1` forces it open (the "Show me how"
+button, `deployment/?showTour=1` - was a dead `href="#"` link with no
+real destination until 2026-09-10), `?skipIntro=1` marks it as already
+seen without opening it (the "Click to explore" button, added
+2026-09-10 - a first-ever visitor arriving via that link shouldn't get
+the tour anyway, even though they've technically never seen it). A "Take
+the tour" link in `TopNavbar.tsx` (same `navItemSx` style as the Help
+link next to it) reopens it any time regardless of `?skipIntro`'s effect.
 
 ## Help page
 
