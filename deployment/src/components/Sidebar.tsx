@@ -213,7 +213,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
             />
           </Box>
 
-          <ComingSoonTile label="Connect with Local Solar Association" />
+          <ComingSoonTile label="Connect with GSC Members" />
 
           {selectedEmberCountry && <CountryDetail country={selectedEmberCountry} />}
           {selectedGenerationCountry && <GenerationDetail country={selectedGenerationCountry} />}

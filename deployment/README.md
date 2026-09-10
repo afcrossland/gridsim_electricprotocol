@@ -386,9 +386,11 @@ Grid Simulator) over a rounded-pill "Open" button in the same colour,
 rather than a plain bordered link row.
 
 A third, full-width tile sits below those two (`ComingSoonTile`, added
-2026-09-10): **"Coming Soon: Connect with Local Solar Association"**, on
-every country's detail panel. Dashed border and muted text rather than
-the solid brand-accent styling above it, so it reads as "not built yet"
+2026-09-10): **"Coming Soon: Connect with GSC Members"** (retitled the
+same day - "Connect with Local Solar Association" was the original
+wording), on every country's detail panel. Dashed border and muted text
+rather than the solid brand-accent styling above it, so it reads as "not
+built yet"
 at a glance - same "Coming soon" wording convention as the Playbook
 homepage's own greyed-out Solar Economics Explorer tile
 (`index.html`'s `.tile.economics`). Not a real link yet - no destination
