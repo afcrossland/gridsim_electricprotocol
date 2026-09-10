@@ -27,4 +27,5 @@ scripts/_countryData.json
 # produce are committed; these raw downloads are not.
 deployment/scripts/_ember_capacity_download_cache.csv
 deployment/scripts/_ember_generation_download_cache.csv
+deployment/scripts/_ember_generation_yearly_download_cache.csv
 deployment/scripts/_population_download_cache.json
