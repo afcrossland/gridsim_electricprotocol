@@ -39,6 +39,23 @@ export function valueForMetric(code: string, metric: Metric): number | null {
   return millions ? mw / millions : null;
 }
 
+/**
+ * Same as `valueForMetric`, but a real `0` is treated as "no data" too -
+ * used for the map's fill colour and hover tooltip specifically, added
+ * 2026-09-10. A log-scale ramp has no meaningful stop for exactly zero
+ * (log10(0) is undefined), so without this a genuinely-zero country (a
+ * few of the annual-capacity dataset's early years, before that country
+ * had any solar at all) got clamped to the ramp's lowest colour and
+ * looked like it had *some* capacity rather than none. The ranking list
+ * in Sidebar.tsx still uses `valueForMetric` directly and keeps showing
+ * these rows as "0 MW"/"0%" - a real, honest number there, just not a
+ * colour the map's ramp can represent.
+ */
+export function valueForMap(code: string, metric: Metric): number | null {
+  const value = valueForMetric(code, metric);
+  return value === 0 ? null : value;
+}
+
 /** Domain (min/max) of positive values actually present for this metric - drives the colour ramp's stops. */
 export function domainForMetric(metric: Metric): [number, number] {
   const values = codesForMetric(metric)

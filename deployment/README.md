@@ -269,6 +269,17 @@ midpoint instead of green - `#FBB114` → `#F8CB6E` → `#F5E6C8` → `#7AC8C1`
 (#E5E7EB, a cool grey) the way the original neutral-grey midpoint attempt
 (version 3's predecessor) did.
 
+**A real `0` is treated as "no data" on the map, 2026-09-10**
+(`lib/metrics.ts`'s new `valueForMap`, used by the map's fill colour and
+hover tooltip specifically) - a log-scale ramp has no meaningful stop for
+exactly zero (`log10(0)` is undefined), so without this, a genuinely-zero
+country (30 countries' latest capacity figure is exactly `0`; 27
+countries' latest share is exactly `0%` - both real, checked directly)
+got clamped to the ramp's lowest colour and looked like it had *some*
+value rather than none. `Sidebar.tsx`'s ranking list still uses
+`valueForMetric` directly and keeps showing these rows as "0 MW"/"0%" - a
+real, honest number there, just not a colour the map's ramp can represent.
+
 ## Notable files
 
 - `lib/jurisdictions.ts` - `isSubdivided`/`resolveTargets`/`canonicalCode`,

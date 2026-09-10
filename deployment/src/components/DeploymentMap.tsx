@@ -20,7 +20,7 @@ import {
   RAMP_STOPS,
   codesForMetric,
   domainForMetric,
-  valueForMetric,
+  valueForMap,
   type Metric,
 } from "../lib/metrics";
 
@@ -177,7 +177,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick 
     // of its states/provinces via resolveTargets instead of set on a
     // nonexistent "AU"/"US"/"CA" feature.
     for (const code of codesForMetric(metric)) {
-      const value = valueForMetric(code, metric);
+      const value = valueForMap(code, metric);
       const normValue = value === null ? null : norm(value);
       for (const target of resolveTargets(code)) {
         map.setFeatureState({ source: "countries", id: target }, { norm: normValue });
@@ -210,7 +210,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick 
     if (code) onCountryClick(canonicalCode(code as string));
   };
 
-  const hoveredValue = hover ? valueForMetric(hover.code, metric) : null;
+  const hoveredValue = hover ? valueForMap(hover.code, metric) : null;
   const hoveredName = hover ? jurisdictionName(hover.code) : undefined;
   const legendTitle = METRIC_LABELS[metric];
 
