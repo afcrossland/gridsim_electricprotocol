@@ -32,5 +32,11 @@
 html, body, #root {
   height: 100%;
   margin: 0;
-  overflow-x: hidden;
+  overflow: hidden;
+  /* Without this, iOS Safari's rubber-band bounce still scrolls the page
+     itself on an upward pan even though nothing here overflows - the
+     footer (an ordinary flex child, not fixed-positioned) rides along
+     with that scroll and pulls away from the bottom of the screen. Found
+     2026-09-10 testing the mobile layout on a real device. */
+  overscroll-behavior: none;
 }
