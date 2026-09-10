@@ -4,6 +4,7 @@ import type { PaletteMode } from "@mui/material/styles";
 
 import CountrySearch from "./components/CountrySearch";
 import DeploymentMap from "./components/DeploymentMap";
+import EmberBadge from "./components/EmberBadge";
 import HelpPage from "./components/HelpPage";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import Sidebar from "./components/Sidebar";
@@ -195,6 +196,24 @@ export default function App({ mode, setMode }: Props) {
             <Box sx={{ flex: 1 }} />
             <LanguageSwitcher />
           </Box>
+
+          {/* Ember credit, mobile only - moved here 2026-09-10 from its own
+              row below the header (added there earlier the same day) per
+              Andrew's follow-up instruction: a second row under the
+              footer instead, left-aligned same as before. Desktop keeps
+              its own copy inline in TopNavbar.tsx's header row - never
+              both at once. */}
+          {isMobile && (
+            <EmberBadge
+              sx={{
+                px: 2,
+                py: 0.75,
+                bgcolor: "background.paper",
+                borderTop: "1px solid",
+                borderColor: "divider",
+              }}
+            />
+          )}
 
           {tourOpen && <ScrollStory onDismiss={dismissTour} onSelectCountry={setSelectedCountry} />}
         </>

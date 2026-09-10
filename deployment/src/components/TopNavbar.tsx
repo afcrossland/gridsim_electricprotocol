@@ -3,6 +3,8 @@ import type { PaletteMode } from "@mui/material/styles";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 
+import EmberBadge from "./EmberBadge";
+
 interface Props {
   mode: PaletteMode;
   setMode: (mode: PaletteMode) => void;
@@ -101,41 +103,17 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
 
         <Box sx={{ flex: 1 }} />
 
-        <Box
-          component="a"
-          href="https://ember-energy.org/"
-          target="_blank"
-          rel="noopener noreferrer"
+        <EmberBadge
           sx={{
-            // Hidden below `sm` - added 2026-09-10 building the mobile
-            // layout. This row (logo+title, Ember badge, Take the tour,
-            // Help, dark-mode toggle) overflowed on a phone with nothing
-            // set to hide; attribution still lives on the Help page, so
-            // dropping it here is a real trade, not a loss.
+            // Hidden below `sm` - the mobile layout shows this same badge
+            // in the footer instead (see App.tsx), added there 2026-09-10.
+            // This row (logo+title, Ember badge, Take the tour, Help,
+            // dark-mode toggle) overflowed on a phone with nothing set to
+            // hide, so it's never both places at once.
             display: { xs: "none", sm: "flex" },
-            alignItems: "center",
-            gap: 0.75,
             flexShrink: 0,
-            textDecoration: "none",
-            "&:hover": { opacity: 0.8 },
           }}
-        >
-          <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>Data from</Typography>
-          {/* Ember's logo is dark navy text on a transparent background -
-              unreadable against a dark-mode header. A small white chip
-              behind it (rather than a different asset - Ember doesn't
-              publish a white variant we can verify/link to) keeps it
-              legible in both themes; harmless in light mode too, where the
-              header is already white. */}
-          <Box sx={{ bgcolor: "#fff", borderRadius: "4px", px: 0.75, py: 0.375, display: "flex" }}>
-            <Box
-              component="img"
-              src={`${import.meta.env.BASE_URL}ember-logo.svg`}
-              alt="Ember"
-              sx={{ height: 14, display: "block" }}
-            />
-          </Box>
-        </Box>
+        />
 
         <Box onClick={onStartTour} sx={navItemSx(false)}>
           {/* Abbreviated below `sm`, same as Policy Explorer's own nav -
@@ -158,42 +136,6 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
           </IconButton>
         </Tooltip>
       </Toolbar>
-
-      {/* Ember credit, mobile only - added 2026-09-10. The header row above
-          hides this badge below `sm` (no room for it there alongside the
-          title, tour link, and Help), but Andrew wants it visible on
-          mobile too rather than dropped entirely - a second, slimmer row
-          sitting just below the header does that without crowding the
-          main nav row. Hidden at `sm`+, where the header's own copy of
-          this already shows - never both at once. */}
-      <Box
-        component="a"
-        href="https://ember-energy.org/"
-        target="_blank"
-        rel="noopener noreferrer"
-        sx={{
-          display: { xs: "flex", sm: "none" },
-          alignItems: "center",
-          justifyContent: "flex-start",
-          gap: 0.75,
-          px: 2,
-          py: 0.75,
-          borderTop: "1px solid",
-          borderColor: "divider",
-          textDecoration: "none",
-          "&:hover": { opacity: 0.8 },
-        }}
-      >
-        <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>Data from</Typography>
-        <Box sx={{ bgcolor: "#fff", borderRadius: "4px", px: 0.75, py: 0.375, display: "flex" }}>
-          <Box
-            component="img"
-            src={`${import.meta.env.BASE_URL}ember-logo.svg`}
-            alt="Ember"
-            sx={{ height: 14, display: "block" }}
-          />
-        </Box>
-      </Box>
     </AppBar>
   );
 }
