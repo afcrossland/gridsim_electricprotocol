@@ -89,6 +89,93 @@ sizing and positioning.
   per Capita / Share of Electricity) next to it, language switcher on the
   far right.
 
+## Mobile layout
+
+**Built 2026-09-10** - there was none before this. The app was only ever
+laid out for desktop: `Sidebar.tsx` was a hard-coded `width: 460` flex
+sibling of the map, which on any phone-width viewport either squeezed the
+map toward zero width or overflowed the page horizontally; the header
+(logo+title, Ember badge, "Take the tour", "Help", dark-mode toggle) and
+footer (country search, a 3-button metric selector with labels as long as
+"Installed Capacity per Capita", language switcher) both packed everything
+into one unwrapped row with nothing set to hide or shrink. Diagnosed by
+reading the code directly (not a screenshot guess), then rebuilt using
+Policy Explorer's own mobile pattern (`ep_policymap/src/App.tsx`), which
+already handles this well:
+
+- **`App.tsx`** - `isMobile = useMediaQuery(theme.breakpoints.down("md"))`
+  drives a Map/List `ToggleButtonGroup` below `md`, same as Policy
+  Explorer's own `mobileView` state. Selecting a country takes over the
+  full screen (no toggle on top of it) - `Sidebar.tsx` alone fills the
+  view. With nothing selected, the toggle switches between the same `map`
+  and `list` elements desktop uses, just full-screen instead of side by
+  side, and `CountrySearch` sits left-aligned in that same row, to the
+  toggle's left.
+- **`Sidebar.tsx`** - `PANEL_SX` lost its own `width: 460`/`flexShrink: 0`/
+  `borderLeft` - those are the caller's job now (`App.tsx` wraps it in a
+  460px bordered `Box` on desktop, a full-width unbordered one on mobile),
+  matching how Policy Explorer's `Scoreboard.tsx`/`CountryPanel.tsx` are
+  equally width-agnostic for the same reason. Gained `height: "100%"` so
+  it fills whatever height its mobile container gives it.
+- **`TopNavbar.tsx`** - the Ember attribution badge hides below `sm` in
+  the main header row (no room there alongside the title, tour link, and
+  Help) but reappears as its own slim, centered row directly below the
+  header, shown only below `sm` - never both copies at once. "Take the
+  tour" abbreviates to "Tour" below `sm`, the same two-span pattern Policy
+  Explorer's own nav items use.
+- **Footer's metric selector** - a new `METRIC_SHORT_LABELS` in
+  `lib/metrics.ts` ("Capacity" / "Per Capita" / "Share") swaps in below
+  `md`, since the full labels alone are wider than most phone screens. It
+  persists in the footer in every mobile state (List, Map, and a
+  country's own detail page alike) - the footer's only other control,
+  `CountrySearch`, is desktop-only there (mobile keeps it up in the
+  toggle row instead per Andrew's instruction 2026-09-10), so there's
+  nothing left to overlap with.
+
+`DeploymentMap.tsx` and `MapLegend.tsx` already had real mobile handling
+(the legend's full-width top banner, the zoom controls' mobile top
+offset) from when they were first built - those were untouched.
+
+**Footer-overlap bug, found and fixed the same day**: the first version
+above put `CountrySearch` in its own row above the content and hid it and
+the metric selector from the footer only for some mobile states, not all
+- there was no rule at all for "a country's own detail page has taken
+over the full screen." In that state both the footer's `CountrySearch`
+and its metric `ToggleButtonGroup` still rendered, together wider than
+the 48px footer, so they visibly overlapped - found by actually rendering
+the app at a phone viewport (390×844 and 375×667, via a one-off
+Playwright + system-installed Chrome check - `npx playwright install
+chromium`'s own browser download failed in this sandbox, `channel:
+'chrome'` worked around it) rather than by reasoning about the CSS alone;
+reasoning about it first had missed this state entirely. Fixed, then
+simplified further per Andrew's follow-up instruction the same day: move
+search out of the footer on mobile entirely (up into the Map/List toggle
+row instead) and let the metric selector persist in the footer
+unconditionally - with only one control left in the mobile footer, there
+is no overlap left to guard against.
+
+The same round of screenshots also caught `TotalCapacityTile.tsx`
+colliding with MapLibre's own attribution control - on any container
+<=640px wide (effectively every phone) MapLibre renders the full "©
+MapTiler © OpenStreetMap contributors" text, not just the collapsed icon,
+until the visitor's first drag on the map; passing `attributionControl:
+{compact: true}` to `DeploymentMap.tsx`'s `<Map>` doesn't change that
+first-load behaviour (confirmed by reading MapLibre's own
+`_updateCompact` source), so the actual fix was giving the tile more
+vertical clearance on mobile (`bottom: { xs: 40, sm: 16 }`) so it sits
+above that row instead of beside it, regardless of the attribution
+control's expanded/collapsed state.
+
+**Known minor gap**: the scroll-story tour's `metric-selector` spotlight
+target (scene 1) only exists in the DOM when the footer's metric selector
+is actually rendered - on mobile, that's hidden while the Map/List
+toggle's List side is showing. `Spotlight.tsx` handles a target that
+hasn't mounted yet gracefully (it polls for up to 60 seconds rather than
+erroring), so the tour doesn't break, but that one scene could sit dimmed
+and waiting longer than intended if a mobile visitor takes the tour while
+on List view. Not fixed - the tour is primarily a first-visit, mostly
+desktop-tested flow, and this is a narrow edge case.
+
 ## Data - three imports, no placeholder fallback
 
 All three are **one-time reads, not a live pipeline** - re-run the

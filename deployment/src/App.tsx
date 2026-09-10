@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Box, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
 
 import CountrySearch from "./components/CountrySearch";
@@ -9,7 +9,7 @@ import LanguageSwitcher from "./components/LanguageSwitcher";
 import Sidebar from "./components/Sidebar";
 import TopNavbar from "./components/TopNavbar";
 import ScrollStory from "./scrollstory/ScrollStory";
-import { METRIC_LABELS, type Metric } from "./lib/metrics";
+import { METRIC_LABELS, METRIC_SHORT_LABELS, type Metric } from "./lib/metrics";
 
 interface Props {
   mode: PaletteMode;
@@ -18,6 +18,7 @@ interface Props {
 
 const METRICS: Metric[] = ["capacity", "capacityPerCapita", "share"];
 const TOUR_SEEN_KEY = "deployment-tour-seen";
+const SIDEBAR_WIDTH = 460;
 
 export default function App({ mode, setMode }: Props) {
   // One three-way selector, not a view+basis pair - see the plan in
@@ -29,6 +30,16 @@ export default function App({ mode, setMode }: Props) {
   // here rather than a store field - this app has nothing else that needs
   // to read or restore it.
   const [page, setPage] = useState<"map" | "help">("map");
+
+  // Mobile layout, added 2026-09-10 - ported from Policy Explorer's own
+  // App.tsx, which already handles this well: below `md`, the map and
+  // sidebar can't sit side by side (the sidebar's own fixed desktop width
+  // alone is wider than most phones), so they become a Map/List toggle
+  // instead, switching between the same two full-screen views rather than
+  // squeezing both onto the screen together.
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileView, setMobileView] = useState<"map" | "list">("list");
 
   // Opens automatically on a visitor's first-ever visit, tracked in
   // localStorage rather than a store field (this app has no persisted
@@ -70,25 +81,88 @@ export default function App({ mode, setMode }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const map = <DeploymentMap metric={metric} selectedCountry={selectedCountry} onCountryClick={setSelectedCountry} />;
+  const list = <Sidebar metric={metric} selectedCountry={selectedCountry} onSelect={setSelectedCountry} />;
+
   return (
-    <Box sx={{ height: "100dvh", width: "100%", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
       <TopNavbar mode={mode} setMode={setMode} page={page} setPage={setPage} onStartTour={() => setTourOpen(true)} />
 
       {page === "help" ? (
         <HelpPage onBack={() => setPage("map")} />
       ) : (
         <>
-          {/* Same map + sidebar layout as ep_policymap's App.tsx - the map is
-              a flex sibling of the sidebar, not an overlay. */}
-          <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
-            <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>
-              <DeploymentMap metric={metric} selectedCountry={selectedCountry} onCountryClick={setSelectedCountry} />
+          {isMobile ? (
+            selectedCountry ? (
+              // A country's own detail page takes the full screen on
+              // mobile - no room for a Map/List toggle on top of it too.
+              <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
+            ) : (
+              <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                {/* Search sits left-aligned next to the Map/List toggle,
+                    both in one row - moved here 2026-09-10 per Andrew's
+                    instruction, off its own separate row above the
+                    content. Works the same regardless of which of the two
+                    views is showing underneath. */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1,
+                    px: 2,
+                    pt: 1.5,
+                    pb: 1,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />
+                  <ToggleButtonGroup
+                    size="small"
+                    exclusive
+                    value={mobileView}
+                    onChange={(_, next) => next && setMobileView(next)}
+                  >
+                    <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
+                      List
+                    </ToggleButton>
+                    <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
+                      Map
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+                <Divider />
+                {mobileView === "map" ? (
+                  <Box sx={{ flex: 1, minHeight: 0, position: "relative" }}>{map}</Box>
+                ) : (
+                  <Box sx={{ flex: 1, minHeight: 0, bgcolor: "background.paper", overflow: "hidden" }}>{list}</Box>
+                )}
+              </Box>
+            )
+          ) : (
+            // Same map + sidebar layout as ep_policymap's own desktop
+            // App.tsx - the map is a flex sibling of the sidebar, not an
+            // overlay. Width and border live here, not in Sidebar.tsx
+            // itself, since that component is shared with the mobile List
+            // view above, which needs neither.
+            <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
+              <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>{map}</Box>
+              <Box sx={{ width: SIDEBAR_WIDTH, flexShrink: 0, borderLeft: "1px solid", borderColor: "divider" }}>
+                {list}
+              </Box>
             </Box>
-            <Sidebar metric={metric} selectedCountry={selectedCountry} onSelect={setSelectedCountry} />
-          </Box>
+          )}
 
-          {/* Footer bar - the metric selector, country search, and language,
-              same role as ep_policymap's own bottom bar. */}
+          {/* Footer bar - the metric selector and language switcher, same
+              role as ep_policymap's own bottom bar. The metric selector
+              persists here in every mobile state (List, Map, and a
+              country's own detail page alike) per Andrew's instruction
+              2026-09-10 - it's cheap to keep around since, with search
+              moved up next to the Map/List toggle (see above), this is the
+              only other control in the footer on mobile, so there's no
+              overlap risk the way there was when search used to share this
+              bar too. Search itself stays desktop-only here - on mobile
+              it's always up next to the toggle instead. */}
           <Box
             sx={{
               flexShrink: 0,
@@ -102,7 +176,7 @@ export default function App({ mode, setMode }: Props) {
               gap: 1.5,
             }}
           >
-            <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />
+            {!isMobile && <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />}
 
             <ToggleButtonGroup
               data-tour="metric-selector"
@@ -113,7 +187,7 @@ export default function App({ mode, setMode }: Props) {
             >
               {METRICS.map((m) => (
                 <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
-                  {METRIC_LABELS[m]}
+                  {isMobile ? METRIC_SHORT_LABELS[m] : METRIC_LABELS[m]}
                 </ToggleButton>
               ))}
             </ToggleButtonGroup>

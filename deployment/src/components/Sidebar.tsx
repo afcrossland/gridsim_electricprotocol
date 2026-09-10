@@ -118,14 +118,18 @@ function ComingSoonTile({ label }: { label: string }) {
   );
 }
 
+// Width and border are the caller's job now, not this component's own -
+// 2026-09-10, part of building a real mobile layout (see App.tsx): on
+// desktop this sits at a fixed width next to the map with a left border,
+// on mobile it fills the full screen on its own with no border, and this
+// component has no way to know which case it's in. Matches Policy
+// Explorer's own Scoreboard.tsx/CountryPanel.tsx, which are equally
+// width-agnostic for the same reason.
 const PANEL_SX = {
-  width: 460,
-  flexShrink: 0,
-  borderLeft: "1px solid",
-  borderColor: "divider",
   display: "flex",
   flexDirection: "column",
   bgcolor: "background.paper",
+  height: "100%",
 } as const;
 
 /**
@@ -225,10 +229,9 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
   return (
     <Box sx={PANEL_SX}>
       <Box sx={{ p: 2, pb: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
-        {/* Same heading/description pattern as ep_policymap's Scoreboard.tsx. */}
-        <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "text.primary", lineHeight: 1.2, mb: 0.5 }}>
-          Solar Deployment Explorer
-        </Typography>
+        {/* No "Solar Deployment Explorer" heading here any more - dropped
+            2026-09-10 per Andrew's instruction, it duplicated the app's own
+            title in TopNavbar.tsx right above it. */}
         <Typography variant="body2" sx={{ mb: 1.5 }}>
           <strong>Pick a country on the map or in this list</strong> to see{" "}
           {metric === "share"

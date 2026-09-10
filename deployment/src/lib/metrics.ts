@@ -17,6 +17,13 @@ export const METRIC_LABELS: Record<Metric, string> = {
   share: "Share of Electricity",
 };
 
+/** Same three metrics, short enough for the footer's ToggleButtonGroup on a phone - "Installed Capacity per Capita" alone is wider than most phone screens. Added 2026-09-10 building the mobile layout. */
+export const METRIC_SHORT_LABELS: Record<Metric, string> = {
+  capacity: "Capacity",
+  capacityPerCapita: "Per Capita",
+  share: "Share",
+};
+
 /** Every country the active metric's underlying dataset actually covers. */
 export function codesForMetric(metric: Metric): string[] {
   return metric === "share" ? Object.keys(EMBER_GENERATION) : Object.keys(EMBER_SOLAR);

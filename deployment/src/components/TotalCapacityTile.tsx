@@ -24,7 +24,17 @@ export default function TotalCapacityTile() {
       sx={{
         position: "absolute",
         left: 16,
-        bottom: 16,
+        // Extra clearance on mobile, added 2026-09-10 - MapLibre's own
+        // attribution control renders full "© MapTiler © OpenStreetMap
+        // contributors" text (not just the collapsed icon) on first load
+        // any time the map container is <=640px wide, and only collapses
+        // after the visitor's first drag on the map. `bottom: 16` put this
+        // card's own bottom edge right in that same row, overlapping the
+        // attribution text horizontally - confirmed via a Playwright +
+        // system Chrome screenshot at 390 and 375px wide. 40px clears the
+        // attribution row entirely regardless of its expanded/collapsed
+        // state, so this doesn't depend on that first-drag timing at all.
+        bottom: { xs: 40, sm: 16 },
         zIndex: 1000,
         px: 1.5,
         py: 1.25,
