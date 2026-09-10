@@ -92,6 +92,32 @@ function CrossLinkTile({ href, label, accent }: { href: string; label: string; a
   );
 }
 
+/**
+ * Full-width, below the two CrossLinkTile cards - dashed border and muted
+ * text rather than the solid brand-accent tile style above it, so it
+ * reads as "not built yet" rather than a second working link at a glance.
+ * Same "Coming soon" wording convention as the Playbook homepage's own
+ * greyed-out Solar Economics Explorer tile (`index.html`'s `.tile.economics`).
+ */
+function ComingSoonTile({ label }: { label: string }) {
+  return (
+    <Box
+      sx={{
+        borderRadius: "12px",
+        border: "1px dashed",
+        borderColor: "divider",
+        bgcolor: "action.hover",
+        p: 1.5,
+        textAlign: "center",
+      }}
+    >
+      <Typography sx={{ fontWeight: 700, fontSize: "0.75rem", color: "text.disabled" }}>
+        Coming Soon: {label}
+      </Typography>
+    </Box>
+  );
+}
+
 const PANEL_SX = {
   width: 460,
   flexShrink: 0,
@@ -186,6 +212,8 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
               accent="#C98600"
             />
           </Box>
+
+          <ComingSoonTile label="Connect with Local Solar Association" />
 
           {selectedEmberCountry && <CountryDetail country={selectedEmberCountry} />}
           {selectedGenerationCountry && <GenerationDetail country={selectedGenerationCountry} />}
