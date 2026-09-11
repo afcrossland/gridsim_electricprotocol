@@ -316,24 +316,21 @@ function syntheticGroup(code: string, name: string, children: CountryScore[]): G
 }
 
 /**
- * Colour ramp for the choropleth, low score to high - red to green, drawn
- * from the sibling gridsim-frontend project's own carbon-intensity scale
- * (`CARBON_COLOUR_STOPS`), reversed (there low is good/green, high is bad/
- * red; here a high score is good) and without its darkest, near-black red -
- * too harsh at this end of the scale - so the lowest stop is its ordinary
- * red instead, with an extra orange step added between that and the amber
- * stop so the ramp still reads as five distinct, evenly-spaced colours.
- *
- * (An orange-to-teal/aqua variant of this ramp was tried 2026-09-10, then
- * reverted - Andrew's actual intent was to try that scale on the
- * Deployment Explorer, not here. See that app's own `lib/metrics.ts`.)
+ * Colour ramp for the choropleth, low score to high - amber to teal/aqua
+ * via a pale warm cream midpoint, adopted 2026-09-11 from Deployment
+ * Explorer's own ramp (`deployment/src/lib/metrics.ts`'s `RAMP_STOPS`) once
+ * that one had been through its own round of iteration there. An earlier
+ * attempt to bring an orange-to-teal ramp here on 2026-09-10 was reverted
+ * the same day - Andrew's intent at the time was to try that scale on
+ * Deployment Explorer first, not here yet. This is that finished ramp
+ * following through, per his later instruction once it had settled.
  */
 export const SCORE_RAMP = [
-  { stop: 0.0, color: "#c0392b" },
-  { stop: 0.25, color: "#f47c2c" },
-  { stop: 0.5, color: "#f9a825" },
-  { stop: 0.75, color: "#c8e07b" },
-  { stop: 1.0, color: "#1a9850" },
+  { stop: 0.0, color: "#FBB114" },
+  { stop: 0.25, color: "#F8CB6E" },
+  { stop: 0.5, color: "#F5E6C8" },
+  { stop: 0.75, color: "#7AC8C1" },
+  { stop: 1.0, color: "#00ABBB" },
 ] as const;
 
 /** Countries below the completeness threshold, and those with no data at all. */
@@ -359,11 +356,11 @@ export function scoreColor(score: number): string {
  * means.
  */
 export const SCORE_BANDS = [
-  { label: "Very ineffective", min: 0.0, color: "#c0392b" },
-  { label: "Ineffective", min: 0.2, color: "#f47c2c" },
-  { label: "Moderate", min: 0.4, color: "#f9a825" },
-  { label: "Effective", min: 0.6, color: "#c8e07b" },
-  { label: "Very effective", min: 0.8, color: "#1a9850" },
+  { label: "Very ineffective", min: 0.0, color: "#FBB114" },
+  { label: "Ineffective", min: 0.2, color: "#F8CB6E" },
+  { label: "Moderate", min: 0.4, color: "#F5E6C8" },
+  { label: "Effective", min: 0.6, color: "#7AC8C1" },
+  { label: "Very effective", min: 0.8, color: "#00ABBB" },
 ] as const;
 
 export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
@@ -372,6 +369,20 @@ export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
     if (score >= b.min) chosen = b;
   }
   return chosen;
+}
+
+/**
+ * A band's own `color` is calibrated to be a map fill and a swatch, not
+ * body text - "Moderate"'s pale cream (#F5E6C8) is close to unreadable on
+ * a white/paper background. Everywhere a score's colour is used as literal
+ * text (score labels, the PDF report), use this instead of `scoreBand(...)
+ * .color` directly - same hue, darkened enough to read as text; every
+ * other band's colour is legible as-is. Added 2026-09-11, the same day the
+ * cream stop itself was adopted from Deployment Explorer's ramp.
+ */
+export function scoreTextColor(score: number): string {
+  const band = scoreBand(score);
+  return band.label === "Moderate" ? "#8A6D23" : band.color;
 }
 
 /** "Good (75%)" - the band leads so a reader isn't left comparing two raw numbers, the percentage follows for anyone who wants the detail. */

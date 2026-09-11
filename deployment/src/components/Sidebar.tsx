@@ -22,6 +22,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 import CountryDetail from "./CountryDetail";
 import GenerationDetail from "./GenerationDetail";
+import LockedMetricsSection from "./LockedMetricsSection";
 import FlagImg from "./FlagImg";
 import { emberCountry } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
@@ -221,6 +222,8 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
 
           {selectedEmberCountry && <CountryDetail country={selectedEmberCountry} />}
           {selectedGenerationCountry && <GenerationDetail country={selectedGenerationCountry} />}
+
+          <LockedMetricsSection countryCode={selectedCountry} />
         </Box>
       </Box>
     );

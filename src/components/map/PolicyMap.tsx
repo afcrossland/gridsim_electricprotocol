@@ -201,6 +201,20 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     return style;
   }, [theme.palette.mode]);
 
+  // Switching `mapStyle` (light/dark) makes MapLibre re-style the whole
+  // map, which recreates the "countries" GeoJSON source from scratch and
+  // wipes every feature-state previously set on it via setFeatureState -
+  // bug found 2026-09-11 (colours vanished on toggling dark mode, same bug
+  // fixed the same day in Deployment Explorer's own DeploymentMap.tsx).
+  // Nothing in the score-painting effect below re-runs on its own when
+  // only the theme mode changes (its deps are scores/sourceReady/metric),
+  // so resetting `sourceReady` here forces it through "not ready" and back
+  // to "ready" once `onSourceData` fires again for the freshly-recreated
+  // source - that retrigger is what gets the colours re-applied.
+  useEffect(() => {
+    setSourceReady(false);
+  }, [mapStyle]);
+
   useEffect(() => {
     let mounted = true;
     fetch(World)
@@ -396,7 +410,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   const selectedLayer: LayerProps = {
     id: "country-selected",
     type: "line",
-    filter: ["==", ["get", "code"], selectedCountry ?? " "],
+    filter: ["==", ["get", "code"], selectedCountry ?? " "],
     // White, matching gridsim's own selected-country outline.
     paint: { "line-color": "#ffffff", "line-width": 2 },
   };
@@ -505,21 +519,15 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
             <FlagImg code={hover.code} />
             <Typography variant="subtitle1">{qualifiedName(hover.code)}</Typography>
           </Box>
-          {hovered && hovered.answered > 0 ? (
+          {hovered && hovered.ranked ? (
             <>
               <Typography variant="caption" sx={{ display: "block" }}>
                 Policy score
               </Typography>
-              <Typography variant="h5">
-                {hovered.ranked ? scoreLabel(hovered.score) : "Not enough data to score yet"}
-              </Typography>
-              <Typography variant="caption">
-                {hovered.answered}/{hovered.total} answered
-                {hovered.ranked ? "" : " · not enough data"}
-              </Typography>
+              <Typography variant="h5">{scoreLabel(hovered.score)}</Typography>
             </>
           ) : (
-            <Typography variant="caption">No data yet - click to start</Typography>
+            <Typography variant="caption">More data needed</Typography>
           )}
         </Paper>
       )}

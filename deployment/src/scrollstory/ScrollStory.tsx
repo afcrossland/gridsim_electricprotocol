@@ -67,6 +67,8 @@ interface Props {
   onDismiss: () => void;
   /** Lets the country-detail scene actually select a real country, so it can spotlight the real detail panel rather than describing it over a static screenshot. */
   onSelectCountry: (code: string | null) => void;
+  /** Reports the active scene's id back up, same as Policy Explorer's own ScrollStory.tsx - lets App.tsx know when the opening hero scene is showing, so it can hide the sidebar/nav/footer for an unobstructed globe view the same way that app does. */
+  onSceneChange?: (sceneId: number) => void;
 }
 
 /**
@@ -80,13 +82,17 @@ interface Props {
  * Mounted as a fixed, full-viewport overlay above the real app, which
  * stays mounted underneath the whole time.
  */
-export default function ScrollStory({ onDismiss, onSelectCountry }: Props) {
+export default function ScrollStory({ onDismiss, onSelectCountry, onSceneChange }: Props) {
   const [activeScene, setActiveScene] = useState(0);
   const scene = SCENES[activeScene];
 
   useEffect(() => {
     if (scene.selectCountry !== undefined) onSelectCountry(scene.selectCountry);
   }, [scene, onSelectCountry]);
+
+  useEffect(() => {
+    onSceneChange?.(scene.id);
+  }, [scene, onSceneChange]);
 
   const goToScene = useCallback(
     (index: number) => setActiveScene(Math.max(0, Math.min(index, SCENES.length - 1))),

@@ -104,9 +104,11 @@ interface Props {
   metric: Metric;
   selectedCountry: string | null;
   onCountryClick: (code: string | null) => void;
+  /** Suppresses the legend and the total-capacity tile even with nothing selected - the tour's opening scene wants an unobstructed view of the choropleth colours themselves, same reasoning as Policy Explorer's own PolicyMap.tsx `hideLegend` prop. */
+  hideLegend?: boolean;
 }
 
-export default function DeploymentMap({ metric, selectedCountry, onCountryClick }: Props) {
+export default function DeploymentMap({ metric, selectedCountry, onCountryClick, hideLegend }: Props) {
   const mapRef = useRef<MapRef>(null);
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
   const [sourceReady, setSourceReady] = useState(false);
@@ -134,6 +136,19 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick 
     if (style.glyphs) style.glyphs = style.glyphs.replace("placeholder", key);
     return style as unknown as StyleSpecification;
   }, [theme.palette.mode]);
+
+  // Switching `mapStyle` (light/dark) makes MapLibre re-style the whole
+  // map, which recreates the "countries" GeoJSON source from scratch and
+  // wipes every feature-state previously set on it via setFeatureState -
+  // bug found 2026-09-11 (colours vanished on toggling dark mode). Nothing
+  // in the colouring effect below re-runs on its own when only the theme
+  // mode changes (its deps are metric/sourceReady/worldData), so resetting
+  // `sourceReady` here forces it through "not ready" and back to "ready"
+  // once `onSourceData` fires again for the freshly-recreated source -
+  // that retrigger is what gets the colours re-applied.
+  useEffect(() => {
+    setSourceReady(false);
+  }, [mapStyle]);
 
   useEffect(() => {
     let mounted = true;
@@ -239,8 +254,12 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick 
         )}
       </MapGL>
 
-      <MapLegend title={legendTitle} />
-      <TotalCapacityTile />
+      {!hideLegend && (
+        <>
+          <MapLegend title={legendTitle} />
+          <TotalCapacityTile />
+        </>
+      )}
 
       {/* Top-right zoom controls, ported verbatim from ep_policymap's own
           PolicyMap.tsx (hand-built IconButtons, not MapLibre's

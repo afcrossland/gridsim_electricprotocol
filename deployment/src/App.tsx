@@ -55,6 +55,16 @@ export default function App({ mode, setMode }: Props) {
     localStorage.setItem(TOUR_SEEN_KEY, "1");
   };
 
+  // The tour's opening scene wants an unobstructed globe, same as Policy
+  // Explorer's own `onboardingHero` - added 2026-09-11, this app didn't
+  // have it before (the sidebar/nav/footer stayed on screen through the
+  // hero scene, which Andrew flagged as inconsistent with Policy Explorer
+  // once he noticed the difference). `tourSceneId` is reported up from
+  // ScrollStory via `onSceneChange`; scene 0 is always the hero layout
+  // (see scrollstory/scenes.ts).
+  const [tourSceneId, setTourSceneId] = useState(0);
+  const heroScene = tourOpen && tourSceneId === 0;
+
   // A link into the app can force the tour open even for a returning
   // visitor - same ?showTour=1 param and param-stripping pattern as Policy
   // Explorer's own App.tsx, used by the Playbook homepage's "Show me how"
@@ -82,18 +92,29 @@ export default function App({ mode, setMode }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const map = <DeploymentMap metric={metric} selectedCountry={selectedCountry} onCountryClick={setSelectedCountry} />;
+  const map = (
+    <DeploymentMap
+      metric={metric}
+      selectedCountry={selectedCountry}
+      onCountryClick={setSelectedCountry}
+      hideLegend={heroScene}
+    />
+  );
   const list = <Sidebar metric={metric} selectedCountry={selectedCountry} onSelect={setSelectedCountry} />;
 
   return (
     <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
-      <TopNavbar mode={mode} setMode={setMode} page={page} setPage={setPage} onStartTour={() => setTourOpen(true)} />
+      {!heroScene && (
+        <TopNavbar mode={mode} setMode={setMode} page={page} setPage={setPage} onStartTour={() => setTourOpen(true)} />
+      )}
 
       {page === "help" ? (
         <HelpPage onBack={() => setPage("map")} />
       ) : (
         <>
-          {isMobile ? (
+          {heroScene ? (
+            <Box sx={{ flex: 1, position: "relative" }}>{map}</Box>
+          ) : isMobile ? (
             selectedCountry ? (
               // A country's own detail page takes the full screen on
               // mobile - no room for a Map/List toggle on top of it too.
@@ -154,68 +175,78 @@ export default function App({ mode, setMode }: Props) {
             </Box>
           )}
 
-          {/* Footer bar - the metric selector and language switcher, same
-              role as ep_policymap's own bottom bar. The metric selector
-              persists here in every mobile state (List, Map, and a
-              country's own detail page alike) per Andrew's instruction
-              2026-09-10 - it's cheap to keep around since, with search
-              moved up next to the Map/List toggle (see above), this is the
-              only other control in the footer on mobile, so there's no
-              overlap risk the way there was when search used to share this
-              bar too. Search itself stays desktop-only here - on mobile
-              it's always up next to the toggle instead. */}
-          <Box
-            sx={{
-              flexShrink: 0,
-              height: 48,
-              bgcolor: "background.paper",
-              borderTop: "1px solid",
-              borderColor: "divider",
-              display: "flex",
-              alignItems: "center",
-              px: 2,
-              gap: 1.5,
-            }}
-          >
-            {!isMobile && <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />}
+          {/* Footer bar (and the mobile Ember row below it) - hidden through
+              the tour's opening hero scene, same as Policy Explorer's own
+              App.tsx hides its equivalent bar and top nav there, for an
+              unobstructed view of the globe. */}
+          {!heroScene && (
+            <>
+              {/* Footer bar - the metric selector and language switcher, same
+                  role as ep_policymap's own bottom bar. The metric selector
+                  persists here in every mobile state (List, Map, and a
+                  country's own detail page alike) per Andrew's instruction
+                  2026-09-10 - it's cheap to keep around since, with search
+                  moved up next to the Map/List toggle (see above), this is the
+                  only other control in the footer on mobile, so there's no
+                  overlap risk the way there was when search used to share this
+                  bar too. Search itself stays desktop-only here - on mobile
+                  it's always up next to the toggle instead. */}
+              <Box
+                sx={{
+                  flexShrink: 0,
+                  height: 48,
+                  bgcolor: "background.paper",
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                  display: "flex",
+                  alignItems: "center",
+                  px: 2,
+                  gap: 1.5,
+                }}
+              >
+                {!isMobile && <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />}
 
-            <ToggleButtonGroup
-              data-tour="metric-selector"
-              size="small"
-              exclusive
-              value={metric}
-              onChange={(_, v) => v && setMetric(v)}
-            >
-              {METRICS.map((m) => (
-                <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
-                  {isMobile ? METRIC_SHORT_LABELS[m] : METRIC_LABELS[m]}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
+                <ToggleButtonGroup
+                  data-tour="metric-selector"
+                  size="small"
+                  exclusive
+                  value={metric}
+                  onChange={(_, v) => v && setMetric(v)}
+                >
+                  {METRICS.map((m) => (
+                    <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
+                      {isMobile ? METRIC_SHORT_LABELS[m] : METRIC_LABELS[m]}
+                    </ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
 
-            <Box sx={{ flex: 1 }} />
-            <LanguageSwitcher />
-          </Box>
+                <Box sx={{ flex: 1 }} />
+                <LanguageSwitcher />
+              </Box>
 
-          {/* Ember credit, mobile only - moved here 2026-09-10 from its own
-              row below the header (added there earlier the same day) per
-              Andrew's follow-up instruction: a second row under the
-              footer instead, left-aligned same as before. Desktop keeps
-              its own copy inline in TopNavbar.tsx's header row - never
-              both at once. */}
-          {isMobile && (
-            <EmberBadge
-              sx={{
-                px: 2,
-                py: 0.75,
-                bgcolor: "background.paper",
-                borderTop: "1px solid",
-                borderColor: "divider",
-              }}
-            />
+              {/* Ember credit, mobile only - moved here 2026-09-10 from its own
+                  row below the header (added there earlier the same day) per
+                  Andrew's follow-up instruction: a second row under the
+                  footer instead, left-aligned same as before. Desktop keeps
+                  its own copy inline in TopNavbar.tsx's header row - never
+                  both at once. */}
+              {isMobile && (
+                <EmberBadge
+                  sx={{
+                    px: 2,
+                    py: 0.75,
+                    bgcolor: "background.paper",
+                    borderTop: "1px solid",
+                    borderColor: "divider",
+                  }}
+                />
+              )}
+            </>
           )}
 
-          {tourOpen && <ScrollStory onDismiss={dismissTour} onSelectCountry={setSelectedCountry} />}
+          {tourOpen && (
+            <ScrollStory onDismiss={dismissTour} onSelectCountry={setSelectedCountry} onSceneChange={setTourSceneId} />
+          )}
         </>
       )}
     </Box>

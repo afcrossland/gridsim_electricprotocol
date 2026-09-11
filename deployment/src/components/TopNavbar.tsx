@@ -1,7 +1,8 @@
-import { AppBar, Box, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
+import { AppBar, Box, Button, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import EmberBadge from "./EmberBadge";
 
@@ -129,6 +130,37 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
         <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
           Help
         </Box>
+
+        {/* Same filled-button treatment as Policy Explorer's "Admin
+            console" (ep_policymap/src/components/layout/TopNavbar.tsx) -
+            added 2026-09-11 per Andrew's instruction. No sign-in exists
+            yet, same "stands in for auth" state that button started in, so
+            this one is a placeholder too - "Coming soon" on hover rather
+            than a dead click. Icon-only on a phone, same breakpoint
+            swap as that button's own mobile treatment. */}
+        <Tooltip title="Coming soon">
+          <IconButton
+            sx={{
+              display: { xs: "inline-flex", sm: "none" },
+              ml: 1.5,
+              bgcolor: mode === "dark" ? "#4B5563" : "primary.main",
+              color: "primary.contrastText",
+              "&:hover": { bgcolor: mode === "dark" ? "#5B6570" : "primary.dark" },
+            }}
+          >
+            <LockOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Coming soon">
+          <Button
+            size="small"
+            variant="contained"
+            startIcon={<LockOutlinedIcon fontSize="small" />}
+            sx={{ display: { xs: "none", sm: "inline-flex" }, ml: 1.5 }}
+          >
+            Login
+          </Button>
+        </Tooltip>
 
         <Tooltip title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
           <IconButton size="small" onClick={() => setMode(mode === "dark" ? "light" : "dark")} sx={{ ml: 0.5 }}>

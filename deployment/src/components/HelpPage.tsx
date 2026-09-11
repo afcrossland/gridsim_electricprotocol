@@ -5,44 +5,16 @@ interface Props {
   onBack: () => void;
 }
 
-interface Topic {
-  heading: string;
-  body: string;
-  link?: { href: string; label: string };
-}
-
-const TOPICS: Topic[] = [
-  {
-    heading: "What this tool shows",
-    body: "This map shows how much solar power countries actually have, not what their laws say. It has three views: how much solar power is installed, how much solar power there is for each person, and how much of a country's electricity comes from solar.",
-  },
-  {
-    heading: "How to use it",
-    body: "Pick a view at the bottom of the screen. Darker colours on the map mean more solar. Click a country, or find it in the search box, to see its own numbers and a chart of how they changed over time. Click the arrow button to go back to the list. The Filter button lets you show only certain continents.",
-  },
-  {
-    heading: "Where the data comes from",
-    body: "All the numbers come from Ember, a real energy research group, and the World Bank. Solar capacity and solar's share of electricity are two different Ember datasets, which is why some countries only have one of the two charts. Population numbers (used for the per-person view) come from the World Bank. Both publish their data under a Creative Commons licence, which is why we can use it here as long as we say where it came from and say when we've changed it - so one thing worth knowing: the only number on this map we work out ourselves is the per-person figure (Ember's number divided by the World Bank's population). Everything else - installed capacity and solar's share of electricity - comes straight from Ember, unchanged. Nothing on this map is made up or guessed.",
-    link: { href: "https://creativecommons.org/licenses/by/4.0/", label: "Creative Commons Attribution 4.0 licence" },
-  },
-  {
-    heading: "Why some countries are missing",
-    body: "Not every country reports its solar data to Ember yet. If a country has no data for a view, it will not show a colour on the map for that view, and it will not appear in that view's list.",
-  },
-  {
-    heading: "How often the data updates",
-    body: "The data is loaded once by hand, not updated automatically. The numbers you see are correct as of when this app was last updated, not necessarily today.",
-  },
-];
-
 /**
  * Simple, plain-language reference page - matches ep_policymap's
  * HelpPage.tsx structure exactly (back arrow + h2 header, a centered
- * max-width column of heading/body topic sections), but written to a much
- * simpler reading level per Andrew's instruction: this is a demo tool for
- * a general audience, not a research wiki, so it doesn't need Policy
- * Explorer's own denser reference material (scoring formulas, evidence
- * bases, jurisdiction inheritance).
+ * max-width column of topic sections). Content rewritten 2026-09-11 to
+ * Andrew's own wording verbatim (previously a looser, more conversational
+ * paraphrase) - sections now mix bullet lists, bold terms, and a formula
+ * line, so each is its own hand-written block rather than driven by a
+ * single plain-string `Topic[]` the way the old copy was; that shape
+ * couldn't express bullets/bold/a formula without turning `body` into
+ * marked-up HTML, which was more machinery than five sections warranted.
  */
 export default function HelpPage({ onBack }: Props) {
   return (
@@ -68,27 +40,129 @@ export default function HelpPage({ onBack }: Props) {
 
       <Box sx={{ flex: 1, overflowY: "auto", p: 3, display: "flex", justifyContent: "center" }}>
         <Stack spacing={3} sx={{ maxWidth: 720, width: "100%" }}>
-          {TOPICS.map((topic) => (
-            <Box key={topic.heading}>
-              <Typography variant="h6" gutterBottom>
-                {topic.heading}
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              What this tool shows
+            </Typography>
+            <Typography variant="body2">
+              This map shows the scale of solar power across countries using three measures:
+            </Typography>
+            <Box component="ul" sx={{ my: 1, pl: 3 }}>
+              <Typography component="li" variant="body2">
+                <strong>Installed capacity</strong> — total solar capacity installed
               </Typography>
-              <Typography variant="body2">{topic.body}</Typography>
-              {topic.link && (
-                <Typography variant="body2" sx={{ mt: 0.5 }}>
-                  <Box
-                    component="a"
-                    href={topic.link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ color: "primary.main" }}
-                  >
-                    {topic.link.label}
-                  </Box>
-                </Typography>
-              )}
+              <Typography component="li" variant="body2">
+                <strong>Capacity per person</strong> — installed capacity relative to population
+              </Typography>
+              <Typography component="li" variant="body2">
+                <strong>Solar share of electricity</strong> — proportion of electricity generation from solar
+              </Typography>
             </Box>
-          ))}
+            <Typography variant="body2">Use the controls at the bottom of the map to switch between views.</Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              All countries are available on the free tier. Members can access additional measures.
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Exploring the map
+            </Typography>
+            <Typography variant="body2">
+              Select a country on the map, or search by name, to view its data and historical trend.
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Use the arrow to return to the country list. The <strong>Filter</strong> button allows you to restrict
+              the map to particular continents.
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Data and methodology
+            </Typography>
+            <Typography variant="body2">
+              Data is sourced from{" "}
+              <Box
+                component="a"
+                href="https://ember-energy.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ color: "primary.main", fontWeight: 700 }}
+              >
+                Ember
+              </Box>{" "}
+              and the{" "}
+              <Box
+                component="a"
+                href="https://data.worldbank.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ color: "primary.main", fontWeight: 700 }}
+              >
+                World Bank
+              </Box>
+              .
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Installed solar capacity and solar's share of electricity are taken directly from Ember's published
+              datasets. Population data used for the per-person measure comes from the World Bank.
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              The only measure calculated by this tool is <strong>capacity per person</strong>:
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                my: 1,
+                py: 1,
+                px: 1.5,
+                borderRadius: 1,
+                bgcolor: "action.hover",
+                fontFamily: "monospace",
+                textAlign: "center",
+              }}
+            >
+              installed solar capacity ÷ population
+            </Typography>
+            <Typography variant="body2">
+              All other figures are reproduced from the source datasets without modification.
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              The datasets are published under the <strong>Creative Commons Attribution 4.0 licence</strong>.
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              <Box
+                component="a"
+                href="https://creativecommons.org/licenses/by/4.0/"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ color: "primary.main" }}
+              >
+                Creative Commons Attribution 4.0 licence
+              </Box>
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Data availability
+            </Typography>
+            <Typography variant="body2">
+              Data availability varies between countries and measures. If you have additional data or identify an
+              error, please contact us.
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Data updates
+            </Typography>
+            <Typography variant="body2">
+              Figures reflect the data available when this tool was last updated. The update date is shown within
+              the tool.
+            </Typography>
+          </Box>
         </Stack>
       </Box>
     </Box>

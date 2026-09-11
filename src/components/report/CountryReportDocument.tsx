@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import { capitalizeFirst } from "../../lib/text";
-import { impactColor, impactLabel, impactTextColor, scoreBand } from "../../lib/scoring";
+import { impactColor, impactLabel, impactTextColor, scoreBand, scoreTextColor } from "../../lib/scoring";
 import type { CountryScore, EvidenceItem, ImpactItem, Question, Response, Section } from "../../lib/types";
 
 // Design tokens - the GSC brand palette (src/mui-theme.tsx), plain hex rather
@@ -335,7 +335,7 @@ function Page1({ data, page, total }: { data: CountryReportData; page: number; t
 
       <GlanceStrip
         tiles={[
-          { label: "Overall score", value: score.ranked ? `${Math.round(score.score * 100)}%` : "N/A", color: band?.color },
+          { label: "Overall score", value: score.ranked ? `${Math.round(score.score * 100)}%` : "N/A", color: score.ranked ? scoreTextColor(score.score) : undefined },
           { label: "Data completeness", value: `${Math.round(score.completeness * 100)}%` },
           { label: "Questions answered", value: `${score.answered} / ${score.total}` },
         ]}
@@ -398,7 +398,7 @@ function Page2({ data, page, total }: { data: CountryReportData; page: number; t
           {data.sectionScores.map(({ section, score }, i) => (
             <tr key={section.id} style={{ background: i % 2 === 1 ? C.bg : C.white }}>
               <td style={{ padding: "6px 8px", borderBottom: `1px solid ${C.border}` }}>{section.title}</td>
-              <td style={{ padding: "6px 8px", textAlign: "right", borderBottom: `1px solid ${C.border}`, color: score.ranked ? scoreBand(score.score).color : C.textXs, fontWeight: 600 }}>
+              <td style={{ padding: "6px 8px", textAlign: "right", borderBottom: `1px solid ${C.border}`, color: score.ranked ? scoreTextColor(score.score) : C.textXs, fontWeight: 600 }}>
                 {score.ranked ? `${Math.round(score.score * 100)}%` : "N/A"}
               </td>
               <td style={{ padding: "6px 8px", textAlign: "right", borderBottom: `1px solid ${C.border}` }}>

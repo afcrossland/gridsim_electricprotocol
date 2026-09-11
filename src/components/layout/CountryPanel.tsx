@@ -21,7 +21,7 @@ import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors";
-import { rankImpact, scoreBand, scoreLabel, scoreSections } from "../../lib/scoring";
+import { rankImpact, scoreLabel, scoreSections, scoreTextColor } from "../../lib/scoring";
 import { diffResponses } from "../../lib/suggestions";
 import { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab, type CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
@@ -312,7 +312,7 @@ export default function CountryPanel({
                 <StatTile
                   size="small"
                   icon={<TrendingUpIcon fontSize="small" />}
-                  color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
+                  color={score.ranked ? scoreTextColor(score.score) : theme.palette.text.disabled}
                   label="Score"
                   value={score.ranked ? scoreLabel(score.score) : "N/A"}
                 />
@@ -350,7 +350,7 @@ export default function CountryPanel({
               <StatTile
                 size="small"
                 icon={<TrendingUpIcon fontSize="small" />}
-                color={score.ranked ? scoreBand(score.score).color : theme.palette.text.disabled}
+                color={score.ranked ? scoreTextColor(score.score) : theme.palette.text.disabled}
                 label="Score"
                 value={score.ranked ? scoreLabel(score.score) : "N/A"}
               />

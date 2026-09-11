@@ -1,6 +1,6 @@
 import { Box, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
 
-import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP } from "../../lib/scoring";
+import { SCORE_RAMP } from "../../lib/scoring";
 import { useProtocolStore } from "../../stores/protocolStore";
 
 /**
@@ -62,11 +62,6 @@ export default function MapLegend() {
             </Typography>
           </Box>
         </Box>
-
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexShrink: 0 }}>
-          {showingScore && <Swatch color={COLOR_INSUFFICIENT} title="Not enough data" />}
-          <Swatch color={COLOR_NO_DATA} title="No data" />
-        </Box>
       </Paper>
     );
   }
@@ -103,15 +98,13 @@ export default function MapLegend() {
         {showingScore ? "Protocol score" : "Questions answered, by weight"}
       </Typography>
 
-      {/* Segmented bar - one block per SCORE_RAMP stop, not a smooth
-          gradient, so each block reads as the one discrete colour actually
-          painted on the map rather than implying a value can fall between
-          two of them. */}
-      <Box sx={{ display: "flex", borderRadius: "5px", overflow: "hidden", height: 20 }}>
-        {SCORE_RAMP.map((s, i) => (
-          <Box key={i} sx={{ flex: 1, bgcolor: s.color }} />
-        ))}
-      </Box>
+      {/* Smooth gradient bar, matching Deployment Explorer's own MapLegend.tsx
+          (changed 2026-09-11 per Andrew's instruction, replacing the
+          previous segmented-block version) - the map itself already reads
+          a score as a continuous interpolation between SCORE_RAMP's stops
+          (see PolicyMap.tsx's FILL_COLOR), so a smooth bar matches what's
+          actually painted more closely than discrete blocks did. */}
+      <Box sx={{ height: 10, borderRadius: "5px", background: `linear-gradient(90deg, ${gradient})` }} />
 
       {/* Ticks at each quartile rather than just the two ends, so a colour on
           the map can be read against a value without guessing between them. */}
@@ -134,44 +127,6 @@ export default function MapLegend() {
           </Typography>
         ))}
       </Box>
-
-      {/* Tiled side by side rather than stacked - two short rows wasted the
-          card's own width for no reason once each has its own swatch. Text
-          wraps instead of clipping if the card ever gets narrower than a
-          label needs. */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mt: 1 }}>
-        {showingScore && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
-            <Swatch color={COLOR_INSUFFICIENT} />
-            <Typography variant="caption" sx={{ overflowWrap: "break-word" }}>
-              Not enough data
-            </Typography>
-          </Box>
-        )}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
-          <Swatch color={COLOR_NO_DATA} />
-          <Typography variant="caption" sx={{ overflowWrap: "break-word" }}>
-            No data
-          </Typography>
-        </Box>
-      </Box>
     </Box>
-  );
-}
-
-function Swatch({ color, title }: { color: string; title?: string }) {
-  return (
-    <Box
-      title={title}
-      sx={{
-        width: 14,
-        height: 14,
-        borderRadius: 0.5,
-        bgcolor: color,
-        border: "1px solid",
-        borderColor: "divider",
-        flexShrink: 0,
-      }}
-    />
   );
 }
