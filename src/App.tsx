@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Collapse, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import AdminConsole from "./components/layout/AdminConsole";
 import CompareView from "./components/layout/CompareView";
@@ -20,6 +21,7 @@ import { protocol, useProtocolStore } from "./stores/protocolStore";
 const PANEL_WIDTH = 460;
 
 export default function App() {
+  const { t, i18n } = useTranslation();
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
   const threshold = useProtocolStore((s) => s.threshold);
@@ -165,9 +167,9 @@ export default function App() {
     for (const code of compareCountries) codes.add(code);
 
     return [...codes].map((code) =>
-      scoreCountry(protocol, questions, responses, code, qualifiedName(code), threshold),
+      scoreCountry(protocol, questions, responses, code, qualifiedName(code, i18n.language), threshold),
     );
-  }, [questions, responses, selectedCountry, compareCountries, threshold]);
+  }, [questions, responses, selectedCountry, compareCountries, threshold, i18n.language]);
 
   const selectedScore = scores.find((s) => s.code === selectedCountry) ?? null;
 
@@ -483,10 +485,10 @@ export default function App() {
           onChange={(_, next) => next && setMapMetric(next)}
         >
           <ToggleButton value="score" sx={{ py: 0.25, px: 2, fontSize: "0.7rem" }}>
-            Score
+            {t("footer.score")}
           </ToggleButton>
           <ToggleButton value="completeness" sx={{ py: 0.25, px: 2, fontSize: "0.7rem" }}>
-            Completeness
+            {t("footer.completeness")}
           </ToggleButton>
         </ToggleButtonGroup>
         )}

@@ -12,6 +12,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { useTranslation } from "react-i18next";
 
 import World from "../../assets/jurisdictions.geojson?url";
 import mapStyleJsonLight from "../../assets/map_gsc.json";
@@ -156,6 +157,7 @@ export function boundsOf(
 }
 
 export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick, hideLegend, introBloom }: Props) {
+  const { t, i18n } = useTranslation();
   const mapRef = useRef<MapRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
@@ -457,7 +459,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
       >
         <IconButton
           onClick={() => mapRef.current?.getMap().zoomIn({ duration: 300 })}
-          aria-label="Zoom in"
+          aria-label={t("map.zoomIn")}
           sx={{
             bgcolor: "background.paper",
             borderRadius: 1,
@@ -472,7 +474,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         </IconButton>
         <IconButton
           onClick={() => mapRef.current?.getMap().zoomOut({ duration: 300 })}
-          aria-label="Zoom out"
+          aria-label={t("map.zoomOut")}
           sx={{
             bgcolor: "background.paper",
             borderRadius: 1,
@@ -487,7 +489,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         </IconButton>
         <IconButton
           onClick={() => onCountryClick(null)}
-          aria-label="Back to full map view"
+          aria-label={t("map.backToFullMap")}
           sx={{
             bgcolor: "background.paper",
             borderRadius: 1,
@@ -517,17 +519,17 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
             <FlagImg code={hover.code} />
-            <Typography variant="subtitle1">{qualifiedName(hover.code)}</Typography>
+            <Typography variant="subtitle1">{qualifiedName(hover.code, i18n.language)}</Typography>
           </Box>
           {hovered && hovered.ranked ? (
             <>
               <Typography variant="caption" sx={{ display: "block" }}>
-                Policy score
+                {t("map.policyScore")}
               </Typography>
-              <Typography variant="h5">{scoreLabel(hovered.score)}</Typography>
+              <Typography variant="h5">{scoreLabel(hovered.score, i18n.language)}</Typography>
             </>
           ) : (
-            <Typography variant="caption">More data needed</Typography>
+            <Typography variant="caption">{t("map.moreDataNeeded")}</Typography>
           )}
         </Paper>
       )}

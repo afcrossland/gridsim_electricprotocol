@@ -3,9 +3,11 @@ import { Box, Typography } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { useTranslation } from "react-i18next";
 
 import Spotlight from "./Spotlight";
-import { DEFAULT_TOUR_COUNTRY, SCENES } from "./scenes";
+import { DEFAULT_TOUR_COUNTRY } from "./scenes";
+import { getScenes } from "../i18n/scenes";
 import { useProtocolStore } from "../stores/protocolStore";
 
 const WHEEL_COOLDOWN_MS = 650;
@@ -91,6 +93,12 @@ interface Props {
 }
 
 export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, paused = false }: Props) {
+  const { t, i18n } = useTranslation();
+  // Recomputed per language via getScenes() (see src/i18n/scenes.ts) rather
+  // than imported as a static array - everything but the text itself
+  // (ids, layout, media.kind, the spotlight selector/arrow) stays the same
+  // between languages.
+  const SCENES = getScenes(i18n.language);
   const [activeScene, setActiveScene] = useState(0);
   const scene = SCENES[activeScene];
   const media = scene.media;
@@ -242,9 +250,9 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, p
             </Typography>
             <Box sx={{ pt: 2, borderTop: "1px solid #E5E7EB" }}>
               <Typography sx={{ fontSize: "0.8125rem", color: "#9CA3AF", lineHeight: 1.4 }}>
-                by The Global Solar Council&ensp;·&ensp;
+                {t("byGsc")}&ensp;·&ensp;
                 <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
-                  Solar. Storage. Future Secured.
+                  {t("tagline")}
                 </Box>
               </Typography>
             </Box>
@@ -350,7 +358,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, p
                 "&:hover": { bgcolor: "#008194" },
               }}
             >
-              Start exploring
+              {t("scrollStory.startExploring")}
             </Box>
           </Box>
         </Box>
@@ -418,7 +426,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, p
                 animation: "hintBounce 1.5s ease infinite",
               }}
             >
-              Scroll to begin
+              {t("scrollStory.scrollToBegin")}
               <KeyboardArrowDownIcon sx={{ fontSize: 20 }} />
             </Box>
 
@@ -428,7 +436,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, p
                 onClick={onOpenCharter}
                 sx={{ ...PILL, border: "none", cursor: "pointer", fontFamily: "inherit", "&:hover": { bgcolor: "#F0FBFC" } }}
               >
-                Read the Citizens Electrification Charter
+                {t("scrollStory.readCharter")}
               </Box>
             )}
           </Box>
@@ -438,7 +446,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, p
             component="button"
             onClick={retreat}
             disabled={activeScene === 0}
-            aria-label="Previous"
+            aria-label={t("scrollStory.previous")}
             sx={NAV_BTN}
           >
             <ChevronLeftIcon sx={{ fontSize: 22 }} />
@@ -455,13 +463,13 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, p
               "&:hover": { bgcolor: "#F0FBFC" },
             }}
           >
-            Skip intro
+            {t("scrollStory.skipIntro")}
           </Box>
           <Box
             component="button"
             onClick={advance}
             disabled={activeScene === SCENES.length - 1}
-            aria-label="Next"
+            aria-label={t("scrollStory.next")}
             sx={NAV_BTN}
           >
             <ChevronRightIcon sx={{ fontSize: 22 }} />

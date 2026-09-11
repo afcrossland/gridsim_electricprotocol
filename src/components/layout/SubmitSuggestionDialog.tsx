@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { useTranslation } from "react-i18next";
 
 import { diffResponses, type SuggestionChange } from "../../lib/suggestions";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -36,11 +37,11 @@ const KIND_COLOR: Record<SuggestionChange["kind"], string> = {
   "evidence-edited": "#FBB114", // GSC citrus
 };
 
-const KIND_LABEL: Record<SuggestionChange["kind"], string> = {
-  score: "Answer",
-  "evidence-added": "Evidence added",
-  "evidence-removed": "Evidence removed",
-  "evidence-edited": "Evidence edited",
+const KIND_LABEL_KEY: Record<SuggestionChange["kind"], string> = {
+  score: "suggestionDialog.kindScore",
+  "evidence-added": "suggestionDialog.kindEvidenceAdded",
+  "evidence-removed": "suggestionDialog.kindEvidenceRemoved",
+  "evidence-edited": "suggestionDialog.kindEvidenceEdited",
 };
 
 /**
@@ -56,6 +57,7 @@ export default function SubmitSuggestionDialog({
   countryName,
   onNavigateToQuestion,
 }: Props) {
+  const { t } = useTranslation();
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
   const editBaselines = useProtocolStore((s) => s.editBaselines);
@@ -127,20 +129,18 @@ export default function SubmitSuggestionDialog({
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Submit revised evidence</DialogTitle>
+      <DialogTitle>{t("suggestionDialog.title")}</DialogTitle>
       <DialogContent dividers>
         {step === "summary" && (
           <>
             <Typography variant="body2" sx={{ mb: missingEvidenceCount > 0 ? 1 : 2 }}>
               {changes.length === 0
-                ? `No changes recorded yet for ${countryName} this session.`
-                : `${changes.length} change${changes.length === 1 ? "" : "s"} for ${countryName} this session:`}
+                ? t("suggestionDialog.noChanges", { name: countryName })
+                : t("suggestionDialog.changesCount", { count: changes.length, name: countryName })}
             </Typography>
             {missingEvidenceCount > 0 && (
               <Typography variant="body2" color="warning.main" sx={{ mb: 2, fontWeight: 600 }}>
-                {missingEvidenceCount} answer{missingEvidenceCount === 1 ? "" : "s"} below{" "}
-                {missingEvidenceCount === 1 ? "has" : "have"} not had its evidence revised - add or
-                edit at least one citation for each before this can be submitted.
+                {t("suggestionDialog.missingEvidence", { count: missingEvidenceCount })}
               </Typography>
             )}
             <Stack spacing={1}>
@@ -173,7 +173,7 @@ export default function SubmitSuggestionDialog({
                         <Box sx={{ display: "flex", gap: 0.5, flexShrink: 0 }}>
                           <Chip
                             size="small"
-                            label={KIND_LABEL[c.kind]}
+                            label={t(KIND_LABEL_KEY[c.kind])}
                             sx={{
                               bgcolor: `${KIND_COLOR[c.kind]}1F`,
                               color: KIND_COLOR[c.kind],
@@ -184,7 +184,7 @@ export default function SubmitSuggestionDialog({
                             <Chip
                               size="small"
                               icon={<WarningAmberIcon fontSize="small" />}
-                              label="Evidence not revised"
+                              label={t("suggestionDialog.evidenceNotRevised")}
                               color="warning"
                               variant="outlined"
                             />
@@ -205,18 +205,16 @@ export default function SubmitSuggestionDialog({
 
         {step === "details" && (
           <Stack spacing={2}>
-            <Typography variant="body2">
-              Add your name and organisation so a reviewer knows who suggested this.
-            </Typography>
+            <Typography variant="body2">{t("suggestionDialog.detailsIntro")}</Typography>
             <TextField
-              label="Name"
+              label={t("suggestionDialog.name")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               fullWidth
               required
             />
             <TextField
-              label="Organisation"
+              label={t("suggestionDialog.organisation")}
               value={organisation}
               onChange={(e) => setOrganisation(e.target.value)}
               fullWidth
@@ -225,36 +223,32 @@ export default function SubmitSuggestionDialog({
           </Stack>
         )}
 
-        {step === "done" && (
-          <Typography variant="body2">
-            Thanks - your suggested changes have been submitted for review.
-          </Typography>
-        )}
+        {step === "done" && <Typography variant="body2">{t("suggestionDialog.done")}</Typography>}
       </DialogContent>
       <DialogActions>
         {step === "summary" && (
           <>
-            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleClose}>{t("suggestionDialog.cancel")}</Button>
             <Button
               variant="contained"
               onClick={() => setStep("details")}
               disabled={changes.length === 0 || missingEvidenceCount > 0}
             >
-              Continue
+              {t("suggestionDialog.continue")}
             </Button>
           </>
         )}
         {step === "details" && (
           <>
-            <Button onClick={() => setStep("summary")}>Back</Button>
+            <Button onClick={() => setStep("summary")}>{t("suggestionDialog.back")}</Button>
             <Button variant="contained" onClick={handleSubmit} disabled={!name.trim() || !organisation.trim()}>
-              Submit
+              {t("suggestionDialog.submit")}
             </Button>
           </>
         )}
         {step === "done" && (
           <Button variant="contained" onClick={handleClose}>
-            Close
+            {t("suggestionDialog.close")}
           </Button>
         )}
       </DialogActions>

@@ -1,4 +1,5 @@
 import { Box, Chip, Stack, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import type { ImpactItem } from "../../lib/types";
 import { impactColor, impactLabel, impactTextColor } from "../../lib/scoring";
@@ -16,13 +17,13 @@ interface Props {
  * an impact score.
  */
 export default function ImpactList({ items, limit = 10 }: Props) {
+  const { t, i18n } = useTranslation();
   const shown = items.slice(0, limit);
 
   if (shown.length === 0) {
     return (
       <Typography variant="body2" sx={{ p: 2 }}>
-        Nothing to show yet - every answered question is already at full marks,
-        or none have been answered. Use Policy Landscape to add some.
+        {t("impactList.empty")}
       </Typography>
     );
   }
@@ -56,7 +57,7 @@ export default function ImpactList({ items, limit = 10 }: Props) {
                 rather than duplicated below too. */}
             <Chip
               size="small"
-              label={`Impactfullness: ${impactLabel(item.question.weight)}`}
+              label={t("impactList.impactfullness", { label: impactLabel(item.question.weight, i18n.language) })}
               sx={{
                 flexShrink: 0,
                 bgcolor: impactColor(item.question.weight),
@@ -71,7 +72,7 @@ export default function ImpactList({ items, limit = 10 }: Props) {
               is used instead to keep the whole thing readable. */}
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, overflowWrap: "break-word" }}>
             <Box component="span" sx={{ color: "warning.main", fontWeight: 600 }}>
-              Currently:
+              {t("impactList.currently")}
             </Box>{" "}
             {(() => {
               const label = item.question.rubric.find((t) => t.score === item.currentScore)?.label;

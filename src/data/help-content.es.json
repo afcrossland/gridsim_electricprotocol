@@ -1,0 +1,26 @@
+[
+  {
+    "heading": "Qué es esto",
+    "body": "Explorador de Políticas Solares puntúa países, estados y provincias frente al Protocolo Eléctrico - un conjunto de preguntas de política que evalúan lo fácil que resulta para los hogares y negocios comunes generar, almacenar y vender su propia energía."
+  },
+  {
+    "heading": "Las preguntas",
+    "body": "Las preguntas se agrupan en áreas temáticas. Cada pregunta tiene una puntuación de impacto (cuánto cuenta para el total) y un pequeño conjunto de respuestas posibles que describen lo que realmente está vigente, desde \"no vigente\" hasta \"plenamente vigente\"."
+  },
+  {
+    "heading": "Puntuación",
+    "body": "La puntuación de una jurisdicción es la proporción ponderada de lo que está vigente, entre las preguntas que realmente se han respondido, y luego se reduce según cuánto del cuestionario se ha respondido en total. Esto significa que una jurisdicción no puede obtener una puntuación alta respondiendo solo unas pocas de sus mejores preguntas; una cobertura amplia y honesta vale más que unas pocas respuestas escogidas. Las puntuaciones se muestran en una de cinco bandas, de Muy ineficaz a Muy eficaz, con el porcentaje al lado para quien quiera el detalle."
+  },
+  {
+    "heading": "Cobertura de datos",
+    "body": "Una medida distinta de la puntuación: la proporción de preguntas respondidas en total, sin importar cómo puntuaron. Una jurisdicción con muy pocos datos aparece como \"datos insuficientes\" en lugar de una puntuación, para que la falta de investigación nunca se confunda con una mala política."
+  },
+  {
+    "heading": "Evidencia",
+    "body": "Cada respuesta necesita una cita real - una ley, una decisión regulatoria o los propios datos de un operador de mercado. Las respuestas también registran con cuánta precisión se aplica la evidencia (una fuente nacional supera a una referencia de toda la UE, que a su vez supera a un indicador estadístico general) y cuán autorizada es la fuente en sí."
+  },
+  {
+    "heading": "Jurisdicciones",
+    "body": "La mayoría de las filas son países. Unas pocas (Estados Unidos, Australia, Canadá) se muestran como sus estados o provincias, ya que la política varía demasiado como para promediarla en una sola puntuación nacional. La Unión Europea se muestra como una fila consolidada en el ranking, aunque cada estado miembro sigue teniendo su propia página de jurisdicción completa."
+  }
+]

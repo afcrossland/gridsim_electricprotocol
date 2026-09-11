@@ -1,0 +1,22 @@
+{
+  "title": "Carta de Electrificación Ciudadana",
+  "intro": [
+    "Las personas y las comunidades desempeñarán un papel cada vez más decisivo en cómo se produce, gestiona y comparte la energía, porque los recursos energéticos distribuidos en el propio consumidor, como el solar, los vehículos eléctricos y las baterías, complementan ahora el suministro de los recursos a escala de red.",
+    "La solución energética de menor coste vendrá de un terreno de juego equilibrado para todos los recursos energéticos, de todos los tamaños, compitiendo en igualdad de condiciones para entregar electricidad y servicios de red. Para garantizar una transición equitativa de esta tecnología situada detrás del contador, se necesitan las políticas adecuadas que eliminen barreras innecesarias y apoyen la acción local.",
+    "Esta Carta establece principios claros para orientar la regulación y el diseño del mercado, de modo que exista un terreno de juego equilibrado para todos los activos. Trata sobre la libertad de elección, la equidad y la garantía del menor coste global de suministro energético, y reconoce que las personas estarán en el centro de la transición energética."
+  ],
+  "rights": [
+    {
+      "heading": "El derecho a elegir",
+      "body": "Toda persona tiene el derecho inherente a elegir de dónde obtiene su electricidad, incluido un derecho explícito a un suministro 100% bajo en carbono. Esa elección debe hacerse posible mediante datos abiertos y financiación asequible."
+    },
+    {
+      "heading": "El derecho a conectarse",
+      "body": "Toda persona tiene derecho a instalar de forma segura tecnología para generar, usar, autoconsumir y almacenar electricidad baja en carbono, sin penalización. La autorización y conexión de equipos situados detrás del contador debe ser gratuita, sencilla y eficiente."
+    },
+    {
+      "heading": "El derecho a una compensación justa",
+      "body": "Toda persona tiene derecho a ser compensada por el valor que aporta a la red. La tecnología situada detrás del contador debe tener los mismos derechos de acceso al mercado que toda tecnología situada delante del contador. Todos los mecanismos de mercado deben compensar a todos a precios transparentes y justos, con un acceso al mercado sencillo."
+    }
+  ]
+}

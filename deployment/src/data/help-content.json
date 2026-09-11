@@ -1,0 +1,85 @@
+[
+  {
+    "heading": "What this tool shows",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "This map shows the scale of solar power across countries using three measures:" }] },
+      {
+        "type": "list",
+        "items": [
+          [{ "text": "Installed capacity", "bold": true }, { "text": " — total solar capacity installed" }],
+          [{ "text": "Capacity per person", "bold": true }, { "text": " — installed capacity relative to population" }],
+          [{ "text": "Solar share of electricity", "bold": true }, { "text": " — proportion of electricity generation from solar" }]
+        ]
+      },
+      { "type": "paragraph", "runs": [{ "text": "Use the controls at the bottom of the map to switch between views." }] },
+      { "type": "paragraph", "runs": [{ "text": "All countries are available on the free tier. Members can access additional measures." }] }
+    ]
+  },
+  {
+    "heading": "Exploring the map",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Select a country on the map, or search by name, to view its data and historical trend." }] },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "Use the arrow to return to the country list. The " },
+          { "text": "Filter", "bold": true },
+          { "text": " button allows you to restrict the map to particular continents." }
+        ]
+      }
+    ]
+  },
+  {
+    "heading": "Data and methodology",
+    "blocks": [
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "Data is sourced from " },
+          { "text": "Ember", "bold": true, "href": "https://ember-energy.org/" },
+          { "text": " and the " },
+          { "text": "World Bank", "bold": true, "href": "https://data.worldbank.org/" },
+          { "text": "." }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "runs": [{ "text": "Installed solar capacity and solar's share of electricity are taken directly from Ember's published datasets. Population data used for the per-person measure comes from the World Bank." }]
+      },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "The only measure calculated by this tool is " },
+          { "text": "capacity per person", "bold": true },
+          { "text": ":" }
+        ]
+      },
+      { "type": "formula", "text": "installed solar capacity ÷ population" },
+      { "type": "paragraph", "runs": [{ "text": "All other figures are reproduced from the source datasets without modification." }] },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "The datasets are published under the " },
+          { "text": "Creative Commons Attribution 4.0 licence", "bold": true },
+          { "text": "." }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "runs": [{ "text": "Creative Commons Attribution 4.0 licence", "href": "https://creativecommons.org/licenses/by/4.0/" }]
+      }
+    ]
+  },
+  {
+    "heading": "Data availability",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Data availability varies between countries and measures. If you have additional data or identify an error, please contact us." }] }
+    ]
+  },
+  {
+    "heading": "Data updates",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Figures reflect the data available when this tool was last updated. The update date is shown within the tool." }] }
+    ]
+  }
+]

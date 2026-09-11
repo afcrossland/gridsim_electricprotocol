@@ -22,6 +22,8 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SettingsIcon from "@mui/icons-material/SettingsOutlined";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 import type { Question, RubricTier } from "../../lib/types";
 import { impactColor, impactLabel, MAX_IMPACT } from "../../lib/scoring";
@@ -29,10 +31,8 @@ import { protocol, useProtocolStore } from "../../stores/protocolStore";
 import SuggestionsReview from "./SuggestionsReview";
 
 /** How many questions currently live in a section a delete would wipe out - shown in the confirm prompt. */
-function confirmDeleteSection(title: string, questionCount: number): boolean {
-  return confirm(
-    `Delete "${title}" and its ${questionCount} question${questionCount === 1 ? "" : "s"}? This also removes any answers already recorded against them.`,
-  );
+function confirmDeleteSection(t: TFunction, title: string, questionCount: number): boolean {
+  return confirm(t("adminConsole.confirmDeleteSection", { title, count: questionCount }));
 }
 
 interface Props {
@@ -54,6 +54,7 @@ const POINTS_OPTIONS = [0, 1, 2, 3, 4];
  * themselves say.
  */
 export default function AdminConsole({ onBack }: Props) {
+  const { t } = useTranslation();
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const questionOverrides = useProtocolStore((s) => s.questionOverrides);
@@ -101,7 +102,7 @@ export default function AdminConsole({ onBack }: Props) {
   const handleDeleteSection = (id: string) => {
     const section = sections.find((s) => s.id === id);
     if (!section) return;
-    if (!confirmDeleteSection(section.title, questionsBySection.get(id)?.length ?? 0)) return;
+    if (!confirmDeleteSection(t, section.title, questionsBySection.get(id)?.length ?? 0)) return;
 
     if (activeSectionId === id) {
       const next = sections.find((s) => s.id !== id);
@@ -140,20 +141,18 @@ export default function AdminConsole({ onBack }: Props) {
           borderColor: "divider",
         }}
       >
-        <Tooltip title="Back">
+        <Tooltip title={t("help.back")}>
           <IconButton size="small" onClick={onBack}>
             <ArrowBackIcon fontSize="small" />
           </IconButton>
         </Tooltip>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="h2">Admin console</Typography>
+          <Typography variant="h2">{t("adminConsole.title")}</Typography>
           {/* Used to live as its own topic on the Help page - moved here
               instead, since it's about this screen specifically and reads
               better in place than as a cross-reference. */}
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
-            Where the underlying question set lives: editing question text and impact, adding or
-            removing topic groups and questions, adjusting each question's possible answers, and
-            setting the data completeness threshold used across the app.
+            {t("adminConsole.description")}
           </Typography>
         </Box>
       </Box>
@@ -221,7 +220,7 @@ export default function AdminConsole({ onBack }: Props) {
                 textAlign: isMobile ? "center" : undefined,
               }}
             >
-              Settings
+              {t("adminConsole.settings")}
             </Typography>
           </Box>
 
@@ -267,7 +266,7 @@ export default function AdminConsole({ onBack }: Props) {
                 flex: isMobile ? undefined : 1,
               }}
             >
-              Suggestions
+              {t("adminConsole.suggestions")}
             </Typography>
             {pendingSuggestionCount > 0 && (
               <Chip size="small" label={pendingSuggestionCount} color="secondary" sx={{ height: 18, fontSize: "0.7rem", fontWeight: 700 }} />
@@ -279,7 +278,7 @@ export default function AdminConsole({ onBack }: Props) {
             <Box sx={{ px: 2, py: 1.25, display: "flex", alignItems: "center", gap: 1 }}>
               <CategoryOutlinedIcon fontSize="small" sx={{ color: "primary.dark" }} />
               <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.dark" }}>
-                Groups
+                {t("adminConsole.groups")}
               </Typography>
             </Box>
           )}
@@ -356,10 +355,10 @@ export default function AdminConsole({ onBack }: Props) {
                     {section.title}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {questionsBySection.get(section.id)?.length ?? 0} questions
+                    {t("adminConsole.questionCount", { count: questionsBySection.get(section.id)?.length ?? 0 })}
                   </Typography>
                 </Box>
-                <Tooltip title="Delete this group">
+                <Tooltip title={t("adminConsole.deleteGroup")}>
                   <IconButton
                     size="small"
                     onClick={(e) => {
@@ -376,7 +375,7 @@ export default function AdminConsole({ onBack }: Props) {
 
           {isMobile ? (
             <Box sx={{ display: "flex", alignItems: "center", px: 1, flexShrink: 0 }}>
-              <Tooltip title="Add group">
+              <Tooltip title={t("adminConsole.addGroup")}>
                 <IconButton size="small" onClick={handleAddSection}>
                   <AddIcon fontSize="small" />
                 </IconButton>
@@ -385,7 +384,7 @@ export default function AdminConsole({ onBack }: Props) {
           ) : (
             <Box sx={{ p: 1 }}>
               <Button size="small" startIcon={<AddIcon />} onClick={handleAddSection} fullWidth>
-                Add group
+                {t("adminConsole.addGroup")}
               </Button>
             </Box>
           )}
@@ -396,13 +395,10 @@ export default function AdminConsole({ onBack }: Props) {
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
             <Paper variant="outlined" sx={{ p: 2.5, flex: "1 1 380px" }}>
               <Typography variant="h6" gutterBottom sx={{ color: "primary.dark" }}>
-                Data completeness threshold
+                {t("adminConsole.thresholdTitle")}
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                How much of a jurisdiction's question weight needs an answer
-                before it is coloured on the map and ranked on the scoreboard.
-                Below this, a jurisdiction is shown grey and left out of the
-                ranking.
+                {t("adminConsole.thresholdBody")}
               </Typography>
 
               <Box
@@ -413,7 +409,7 @@ export default function AdminConsole({ onBack }: Props) {
                   mb: 0.5,
                 }}
               >
-                <Typography variant="overline">Threshold</Typography>
+                <Typography variant="overline">{t("adminConsole.threshold")}</Typography>
                 <Typography variant="h5">{threshold}%</Typography>
               </Box>
 
@@ -426,7 +422,7 @@ export default function AdminConsole({ onBack }: Props) {
                 marks={[
                   {
                     value: Math.round(protocol.completenessThreshold * 100),
-                    label: "Default",
+                    label: t("adminConsole.default"),
                   },
                 ]}
                 valueLabelDisplay="auto"
@@ -436,23 +432,22 @@ export default function AdminConsole({ onBack }: Props) {
 
             <Paper variant="outlined" sx={{ p: 2.5, flex: "1 1 380px", borderColor: "error.main" }}>
               <Typography variant="h6" color="error.main" gutterBottom>
-                Danger zone
+                {t("adminConsole.dangerZone")}
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                Discards every local edit - questions, weights, rubrics and
-                answers - and reloads the shipped data. This cannot be undone.
+                {t("adminConsole.dangerZoneBody")}
               </Typography>
               <Button
                 size="small"
                 color="error"
                 variant="outlined"
                 onClick={() => {
-                  if (confirm("Discard all local edits - questions, weights, rubrics and answers - and reload the shipped data?")) {
+                  if (confirm(t("adminConsole.confirmReset"))) {
                     resetToSeed();
                   }
                 }}
               >
-                Reset everything to seed
+                {t("adminConsole.resetEverything")}
               </Button>
             </Paper>
             </Box>
@@ -464,7 +459,7 @@ export default function AdminConsole({ onBack }: Props) {
               <TextField
                 size="small"
                 variant="standard"
-                label="Group name"
+                label={t("adminConsole.groupName")}
                 value={activeSection.title}
                 onChange={(e) => updateSection(activeSection.id, { title: e.target.value })}
                 multiline
@@ -487,16 +482,14 @@ export default function AdminConsole({ onBack }: Props) {
                 <Divider sx={{ mb: 1.5 }} />
 
                 <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-                  Answers a country can pick for this question, and the points each is worth
-                  toward its score (0 = counts for nothing, 4 = counts in full). The question's
-                  own Impactfullness above then scales how much that counts toward the overall total.
+                  {t("adminConsole.rubricIntro")}
                 </Typography>
 
                 <Stack spacing={1}>
                   {question.rubric.map((tier, i) => (
                     <Box key={tier.score} sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
                       <Box
-                        title={`Score ${tier.score}`}
+                        title={t("adminConsole.tierScore", { score: tier.score })}
                         sx={{
                           mt: "10px",
                           width: 22,
@@ -518,7 +511,7 @@ export default function AdminConsole({ onBack }: Props) {
                         fullWidth
                         size="small"
                         variant="standard"
-                        label="Answer"
+                        label={t("adminConsole.answer")}
                         value={tier.label}
                         onChange={(e) => setTierField(question, i, { label: e.target.value })}
                         multiline
@@ -527,7 +520,7 @@ export default function AdminConsole({ onBack }: Props) {
                         select
                         size="small"
                         variant="standard"
-                        label="Points"
+                        label={t("adminConsole.points")}
                         value={tier.points}
                         onChange={(e) => setTierField(question, i, { points: Number(e.target.value) })}
                         sx={{ width: 72, flexShrink: 0 }}
@@ -538,7 +531,7 @@ export default function AdminConsole({ onBack }: Props) {
                           </MenuItem>
                         ))}
                       </TextField>
-                      <Tooltip title="Remove this answer">
+                      <Tooltip title={t("adminConsole.removeAnswer")}>
                         <IconButton
                           size="small"
                           disabled={question.rubric.length <= 1}
@@ -558,14 +551,14 @@ export default function AdminConsole({ onBack }: Props) {
                   sx={{ mt: 1 }}
                   onClick={() => addTier(question)}
                 >
-                  Add answer
+                  {t("adminConsole.addAnswer")}
                 </Button>
 
                 {questionOverrides[question.id] && (
                   <Chip
                     size="small"
                     sx={{ mt: 1, bgcolor: "secondary.main", color: "secondary.contrastText", fontWeight: 600 }}
-                    label="Edited from the shipped version"
+                    label={t("adminConsole.editedFromShipped")}
                   />
                 )}
               </Paper>
@@ -578,7 +571,7 @@ export default function AdminConsole({ onBack }: Props) {
                 sx={{ alignSelf: "flex-start" }}
                 onClick={() => addQuestion(activeSection.id)}
               >
-                Add question
+                {t("adminConsole.addQuestion")}
               </Button>
             )}
           </Stack>
@@ -614,9 +607,10 @@ function QuestionHeader({
   onResetQuestion: () => void;
   onDeleteQuestion: () => void;
 }) {
+  const { t, i18n } = useTranslation();
   const impactDot = (
     <Box
-      title={`Impactfullness: ${impactLabel(question.weight)} (${question.weight})`}
+      title={t("adminConsole.impactfullnessTitle", { label: impactLabel(question.weight, i18n.language), weight: question.weight })}
       sx={{
         width: 14,
         height: 14,
@@ -631,7 +625,7 @@ function QuestionHeader({
     <TextField
       size="small"
       type="number"
-      label="Impactfullness"
+      label={t("adminConsole.impactfullness")}
       variant="standard"
       value={question.weight}
       slotProps={{ htmlInput: { min: 0, max: MAX_IMPACT, step: 0.1 } }}
@@ -650,7 +644,7 @@ function QuestionHeader({
       multiline
       size="small"
       variant="standard"
-      label="Question"
+      label={t("adminConsole.question")}
       value={question.text}
       onChange={(e) => onChangeText(e.target.value)}
       sx={{ flex: 1 }}
@@ -660,19 +654,17 @@ function QuestionHeader({
   const actionIcons = (
     <>
       {overridden && (
-        <Tooltip title="Revert this question to the shipped version">
+        <Tooltip title={t("adminConsole.revertQuestion")}>
           <IconButton size="small" onClick={onResetQuestion}>
             <RestartAltIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       )}
-      <Tooltip title="Delete this question">
+      <Tooltip title={t("adminConsole.deleteQuestion")}>
         <IconButton
           size="small"
           onClick={() => {
-            if (
-              confirm("Delete this question? This also removes any answers already recorded against it.")
-            ) {
+            if (confirm(t("adminConsole.confirmDeleteQuestion"))) {
               onDeleteQuestion();
             }
           }}

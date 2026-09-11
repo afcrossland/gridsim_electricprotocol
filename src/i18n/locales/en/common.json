@@ -1,0 +1,199 @@
+{
+  "appName": "Solar Policy Explorer",
+  "tagline": "Solar. Storage. Future Secured.",
+  "byGsc": "by The Global Solar Council",
+  "nav": {
+    "takeTheTour": "Take the tour",
+    "takeTheTourShort": "Tour",
+    "help": "Help",
+    "adminConsole": "Admin console"
+  },
+  "footer": {
+    "searchPlaceholder": "Search countries and states",
+    "score": "Score",
+    "completeness": "Completeness"
+  },
+  "theme": {
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode"
+  },
+  "help": {
+    "back": "Back",
+    "title": "How this works"
+  },
+  "legend": {
+    "protocolScore": "Protocol score",
+    "questionsAnswered": "Questions answered, by weight"
+  },
+  "welcome": {
+    "body": "This site scores countries, states and provinces against the Electric Protocol - the detailed question set behind the Charter. Pick a jurisdiction on the map to see how it does, what the evidence is, and which changes would raise its score the most.",
+    "return": "Return"
+  },
+  "scoreboard": {
+    "heading": "Policy Explorer",
+    "descriptionIntro": "Pick a country on the map or in this list",
+    "descriptionRest": "to see/edit its answers, the evidence behind each one, and the changes that would raise its score the most.",
+    "notEnoughDataToScore": "Not enough data to score yet",
+    "noMatches": "No jurisdiction matches these filters.",
+    "filter": "Filter",
+    "clear": "Clear",
+    "hideFilters": "Hide filters",
+    "filterThisList": "Filter this list",
+    "highToLow": "High to low",
+    "lowToHigh": "Low to high",
+    "continent": "Continent",
+    "allContinents": "All continents",
+    "countries": "Countries",
+    "score": "Score"
+  },
+  "continents": {
+    "Africa": "Africa",
+    "Asia": "Asia",
+    "Europe": "Europe",
+    "North America": "North America",
+    "South America": "South America",
+    "Oceania": "Oceania"
+  },
+  "map": {
+    "policyScore": "Policy score",
+    "moreDataNeeded": "More data needed",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "backToFullMap": "Back to full map view"
+  },
+  "countryPanel": {
+    "backToScoreboard": "Back to scoreboard",
+    "score": "Score",
+    "dataCompleteness": "Data completeness",
+    "notApplicable": "N/A",
+    "finishEditing": "Finish editing",
+    "editAnswers": "Edit this jurisdiction's answers",
+    "done": "Done",
+    "edit": "Edit",
+    "tabSummary": "Summary",
+    "tabPolicyWins": "Policy Wins",
+    "tabPolicyLandscape": "Policy Landscape",
+    "buildingReport": "Building report...",
+    "downloadReport": "Download report",
+    "windroseIntro": "How {{name}} scores in each area, and how much of it is backed by evidence. A dashed marker just means there isn't enough data yet - not a score of zero.",
+    "impactIntro": "Biggest policy wins based on policy score and evidence provided."
+  },
+  "impactList": {
+    "empty": "Nothing to show yet - every answered question is already at full marks, or none have been answered. Use Policy Landscape to add some.",
+    "impactfullness": "Impactfullness: {{label}}",
+    "currently": "Currently:"
+  },
+  "windrose": {
+    "thisJurisdiction": "This jurisdiction",
+    "notEnoughData": "not enough data",
+    "ariaCompare": "{{noun}} by section, compared across {{count}} jurisdictions",
+    "aria": "{{noun}} by section",
+    "tooltipValue": "{{label}} - {{section}}: {{value}}%",
+    "tooltipNotEnoughData": "{{label}} - {{section}}: {{notEnoughData}}",
+    "tooltipValueSingle": "{{section}}: {{value}}%",
+    "tooltipNotEnoughDataSingle": "{{section}}: {{notEnoughData}}"
+  },
+  "comparePicker": {
+    "beingCompared": "{{count}}/{{maxCount}} being compared",
+    "compare": "Compare",
+    "comparing": "Comparing ({{count}})",
+    "noMatches": "No matches.",
+    "maxReached": "Up to {{maxCount}} at once - remove one above to add another."
+  },
+  "sectionRail": {
+    "changeFirst": "Change an answer or its evidence first",
+    "submit": "Submit revised evidence",
+    "submitCount": "Submit revised evidence ({{count}})",
+    "sections": "Sections"
+  },
+  "suggestionDialog": {
+    "title": "Submit revised evidence",
+    "noChanges": "No changes recorded yet for {{name}} this session.",
+    "changesCount_one": "{{count}} change for {{name}} this session:",
+    "changesCount_other": "{{count}} changes for {{name}} this session:",
+    "missingEvidence_one": "{{count}} answer below has not had its evidence revised - add or edit at least one citation for each before this can be submitted.",
+    "missingEvidence_other": "{{count}} answers below have not had their evidence revised - add or edit at least one citation for each before this can be submitted.",
+    "kindScore": "Answer",
+    "kindEvidenceAdded": "Evidence added",
+    "kindEvidenceRemoved": "Evidence removed",
+    "kindEvidenceEdited": "Evidence edited",
+    "evidenceNotRevised": "Evidence not revised",
+    "detailsIntro": "Add your name and organisation so a reviewer knows who suggested this.",
+    "name": "Name",
+    "organisation": "Organisation",
+    "done": "Thanks - your suggested changes have been submitted for review.",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "submit": "Submit",
+    "close": "Close"
+  },
+  "questionCard": {
+    "evidence": "Evidence",
+    "clearResponse": "Clear this response",
+    "noEvidence": "No evidence added yet.",
+    "title": "Title",
+    "titlePlaceholder": "Name of the law, decision or document",
+    "source": "Source",
+    "sourcePlaceholder": "Link, statute or document reference",
+    "notes": "Notes",
+    "removeEvidence": "Remove this evidence",
+    "addEvidence": "Add evidence"
+  },
+  "adminConsole": {
+    "title": "Admin console",
+    "description": "Where the underlying question set lives: editing question text and impact, adding or removing topic groups and questions, adjusting each question's possible answers, and setting the data completeness threshold used across the app.",
+    "confirmDeleteSection_one": "Delete \"{{title}}\" and its {{count}} question? This also removes any answers already recorded against them.",
+    "confirmDeleteSection_other": "Delete \"{{title}}\" and its {{count}} questions? This also removes any answers already recorded against them.",
+    "settings": "Settings",
+    "suggestions": "Suggestions",
+    "groups": "Groups",
+    "questionCount_one": "{{count}} question",
+    "questionCount_other": "{{count}} questions",
+    "deleteGroup": "Delete this group",
+    "addGroup": "Add group",
+    "thresholdTitle": "Data completeness threshold",
+    "thresholdBody": "How much of a jurisdiction's question weight needs an answer before it is coloured on the map and ranked on the scoreboard. Below this, a jurisdiction is shown grey and left out of the ranking.",
+    "threshold": "Threshold",
+    "default": "Default",
+    "dangerZone": "Danger zone",
+    "dangerZoneBody": "Discards every local edit - questions, weights, rubrics and answers - and reloads the shipped data. This cannot be undone.",
+    "resetEverything": "Reset everything to seed",
+    "confirmReset": "Discard all local edits - questions, weights, rubrics and answers - and reload the shipped data?",
+    "groupName": "Group name",
+    "rubricIntro": "Answers a country can pick for this question, and the points each is worth toward its score (0 = counts for nothing, 4 = counts in full). The question's own Impactfullness above then scales how much that counts toward the overall total.",
+    "tierScore": "Score {{score}}",
+    "answer": "Answer",
+    "points": "Points",
+    "removeAnswer": "Remove this answer",
+    "addAnswer": "Add answer",
+    "editedFromShipped": "Edited from the shipped version",
+    "addQuestion": "Add question",
+    "impactfullnessTitle": "Impactfullness: {{label}} ({{weight}})",
+    "impactfullness": "Impactfullness",
+    "question": "Question",
+    "revertQuestion": "Revert this question to the shipped version",
+    "deleteQuestion": "Delete this question",
+    "confirmDeleteQuestion": "Delete this question? This also removes any answers already recorded against it."
+  },
+  "suggestionsReview": {
+    "empty": "No suggested changes yet. When someone uses \"Submit revised evidence\" on a country's page, it shows up here for review.",
+    "from": "From:",
+    "organisation": "Organisation:",
+    "changeCount_one": "{{count}} change",
+    "changeCount_other": "{{count}} changes",
+    "statusPending": "Pending",
+    "statusAccepted": "Accepted",
+    "statusRejected": "Rejected",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "scrollStory": {
+    "scrollToBegin": "Scroll to begin",
+    "readCharter": "Read the Citizens Electrification Charter",
+    "previous": "Previous",
+    "next": "Next",
+    "skipIntro": "Skip intro",
+    "startExploring": "Start exploring"
+  }
+}

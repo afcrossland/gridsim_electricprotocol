@@ -3,6 +3,7 @@ import type { PaletteMode } from "@mui/material/styles";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useTranslation } from "react-i18next";
 
 import EmberBadge from "./EmberBadge";
 
@@ -44,6 +45,7 @@ function navItemSx(active: boolean) {
  * own), plus the Ember badge and the dark-mode toggle.
  */
 export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }: Props) {
+  const { t } = useTranslation();
   // Same as ep_policymap's own TopNavbar.tsx: the logo leaves this app
   // entirely, back to the Electric Futures Playbook splash at the site
   // root - a real page navigation (this app's own React routing doesn't
@@ -84,7 +86,7 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
                 lineHeight: 1.2,
               }}
             >
-              Solar Deployment Explorer
+              {t("appName")}
             </Typography>
             <Typography
               sx={{
@@ -94,9 +96,9 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
                 display: { xs: "none", sm: "block" },
               }}
             >
-              by The Global Solar Council&ensp;·&ensp;
+              {t("byGsc")}&ensp;·&ensp;
               <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
-                Solar. Storage. Future Secured.
+                {t("tagline")}
               </Box>
             </Typography>
           </Box>
@@ -120,15 +122,15 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
           {/* Abbreviated below `sm`, same as Policy Explorer's own nav -
               "Take the tour" alone was part of the header's mobile overflow. */}
           <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-            Take the tour
+            {t("nav.takeTheTour")}
           </Box>
           <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-            Tour
+            {t("nav.takeTheTourShort")}
           </Box>
         </Box>
 
         <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
-          Help
+          {t("nav.help")}
         </Box>
 
         {/* Same filled-button treatment as Policy Explorer's "Admin
@@ -138,7 +140,7 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
             this one is a placeholder too - "Coming soon" on hover rather
             than a dead click. Icon-only on a phone, same breakpoint
             swap as that button's own mobile treatment. */}
-        <Tooltip title="Coming soon">
+        <Tooltip title={t("nav.comingSoon")}>
           <IconButton
             sx={{
               display: { xs: "inline-flex", sm: "none" },
@@ -151,18 +153,18 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
             <LockOutlinedIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Coming soon">
+        <Tooltip title={t("nav.comingSoon")}>
           <Button
             size="small"
             variant="contained"
             startIcon={<LockOutlinedIcon fontSize="small" />}
             sx={{ display: { xs: "none", sm: "inline-flex" }, ml: 1.5 }}
           >
-            Login
+            {t("nav.login")}
           </Button>
         </Tooltip>
 
-        <Tooltip title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+        <Tooltip title={mode === "dark" ? t("theme.switchToLight") : t("theme.switchToDark")}>
           <IconButton size="small" onClick={() => setMode(mode === "dark" ? "light" : "dark")} sx={{ ml: 0.5 }}>
             {mode === "dark" ? <LightModeOutlinedIcon fontSize="small" /> : <DarkModeOutlinedIcon fontSize="small" />}
           </IconButton>

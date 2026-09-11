@@ -19,9 +19,10 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import { useTranslation } from "react-i18next";
 
 import { CONTINENTS } from "../../lib/jurisdictions";
-import { SCORE_BANDS } from "../../lib/scoring";
+import { SCORE_BANDS, bandLabelText } from "../../lib/scoring";
 import {
   NOT_ENOUGH_DATA_BAND,
   continentOfGroup,
@@ -48,6 +49,7 @@ const ALL_BANDS = [...SCORE_BANDS.map((b) => b.label), NOT_ENOUGH_DATA_BAND];
  * something Scoreboard owns.
  */
 export default function ScoreboardFilters({ groups }: Props) {
+  const { t, i18n } = useTranslation();
   const filters = useProtocolStore((s) => s.scoreboardFilters);
   const setFilters = useProtocolStore((s) => s.setScoreboardFilters);
   const resetFilters = useProtocolStore((s) => s.resetScoreboardFilters);
@@ -88,7 +90,7 @@ export default function ScoreboardFilters({ groups }: Props) {
   return (
     <Box data-tour="scoreboard-filters" sx={{ mb: 2 }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-        <Tooltip title={expanded ? "Hide filters" : "Filter this list"}>
+        <Tooltip title={expanded ? t("scoreboard.hideFilters") : t("scoreboard.filterThisList")}>
           <IconButton size="small" onClick={() => setExpanded((v) => !v)}>
             <Badge color="primary" variant="dot" invisible={!active}>
               <FilterListIcon fontSize="small" />
@@ -100,7 +102,7 @@ export default function ScoreboardFilters({ groups }: Props) {
           onClick={() => setExpanded((v) => !v)}
           sx={{ cursor: "pointer", userSelect: "none" }}
         >
-          Filter
+          {t("scoreboard.filter")}
         </Typography>
         {active && (
           <Button
@@ -111,7 +113,7 @@ export default function ScoreboardFilters({ groups }: Props) {
             }}
             sx={{ fontWeight: 400 }}
           >
-            Clear
+            {t("scoreboard.clear")}
           </Button>
         )}
 
@@ -121,7 +123,7 @@ export default function ScoreboardFilters({ groups }: Props) {
             (score/completeness) now, not a choice made here too - see
             Scoreboard.tsx. Only the direction is still a Scoreboard-only
             preference. */}
-        <Tooltip title={sortDirection === "desc" ? "High to low" : "Low to high"}>
+        <Tooltip title={sortDirection === "desc" ? t("scoreboard.highToLow") : t("scoreboard.lowToHigh")}>
           <IconButton size="small" onClick={() => setSortDirection(sortDirection === "desc" ? "asc" : "desc")}>
             {sortDirection === "desc" ? <ArrowDownwardIcon fontSize="small" /> : <ArrowUpwardIcon fontSize="small" />}
           </IconButton>
@@ -143,7 +145,7 @@ export default function ScoreboardFilters({ groups }: Props) {
             <TextField
               select
               size="small"
-              label="Continent"
+              label={t("scoreboard.continent")}
               value={filters.continents}
               onChange={(e) => {
                 const value = e.target.value;
@@ -152,10 +154,13 @@ export default function ScoreboardFilters({ groups }: Props) {
               slotProps={{
                 select: {
                   multiple: true,
+                  // Selected values stay the raw English CONTINENTS strings
+                  // (continentOfGroup()/matching logic depends on that),
+                  // only the rendered label is translated.
                   renderValue: (selected) =>
                     (selected as string[]).length > 0
-                      ? (selected as string[]).join(", ")
-                      : "All continents",
+                      ? (selected as string[]).map((c) => t(`continents.${c}`)).join(", ")
+                      : t("scoreboard.allContinents"),
                 },
               }}
               sx={{ minWidth: 160, flex: 1 }}
@@ -169,7 +174,7 @@ export default function ScoreboardFilters({ groups }: Props) {
                     size="small"
                     sx={{ mr: 1 }}
                   />
-                  {c}
+                  {t(`continents.${c}`)}
                 </MenuItem>
               ))}
             </TextField>
@@ -199,18 +204,18 @@ export default function ScoreboardFilters({ groups }: Props) {
                   </li>
                 );
               }}
-              renderInput={(params) => <TextField {...params} label="Countries" />}
+              renderInput={(params) => <TextField {...params} label={t("scoreboard.countries")} />}
             />
           </Box>
 
           <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
-            Score
+            {t("scoreboard.score")}
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1.5 }}>
             {ALL_BANDS.map((band) => (
               <Chip
                 key={band}
-                label={band}
+                label={bandLabelText(band, i18n.language)}
                 size="small"
                 onClick={() => toggleBand(band)}
                 color={filters.bands.includes(band) ? "primary" : "default"}

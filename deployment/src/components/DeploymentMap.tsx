@@ -7,6 +7,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { useTranslation } from "react-i18next";
 
 import World from "../assets/jurisdictions.geojson?url";
 import mapStyleJsonLight from "../assets/map_gsc.json";
@@ -16,7 +17,6 @@ import TotalCapacityTile from "./TotalCapacityTile";
 import { canonicalCode, jurisdictionName, resolveTargets } from "../lib/jurisdictions";
 import {
   COLOR_NO_DATA,
-  METRIC_LABELS,
   RAMP_STOPS,
   codesForMetric,
   domainForMetric,
@@ -109,6 +109,7 @@ interface Props {
 }
 
 export default function DeploymentMap({ metric, selectedCountry, onCountryClick, hideLegend }: Props) {
+  const { t, i18n } = useTranslation();
   const mapRef = useRef<MapRef>(null);
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
   const [sourceReady, setSourceReady] = useState(false);
@@ -226,8 +227,8 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
   };
 
   const hoveredValue = hover ? valueForMap(hover.code, metric) : null;
-  const hoveredName = hover ? jurisdictionName(hover.code) : undefined;
-  const legendTitle = METRIC_LABELS[metric];
+  const hoveredName = hover ? jurisdictionName(hover.code, i18n.language) : undefined;
+  const legendTitle = t(`metrics.${metric}`);
 
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
@@ -341,12 +342,12 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
           <Typography sx={{ fontWeight: 700, fontSize: "0.8125rem", color: "text.primary" }}>{hoveredName}</Typography>
           <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
             {hoveredValue === null
-              ? "No data"
+              ? t("map.noData")
               : metric === "share"
-                ? `${hoveredValue.toFixed(1)}% of generation`
+                ? t("map.share", { value: hoveredValue.toFixed(1) })
                 : metric === "capacityPerCapita"
-                  ? `${hoveredValue.toFixed(0)} W per capita`
-                  : `${hoveredValue.toLocaleString()} MW`}
+                  ? t("map.perCapita", { value: hoveredValue.toFixed(0) })
+                  : t("map.capacity", { value: hoveredValue.toLocaleString() })}
           </Typography>
         </Box>
       )}

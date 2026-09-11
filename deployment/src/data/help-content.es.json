@@ -1,0 +1,85 @@
+[
+  {
+    "heading": "Qué muestra esta herramienta",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Este mapa muestra la escala de la energía solar entre países usando tres medidas:" }] },
+      {
+        "type": "list",
+        "items": [
+          [{ "text": "Capacidad instalada", "bold": true }, { "text": " — capacidad solar total instalada" }],
+          [{ "text": "Capacidad per cápita", "bold": true }, { "text": " — capacidad instalada en relación con la población" }],
+          [{ "text": "Participación solar en la electricidad", "bold": true }, { "text": " — proporción de la generación eléctrica que proviene de la energía solar" }]
+        ]
+      },
+      { "type": "paragraph", "runs": [{ "text": "Usa los controles en la parte inferior del mapa para cambiar entre vistas." }] },
+      { "type": "paragraph", "runs": [{ "text": "Todos los países están disponibles en el nivel gratuito. Los miembros pueden acceder a medidas adicionales." }] }
+    ]
+  },
+  {
+    "heading": "Explorar el mapa",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Selecciona un país en el mapa, o búscalo por nombre, para ver sus datos y su tendencia histórica." }] },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "Usa la flecha para volver a la lista de países. El botón " },
+          { "text": "Filtro", "bold": true },
+          { "text": " te permite restringir el mapa a continentes concretos." }
+        ]
+      }
+    ]
+  },
+  {
+    "heading": "Datos y metodología",
+    "blocks": [
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "Los datos provienen de " },
+          { "text": "Ember", "bold": true, "href": "https://ember-energy.org/" },
+          { "text": " y del " },
+          { "text": "Banco Mundial", "bold": true, "href": "https://data.worldbank.org/" },
+          { "text": "." }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "runs": [{ "text": "La capacidad solar instalada y la participación solar en la electricidad se toman directamente de los conjuntos de datos publicados por Ember. Los datos de población usados para la medida per cápita provienen del Banco Mundial." }]
+      },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "La única medida calculada por esta herramienta es " },
+          { "text": "capacidad per cápita", "bold": true },
+          { "text": ":" }
+        ]
+      },
+      { "type": "formula", "text": "capacidad solar instalada ÷ población" },
+      { "type": "paragraph", "runs": [{ "text": "Todas las demás cifras se reproducen de los conjuntos de datos originales sin modificación." }] },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "Los conjuntos de datos se publican bajo la " },
+          { "text": "licencia Creative Commons Atribución 4.0", "bold": true },
+          { "text": "." }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "runs": [{ "text": "Licencia Creative Commons Atribución 4.0", "href": "https://creativecommons.org/licenses/by/4.0/" }]
+      }
+    ]
+  },
+  {
+    "heading": "Disponibilidad de los datos",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "La disponibilidad de los datos varía entre países y medidas. Si tienes datos adicionales o detectas un error, contáctanos." }] }
+    ]
+  },
+  {
+    "heading": "Actualizaciones de los datos",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Las cifras reflejan los datos disponibles cuando se actualizó esta herramienta por última vez. La fecha de actualización se muestra dentro de la herramienta." }] }
+    ]
+  }
+]

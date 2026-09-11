@@ -22,10 +22,12 @@
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
     "html2canvas": "^1.4.1",
+    "i18next": "^26.4.2",
     "jspdf": "^4.2.1",
     "maplibre-gl": "^5.11.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-i18next": "^17.0.13",
     "react-map-gl": "^8.1.0",
     "zustand": "^5.0.10"
   },

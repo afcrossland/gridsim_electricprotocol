@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   sx?: SxProps<Theme>;
@@ -13,6 +14,7 @@ interface Props {
  * instruction the same day - the header was getting crowded).
  */
 export default function EmberBadge({ sx }: Props) {
+  const { t } = useTranslation();
   return (
     <Box
       component="a"
@@ -28,7 +30,7 @@ export default function EmberBadge({ sx }: Props) {
         ...sx,
       }}
     >
-      <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>Data from</Typography>
+      <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>{t("ember.dataFrom")}</Typography>
       {/* Ember's logo is dark navy text on a transparent background -
           unreadable against a dark-mode surface. A small white chip behind
           it (rather than a different asset - Ember doesn't publish a white

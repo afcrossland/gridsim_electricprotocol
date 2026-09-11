@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useTranslation } from "react-i18next";
 
 import { jurisdictionName } from "../../lib/jurisdictions";
 import { groupScores, scoreBand, scoreLabel } from "../../lib/scoring";
@@ -26,13 +27,15 @@ import ScoreboardFilters from "./ScoreboardFilters";
 function tileDisplay(
   entry: Pick<CountryScore, "score" | "completeness" | "ranked">,
   sort: ScoreboardSort,
+  t: (key: string) => string,
+  language: string,
 ): { text: string; color: string } {
   if (isCompletenessSort(sort)) {
     return { text: `${Math.round(entry.completeness * 100)}%`, color: "primary.main" };
   }
   return entry.ranked
-    ? { text: scoreLabel(entry.score), color: scoreBand(entry.score).color }
-    : { text: "Not enough data to score yet", color: "text.disabled" };
+    ? { text: scoreLabel(entry.score, language), color: scoreBand(entry.score).color }
+    : { text: t("scoreboard.notEnoughDataToScore"), color: "text.disabled" };
 }
 
 interface Props {
@@ -57,6 +60,7 @@ interface Props {
  * not just the impressive ones.
  */
 export default function Scoreboard({ scores, selectedCountry, onSelect, hideHeading, onScrollTopChange }: Props) {
+  const { t, i18n } = useTranslation();
   const filters = useProtocolStore((s) => s.scoreboardFilters);
   // What the list is sorted by is always the map's own metric toggle
   // (score/completeness), not a separate setting - see the store's own
@@ -65,7 +69,7 @@ export default function Scoreboard({ scores, selectedCountry, onSelect, hideHead
   const mapMetric = useProtocolStore((s) => s.mapMetric);
   const direction = useProtocolStore((s) => s.scoreboardSortDirection);
   const sort = `${mapMetric}-${direction}` as ScoreboardSort;
-  const allGroups = groupScores(scores);
+  const allGroups = groupScores(scores, i18n.language);
   const grouped = allGroups
     .filter((g) => matchesFilters(g, filters))
     .sort((a, b) => compareGroups(a, b, sort));
@@ -81,12 +85,10 @@ export default function Scoreboard({ scores, selectedCountry, onSelect, hideHead
           {/* Same size/weight/colour as the sibling gridsim-frontend project's
               own country-name heading at the top of its sidebar. */}
           <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "text.primary", lineHeight: 1.2, mb: 0.5 }}>
-            Policy Explorer
+            {t("scoreboard.heading")}
           </Typography>
           <Typography variant="body2" sx={{ mb: 1.5 }}>
-            <strong>Pick a country on the map or in this list</strong> to see/edit its
-            answers, the evidence behind each one, and the changes that would raise its
-            score the most.
+            <strong>{t("scoreboard.descriptionIntro")}</strong> {t("scoreboard.descriptionRest")}
           </Typography>
         </>
       )}
@@ -95,7 +97,7 @@ export default function Scoreboard({ scores, selectedCountry, onSelect, hideHead
 
       {grouped.length === 0 && (
         <Typography variant="body2" sx={{ mb: 2 }}>
-          No jurisdiction matches these filters.
+          {t("scoreboard.noMatches")}
         </Typography>
       )}
 
@@ -139,6 +141,7 @@ function Row({
   onSelect: (code: string) => void;
   sort: ScoreboardSort;
 }) {
+  const { t, i18n } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const selected = group.hasOwnScore
     ? group.code === selectedCountry
@@ -192,10 +195,10 @@ function Row({
             fontWeight: 700,
             flexShrink: 0,
             lineHeight: isCompletenessSort(sort) || group.ranked ? undefined : 1.2,
-            color: tileDisplay(group, sort).color,
+            color: tileDisplay(group, sort, t, i18n.language).color,
           }}
         >
-          {tileDisplay(group, sort).text}
+          {tileDisplay(group, sort, t, i18n.language).text}
         </Typography>
 
         {group.isGroup ? (
@@ -255,6 +258,7 @@ function ChildRow({
   onSelect: (code: string) => void;
   sort: ScoreboardSort;
 }) {
+  const { t, i18n } = useTranslation();
   return (
     <Box
       onClick={() => onSelect(child.code)}
@@ -277,7 +281,7 @@ function ChildRow({
           carries elsewhere - redundant once already nested under the country's
           own row. */}
       <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, color: "text.secondary" }}>
-        {jurisdictionName(child.code)}
+        {jurisdictionName(child.code, i18n.language)}
       </Typography>
       <Typography
         variant="caption"
@@ -288,10 +292,10 @@ function ChildRow({
           fontWeight: 600,
           flexShrink: 0,
           lineHeight: isCompletenessSort(sort) || child.ranked ? undefined : 1.2,
-          color: tileDisplay(child, sort).color,
+          color: tileDisplay(child, sort, t, i18n.language).color,
         }}
       >
-        {tileDisplay(child, sort).text}
+        {tileDisplay(child, sort, t, i18n.language).text}
       </Typography>
     </Box>
   );

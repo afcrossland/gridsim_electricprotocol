@@ -3,9 +3,10 @@ import { Box, Typography } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { useTranslation } from "react-i18next";
 
 import Spotlight from "./Spotlight";
-import { SCENES } from "./scenes";
+import { getScenes } from "../i18n/scenes";
 
 const WHEEL_COOLDOWN_MS = 650;
 const RING = "#00ABBB"; // GSC Aqua
@@ -83,6 +84,10 @@ interface Props {
  * stays mounted underneath the whole time.
  */
 export default function ScrollStory({ onDismiss, onSelectCountry, onSceneChange }: Props) {
+  const { t, i18n } = useTranslation();
+  // Recomputed per language via getScenes() (see src/i18n/scenes.ts) rather
+  // than imported as a static array.
+  const SCENES = getScenes(i18n.language);
   const [activeScene, setActiveScene] = useState(0);
   const scene = SCENES[activeScene];
 
@@ -206,9 +211,9 @@ export default function ScrollStory({ onDismiss, onSelectCountry, onSceneChange 
             </Typography>
             <Box sx={{ pt: 2, borderTop: "1px solid #E5E7EB" }}>
               <Typography sx={{ fontSize: "0.8125rem", color: "#9CA3AF", lineHeight: 1.4 }}>
-                by The Global Solar Council&ensp;·&ensp;
+                {t("byGsc")}&ensp;·&ensp;
                 <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
-                  Solar. Storage. Future Secured.
+                  {t("tagline")}
                 </Box>
               </Typography>
             </Box>
@@ -278,7 +283,7 @@ export default function ScrollStory({ onDismiss, onSelectCountry, onSceneChange 
               animation: "hintBounce 1.5s ease infinite",
             }}
           >
-            Scroll to begin
+            {t("scrollStory.scrollToBegin")}
             <KeyboardArrowDownIcon sx={{ fontSize: 20 }} />
           </Box>
         )}
@@ -287,7 +292,7 @@ export default function ScrollStory({ onDismiss, onSelectCountry, onSceneChange 
             component="button"
             onClick={retreat}
             disabled={activeScene === 0}
-            aria-label="Previous"
+            aria-label={t("scrollStory.previous")}
             sx={NAV_BTN}
           >
             <ChevronLeftIcon sx={{ fontSize: 22 }} />
@@ -304,13 +309,13 @@ export default function ScrollStory({ onDismiss, onSelectCountry, onSceneChange 
               "&:hover": { bgcolor: "#F0FBFC" },
             }}
           >
-            {activeScene === SCENES.length - 1 ? "Start exploring" : "Skip intro"}
+            {activeScene === SCENES.length - 1 ? t("scrollStory.startExploring") : t("scrollStory.skipIntro")}
           </Box>
           <Box
             component="button"
             onClick={advance}
             disabled={activeScene === SCENES.length - 1}
-            aria-label="Next"
+            aria-label={t("scrollStory.next")}
             sx={NAV_BTN}
           >
             <ChevronRightIcon sx={{ fontSize: 22 }} />

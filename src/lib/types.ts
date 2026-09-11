@@ -37,7 +37,19 @@ export interface Question {
   seedAnswers?: Record<string, number>;
 }
 
-/** One citation supporting a Response's score - a question can rest on more than one. */
+/**
+ * One citation supporting a Response's score - a question can rest on more
+ * than one.
+ *
+ * TODO (2026-09-11, deliberately not built): `title`/`note` are free text
+ * written by whoever researches a jurisdiction, and will often be entered
+ * in that researcher's own local language rather than English - that's
+ * fine and expected, distinct from this app's own i18next-translated UI
+ * strings (see src/i18n/). There is currently no mechanism to translate
+ * this content to English (a translation-API call at submission time, or
+ * an on-demand "translate" action in the review UI, are both plausible
+ * later options) - this is a known, unsolved gap, not an oversight.
+ */
 export interface EvidenceItem {
   /** Short name for the source - "EU RED II, Article 21", "IEX market rules". */
   title: string;

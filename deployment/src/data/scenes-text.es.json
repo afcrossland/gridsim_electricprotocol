@@ -1,0 +1,22 @@
+[
+  {
+    "id": 0,
+    "heading": "Bienvenido al Explorador de Despliegue Solar",
+    "body": "Descubre cuánta energía solar tienen realmente los países."
+  },
+  {
+    "id": 1,
+    "spotlightTag": "Tres vistas",
+    "spotlightCaption": "Cambia entre capacidad instalada, capacidad per cápita, y qué proporción de la electricidad de un país proviene de la energía solar."
+  },
+  {
+    "id": 2,
+    "spotlightTag": "Elige un país",
+    "spotlightCaption": "Haz clic en un país del mapa, búscalo, o elígelo de esta lista para ver sus propios datos e historial."
+  },
+  {
+    "id": 3,
+    "spotlightTag": "Haz clic en un país",
+    "spotlightCaption": "Consulta su capacidad instalada, su participación en la electricidad, y la población usada para la vista per cápita - además de enlaces para verlo en las otras herramientas del GSC."
+  }
+]

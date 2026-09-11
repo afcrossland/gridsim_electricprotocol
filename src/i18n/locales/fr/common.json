@@ -1,0 +1,199 @@
+{
+  "appName": "Explorateur de Politiques Solaires",
+  "tagline": "Solaire. Stockage. Avenir assuré.",
+  "byGsc": "par le Global Solar Council",
+  "nav": {
+    "takeTheTour": "Faire la visite",
+    "takeTheTourShort": "Visite",
+    "help": "Aide",
+    "adminConsole": "Console d'administration"
+  },
+  "footer": {
+    "searchPlaceholder": "Rechercher des pays et des états",
+    "score": "Score",
+    "completeness": "Exhaustivité des données"
+  },
+  "theme": {
+    "switchToDark": "Passer en mode sombre",
+    "switchToLight": "Passer en mode clair"
+  },
+  "help": {
+    "back": "Retour",
+    "title": "Comment ça marche"
+  },
+  "legend": {
+    "protocolScore": "Score du protocole",
+    "questionsAnswered": "Questions répondues, pondérées"
+  },
+  "welcome": {
+    "body": "Ce site note les pays, états et provinces selon le Protocole Électrique, l'ensemble détaillé de questions qui sous-tend la Charte. Choisissez une juridiction sur la carte pour voir son résultat, les preuves associées, et les changements qui feraient le plus progresser son score.",
+    "return": "Retour"
+  },
+  "scoreboard": {
+    "heading": "Explorateur de Politiques",
+    "descriptionIntro": "Choisissez un pays sur la carte ou dans cette liste",
+    "descriptionRest": "pour voir/modifier ses réponses, les preuves associées à chacune, et les changements qui feraient le plus progresser son score.",
+    "notEnoughDataToScore": "Données insuffisantes pour noter",
+    "noMatches": "Aucune juridiction ne correspond à ces filtres.",
+    "filter": "Filtre",
+    "clear": "Effacer",
+    "hideFilters": "Masquer les filtres",
+    "filterThisList": "Filtrer cette liste",
+    "highToLow": "Du plus élevé au plus bas",
+    "lowToHigh": "Du plus bas au plus élevé",
+    "continent": "Continent",
+    "allContinents": "Tous les continents",
+    "countries": "Pays",
+    "score": "Score"
+  },
+  "continents": {
+    "Africa": "Afrique",
+    "Asia": "Asie",
+    "Europe": "Europe",
+    "North America": "Amérique du Nord",
+    "South America": "Amérique du Sud",
+    "Oceania": "Océanie"
+  },
+  "map": {
+    "policyScore": "Score de politique",
+    "moreDataNeeded": "Plus de données nécessaires",
+    "zoomIn": "Zoomer",
+    "zoomOut": "Dézoomer",
+    "backToFullMap": "Retour à la carte complète"
+  },
+  "countryPanel": {
+    "backToScoreboard": "Retour au classement",
+    "score": "Score",
+    "dataCompleteness": "Exhaustivité des données",
+    "notApplicable": "N/D",
+    "finishEditing": "Terminer la modification",
+    "editAnswers": "Modifier les réponses de cette juridiction",
+    "done": "Terminé",
+    "edit": "Modifier",
+    "tabSummary": "Résumé",
+    "tabPolicyWins": "Avancées politiques",
+    "tabPolicyLandscape": "Paysage politique",
+    "buildingReport": "Génération du rapport...",
+    "downloadReport": "Télécharger le rapport",
+    "windroseIntro": "Comment {{name}} se positionne dans chaque domaine, et dans quelle mesure c'est étayé par des preuves. Un repère en pointillés signifie simplement qu'il n'y a pas encore assez de données, pas un score nul.",
+    "impactIntro": "Les avancées politiques les plus importantes, d'après le score et les preuves fournies."
+  },
+  "impactList": {
+    "empty": "Rien à afficher pour l'instant - chaque question répondue est déjà notée au maximum, ou aucune n'a encore de réponse. Utilisez Paysage politique pour en ajouter.",
+    "impactfullness": "Impact : {{label}}",
+    "currently": "Actuellement :"
+  },
+  "windrose": {
+    "thisJurisdiction": "Cette juridiction",
+    "notEnoughData": "données insuffisantes",
+    "ariaCompare": "{{noun}} par section, comparé entre {{count}} juridictions",
+    "aria": "{{noun}} par section",
+    "tooltipValue": "{{label}} - {{section}} : {{value}} %",
+    "tooltipNotEnoughData": "{{label}} - {{section}} : {{notEnoughData}}",
+    "tooltipValueSingle": "{{section}} : {{value}} %",
+    "tooltipNotEnoughDataSingle": "{{section}} : {{notEnoughData}}"
+  },
+  "comparePicker": {
+    "beingCompared": "{{count}}/{{maxCount}} en comparaison",
+    "compare": "Comparer",
+    "comparing": "Comparaison ({{count}})",
+    "noMatches": "Aucun résultat.",
+    "maxReached": "{{maxCount}} maximum à la fois - retirez-en un ci-dessus pour en ajouter un autre."
+  },
+  "sectionRail": {
+    "changeFirst": "Modifiez d'abord une réponse ou sa preuve",
+    "submit": "Soumettre les preuves révisées",
+    "submitCount": "Soumettre les preuves révisées ({{count}})",
+    "sections": "Sections"
+  },
+  "suggestionDialog": {
+    "title": "Soumettre des preuves révisées",
+    "noChanges": "Aucun changement encore enregistré pour {{name}} au cours de cette session.",
+    "changesCount_one": "{{count}} changement pour {{name}} au cours de cette session :",
+    "changesCount_other": "{{count}} changements pour {{name}} au cours de cette session :",
+    "missingEvidence_one": "{{count}} réponse ci-dessous n'a pas de preuve révisée - ajoutez ou modifiez au moins une citation pour celle-ci avant de pouvoir soumettre.",
+    "missingEvidence_other": "{{count}} réponses ci-dessous n'ont pas de preuve révisée - ajoutez ou modifiez au moins une citation pour chacune avant de pouvoir soumettre.",
+    "kindScore": "Réponse",
+    "kindEvidenceAdded": "Preuve ajoutée",
+    "kindEvidenceRemoved": "Preuve supprimée",
+    "kindEvidenceEdited": "Preuve modifiée",
+    "evidenceNotRevised": "Preuve non révisée",
+    "detailsIntro": "Ajoutez votre nom et votre organisation pour qu'un relecteur sache qui a proposé ce changement.",
+    "name": "Nom",
+    "organisation": "Organisation",
+    "done": "Merci - vos changements proposés ont été soumis pour relecture.",
+    "cancel": "Annuler",
+    "continue": "Continuer",
+    "back": "Retour",
+    "submit": "Soumettre",
+    "close": "Fermer"
+  },
+  "questionCard": {
+    "evidence": "Preuves",
+    "clearResponse": "Effacer cette réponse",
+    "noEvidence": "Aucune preuve ajoutée pour l'instant.",
+    "title": "Titre",
+    "titlePlaceholder": "Nom de la loi, de la décision ou du document",
+    "source": "Source",
+    "sourcePlaceholder": "Lien, texte de loi ou référence du document",
+    "notes": "Notes",
+    "removeEvidence": "Supprimer cette preuve",
+    "addEvidence": "Ajouter une preuve"
+  },
+  "adminConsole": {
+    "title": "Console d'administration",
+    "description": "L'ensemble de questions vit ici : modifier le texte et l'impact des questions, ajouter ou supprimer des groupes thématiques et des questions, ajuster les réponses possibles de chaque question, et définir le seuil d'exhaustivité des données utilisé dans toute l'application.",
+    "confirmDeleteSection_one": "Supprimer « {{title}} » et sa {{count}} question ? Cela supprime aussi toute réponse déjà enregistrée pour elles.",
+    "confirmDeleteSection_other": "Supprimer « {{title}} » et ses {{count}} questions ? Cela supprime aussi toute réponse déjà enregistrée pour elles.",
+    "settings": "Paramètres",
+    "suggestions": "Suggestions",
+    "groups": "Groupes",
+    "questionCount_one": "{{count}} question",
+    "questionCount_other": "{{count}} questions",
+    "deleteGroup": "Supprimer ce groupe",
+    "addGroup": "Ajouter un groupe",
+    "thresholdTitle": "Seuil d'exhaustivité des données",
+    "thresholdBody": "Quelle part du poids des questions d'une juridiction doit être répondue avant qu'elle soit colorée sur la carte et classée dans le tableau de bord. En dessous de ce seuil, une juridiction s'affiche en gris et est exclue du classement.",
+    "threshold": "Seuil",
+    "default": "Par défaut",
+    "dangerZone": "Zone à risque",
+    "dangerZoneBody": "Annule chaque modification locale - questions, pondérations, grilles et réponses - et recharge les données publiées. Cette action est irréversible.",
+    "resetEverything": "Tout réinitialiser aux données d'origine",
+    "confirmReset": "Annuler toutes les modifications locales - questions, pondérations, grilles et réponses - et recharger les données publiées ?",
+    "groupName": "Nom du groupe",
+    "rubricIntro": "Les réponses qu'un pays peut choisir pour cette question, et les points que vaut chacune dans son score (0 = ne compte pas, 4 = compte pleinement). L'impact propre de la question, ci-dessus, détermine dans quelle mesure cela compte dans le total général.",
+    "tierScore": "Score {{score}}",
+    "answer": "Réponse",
+    "points": "Points",
+    "removeAnswer": "Supprimer cette réponse",
+    "addAnswer": "Ajouter une réponse",
+    "editedFromShipped": "Modifié par rapport à la version publiée",
+    "addQuestion": "Ajouter une question",
+    "impactfullnessTitle": "Impact : {{label}} ({{weight}})",
+    "impactfullness": "Impact",
+    "question": "Question",
+    "revertQuestion": "Revenir à la version publiée de cette question",
+    "deleteQuestion": "Supprimer cette question",
+    "confirmDeleteQuestion": "Supprimer cette question ? Cela supprime aussi toute réponse déjà enregistrée pour elle."
+  },
+  "suggestionsReview": {
+    "empty": "Aucun changement suggéré pour l'instant. Quand quelqu'un utilise « Soumettre des preuves révisées » sur la page d'un pays, cela apparaît ici pour relecture.",
+    "from": "De :",
+    "organisation": "Organisation :",
+    "changeCount_one": "{{count}} changement",
+    "changeCount_other": "{{count}} changements",
+    "statusPending": "En attente",
+    "statusAccepted": "Accepté",
+    "statusRejected": "Rejeté",
+    "accept": "Accepter",
+    "reject": "Rejeter"
+  },
+  "scrollStory": {
+    "scrollToBegin": "Défilez pour commencer",
+    "readCharter": "Lire la Charte de l'électrification citoyenne",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "skipIntro": "Passer l'introduction",
+    "startExploring": "Commencer à explorer"
+  }
+}

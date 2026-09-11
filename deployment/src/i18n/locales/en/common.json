@@ -1,0 +1,105 @@
+{
+  "appName": "Solar Deployment Explorer",
+  "tagline": "Solar. Storage. Future Secured.",
+  "byGsc": "by The Global Solar Council",
+  "nav": {
+    "takeTheTour": "Take the tour",
+    "takeTheTourShort": "Tour",
+    "help": "Help",
+    "login": "Login",
+    "comingSoon": "Coming soon"
+  },
+  "theme": {
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode"
+  },
+  "ember": {
+    "dataFrom": "Data from"
+  },
+  "toggle": {
+    "list": "List",
+    "map": "Map"
+  },
+  "footer": {
+    "searchPlaceholder": "Search countries"
+  },
+  "metrics": {
+    "capacity": "Installed Capacity",
+    "capacityPerCapita": "Installed Capacity per Capita",
+    "share": "Share of Electricity"
+  },
+  "metricsShort": {
+    "capacity": "Capacity",
+    "capacityPerCapita": "Per Capita",
+    "share": "Share"
+  },
+  "help": {
+    "back": "Back",
+    "title": "How this works"
+  },
+  "scrollStory": {
+    "scrollToBegin": "Scroll to begin",
+    "previous": "Previous",
+    "next": "Next",
+    "skipIntro": "Skip intro",
+    "startExploring": "Start exploring"
+  },
+  "sidebar": {
+    "heading": "Solar Deployment Explorer",
+    "descriptionIntro": "Pick a country on the map or in this list",
+    "descriptionShare": "to see what share of that country's own electricity generation solar provides, year by year.",
+    "descriptionCapacity": "to see how much solar capacity is actually installed there, and how it compares per capita.",
+    "hideFilters": "Hide filters",
+    "filterThisList": "Filter this list",
+    "filter": "Filter",
+    "clear": "Clear",
+    "highToLow": "High to low",
+    "lowToHigh": "Low to high",
+    "continent": "Continent",
+    "allContinents": "All continents",
+    "noMatches": "No jurisdictions match this filter.",
+    "backToRanking": "Back to ranking",
+    "worldBankYear": "World Bank, {{year}}",
+    "population": "Pop. {{value}}M",
+    "open": "Open",
+    "comingSoonLabel": "Coming Soon: {{label}}",
+    "connectWithGscMembers": "Connect with GSC Members",
+    "policyExplorer": "Solar Policy Explorer",
+    "futureGridSimulator": "Future Grid Simulator"
+  },
+  "continents": {
+    "Africa": "Africa",
+    "Asia": "Asia",
+    "Europe": "Europe",
+    "North America": "North America",
+    "South America": "South America",
+    "Oceania": "Oceania"
+  },
+  "map": {
+    "noData": "No data",
+    "share": "{{value}}% of generation",
+    "perCapita": "{{value}} W per capita",
+    "capacity": "{{value}} MW"
+  },
+  "totalTile": {
+    "title": "World total installed",
+    "value": "{{value}} GW",
+    "asOf": "As of {{month}}-{{year}}",
+    "freshnessTooltip": "Some countries' own latest figure is a little older - Ember doesn't publish every country on the same schedule"
+  },
+  "detail": {
+    "installedCapacity": "Installed solar capacity",
+    "asOfMonthEmber": "as of {{month}} {{year}} - Ember",
+    "asOfYearEmber": "as of {{year}} - Ember",
+    "shareOfGeneration": "Solar share of generation",
+    "shareCaption": "of {{year}}'s electricity generation ({{solar}} of {{total}} TWh) - Ember"
+  },
+  "locked": {
+    "heading": "More for GSC members",
+    "membersOnly": "Members only",
+    "workforce": "Workforce",
+    "cost": "Cost",
+    "solarTarget": "Solar target",
+    "auctionPrice": "Auction price"
+  }
+}

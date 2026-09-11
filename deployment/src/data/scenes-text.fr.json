@@ -1,0 +1,22 @@
+[
+  {
+    "id": 0,
+    "heading": "Bienvenue sur l'Explorateur de Déploiement Solaire",
+    "body": "Découvrez la quantité réelle d'énergie solaire dont disposent les pays."
+  },
+  {
+    "id": 1,
+    "spotlightTag": "Trois vues",
+    "spotlightCaption": "Basculez entre la capacité installée, la capacité par habitant, et la part de l'électricité d'un pays provenant du solaire."
+  },
+  {
+    "id": 2,
+    "spotlightTag": "Choisissez un pays",
+    "spotlightCaption": "Cliquez sur un pays sur la carte, recherchez-en un, ou choisissez-le dans cette liste pour voir ses propres chiffres et son historique."
+  },
+  {
+    "id": 3,
+    "spotlightTag": "Cliquez sur un pays",
+    "spotlightCaption": "Consultez sa capacité installée, sa part de l'électricité, et la population utilisée pour la vue par habitant - avec des liens pour le voir dans les autres outils du GSC."
+  }
+]

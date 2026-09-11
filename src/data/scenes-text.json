@@ -1,0 +1,64 @@
+[
+  {
+    "id": 0,
+    "heading": "Welcome to the Solar Policy Explorer",
+    "body": "Explore the international policy environment for behind-the-meter solar and storage. Identify impactful policy gaps to accelerate the energy transition"
+  },
+  {
+    "id": 1,
+    "heading": "The scoreboard",
+    "body": "Every jurisdiction with data, ranked by how much of the questionnaire is actually answered - not by score, so the thin rows are as visible as the impressive ones.",
+    "spotlightTag": "The scoreboard",
+    "spotlightCaption": "Select a jurisdiction to view its details."
+  },
+  {
+    "id": 2,
+    "spotlightTag": "Search",
+    "spotlightCaption": "Jump straight to a jurisdiction by name, from anywhere on the map."
+  },
+  {
+    "id": 3,
+    "spotlightTag": "Filter and sort",
+    "spotlightCaption": "Narrow the list by continent, country or score band, and change what it's sorted by."
+  },
+  {
+    "id": 5,
+    "spotlightTag": "Summary",
+    "spotlightCaption": "Score and data completeness, broken down by section."
+  },
+  {
+    "id": 6,
+    "spotlightTag": "Policy Wins",
+    "spotlightCaption": "The changes that would raise this jurisdiction's score the most, ranked by weighted points."
+  },
+  {
+    "id": 7,
+    "spotlightTag": "Policy Landscape",
+    "spotlightCaption": "Every question, its rubric, and the evidence behind each answer - editable by anyone."
+  },
+  {
+    "id": 11,
+    "spotlightTag": "Edit an answer",
+    "spotlightCaption": "Click a rubric tier to record what's actually in place, then use Evidence to add the citation behind it - a law, a regulator decision, or a market operator's own data."
+  },
+  {
+    "id": 12,
+    "spotlightTag": "Submit for review",
+    "spotlightCaption": "Bundle everything you've changed this session into one suggestion, with your name and organisation - an admin reviews it before it's accepted or reverted."
+  },
+  {
+    "id": 8,
+    "spotlightTag": "Compare",
+    "spotlightCaption": "Open two jurisdictions side by side, with a shared tab and section selection."
+  },
+  {
+    "id": 9,
+    "spotlightTag": "Read more",
+    "spotlightCaption": "The Charter is under About, how scoring works is in Help - or dig into the question set yourself in the Admin console."
+  },
+  {
+    "id": 10,
+    "heading": "Start exploring",
+    "body": "Pick a jurisdiction, or browse the scoreboard and update missing policy information."
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "title": "Charte de l'électrification citoyenne",
+  "intro": [
+    "Les citoyens et les communautés joueront un rôle de plus en plus déterminant dans la façon dont l'énergie est produite, gérée et partagée, car des ressources énergétiques décentralisées chez le consommateur - solaire, véhicules électriques, batteries - complètent désormais l'approvisionnement issu des ressources à l'échelle du réseau.",
+    "La solution énergétique la moins coûteuse viendra d'un accès équitable pour toutes les ressources énergétiques, de toutes tailles, en concurrence à égalité pour fournir électricité et services réseau. Pour garantir une transition équitable de cette technologie installée en aval du compteur, il faut des politiques adaptées qui suppriment les obstacles inutiles et soutiennent l'action locale.",
+    "Cette Charte définit des principes clairs pour orienter la régulation et la conception du marché afin de garantir un accès équitable pour tous les actifs. Il s'agit de liberté de choix, d'équité, et de garantir le coût global le plus bas pour la fourniture d'énergie - en reconnaissant que les citoyens seront au cœur de la transition énergétique."
+  ],
+  "rights": [
+    {
+      "heading": "Le droit de choisir",
+      "body": "Chacun a le droit inhérent de choisir la source de son électricité, y compris un droit explicite à un approvisionnement 100 % bas carbone. Ce choix doit être rendu possible par des données ouvertes et un financement abordable."
+    },
+    {
+      "heading": "Le droit de se raccorder",
+      "body": "Chacun a le droit d'installer en toute sécurité une technologie permettant de produire, utiliser, autoconsommer et stocker de l'électricité bas carbone, sans pénalité. L'autorisation et le raccordement des équipements en aval du compteur doivent être gratuits, simples et efficaces."
+    },
+    {
+      "heading": "Le droit à une juste rémunération",
+      "body": "Chacun a le droit d'être rémunéré pour la valeur qu'il apporte au réseau. La technologie en aval du compteur doit bénéficier des mêmes droits d'accès au marché que toute technologie en amont du compteur. Tous les mécanismes de marché doivent rémunérer chacun à des prix transparents et équitables, avec un accès au marché simple."
+    }
+  ]
+}

@@ -117,20 +117,24 @@
   main {
     position: relative;
     z-index: 1;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(230px, 300px));
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: clamp(18px, 2.5vw, 28px);
     width: 100%;
-    max-width: 1380px;
+    max-width: 1040px;
   }
 
-  @media (max-width: 1240px) {
-    main { grid-template-columns: repeat(2, minmax(280px, 380px)); max-width: 720px; }
+  .tile { flex: 0 0 300px; max-width: 300px; }
+
+  @media (max-width: 960px) {
+    main { max-width: 720px; }
+    .tile { flex: 0 0 380px; max-width: 380px; }
   }
 
   @media (max-width: 620px) {
-    main { grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+    main { max-width: 420px; }
+    .tile { flex-basis: 100%; max-width: none; }
   }
 
   .tile {
@@ -165,7 +169,7 @@
   .tile.deployment h2 { color: var(--peach-dark); }
   .tile.grid h2 { color: var(--citrus-dark); }
   .tile.policy h2 { color: var(--aqua-dark); }
-  .tile.economics h2 { color: #6B7280; }
+  .tile.disabled h2 { color: #6B7280; }
 
   .tile p.body {
     flex: 1 0 auto;
@@ -215,33 +219,35 @@
   .tile.policy .secondary { color: var(--aqua-dark); }
   .secondary:hover { text-decoration: underline; }
 
-  /* Not open yet - greyed out, static, no hover affordance or working link. */
-  .tile.economics {
+  /* Not open yet - greyed out, static, no hover affordance or working link.
+     Shared by every not-yet-built tile (Solar Economics Explorer, Solar
+     Savings Calculator) rather than duplicated per tile. */
+  .tile.disabled {
     cursor: default;
     filter: grayscale(1);
   }
 
-  .tile.economics:hover {
+  .tile.disabled:hover {
     transform: none;
     box-shadow: 0 8px 32px rgba(0,0,0,0.35);
   }
 
-  .tile.economics .cta {
+  .tile.disabled .cta {
     background: #E5E7EB;
     color: #6B7280;
   }
 
-  .tile.economics:hover .cta {
+  .tile.disabled:hover .cta {
     filter: none;
     transform: none;
   }
 
-  .tile.economics .secondary {
+  .tile.disabled .secondary {
     color: #9CA3AF;
     cursor: default;
   }
 
-  .tile.economics .secondary:hover { text-decoration: none; }
+  .tile.disabled .secondary:hover { text-decoration: none; }
 </style>
 </head>
 <body>
@@ -281,7 +287,7 @@
 
     <div class="tile grid">
       <h2>Future Grid<br />Simulator</h2>
-      <p class="body">Explore the role solar + storage can play in different energy environments. Simulate a different electric future</p>
+      <p class="body">Explore the role solar + storage can play in different electricity grids. Simulate a different electric future</p>
       <div class="actions">
         <a class="cta" href="https://futuregridsimulator.globalsolarcouncil.org/" aria-label="Explore the Future Grid Simulator">
           Explore
@@ -291,9 +297,18 @@
       </div>
     </div>
 
-    <div class="tile economics" aria-disabled="true">
+    <div class="tile economics disabled" aria-disabled="true">
       <h2>Solar Economics<br />Explorer</h2>
       <p class="body">Explore the costs of solar and storage vs grid electricity in different energy environments.</p>
+      <div class="actions">
+        <span class="cta">Coming soon</span>
+        <span class="secondary">Take the tour</span>
+      </div>
+    </div>
+
+    <div class="tile savings disabled" aria-disabled="true">
+      <h2>Solar Savings<br />Calculator</h2>
+      <p class="body">Estimate the benefits from solar and storage in any jurisdiction.</p>
       <div class="actions">
         <span class="cta">Coming soon</span>
         <span class="secondary">Take the tour</span>

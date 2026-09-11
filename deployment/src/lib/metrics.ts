@@ -11,18 +11,13 @@ import { populationMillions } from "./population";
  */
 export type Metric = "capacity" | "capacityPerCapita" | "share";
 
-export const METRIC_LABELS: Record<Metric, string> = {
-  capacity: "Installed Capacity",
-  capacityPerCapita: "Installed Capacity per Capita",
-  share: "Share of Electricity",
-};
-
-/** Same three metrics, short enough for the footer's ToggleButtonGroup on a phone - "Installed Capacity per Capita" alone is wider than most phone screens. Added 2026-09-10 building the mobile layout. */
-export const METRIC_SHORT_LABELS: Record<Metric, string> = {
-  capacity: "Capacity",
-  capacityPerCapita: "Per Capita",
-  share: "Share",
-};
+// Labels for these three used to live here as plain Record<Metric, string>
+// constants (METRIC_LABELS/METRIC_SHORT_LABELS) - moved into i18next's
+// `metrics`/`metricsShort` keys 2026-09-11 (see i18n/locales/*/common.json)
+// as part of this app's localisation setup, so App.tsx and
+// DeploymentMap.tsx now call `t(\`metrics.${metric}\`)` /
+// `t(\`metricsShort.${metric}\`)` directly instead of importing a lookup
+// table from here.
 
 /** Every country the active metric's underlying dataset actually covers. */
 export function codesForMetric(metric: Metric): string[] {

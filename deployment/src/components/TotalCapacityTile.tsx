@@ -1,8 +1,8 @@
 import { Box, Tooltip, Typography, useTheme } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import { latestSolarMonth, totalInstalledGW } from "../lib/emberSolar";
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+import { monthAbbrev } from "../lib/formatMonth";
 
 /**
  * Small floating headline-stat card, bottom-left of the map - opposite
@@ -12,6 +12,7 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  * the world, not a reading of whichever view is currently selected.
  */
 export default function TotalCapacityTile() {
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const totalGW = totalInstalledGW();
   const { year, month } = latestSolarMonth();
@@ -55,18 +56,18 @@ export default function TotalCapacityTile() {
           mb: 0.25,
         }}
       >
-        World total installed
+        {t("totalTile.title")}
       </Typography>
       <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "primary.dark", lineHeight: 1.2 }}>
-        {totalGW.toLocaleString(undefined, { maximumFractionDigits: 0 })} GW
+        {t("totalTile.value", { value: totalGW.toLocaleString(undefined, { maximumFractionDigits: 0 }) })}
       </Typography>
       {/* Not every country's own latest figure is this recent - Ember
           doesn't publish all 25 on the same schedule - so this is the
           freshest the total ever gets, not a guarantee for every country's
           contribution. Worth a tooltip, not a paragraph on the tile itself. */}
-      <Tooltip title="Some countries' own latest figure is a little older - Ember doesn't publish every country on the same schedule">
+      <Tooltip title={t("totalTile.freshnessTooltip")}>
         <Typography sx={{ fontSize: "0.6875rem", color: "text.secondary", mt: 0.25, cursor: "default" }}>
-          As of {MONTHS[month - 1]}-{year}
+          {t("totalTile.asOf", { month: monthAbbrev(month, i18n.language), year })}
         </Typography>
       </Tooltip>
     </Box>

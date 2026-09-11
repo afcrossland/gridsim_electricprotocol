@@ -1,0 +1,26 @@
+[
+  {
+    "heading": "De quoi il s'agit",
+    "body": "Explorateur de Politiques Solaires note les pays, états et provinces selon le Protocole Électrique - un ensemble de questions de politique publique évaluant la facilité, pour les foyers et entreprises ordinaires, de produire, stocker et vendre leur propre énergie."
+  },
+  {
+    "heading": "Les questions",
+    "body": "Les questions sont regroupées par thème. Chaque question a un score d'impact (son poids dans le total) et un petit ensemble de réponses possibles décrivant ce qui est réellement en place, de \"non en place\" à \"pleinement en place\"."
+  },
+  {
+    "heading": "Score",
+    "body": "Le score d'une juridiction est la part pondérée de ce qui est en place, parmi les questions effectivement répondues - puis réduit selon la part du questionnaire réellement complétée. Une juridiction ne peut donc pas obtenir un score élevé en ne répondant qu'à quelques-unes de ses meilleures questions ; une couverture large et honnête l'emporte sur quelques réponses triées sur le volet. Les scores sont présentés selon l'une de cinq bandes, de Très inefficace à Très efficace, avec le pourcentage à côté pour qui veut le détail."
+  },
+  {
+    "heading": "Exhaustivité des données",
+    "body": "Une mesure distincte du score : la part de questions répondues, quel que soit leur résultat. Une juridiction avec trop peu de données affiche \"données insuffisantes\" plutôt qu'un score, afin qu'un manque de recherche ne soit jamais confondu avec une mauvaise politique."
+  },
+  {
+    "heading": "Preuves",
+    "body": "Chaque réponse doit s'appuyer sur une source réelle - une loi, une décision d'un régulateur, ou les données propres d'un opérateur de marché. Les réponses indiquent aussi à quel point la preuve s'applique directement (une source nationale prime sur une référence européenne générale, elle-même prime sur un indicateur statistique générique) et le degré d'autorité de la source elle-même."
+  },
+  {
+    "heading": "Juridictions",
+    "body": "La plupart des lignes sont des pays. Quelques-unes (les États-Unis, l'Australie, le Canada) sont présentées par leurs états ou provinces, la politique y variant trop pour être moyennée en un seul score national. L'Union européenne apparaît comme une ligne consolidée unique dans le classement, bien que chaque État membre conserve sa propre page de juridiction complète."
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": 0,
+    "heading": "Welcome to the Solar Deployment Explorer",
+    "body": "See how much solar power countries really have."
+  },
+  {
+    "id": 1,
+    "spotlightTag": "Three views",
+    "spotlightCaption": "Switch between installed capacity, capacity per person, and how much of a country's electricity comes from solar."
+  },
+  {
+    "id": 2,
+    "spotlightTag": "Pick a country",
+    "spotlightCaption": "Click a country on the map, search for one, or pick from this list to see its own numbers and history."
+  },
+  {
+    "id": 3,
+    "spotlightTag": "Click a country",
+    "spotlightCaption": "See its installed capacity, its share of electricity, and the population used for the per-person view - plus links to see it in the other GSC tools."
+  }
+]

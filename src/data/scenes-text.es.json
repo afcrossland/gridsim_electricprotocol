@@ -1,0 +1,64 @@
+[
+  {
+    "id": 0,
+    "heading": "Bienvenido al Explorador de Políticas Solares",
+    "body": "Explora el entorno de política internacional para el solar y almacenamiento detrás del contador. Identifica lagunas de política con impacto real para acelerar la transición energética"
+  },
+  {
+    "id": 1,
+    "heading": "El ranking",
+    "body": "Cada jurisdicción con datos, clasificada por cuánto del cuestionario se ha respondido realmente, no por puntuación, para que las filas más escasas sean tan visibles como las más destacadas.",
+    "spotlightTag": "El ranking",
+    "spotlightCaption": "Selecciona una jurisdicción para ver sus detalles."
+  },
+  {
+    "id": 2,
+    "spotlightTag": "Buscar",
+    "spotlightCaption": "Ve directamente a una jurisdicción por su nombre, desde cualquier punto del mapa."
+  },
+  {
+    "id": 3,
+    "spotlightTag": "Filtrar y ordenar",
+    "spotlightCaption": "Reduce la lista por continente, país o banda de puntuación, y cambia el criterio de orden."
+  },
+  {
+    "id": 5,
+    "spotlightTag": "Resumen",
+    "spotlightCaption": "Puntuación y cobertura de datos, desglosadas por sección."
+  },
+  {
+    "id": 6,
+    "spotlightTag": "Logros de política",
+    "spotlightCaption": "Los cambios que más elevarían la puntuación de esta jurisdicción, clasificados por puntos ponderados."
+  },
+  {
+    "id": 7,
+    "spotlightTag": "Panorama de política",
+    "spotlightCaption": "Cada pregunta, su rúbrica, y la evidencia detrás de cada respuesta - editable por cualquiera."
+  },
+  {
+    "id": 11,
+    "spotlightTag": "Editar una respuesta",
+    "spotlightCaption": "Haz clic en un nivel de la rúbrica para registrar lo que realmente está vigente, y luego usa Evidencia para añadir la cita que lo respalda - una ley, una decisión regulatoria, o los datos propios de un operador de mercado."
+  },
+  {
+    "id": 12,
+    "spotlightTag": "Enviar para revisión",
+    "spotlightCaption": "Agrupa todo lo que has cambiado en esta sesión en una sola sugerencia, con tu nombre y organización - un administrador la revisa antes de aceptarla o revertirla."
+  },
+  {
+    "id": 8,
+    "spotlightTag": "Comparar",
+    "spotlightCaption": "Abre dos jurisdicciones una al lado de la otra, con una pestaña y sección compartidas."
+  },
+  {
+    "id": 9,
+    "spotlightTag": "Leer más",
+    "spotlightCaption": "La Carta está en Acerca de, cómo funciona la puntuación está en Ayuda, o explora tú mismo el conjunto de preguntas en la Consola de administración."
+  },
+  {
+    "id": 10,
+    "heading": "Empieza a explorar",
+    "body": "Elige una jurisdicción, o navega por el ranking y actualiza la información de política que falte."
+  }
+]

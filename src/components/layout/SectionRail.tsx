@@ -1,4 +1,5 @@
 import { Box, Button, CircularProgress, Tooltip, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import type { Section } from "../../lib/types";
 
@@ -27,11 +28,12 @@ const RAIL_WIDTH = 232;
  * single most important thing to find and a rail item was not visible enough.
  */
 export default function SectionRail({ sections, selected, onSelect, horizontal, pendingCount, onSubmit }: Props) {
+  const { t } = useTranslation();
   const submitButton = (
-    <Tooltip title={pendingCount === 0 ? "Change an answer or its evidence first" : ""}>
+    <Tooltip title={pendingCount === 0 ? t("sectionRail.changeFirst") : ""}>
       <span>
         <Button size="small" variant="outlined" disabled={pendingCount === 0} onClick={onSubmit} fullWidth>
-          Submit revised evidence{pendingCount > 0 ? ` (${pendingCount})` : ""}
+          {pendingCount > 0 ? t("sectionRail.submitCount", { count: pendingCount }) : t("sectionRail.submit")}
         </Button>
       </span>
     </Tooltip>
@@ -80,7 +82,7 @@ export default function SectionRail({ sections, selected, onSelect, horizontal, 
 
       <Box sx={{ flex: 1, overflowY: "auto", py: 1 }}>
         <Typography variant="overline" sx={{ display: "block", px: 2, pt: 1, pb: 0.5 }}>
-          Sections
+          {t("sectionRail.sections")}
         </Typography>
 
         {sections.map((section) => (

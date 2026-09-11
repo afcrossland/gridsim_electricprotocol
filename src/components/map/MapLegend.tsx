@@ -1,4 +1,5 @@
 import { Box, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import { SCORE_RAMP } from "../../lib/scoring";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -9,6 +10,7 @@ import { useProtocolStore } from "../../stores/protocolStore";
  * in the bottom toolbar (see App.tsx), not here.
  */
 export default function MapLegend() {
+  const { t } = useTranslation();
   const metric = useProtocolStore((s) => s.mapMetric);
   const showingScore = metric === "score";
   const theme = useTheme();
@@ -95,7 +97,7 @@ export default function MapLegend() {
           lineHeight: 1.3,
         }}
       >
-        {showingScore ? "Protocol score" : "Questions answered, by weight"}
+        {showingScore ? t("legend.protocolScore") : t("legend.questionsAnswered")}
       </Typography>
 
       {/* Smooth gradient bar, matching Deployment Explorer's own MapLegend.tsx

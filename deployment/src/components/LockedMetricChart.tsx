@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import LockIcon from "@mui/icons-material/Lock";
+import { useTranslation } from "react-i18next";
 
 import TimeseriesChart, { type TimeseriesPoint } from "./TimeseriesChart";
 
@@ -19,6 +20,7 @@ interface Props {
  * begin with.
  */
 export default function LockedMetricChart({ title, points, color }: Props) {
+  const { t } = useTranslation();
   return (
     <Box sx={{ borderRadius: "12px", border: "1px solid", borderColor: "divider", p: 1.5 }}>
       <Typography variant="overline" sx={{ display: "block", color: "text.secondary" }}>
@@ -42,7 +44,7 @@ export default function LockedMetricChart({ title, points, color }: Props) {
         >
           <LockIcon sx={{ fontSize: 18, color: "text.secondary" }} />
           <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary" }}>
-            Members only
+            {t("locked.membersOnly")}
           </Typography>
         </Box>
       </Box>

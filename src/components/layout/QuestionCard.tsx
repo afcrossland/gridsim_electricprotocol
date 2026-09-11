@@ -17,6 +17,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import { useTranslation } from "react-i18next";
 
 import type { Question, Response } from "../../lib/types";
 import { impactColor, impactLabel, impactTextColor } from "../../lib/scoring";
@@ -69,6 +70,7 @@ const SELECTED_TINT = "rgba(251, 177, 20, 0.12)";
  * the question currently says.
  */
 export default function QuestionCard({ question, response, code, compareEntries = [], editMode = false }: Props) {
+  const { t, i18n } = useTranslation();
   const setResponse = useProtocolStore((s) => s.setResponse);
   const deleteResponse = useProtocolStore((s) => s.deleteResponse);
   const addEvidence = useProtocolStore((s) => s.addEvidence);
@@ -112,7 +114,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
 
         <Chip
           size="small"
-          label={`Impactfullness: ${impactLabel(question.weight)}`}
+          label={t("impactList.impactfullness", { label: impactLabel(question.weight, i18n.language) })}
           sx={{
             bgcolor: impactColor(question.weight),
             color: impactTextColor(question.weight),
@@ -182,7 +184,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
                       ?.map((e) => e.title)
                       .filter(Boolean)
                       .join(", ");
-                    const tooltip = `${entry.name ?? qualifiedName(entry.code)}${evidenceTitles ? ` - ${evidenceTitles}` : ""}`;
+                    const tooltip = `${entry.name ?? qualifiedName(entry.code, i18n.language)}${evidenceTitles ? ` - ${evidenceTitles}` : ""}`;
                     return (
                       <Tooltip key={entry.code} title={tooltip}>
                         <Box
@@ -223,12 +225,12 @@ export default function QuestionCard({ question, response, code, compareEntries 
                 />
               }
             >
-              Evidence
+              {t("questionCard.evidence")}
             </Button>
 
             <Box sx={{ flex: 1 }} />
             {editMode && (
-              <Tooltip title="Clear this response">
+              <Tooltip title={t("questionCard.clearResponse")}>
                 <IconButton size="small" onClick={() => deleteResponse(code, question.id)}>
                   <RestartAltIcon fontSize="small" />
                 </IconButton>
@@ -240,7 +242,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
             <Stack spacing={1.5} sx={{ mt: 1 }}>
               {(response.evidence?.length ?? 0) === 0 && (
                 <Typography variant="body2" color="text.secondary">
-                  No evidence added yet.
+                  {t("questionCard.noEvidence")}
                 </Typography>
               )}
 
@@ -257,12 +259,16 @@ export default function QuestionCard({ question, response, code, compareEntries 
                     alignItems: "flex-start",
                   }}
                 >
+                  {/* TODO: title/note are free text, may be written in a
+                      researcher's own local language - no translate-to-
+                      English mechanism exists yet. See EvidenceItem's own
+                      doc comment in lib/types.ts. */}
                   <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
                     <TextField
                       fullWidth
                       size="small"
-                      label="Title"
-                      placeholder="Name of the law, decision or document"
+                      label={t("questionCard.title")}
+                      placeholder={t("questionCard.titlePlaceholder")}
                       value={item.title}
                       slotProps={{ input: { readOnly: !editMode } }}
                       onChange={(e) =>
@@ -272,8 +278,8 @@ export default function QuestionCard({ question, response, code, compareEntries 
                     <TextField
                       fullWidth
                       size="small"
-                      label="Source"
-                      placeholder="Link, statute or document reference"
+                      label={t("questionCard.source")}
+                      placeholder={t("questionCard.sourcePlaceholder")}
                       value={item.source}
                       slotProps={{ input: { readOnly: !editMode } }}
                       onChange={(e) =>
@@ -285,7 +291,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
                       multiline
                       minRows={2}
                       size="small"
-                      label="Notes"
+                      label={t("questionCard.notes")}
                       value={item.note}
                       slotProps={{ input: { readOnly: !editMode } }}
                       onChange={(e) =>
@@ -294,7 +300,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
                     />
                   </Stack>
                   {editMode && (
-                    <Tooltip title="Remove this evidence">
+                    <Tooltip title={t("questionCard.removeEvidence")}>
                       <IconButton size="small" onClick={() => removeEvidence(code, question.id, i)}>
                         <DeleteOutlineIcon fontSize="small" />
                       </IconButton>
@@ -310,7 +316,7 @@ export default function QuestionCard({ question, response, code, compareEntries 
                   sx={{ alignSelf: "flex-start" }}
                   onClick={() => addEvidence(code, question.id)}
                 >
-                  Add evidence
+                  {t("questionCard.addEvidence")}
                 </Button>
               )}
             </Stack>

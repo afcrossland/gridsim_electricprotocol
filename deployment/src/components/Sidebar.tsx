@@ -19,6 +19,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { useTranslation } from "react-i18next";
 
 import CountryDetail from "./CountryDetail";
 import GenerationDetail from "./GenerationDetail";
@@ -34,6 +35,8 @@ interface Props {
   metric: Metric;
   selectedCountry: string | null;
   onSelect: (code: string | null) => void;
+  /** Hides the "Solar Deployment Explorer" heading below - only on mobile, where it sits directly under TopNavbar's own copy of the same title and reads as an immediate duplicate. On desktop the sidebar is beside the map, not under the header, so the heading still earns its place there. */
+  isMobile?: boolean;
 }
 
 /**
@@ -46,6 +49,7 @@ interface Props {
  * colour. Opens in a new tab since it leaves this app entirely.
  */
 function CrossLinkTile({ href, label, accent }: { href: string; label: string; accent: string }) {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -86,7 +90,7 @@ function CrossLinkTile({ href, label, accent }: { href: string; label: string; a
           "&:hover": { filter: "brightness(1.08)" },
         }}
       >
-        Open
+        {t("sidebar.open")}
         <OpenInNewIcon sx={{ fontSize: 14 }} />
       </Box>
     </Box>
@@ -101,6 +105,7 @@ function CrossLinkTile({ href, label, accent }: { href: string; label: string; a
  * greyed-out Solar Economics Explorer tile (`index.html`'s `.tile.economics`).
  */
 function ComingSoonTile({ label }: { label: string }) {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -113,7 +118,7 @@ function ComingSoonTile({ label }: { label: string }) {
       }}
     >
       <Typography sx={{ fontWeight: 700, fontSize: "0.75rem", color: "text.disabled" }}>
-        Coming Soon: {label}
+        {t("sidebar.comingSoonLabel", { label })}
       </Typography>
     </Box>
   );
@@ -139,7 +144,8 @@ const PANEL_SX = {
  * per-country detail view yet to justify splitting them) - a country's own
  * row is what drives both browsing and selecting one on the map.
  */
-export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
+export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }: Props) {
+  const { t, i18n } = useTranslation();
   const [continents, setContinents] = useState<string[]>([]);
   const [desc, setDesc] = useState(true);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
@@ -149,14 +155,14 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
     return codesForMetric(metric)
       .map((code) => ({
         code,
-        name: jurisdictionName(code),
+        name: jurisdictionName(code, i18n.language),
         continent: continentOf(code),
         value: valueForMetric(code, metric),
       }))
       .filter((r) => continents.length === 0 || (r.continent && continents.includes(r.continent)))
       .filter((r) => r.value !== null)
       .sort((a, b) => (desc ? b.value! - a.value! : a.value! - b.value!));
-  }, [metric, continents, desc]);
+  }, [metric, continents, desc, i18n.language]);
 
   // A country with a real Ember history for either dataset swaps the whole
   // sidebar over to its timeseries (capacity section, then generation-mix
@@ -172,26 +178,26 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
     return (
       <Box data-tour="country-detail" sx={PANEL_SX}>
         <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1, borderBottom: "1px solid", borderColor: "divider" }}>
-          <Tooltip title="Back to ranking">
+          <Tooltip title={t("sidebar.backToRanking")}>
             <IconButton size="small" onClick={() => onSelect(null)}>
               <ArrowBackIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <FlagImg code={selectedCountry} size={22} />
           <Typography variant="h2" sx={{ fontSize: "1.125rem", flex: 1, minWidth: 0 }} noWrap>
-            {jurisdictionName(selectedCountry)}
+            {jurisdictionName(selectedCountry, i18n.language)}
           </Typography>
           {/* The population figure the per-capita metric actually divides
               by - shown here rather than only implied by the map, since a
               per-capita reading is meaningless without knowing the
               assumption behind it. See lib/population.ts / World Bank. */}
           {selectedPopulation && (
-            <Tooltip title={`World Bank, ${selectedPopulation.year}`}>
+            <Tooltip title={t("sidebar.worldBankYear", { year: selectedPopulation.year })}>
               <Typography
                 variant="caption"
                 sx={{ color: "text.secondary", flexShrink: 0, whiteSpace: "nowrap" }}
               >
-                Pop. {selectedPopulation.populationMillions.toLocaleString()}M
+                {t("sidebar.population", { value: selectedPopulation.populationMillions.toLocaleString() })}
               </Typography>
             </Tooltip>
           )}
@@ -208,17 +214,17 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
           <Box sx={{ display: "flex", gap: 1 }}>
             <CrossLinkTile
               href={`${import.meta.env.BASE_URL}policy/?country=${selectedCountry}`}
-              label="Solar Policy Explorer"
+              label={t("sidebar.policyExplorer")}
               accent="#008194"
             />
             <CrossLinkTile
               href="https://futuregridsimulator.globalsolarcouncil.org/"
-              label="Future Grid Simulator"
+              label={t("sidebar.futureGridSimulator")}
               accent="#C98600"
             />
           </Box>
 
-          <ComingSoonTile label="Connect with GSC Members" />
+          <ComingSoonTile label={t("sidebar.connectWithGscMembers")} />
 
           {selectedEmberCountry && <CountryDetail country={selectedEmberCountry} />}
           {selectedGenerationCountry && <GenerationDetail country={selectedGenerationCountry} />}
@@ -232,14 +238,20 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
   return (
     <Box sx={PANEL_SX}>
       <Box sx={{ p: 2, pb: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
-        {/* No "Solar Deployment Explorer" heading here any more - dropped
-            2026-09-10 per Andrew's instruction, it duplicated the app's own
-            title in TopNavbar.tsx right above it. */}
+        {/* Hidden on mobile only - dropped there 2026-09-10 per Andrew's
+            instruction (it duplicated TopNavbar.tsx's own title right
+            above it on that layout); kept on desktop, where the sidebar
+            sits beside the map rather than under the header, so it isn't
+            an immediate duplicate there. Restored 2026-09-11 after being
+            dropped from both layouts by mistake. */}
+        {!isMobile && (
+          <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "text.primary", lineHeight: 1.2, mb: 0.5 }}>
+            {t("sidebar.heading")}
+          </Typography>
+        )}
         <Typography variant="body2" sx={{ mb: 1.5 }}>
-          <strong>Pick a country on the map or in this list</strong> to see{" "}
-          {metric === "share"
-            ? "what share of that country's own electricity generation solar provides, year by year."
-            : "how much solar capacity is actually installed there, and how it compares per capita."}
+          <strong>{t("sidebar.descriptionIntro")}</strong>{" "}
+          {metric === "share" ? t("sidebar.descriptionShare") : t("sidebar.descriptionCapacity")}
         </Typography>
 
         {/* Same collapsed-by-default filter pattern as ep_policymap's
@@ -247,7 +259,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
             Clear button once something's actually set, sort direction on
             the right. */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <Tooltip title={filtersExpanded ? "Hide filters" : "Filter this list"}>
+          <Tooltip title={filtersExpanded ? t("sidebar.hideFilters") : t("sidebar.filterThisList")}>
             <IconButton size="small" onClick={() => setFiltersExpanded((v) => !v)}>
               <Badge color="primary" variant="dot" invisible={!filtersActive}>
                 <FilterListIcon fontSize="small" />
@@ -259,17 +271,17 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
             onClick={() => setFiltersExpanded((v) => !v)}
             sx={{ cursor: "pointer", userSelect: "none" }}
           >
-            Filter
+            {t("sidebar.filter")}
           </Typography>
           {filtersActive && (
             <Button size="small" onClick={() => setContinents([])} sx={{ fontWeight: 400 }}>
-              Clear
+              {t("sidebar.clear")}
             </Button>
           )}
 
           <Box sx={{ flex: 1 }} />
 
-          <Tooltip title={desc ? "High to low" : "Low to high"}>
+          <Tooltip title={desc ? t("sidebar.highToLow") : t("sidebar.lowToHigh")}>
             <IconButton size="small" onClick={() => setDesc((v) => !v)}>
               {desc ? <ArrowDownwardIcon fontSize="small" /> : <ArrowUpwardIcon fontSize="small" />}
             </IconButton>
@@ -290,7 +302,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
             <TextField
               select
               size="small"
-              label="Continent"
+              label={t("sidebar.continent")}
               value={continents}
               onChange={(e) => {
                 const value = e.target.value;
@@ -299,8 +311,15 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
               slotProps={{
                 select: {
                   multiple: true,
+                  // Selected values stay the raw English CONTINENTS strings
+                  // (continentOf()/matching logic depends on that), only the
+                  // rendered label is translated - t() with no matching key
+                  // falls back to the raw key, but every value here always
+                  // has one (see the `continents` block in common.json).
                   renderValue: (selected) =>
-                    (selected as string[]).length > 0 ? (selected as string[]).join(", ") : "All continents",
+                    (selected as string[]).length > 0
+                      ? (selected as string[]).map((c) => t(`continents.${c}`)).join(", ")
+                      : t("sidebar.allContinents"),
                 },
               }}
               sx={{ minWidth: 220, width: "100%" }}
@@ -314,7 +333,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
                     size="small"
                     sx={{ mr: 1 }}
                   />
-                  {c}
+                  {t(`continents.${c}`)}
                 </MenuItem>
               ))}
             </TextField>
@@ -371,7 +390,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect }: Props) {
         </Stack>
         {rows.length === 0 && (
           <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-            No jurisdictions match this filter.
+            {t("sidebar.noMatches")}
           </Typography>
         )}
       </Box>

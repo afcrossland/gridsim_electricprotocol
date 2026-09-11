@@ -19,6 +19,7 @@ import DownloadIcon from "@mui/icons-material/DownloadOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import { useTranslation } from "react-i18next";
 
 import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors";
 import { rankImpact, scoreLabel, scoreSections, scoreTextColor } from "../../lib/scoring";
@@ -96,6 +97,7 @@ export default function CountryPanel({
   inlineCompare,
   allScores,
 }: Props) {
+  const { t, i18n } = useTranslation();
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
@@ -295,7 +297,7 @@ export default function CountryPanel({
           }}
         >
           {onBack && (
-            <Tooltip title="Back to scoreboard">
+            <Tooltip title={t("countryPanel.backToScoreboard")}>
               <IconButton size="small" onClick={onBack}>
                 <ArrowBackIcon fontSize="small" />
               </IconButton>
@@ -313,8 +315,8 @@ export default function CountryPanel({
                   size="small"
                   icon={<TrendingUpIcon fontSize="small" />}
                   color={score.ranked ? scoreTextColor(score.score) : theme.palette.text.disabled}
-                  label="Score"
-                  value={score.ranked ? scoreLabel(score.score) : "N/A"}
+                  label={t("countryPanel.score")}
+                  value={score.ranked ? scoreLabel(score.score, i18n.language) : t("countryPanel.notApplicable")}
                 />
               </Box>
               <Box sx={{ flexShrink: 0 }}>
@@ -322,14 +324,14 @@ export default function CountryPanel({
                   size="small"
                   icon={<FactCheckIcon fontSize="small" />}
                   color={theme.palette.primary.main}
-                  label="Data completeness"
+                  label={t("countryPanel.dataCompleteness")}
                   value={`${Math.round(score.completeness * 100)}%`}
                 />
               </Box>
             </>
           )}
 
-          <Tooltip title={editMode ? "Finish editing" : "Edit this jurisdiction's answers"}>
+          <Tooltip title={editMode ? t("countryPanel.finishEditing") : t("countryPanel.editAnswers")}>
             <Button
               size="small"
               variant={editMode ? "contained" : "outlined"}
@@ -337,7 +339,7 @@ export default function CountryPanel({
               onClick={() => setEditMode((v) => !v)}
               sx={{ flexShrink: 0 }}
             >
-              {editMode ? "Done" : "Edit"}
+              {editMode ? t("countryPanel.done") : t("countryPanel.edit")}
             </Button>
           </Tooltip>
 
@@ -351,14 +353,14 @@ export default function CountryPanel({
                 size="small"
                 icon={<TrendingUpIcon fontSize="small" />}
                 color={score.ranked ? scoreTextColor(score.score) : theme.palette.text.disabled}
-                label="Score"
-                value={score.ranked ? scoreLabel(score.score) : "N/A"}
+                label={t("countryPanel.score")}
+                value={score.ranked ? scoreLabel(score.score, i18n.language) : t("countryPanel.notApplicable")}
               />
               <StatTile
                 size="small"
                 icon={<FactCheckIcon fontSize="small" />}
                 color={theme.palette.primary.main}
-                label="Data completeness"
+                label={t("countryPanel.dataCompleteness")}
                 value={`${Math.round(score.completeness * 100)}%`}
               />
             </Box>
@@ -389,9 +391,9 @@ export default function CountryPanel({
           allowScrollButtonsMobile
           sx={{ minWidth: 0, visibility: hideTabs ? "hidden" : "visible" }}
         >
-          <Tab value={WINDROSE} label="Summary" />
-          <Tab value={IMPACT} label="Policy Wins" />
-          <Tab value={SECTIONS} label="Policy Landscape" />
+          <Tab value={WINDROSE} label={t("countryPanel.tabSummary")} />
+          <Tab value={IMPACT} label={t("countryPanel.tabPolicyWins")} />
+          <Tab value={SECTIONS} label={t("countryPanel.tabPolicyLandscape")} />
         </Tabs>
       </Box>
 
@@ -435,7 +437,7 @@ export default function CountryPanel({
             onClick={handleDownloadReport}
             sx={{ flexShrink: 0 }}
           >
-            {buildingReport ? "Building report..." : "Download report"}
+            {buildingReport ? t("countryPanel.buildingReport") : t("countryPanel.downloadReport")}
           </Button>
         </Box>
       </Collapse>
@@ -461,9 +463,7 @@ export default function CountryPanel({
           {tab === WINDROSE ? (
             <>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                How {score.name} scores in each area, and how much of it is
-                backed by evidence. A dashed marker just means there isn't
-                enough data yet - not a score of zero.
+                {t("countryPanel.windroseIntro", { name: score.name })}
               </Typography>
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
                 <Box
@@ -477,7 +477,7 @@ export default function CountryPanel({
                   }}
                 >
                   <Typography variant="overline" sx={{ display: "block", color: "primary.dark" }}>
-                    Score
+                    {t("countryPanel.score")}
                   </Typography>
                   <SectionWindrose
                     sections={sectionScores}
@@ -497,7 +497,7 @@ export default function CountryPanel({
                   }}
                 >
                   <Typography variant="overline" sx={{ display: "block", color: "primary.dark" }}>
-                    Data completeness
+                    {t("countryPanel.dataCompleteness")}
                   </Typography>
                   <SectionWindrose
                     sections={sectionScores}
@@ -511,7 +511,7 @@ export default function CountryPanel({
           ) : tab === IMPACT ? (
             <>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                Biggest policy wins based on policy score and evidence provided.
+                {t("countryPanel.impactIntro")}
               </Typography>
               <ImpactList items={impact} limit={20} />
             </>

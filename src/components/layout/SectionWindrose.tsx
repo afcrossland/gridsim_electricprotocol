@@ -1,4 +1,5 @@
 import { Box, Typography, useTheme } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import { PRIMARY_SERIES_COLOR, compareColorFor } from "../../lib/compareColors";
 import type { CountryScore, Section } from "../../lib/types";
@@ -100,20 +101,21 @@ function knownOfScore(score: CountryScore, metric: "score" | "completeness"): bo
  * from lib/compareColors.ts - validated for categorical/CVD separation, not
  * this app's usual brand aqua (see that file's doc comment for why).
  */
-export default function SectionWindrose({ sections, metric, compareSeries, primaryLabel = "This jurisdiction" }: Props) {
+export default function SectionWindrose({ sections, metric, compareSeries, primaryLabel }: Props) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const n = sections.length;
   if (n < 2) return null;
 
   const gridColor = theme.palette.divider;
   const labelColor = theme.palette.text.secondary;
-  const noun = metric === "completeness" ? "Data completeness" : "Score";
+  const noun = metric === "completeness" ? t("countryPanel.dataCompleteness") : t("countryPanel.score");
 
   const compareMode = Boolean(compareSeries && compareSeries.length > 0);
 
   if (compareMode) {
     const series = [
-      { code: "__primary", label: primaryLabel, color: PRIMARY_SERIES_COLOR, sections },
+      { code: "__primary", label: primaryLabel ?? t("windrose.thisJurisdiction"), color: PRIMARY_SERIES_COLOR, sections },
       ...compareSeries!.map((s, i) => ({ ...s, color: compareColorFor(i) })),
     ];
 
@@ -138,7 +140,7 @@ export default function SectionWindrose({ sections, metric, compareSeries, prima
             viewBox={`0 0 ${SIZE} ${SIZE}`}
             style={{ width: "100%", maxWidth: DISPLAY_WIDTH, height: "auto" }}
             role="img"
-            aria-label={`${noun} by section, compared across ${series.length} jurisdictions`}
+            aria-label={t("windrose.ariaCompare", { noun, count: series.length })}
           >
             {RINGS.map((level) => (
               <circle
@@ -166,7 +168,13 @@ export default function SectionWindrose({ sections, metric, compareSeries, prima
                 const p = pointAt(angle, radius);
                 return known ? (
                   <circle key={`${s.code}-${i}`} cx={p.x} cy={p.y} r={3} fill={s.color}>
-                    <title>{`${s.label} - ${sections[i].section.title}: ${Math.round(valueOfScore(score, metric) * 100)}%`}</title>
+                    <title>
+                      {t("windrose.tooltipValue", {
+                        label: s.label,
+                        section: sections[i].section.title,
+                        value: Math.round(valueOfScore(score, metric) * 100),
+                      })}
+                    </title>
                   </circle>
                 ) : (
                   <circle
@@ -179,7 +187,13 @@ export default function SectionWindrose({ sections, metric, compareSeries, prima
                     strokeWidth={1.5}
                     strokeDasharray="1.5,1.5"
                   >
-                    <title>{`${s.label} - ${sections[i].section.title}: not enough data`}</title>
+                    <title>
+                      {t("windrose.tooltipNotEnoughData", {
+                        label: s.label,
+                        section: sections[i].section.title,
+                        notEnoughData: t("windrose.notEnoughData"),
+                      })}
+                    </title>
                   </circle>
                 );
               }),
@@ -233,7 +247,7 @@ export default function SectionWindrose({ sections, metric, compareSeries, prima
           viewBox={`0 0 ${SIZE} ${SIZE}`}
           style={{ width: "100%", maxWidth: DISPLAY_WIDTH, height: "auto" }}
           role="img"
-          aria-label={`${noun} by section`}
+          aria-label={t("windrose.aria", { noun })}
         >
           {/* Grid rings for scale reference. */}
           {RINGS.map((level) => (
@@ -255,7 +269,12 @@ export default function SectionWindrose({ sections, metric, compareSeries, prima
             if (known) {
               return (
                 <path key={seg.key} d={wedgePath(seg.angle, seg.halfWidth, barRadius)} fill={seriesColor} fillOpacity={0.85}>
-                  <title>{`${seg.title}: ${Math.round(valueOfScore(seg.score, metric) * 100)}%`}</title>
+                  <title>
+                    {t("windrose.tooltipValueSingle", {
+                      section: seg.title,
+                      value: Math.round(valueOfScore(seg.score, metric) * 100),
+                    })}
+                  </title>
                 </path>
               );
             }
@@ -275,7 +294,9 @@ export default function SectionWindrose({ sections, metric, compareSeries, prima
                 strokeWidth={1.5}
                 strokeDasharray="2,2"
               >
-                <title>{`${seg.title}: not enough data`}</title>
+                <title>
+                  {t("windrose.tooltipNotEnoughDataSingle", { section: seg.title, notEnoughData: t("windrose.notEnoughData") })}
+                </title>
               </circle>
             );
           })}

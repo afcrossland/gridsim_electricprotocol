@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
+import { useTranslation } from "react-i18next";
 
 import CountrySearch from "./components/CountrySearch";
 import DeploymentMap from "./components/DeploymentMap";
@@ -10,7 +11,7 @@ import LanguageSwitcher from "./components/LanguageSwitcher";
 import Sidebar from "./components/Sidebar";
 import TopNavbar from "./components/TopNavbar";
 import ScrollStory from "./scrollstory/ScrollStory";
-import { METRIC_LABELS, METRIC_SHORT_LABELS, type Metric } from "./lib/metrics";
+import { type Metric } from "./lib/metrics";
 
 interface Props {
   mode: PaletteMode;
@@ -22,6 +23,7 @@ const TOUR_SEEN_KEY = "deployment-tour-seen";
 const SIDEBAR_WIDTH = 460;
 
 export default function App({ mode, setMode }: Props) {
+  const { t } = useTranslation();
   // One three-way selector, not a view+basis pair - see the plan in
   // README.md. Replaced the old separate view/basis toggles 2026-09-09 per
   // Andrew's instruction.
@@ -100,7 +102,9 @@ export default function App({ mode, setMode }: Props) {
       hideLegend={heroScene}
     />
   );
-  const list = <Sidebar metric={metric} selectedCountry={selectedCountry} onSelect={setSelectedCountry} />;
+  const list = (
+    <Sidebar metric={metric} selectedCountry={selectedCountry} onSelect={setSelectedCountry} isMobile={isMobile} />
+  );
 
   return (
     <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
@@ -146,10 +150,10 @@ export default function App({ mode, setMode }: Props) {
                     onChange={(_, next) => next && setMobileView(next)}
                   >
                     <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                      List
+                      {t("toggle.list")}
                     </ToggleButton>
                     <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                      Map
+                      {t("toggle.map")}
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Box>
@@ -215,7 +219,7 @@ export default function App({ mode, setMode }: Props) {
                 >
                   {METRICS.map((m) => (
                     <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
-                      {isMobile ? METRIC_SHORT_LABELS[m] : METRIC_LABELS[m]}
+                      {isMobile ? t(`metricsShort.${m}`) : t(`metrics.${m}`)}
                     </ToggleButton>
                   ))}
                 </ToggleButtonGroup>

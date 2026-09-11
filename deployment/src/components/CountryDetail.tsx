@@ -1,9 +1,9 @@
 import { Box, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import TimeseriesChart from "./TimeseriesChart";
 import type { EmberCountry } from "../lib/emberSolar";
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+import { monthAbbrev } from "../lib/formatMonth";
 
 interface Props {
   country: EmberCountry;
@@ -21,21 +21,26 @@ interface Props {
  * headline reads "as of YYYY", not a specific month it doesn't have.
  */
 export default function CountryDetail({ country }: Props) {
+  const { t, i18n } = useTranslation();
+
   if (country.granularity === "monthly") {
     const { series } = country;
     const latest = series[series.length - 1];
-    const points = series.map((p) => ({ value: p.gw, label: `${MONTHS[p.month - 1]} ${p.year}` }));
+    const points = series.map((p) => ({
+      value: p.gw,
+      label: `${monthAbbrev(p.month, i18n.language)} ${p.year}`,
+    }));
 
     return (
       <Box>
         <Typography variant="overline" sx={{ display: "block", color: "text.secondary" }}>
-          Installed solar capacity
+          {t("detail.installedCapacity")}
         </Typography>
         <Typography sx={{ fontSize: "1.75rem", fontWeight: 700, color: "primary.dark", lineHeight: 1.2 }}>
           {latest.gw.toLocaleString()} GW
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          as of {MONTHS[latest.month - 1]} {latest.year} - Ember
+          {t("detail.asOfMonthEmber", { month: monthAbbrev(latest.month, i18n.language), year: latest.year })}
         </Typography>
 
         <TimeseriesChart points={points} />
@@ -50,13 +55,13 @@ export default function CountryDetail({ country }: Props) {
   return (
     <Box>
       <Typography variant="overline" sx={{ display: "block", color: "text.secondary" }}>
-        Installed solar capacity
+        {t("detail.installedCapacity")}
       </Typography>
       <Typography sx={{ fontSize: "1.75rem", fontWeight: 700, color: "primary.dark", lineHeight: 1.2 }}>
         {latest.gw.toLocaleString()} GW
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        as of {latest.year} - Ember
+        {t("detail.asOfYearEmber", { year: latest.year })}
       </Typography>
 
       <TimeseriesChart points={points} />

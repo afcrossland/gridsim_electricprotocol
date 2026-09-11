@@ -471,6 +471,136 @@ Solar Policy Explorer, Future Grid Simulator, then the still-greyed-out
 Solar Economics Explorer last. Pure markup reorder in the static HTML, no
 component involved.
 
+## Localization
+
+Added 2026-09-11, matching the sibling `gridsim-frontend` project's own
+setup: `i18next` + `react-i18next`, one dependency in the root
+`package.json` shared by both apps (see `vite.config.ts`'s multi-entry
+build) but **two separate `i18n/` setups** - `src/i18n/` (Policy Explorer)
+and `deployment/src/i18n/` (Deployment Explorer) - matching how every other
+concept these two apps have in common
+(`CountrySearch`/`JurisdictionSearch`, `EmberBadge`, `LanguageSwitcher`
+itself) is already duplicated per-app rather than shared cross-tree.
+
+Each app's `i18n/index.ts` exports `SUPPORTED_LANGUAGES` (currently `["en",
+"es", "fr"]` in both), `DEFAULT_LANGUAGE`, and a `resources` object built
+from `i18n/locales/<lng>/common.json`. Longer, structured Help-page content
+is **not** flat translation keys - it's per-language JSON
+(`src/data/help-content.json` + `.es.json`/`.fr.json`) loaded through
+`i18n/help.ts`'s `getHelpContent(language)`, same reasoning as gridsim's
+own `src/i18n/help.ts`: headings/lists/bold-terms/links don't fit a single
+flat string per key.
+
+**What's converted, as of 2026-09-11**: everything in both apps except
+Policy Explorer's PDF report (`CountryReportDocument.tsx`), the one thing
+Andrew explicitly deferred. That includes both apps' nav bars, footers,
+`LanguageSwitcher.tsx` (a real switcher now, not the single-item stub it
+used to be), `HelpPage.tsx`, every jurisdiction (country/state) name
+everywhere it's shown, both apps' scroll-story onboarding tours
+(`scrollstory/`), Deployment Explorer's `Sidebar.tsx`/`CountryDetail.tsx`/
+`GenerationDetail.tsx`/`TotalCapacityTile.tsx`/the locked teaser charts, and
+Policy Explorer's `Scoreboard.tsx`/`ScoreboardFilters.tsx`,
+`CountryPanel.tsx` and its child components (`ImpactList.tsx`,
+`SectionWindrose.tsx`, `ComparePicker.tsx`, `SectionRail.tsx`,
+`SubmitSuggestionDialog.tsx`), `QuestionCard.tsx`, `AdminConsole.tsx`/
+`SuggestionsReview.tsx`, `MapLegend.tsx`, `WelcomeModal.tsx`, and the
+Citizens Electrification Charter itself.
+
+A few mechanisms worth knowing about, beyond plain `t("key")` lookups:
+
+- **Jurisdiction names** don't use `i18next` at all - `jurisdictionName`/
+  `qualifiedName` (`lib/jurisdictions.ts` in both apps) take an optional
+  `language` argument and resolve a plain country code through the
+  browser's own `Intl.DisplayNames` (`{type: "region"}`) - zero
+  translation data to maintain, confirmed directly (not assumed) to cover
+  every non-subdivision code in both apps' `jurisdictions.json`, including
+  edge cases like `XK` (Kosovo), `EU`, `TW`, `VA`, `MF`/`SX` (the two
+  halves of Saint Martin). The ~80 ISO 3166-2-style subdivision codes (US
+  states, Canadian provinces, Australian states/territories, France's
+  overseas exclaves, the Canary Islands, Svalbard/Jan Mayen) have no such
+  browser API, so those are hand-translated in `data/subdivision-names.json`
+  (identical file, copied between both apps - their subdivision code sets
+  match).
+- **Month abbreviations** (Deployment Explorer's total-capacity tile and
+  country-detail charts) go through the same idea - `monthAbbrev()`
+  (`deployment/src/lib/formatMonth.ts`) wraps a cached
+  `Intl.DateTimeFormat` per language rather than a hand-translated months
+  array.
+- **Score/impact band labels** ("Very ineffective"/"Moderate"/etc, "Very
+  low"/"High"/etc) are used as filter *values* in several places
+  (`ScoreboardFilters.tsx`'s band chips, `scoreboardFilters.ts`'s
+  `matchesFilters`), not just display text, so they can't simply become
+  translated strings outright - `SCORE_BANDS`/`IMPACT_BANDS` keep their
+  plain English `label`, and `bandLabelText()`/`impactLabel(weight,
+  language)` in `lib/scoring.ts` are the display-only translation for
+  wherever a band's name is actually shown to a reader (same "raw value
+  for logic, translated label for display" split as the continent
+  filters). The EU political-bloc row on Policy Explorer's Scoreboard -
+  not a real jurisdiction, so it doesn't go through `jurisdictionName` -
+  has its own tiny `BLOC_NAMES` map next to `POLITICAL_BLOCS`.
+- **The Citizens Electrification Charter** moved from a single English
+  `CHARTER` export (`data/charter.ts`, deleted) to the same structured
+  per-language JSON pattern as the Help page - `data/charter.json` +
+  `.es.json`/`.fr.json`, loaded through `i18n/charter.ts`'s
+  `getCharter(language)`. Shared verbatim between `HelpPage.tsx` and
+  `WelcomeModal.tsx`, so it only has one language to be in at a time.
+- **The scroll-story tours** (`scrollstory/scenes.ts` in both apps) keep
+  their existing `SCENES` array as pure structure - ids, layout, which
+  live element each scene spotlights, which country/tab it selects -
+  since none of that changes between languages. Only the text (each
+  scene's `heading`/`body`, and its spotlight's `tag`/`caption`) is
+  per-language JSON (`data/scenes-text.json` + `.es.json`/`.fr.json`, one
+  entry per scene id, only the fields that scene actually uses), merged
+  onto the base `SCENES` by `i18n/scenes.ts`'s `getScenes(language)` -
+  `ScrollStory.tsx` calls that instead of importing `SCENES` directly.
+
+**Not converted, deliberately**:
+- Policy Explorer's PDF report (`CountryReportDocument.tsx`) - explicitly
+  out of scope per Andrew's own instruction, not an oversight.
+  `impactLabel`/`scoreLabel` etc. all default to `language = "en"`, which
+  is what the PDF's own calls (no language argument) still resolve to.
+- `CompareView.tsx` (Policy Explorer) - imported by `App.tsx` but not
+  reachable from the UI (a legacy full-screen compare view, kept
+  compiling rather than deleted - see its own doc comment). Left
+  untranslated since nothing currently renders it.
+- The UN-subregion labels used to group both apps' search dropdowns
+  (`Jurisdiction.region`, e.g. "Northern Europe") - no client-side API
+  covers UN M49 subregion names the way `Intl.DisplayNames` covers
+  countries, so translating these would mean another hand-translated data
+  file; not done yet.
+- Evidence text (`EvidenceItem.title`/`.note`, entered via
+  `QuestionCard.tsx`) - deliberately never translated. See that type's own
+  doc comment in `lib/types.ts`: it's free text a researcher may write in
+  their own local language, a different problem from this app's own
+  authored UI strings.
+
+To add a language to either app: create `i18n/locales/<lng>/common.json`
+(same keys as `en`) and `data/help-content.<lng>.json` (same shape as
+`help-content.json`), then add both to the `resources`/`HELP_CONTENT` maps
+in that app's `i18n/index.ts`/`i18n/help.ts` and to `SUPPORTED_LANGUAGES`
+and the relevant `LanguageSwitcher.tsx`'s `LANGUAGE_LABELS`.
+
+**Persistence**: Policy Explorer persists the chosen language in
+`protocolStore.ts` (`language` field, same `partialize`/`merge` treatment
+as `mode`) - `setLanguage` both updates the store and calls
+`i18n.changeLanguage`, and `merge` re-applies a returning visitor's saved
+language to the i18next singleton on load (mode doesn't need this, since
+`ThemedApp` reads `mode` fresh from the store every render - i18next has
+its own separate internal state that has to be pushed to explicitly).
+Deployment Explorer has no persisted store, so it reuses the existing
+localStorage-flag precedent (`TOUR_SEEN_KEY`) with its own
+`"deployment-language"` key (`LANGUAGE_KEY` in that app's `i18n/index.ts`),
+read once in `main.tsx` before the app renders.
+
+**Evidence text is a separate, unsolved problem** - `EvidenceItem.title`/
+`.note` in `src/lib/types.ts` (entered via `QuestionCard.tsx`) are free
+text written by whoever researches a jurisdiction, and may be written in
+that researcher's own local language. That's expected and fine, but there
+is currently no mechanism to translate this content to English (a
+translation-API call at submission time, or an on-demand "translate"
+action in a review UI, are both plausible later options) - flagged as a
+TODO on `EvidenceItem`'s own doc comment, not built.
+
 ## Layout
 
 ```

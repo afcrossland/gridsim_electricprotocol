@@ -2,6 +2,7 @@ import { AppBar, Box, Button, IconButton, Toolbar, Tooltip, Typography } from "@
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useTranslation } from "react-i18next";
 
 import { useProtocolStore } from "../../stores/protocolStore";
 
@@ -30,6 +31,7 @@ function navItemSx(active: boolean) {
 }
 
 export default function TopNavbar() {
+  const { t } = useTranslation();
   const setTourSeen = useProtocolStore((s) => s.setTourSeen);
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
@@ -82,12 +84,12 @@ export default function TopNavbar() {
                 lineHeight: 1.2,
               }}
             >
-              Solar Policy Explorer
+              {t("appName")}
             </Typography>
             <Typography sx={{ fontSize: "0.65rem", color: "text.secondary", lineHeight: 1.3, display: { xs: "none", sm: "block" } }}>
-              by The Global Solar Council&ensp;·&ensp;
+              {t("byGsc")}&ensp;·&ensp;
               <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
-                Solar. Storage. Future Secured.
+                {t("tagline")}
               </Box>
             </Typography>
           </Box>
@@ -101,10 +103,10 @@ export default function TopNavbar() {
             <>
               <Box onClick={() => setTourSeen(false)} sx={navItemSx(false)}>
                 <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-                  Take the tour
+                  {t("nav.takeTheTour")}
                 </Box>
                 <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-                  Tour
+                  {t("nav.takeTheTourShort")}
                 </Box>
               </Box>
 
@@ -120,7 +122,7 @@ export default function TopNavbar() {
                 page instead, so it's still readable without the tour. */}
             {page !== "admin" && (
               <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
-                Help
+                {t("nav.help")}
               </Box>
             )}
 
@@ -130,7 +132,7 @@ export default function TopNavbar() {
                 it earns more visual weight. Icon-only on a phone - "Admin
                 console"/"Admin" text left too little room next to the other
                 nav items and the padlock alone is enough to recognise. */}
-            <Tooltip title="Admin console">
+            <Tooltip title={t("nav.adminConsole")}>
               <IconButton
                 onClick={() => setPage(page === "admin" ? "map" : "admin")}
                 sx={{
@@ -156,12 +158,12 @@ export default function TopNavbar() {
               onClick={() => setPage(page === "admin" ? "map" : "admin")}
               sx={{ display: { xs: "none", sm: "inline-flex" }, ml: 1.5 }}
             >
-              Admin console
+              {t("nav.adminConsole")}
             </Button>
           </Box>
         </Box>
 
-        <Tooltip title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+        <Tooltip title={mode === "dark" ? t("theme.switchToLight") : t("theme.switchToDark")}>
           <IconButton size="small" onClick={() => setMode(mode === "dark" ? "light" : "dark")} sx={{ ml: 0.5 }}>
             {mode === "dark" ? <LightModeOutlinedIcon fontSize="small" /> : <DarkModeOutlinedIcon fontSize="small" />}
           </IconButton>

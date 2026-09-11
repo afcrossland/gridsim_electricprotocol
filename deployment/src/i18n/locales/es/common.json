@@ -1,0 +1,105 @@
+{
+  "appName": "Explorador de Despliegue Solar",
+  "tagline": "Solar. Almacenamiento. Futuro asegurado.",
+  "byGsc": "por el Consejo Solar Global",
+  "nav": {
+    "takeTheTour": "Hacer el recorrido",
+    "takeTheTourShort": "Recorrido",
+    "help": "Ayuda",
+    "login": "Iniciar sesión",
+    "comingSoon": "Próximamente"
+  },
+  "theme": {
+    "switchToDark": "Cambiar a modo oscuro",
+    "switchToLight": "Cambiar a modo claro"
+  },
+  "ember": {
+    "dataFrom": "Datos de"
+  },
+  "toggle": {
+    "list": "Lista",
+    "map": "Mapa"
+  },
+  "footer": {
+    "searchPlaceholder": "Buscar países"
+  },
+  "metrics": {
+    "capacity": "Capacidad instalada",
+    "capacityPerCapita": "Capacidad instalada per cápita",
+    "share": "Participación en la electricidad"
+  },
+  "metricsShort": {
+    "capacity": "Capacidad",
+    "capacityPerCapita": "Per cápita",
+    "share": "Participación"
+  },
+  "help": {
+    "back": "Atrás",
+    "title": "Cómo funciona"
+  },
+  "scrollStory": {
+    "scrollToBegin": "Desplázate para empezar",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "skipIntro": "Saltar introducción",
+    "startExploring": "Empieza a explorar"
+  },
+  "sidebar": {
+    "heading": "Explorador de Despliegue Solar",
+    "descriptionIntro": "Elige un país en el mapa o en esta lista",
+    "descriptionShare": "para ver qué proporción de la propia generación eléctrica de ese país proviene de la energía solar, año a año.",
+    "descriptionCapacity": "para ver cuánta capacidad solar tiene instalada realmente, y cómo se compara per cápita.",
+    "hideFilters": "Ocultar filtros",
+    "filterThisList": "Filtrar esta lista",
+    "filter": "Filtro",
+    "clear": "Borrar",
+    "highToLow": "De mayor a menor",
+    "lowToHigh": "De menor a mayor",
+    "continent": "Continente",
+    "allContinents": "Todos los continentes",
+    "noMatches": "Ninguna jurisdicción coincide con este filtro.",
+    "backToRanking": "Volver a la clasificación",
+    "worldBankYear": "Banco Mundial, {{year}}",
+    "population": "Pob. {{value}} M",
+    "open": "Abrir",
+    "comingSoonLabel": "Próximamente: {{label}}",
+    "connectWithGscMembers": "Conéctate con los miembros del GSC",
+    "policyExplorer": "Explorador de Políticas Solares",
+    "futureGridSimulator": "Simulador de la Red Eléctrica del Futuro"
+  },
+  "continents": {
+    "Africa": "África",
+    "Asia": "Asia",
+    "Europe": "Europa",
+    "North America": "Norteamérica",
+    "South America": "Sudamérica",
+    "Oceania": "Oceanía"
+  },
+  "map": {
+    "noData": "Sin datos",
+    "share": "{{value}}% de la generación",
+    "perCapita": "{{value}} W por habitante",
+    "capacity": "{{value}} MW"
+  },
+  "totalTile": {
+    "title": "Total mundial instalado",
+    "value": "{{value}} GW",
+    "asOf": "A fecha de {{month}}-{{year}}",
+    "freshnessTooltip": "La cifra más reciente de algunos países es un poco más antigua - Ember no publica todos los países según el mismo calendario"
+  },
+  "detail": {
+    "installedCapacity": "Capacidad solar instalada",
+    "asOfMonthEmber": "a fecha de {{month}} {{year}} - Ember",
+    "asOfYearEmber": "a fecha de {{year}} - Ember",
+    "shareOfGeneration": "Participación solar en la generación",
+    "shareCaption": "de la generación eléctrica de {{year}} ({{solar}} de {{total}} TWh) - Ember"
+  },
+  "locked": {
+    "heading": "Más para miembros del GSC",
+    "membersOnly": "Solo para miembros",
+    "workforce": "Empleo",
+    "cost": "Costo",
+    "solarTarget": "Objetivo solar",
+    "auctionPrice": "Precio de subasta"
+  }
+}

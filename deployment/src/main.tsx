@@ -6,7 +6,17 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import App from "./App";
 import { getTheme } from "./mui-theme";
+import i18n, { LANGUAGE_KEY, SUPPORTED_LANGUAGES } from "./i18n";
 import "./index.css";
+
+// No persisted store in this app (see ThemedApp's own comment below) - a
+// returning visitor's language choice lives in localStorage instead, same
+// "plain flag" precedent as App.tsx's own TOUR_SEEN_KEY. Read once, before
+// the app renders, rather than on every load of LanguageSwitcher.tsx.
+const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
+if (savedLanguage && (SUPPORTED_LANGUAGES as readonly string[]).includes(savedLanguage)) {
+  i18n.changeLanguage(savedLanguage);
+}
 
 /**
  * Same shape as ep_policymap's ThemedApp in main.tsx, but with plain

@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 
 import seed from "../data/protocol.seed.json";
 import { sourcedResponses } from "../data/sourcedAnswers";
+import i18n, { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "../i18n";
 import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
 import { resolveTargets } from "../lib/jurisdictions";
 import { DEFAULT_SCOREBOARD_FILTERS, type ScoreboardFilters } from "../lib/scoreboardFilters";
@@ -42,6 +43,8 @@ interface ProtocolState {
   tourSeen: boolean;
   /** Light/dark theme preference - persisted so it survives reload, same treatment as any other user-chosen setting. */
   mode: "light" | "dark";
+  /** UI language - persisted the same way as `mode`. Actually switching i18next's active language is a side effect handled where this is set (see setLanguage and main.tsx), not something the store does itself. */
+  language: string;
   sections: Section[];
   questions: Question[];
   responses: Response[];
@@ -108,6 +111,7 @@ interface ProtocolState {
   setWelcomeSeen: (seen: boolean) => void;
   setTourSeen: (seen: boolean) => void;
   setMode: (mode: "light" | "dark") => void;
+  setLanguage: (language: string) => void;
   selectCountry: (code: string | null) => void;
   setComparing: (comparing: boolean) => void;
   /** No-ops past MAX_COMPARE_COUNTRIES or on a duplicate code. */
@@ -290,6 +294,7 @@ function initialState() {
     welcomeSeen: true,
     tourSeen: false,
     mode: "light" as const,
+    language: DEFAULT_LANGUAGE,
     sections: protocol.sections.map((s) => ({ ...s })),
     questions: protocol.questions.map((q) => ({ ...q })),
     responses: seedResponses(),
@@ -327,6 +332,10 @@ export const useProtocolStore = create<ProtocolState>()(
       setWelcomeSeen: (welcomeSeen) => set({ welcomeSeen }),
       setTourSeen: (tourSeen) => set({ tourSeen }),
       setMode: (mode) => set({ mode }),
+      setLanguage: (language) => {
+        i18n.changeLanguage(language);
+        set({ language });
+      },
       // Picking a jurisdiction - from the map, search, or the scoreboard -
       // always means "look at this one", which is not compatible with
       // whatever compare state was left over from a previous detail view.
@@ -742,6 +751,7 @@ export const useProtocolStore = create<ProtocolState>()(
         welcomeSeen: state.welcomeSeen,
         tourSeen: state.tourSeen,
         mode: state.mode,
+        language: state.language,
         responses: state.responses.filter((r) => !r.seeded),
         questionOverrides: state.questionOverrides,
         sectionOverrides: state.sectionOverrides,
@@ -790,6 +800,19 @@ export const useProtocolStore = create<ProtocolState>()(
         const byKey = new Map<string, Response>();
         for (const r of seedResponses()) byKey.set(`${r.countryCode}|${r.questionId}`, r);
         for (const r of userEntered) byKey.set(`${r.countryCode}|${r.questionId}`, r);
+
+        // i18next is a singleton outside this store - restoring `language`
+        // into the store's own state (below) doesn't by itself change what
+        // i18next actually renders, unlike `mode` (read fresh from the store
+        // every render by ThemedApp). A returning visitor's saved language
+        // needs this explicit push on load; setLanguage handles it for
+        // every later change. Guarded by SUPPORTED_LANGUAGES so a value
+        // saved while a language was offered (es/fr, before Andrew turned
+        // them off in the menu 2026-09-11) doesn't silently keep rendering
+        // in a language the switcher no longer lets anyone choose.
+        if (state.language && (SUPPORTED_LANGUAGES as readonly string[]).includes(state.language)) {
+          i18n.changeLanguage(state.language);
+        }
 
         return {
           ...current,

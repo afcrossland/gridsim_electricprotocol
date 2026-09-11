@@ -1,4 +1,5 @@
 import index from "../data/jurisdictions.json";
+import subdivisionNames from "../data/subdivision-names.json";
 
 export interface Jurisdiction {
   code: string;
@@ -35,8 +36,63 @@ export function getJurisdiction(code: string): Jurisdiction | undefined {
   return byCode.get(code);
 }
 
-export function jurisdictionName(code: string): string {
-  return byCode.get(code)?.name ?? code;
+/**
+ * Cache of one Intl.DisplayNames instance per language - constructing one
+ * isn't free, and every jurisdiction lookup for a given render would
+ * otherwise build a fresh one.
+ */
+const regionDisplayNamesCache = new Map<string, Intl.DisplayNames | null>();
+
+/**
+ * A plain country code's own localised name, straight from the browser's
+ * ICU data - covers every ISO 3166-1-ish code in jurisdictions.json
+ * (confirmed directly, including the non-obvious ones: XK "Kosovo", EU
+ * "European Union", TW, EH, VA, PS, MF, SX, CW, BQ, AX, BL all resolve
+ * correctly in es/fr). Returns null on any miss or unsupported
+ * language/code, so callers can fall back to the English name.
+ */
+function regionDisplayName(code: string, language: string): string | null {
+  let dn = regionDisplayNamesCache.get(language);
+  if (dn === undefined) {
+    try {
+      dn = new Intl.DisplayNames([language], { type: "region" });
+    } catch {
+      dn = null;
+    }
+    regionDisplayNamesCache.set(language, dn);
+  }
+  if (!dn) return null;
+  try {
+    const name = dn.of(code);
+    return name && name !== code ? name : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * `code`'s name in `language` - defaults to "en" (this jurisdiction's own
+ * stored name, unchanged from before this had a language argument at all,
+ * so every pre-existing call site keeps working exactly as it did).
+ *
+ * A plain country code is translated through Intl.DisplayNames (see
+ * regionDisplayName above) - no translation data to maintain, and it
+ * covers every non-subdivision entry in jurisdictions.json. A subdivision
+ * code (US-CA, AU-NSW, ...) has no such API, so those 80 are hand-
+ * translated in data/subdivision-names.json instead. Either path falls
+ * back to the English name on a miss, never to the bare code, for any
+ * language jurisdictions.json doesn't actually need to support yet.
+ */
+export function jurisdictionName(code: string, language = "en"): string {
+  const j = byCode.get(code);
+  if (!j) return code;
+  if (language === "en") return j.name;
+
+  if (code.includes("-")) {
+    const translations = (subdivisionNames as Record<string, Record<string, string>>)[code];
+    return translations?.[language] ?? j.name;
+  }
+  return regionDisplayName(code, language) ?? j.name;
 }
 
 /**
@@ -82,11 +138,12 @@ export function resolveTargets(code: string): string[] {
 }
 
 /** Label showing a subnational jurisdiction in the context of its country. */
-export function qualifiedName(code: string): string {
+export function qualifiedName(code: string, language = "en"): string {
   const j = byCode.get(code);
   if (!j) return code;
-  if (!j.parent) return j.name;
-  return `${j.name}, ${byCode.get(j.parent)?.name ?? j.parent}`;
+  const name = jurisdictionName(code, language);
+  if (!j.parent) return name;
+  return `${name}, ${jurisdictionName(j.parent, language)}`;
 }
 
 /** Options for the Scoreboard's continent filter, in display order. */

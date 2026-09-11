@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import App from "./App";
 import { getTheme } from "./mui-theme";
 import { useProtocolStore } from "./stores/protocolStore";
+import "./i18n";
 import "./index.css";
 
 /**

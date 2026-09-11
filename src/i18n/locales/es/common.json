@@ -1,0 +1,199 @@
+{
+  "appName": "Explorador de Políticas Solares",
+  "tagline": "Solar. Almacenamiento. Futuro asegurado.",
+  "byGsc": "por el Consejo Solar Global",
+  "nav": {
+    "takeTheTour": "Hacer el recorrido",
+    "takeTheTourShort": "Recorrido",
+    "help": "Ayuda",
+    "adminConsole": "Consola de administración"
+  },
+  "footer": {
+    "searchPlaceholder": "Buscar países y estados",
+    "score": "Puntuación",
+    "completeness": "Cobertura de datos"
+  },
+  "theme": {
+    "switchToDark": "Cambiar a modo oscuro",
+    "switchToLight": "Cambiar a modo claro"
+  },
+  "help": {
+    "back": "Atrás",
+    "title": "Cómo funciona"
+  },
+  "legend": {
+    "protocolScore": "Puntuación del protocolo",
+    "questionsAnswered": "Preguntas respondidas, por peso"
+  },
+  "welcome": {
+    "body": "Este sitio puntúa países, estados y provincias frente al Protocolo Eléctrico, el conjunto detallado de preguntas que sustenta la Carta. Elige una jurisdicción en el mapa para ver cómo le va, cuál es la evidencia y qué cambios elevarían más su puntuación.",
+    "return": "Volver"
+  },
+  "scoreboard": {
+    "heading": "Explorador de Políticas",
+    "descriptionIntro": "Elige un país en el mapa o en esta lista",
+    "descriptionRest": "para ver/editar sus respuestas, la evidencia que las respalda y los cambios que más elevarían su puntuación.",
+    "notEnoughDataToScore": "Datos insuficientes para puntuar",
+    "noMatches": "Ninguna jurisdicción coincide con estos filtros.",
+    "filter": "Filtro",
+    "clear": "Borrar",
+    "hideFilters": "Ocultar filtros",
+    "filterThisList": "Filtrar esta lista",
+    "highToLow": "De mayor a menor",
+    "lowToHigh": "De menor a mayor",
+    "continent": "Continente",
+    "allContinents": "Todos los continentes",
+    "countries": "Países",
+    "score": "Puntuación"
+  },
+  "continents": {
+    "Africa": "África",
+    "Asia": "Asia",
+    "Europe": "Europa",
+    "North America": "Norteamérica",
+    "South America": "Sudamérica",
+    "Oceania": "Oceanía"
+  },
+  "map": {
+    "policyScore": "Puntuación de política",
+    "moreDataNeeded": "Se necesitan más datos",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "backToFullMap": "Volver al mapa completo"
+  },
+  "countryPanel": {
+    "backToScoreboard": "Volver al ranking",
+    "score": "Puntuación",
+    "dataCompleteness": "Cobertura de datos",
+    "notApplicable": "N/D",
+    "finishEditing": "Terminar edición",
+    "editAnswers": "Editar las respuestas de esta jurisdicción",
+    "done": "Listo",
+    "edit": "Editar",
+    "tabSummary": "Resumen",
+    "tabPolicyWins": "Logros de política",
+    "tabPolicyLandscape": "Panorama de política",
+    "buildingReport": "Generando informe...",
+    "downloadReport": "Descargar informe",
+    "windroseIntro": "Cómo puntúa {{name}} en cada área, y cuánto de ello está respaldado por evidencia. Un marcador discontinuo solo significa que todavía no hay datos suficientes, no una puntuación de cero.",
+    "impactIntro": "Los mayores logros de política según la puntuación y la evidencia aportada."
+  },
+  "impactList": {
+    "empty": "Nada que mostrar todavía - cada pregunta respondida ya tiene la puntuación máxima, o ninguna se ha respondido. Usa Panorama de política para añadir algunas.",
+    "impactfullness": "Relevancia: {{label}}",
+    "currently": "Actualmente:"
+  },
+  "windrose": {
+    "thisJurisdiction": "Esta jurisdicción",
+    "notEnoughData": "datos insuficientes",
+    "ariaCompare": "{{noun}} por sección, comparado entre {{count}} jurisdicciones",
+    "aria": "{{noun}} por sección",
+    "tooltipValue": "{{label}} - {{section}}: {{value}}%",
+    "tooltipNotEnoughData": "{{label}} - {{section}}: {{notEnoughData}}",
+    "tooltipValueSingle": "{{section}}: {{value}}%",
+    "tooltipNotEnoughDataSingle": "{{section}}: {{notEnoughData}}"
+  },
+  "comparePicker": {
+    "beingCompared": "{{count}}/{{maxCount}} en comparación",
+    "compare": "Comparar",
+    "comparing": "Comparando ({{count}})",
+    "noMatches": "Sin resultados.",
+    "maxReached": "Hasta {{maxCount}} a la vez - elimina uno arriba para añadir otro."
+  },
+  "sectionRail": {
+    "changeFirst": "Cambia primero una respuesta o su evidencia",
+    "submit": "Enviar evidencia revisada",
+    "submitCount": "Enviar evidencia revisada ({{count}})",
+    "sections": "Secciones"
+  },
+  "suggestionDialog": {
+    "title": "Enviar evidencia revisada",
+    "noChanges": "Aún no hay cambios registrados para {{name}} en esta sesión.",
+    "changesCount_one": "{{count}} cambio para {{name}} en esta sesión:",
+    "changesCount_other": "{{count}} cambios para {{name}} en esta sesión:",
+    "missingEvidence_one": "{{count}} respuesta de abajo no ha revisado su evidencia - añade o edita al menos una cita para cada una antes de poder enviarlo.",
+    "missingEvidence_other": "{{count}} respuestas de abajo no han revisado su evidencia - añade o edita al menos una cita para cada una antes de poder enviarlo.",
+    "kindScore": "Respuesta",
+    "kindEvidenceAdded": "Evidencia añadida",
+    "kindEvidenceRemoved": "Evidencia eliminada",
+    "kindEvidenceEdited": "Evidencia editada",
+    "evidenceNotRevised": "Evidencia no revisada",
+    "detailsIntro": "Añade tu nombre y organización para que un revisor sepa quién sugirió esto.",
+    "name": "Nombre",
+    "organisation": "Organización",
+    "done": "Gracias - tus cambios sugeridos se han enviado para revisión.",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "back": "Atrás",
+    "submit": "Enviar",
+    "close": "Cerrar"
+  },
+  "questionCard": {
+    "evidence": "Evidencia",
+    "clearResponse": "Borrar esta respuesta",
+    "noEvidence": "Aún no se ha añadido evidencia.",
+    "title": "Título",
+    "titlePlaceholder": "Nombre de la ley, decisión o documento",
+    "source": "Fuente",
+    "sourcePlaceholder": "Enlace, estatuto o referencia del documento",
+    "notes": "Notas",
+    "removeEvidence": "Eliminar esta evidencia",
+    "addEvidence": "Añadir evidencia"
+  },
+  "adminConsole": {
+    "title": "Consola de administración",
+    "description": "Aquí vive el conjunto de preguntas subyacente: edita el texto e impacto de las preguntas, añade o elimina grupos temáticos y preguntas, ajusta las posibles respuestas de cada pregunta, y configura el umbral de cobertura de datos usado en toda la aplicación.",
+    "confirmDeleteSection_one": "¿Eliminar \"{{title}}\" y su {{count}} pregunta? Esto también elimina cualquier respuesta ya registrada para ellas.",
+    "confirmDeleteSection_other": "¿Eliminar \"{{title}}\" y sus {{count}} preguntas? Esto también elimina cualquier respuesta ya registrada para ellas.",
+    "settings": "Ajustes",
+    "suggestions": "Sugerencias",
+    "groups": "Grupos",
+    "questionCount_one": "{{count}} pregunta",
+    "questionCount_other": "{{count}} preguntas",
+    "deleteGroup": "Eliminar este grupo",
+    "addGroup": "Añadir grupo",
+    "thresholdTitle": "Umbral de cobertura de datos",
+    "thresholdBody": "Cuánto peso de las preguntas de una jurisdicción necesita respuesta antes de que se coloree en el mapa y se clasifique en el ranking. Por debajo de esto, una jurisdicción se muestra en gris y queda fuera del ranking.",
+    "threshold": "Umbral",
+    "default": "Predeterminado",
+    "dangerZone": "Zona de peligro",
+    "dangerZoneBody": "Descarta cada edición local - preguntas, pesos, rúbricas y respuestas - y recarga los datos publicados. Esto no se puede deshacer.",
+    "resetEverything": "Restablecer todo al original",
+    "confirmReset": "¿Descartar todas las ediciones locales - preguntas, pesos, rúbricas y respuestas - y recargar los datos publicados?",
+    "groupName": "Nombre del grupo",
+    "rubricIntro": "Las respuestas que un país puede elegir para esta pregunta, y los puntos que vale cada una hacia su puntuación (0 = no cuenta, 4 = cuenta al completo). La Relevancia propia de la pregunta, arriba, escala cuánto cuenta eso hacia el total general.",
+    "tierScore": "Puntuación {{score}}",
+    "answer": "Respuesta",
+    "points": "Puntos",
+    "removeAnswer": "Eliminar esta respuesta",
+    "addAnswer": "Añadir respuesta",
+    "editedFromShipped": "Editado respecto a la versión publicada",
+    "addQuestion": "Añadir pregunta",
+    "impactfullnessTitle": "Relevancia: {{label}} ({{weight}})",
+    "impactfullness": "Relevancia",
+    "question": "Pregunta",
+    "revertQuestion": "Revertir esta pregunta a la versión publicada",
+    "deleteQuestion": "Eliminar esta pregunta",
+    "confirmDeleteQuestion": "¿Eliminar esta pregunta? Esto también elimina cualquier respuesta ya registrada para ella."
+  },
+  "suggestionsReview": {
+    "empty": "Aún no hay cambios sugeridos. Cuando alguien use \"Enviar evidencia revisada\" en la página de un país, aparecerá aquí para revisión.",
+    "from": "De:",
+    "organisation": "Organización:",
+    "changeCount_one": "{{count}} cambio",
+    "changeCount_other": "{{count}} cambios",
+    "statusPending": "Pendiente",
+    "statusAccepted": "Aceptado",
+    "statusRejected": "Rechazado",
+    "accept": "Aceptar",
+    "reject": "Rechazar"
+  },
+  "scrollStory": {
+    "scrollToBegin": "Desplázate para empezar",
+    "readCharter": "Lee la Carta de Electrificación Ciudadana",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "skipIntro": "Saltar introducción",
+    "startExploring": "Empieza a explorar"
+  }
+}

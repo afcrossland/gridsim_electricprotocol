@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { Autocomplete, Box, Paper, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useTranslation } from "react-i18next";
 
-import { jurisdictions } from "../../lib/jurisdictions";
+import { jurisdictionName, jurisdictions } from "../../lib/jurisdictions";
 import { scoreLabel, scoreTextColor } from "../../lib/scoring";
 import type { CountryScore } from "../../lib/types";
 import FlagImg from "../ui/FlagImg";
@@ -39,6 +40,7 @@ interface Props {
  * list to countries with data would defeat it.
  */
 export default function JurisdictionSearch({ scores, selected, onSelect, disablePortal = true }: Props) {
+  const { t, i18n } = useTranslation();
   const scoreByCode = useMemo(() => new Map(scores.map((s) => [s.code, s])), [scores]);
 
   const options = useMemo<Option[]>(
@@ -47,7 +49,11 @@ export default function JurisdictionSearch({ scores, selected, onSelect, disable
         .filter((j) => j.mappable)
         .map((j) => ({
           code: j.code,
-          label: j.name,
+          label: jurisdictionName(j.code, i18n.language),
+          // `region` is still English-only (a UN sub-region or the parent
+          // country's own build-time name) - no client-side API covers UN
+          // M49 sub-region names the way Intl.DisplayNames covers
+          // countries, so this grouping header is a known, smaller gap.
           group: j.region ?? "Other",
           score: scoreByCode.get(j.code),
         }))
@@ -58,7 +64,7 @@ export default function JurisdictionSearch({ scores, selected, onSelect, disable
             Number(Boolean(b.score?.answered)) - Number(Boolean(a.score?.answered)) ||
             a.label.localeCompare(b.label),
         ),
-    [scoreByCode],
+    [scoreByCode, i18n.language],
   );
 
   const value = options.find((o) => o.code === selected) ?? null;
@@ -125,7 +131,7 @@ export default function JurisdictionSearch({ scores, selected, onSelect, disable
                   }}
                 >
                   {option.score.ranked
-                    ? scoreLabel(option.score.score)
+                    ? scoreLabel(option.score.score, i18n.language)
                     : `${option.score.answered}/${option.score.total}`}
                 </Typography>
               )}
@@ -135,7 +141,7 @@ export default function JurisdictionSearch({ scores, selected, onSelect, disable
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Search countries and states"
+            placeholder={t("footer.searchPlaceholder")}
             variant="standard"
             slotProps={{
               input: {

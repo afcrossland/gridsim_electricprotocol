@@ -1,4 +1,5 @@
 import { Box, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import TimeseriesChart from "./TimeseriesChart";
 import type { GenerationCountry } from "../lib/emberGeneration";
@@ -21,6 +22,7 @@ function formatTWh(value: number): string {
  * alternative full-panel views switched by the active map metric.
  */
 export default function GenerationDetail({ country }: Props) {
+  const { t } = useTranslation();
   const { series } = country;
   const latest = series[series.length - 1];
   const points = series.map((p) => ({ value: p.sharePct, label: String(p.year) }));
@@ -28,14 +30,17 @@ export default function GenerationDetail({ country }: Props) {
   return (
     <Box>
       <Typography variant="overline" sx={{ display: "block", color: "text.secondary" }}>
-        Solar share of generation
+        {t("detail.shareOfGeneration")}
       </Typography>
       <Typography sx={{ fontSize: "1.75rem", fontWeight: 700, color: "primary.dark", lineHeight: 1.2 }}>
         {latest.sharePct.toFixed(1)}%
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        of {latest.year}'s electricity generation ({formatTWh(latest.solarTWh)} of{" "}
-        {formatTWh(latest.totalTWh)} TWh) - Ember
+        {t("detail.shareCaption", {
+          year: latest.year,
+          solar: formatTWh(latest.solarTWh),
+          total: formatTWh(latest.totalTWh),
+        })}
       </Typography>
 
       <TimeseriesChart points={points} />

@@ -1,6 +1,7 @@
 import { Box, Button, Divider, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
-import { CHARTER } from "../../data/charter";
+import { getCharter } from "../../i18n/charter";
 
 interface Props {
   open: boolean;
@@ -15,6 +16,8 @@ interface Props {
  * button in the navbar brings it back.
  */
 export default function WelcomeModal({ open, onClose }: Props) {
+  const { t, i18n } = useTranslation();
+  const CHARTER = getCharter(i18n.language);
   if (!open) return null;
 
   return (
@@ -85,7 +88,7 @@ export default function WelcomeModal({ open, onClose }: Props) {
           />
           <Box>
             <Typography variant="overline" sx={{ display: "block", lineHeight: 1.2 }}>
-              Solar Policy Explorer
+              {t("appName")}
             </Typography>
             <Typography variant="h2">{CHARTER.title}</Typography>
           </Box>
@@ -111,12 +114,7 @@ export default function WelcomeModal({ open, onClose }: Props) {
 
           <Divider sx={{ my: 2.5 }} />
 
-          <Typography variant="body2">
-            This site scores countries, states and provinces against the Electric
-            Protocol - the detailed question set behind the Charter. Pick a
-            jurisdiction on the map to see how it does, what the evidence is, and
-            which changes would raise its score the most.
-          </Typography>
+          <Typography variant="body2">{t("welcome.body")}</Typography>
         </Box>
 
         <Button
@@ -126,7 +124,7 @@ export default function WelcomeModal({ open, onClose }: Props) {
           fullWidth
           sx={{ mt: 3, flexShrink: 0 }}
         >
-          Return
+          {t("welcome.return")}
         </Button>
       </Box>
     </Box>

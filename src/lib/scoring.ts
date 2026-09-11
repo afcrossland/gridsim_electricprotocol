@@ -1,5 +1,5 @@
 import { EU27 } from "../data/sourcedAnswers";
-import { getJurisdiction } from "./jurisdictions";
+import { getJurisdiction, jurisdictionName } from "./jurisdictions";
 import type {
   CountryScore,
   GroupedScore,
@@ -21,6 +21,24 @@ import type {
 const POLITICAL_BLOCS: Record<string, { name: string; members: readonly string[] }> = {
   EU: { name: "European Union", members: EU27 },
 };
+
+/**
+ * `POLITICAL_BLOCS`' own `name` has nowhere to go through
+ * `jurisdictionName`'s Intl.DisplayNames/subdivision-file lookup - "EU" as
+ * a bloc code means something different from "EU" the ISO-ish region code
+ * `jurisdictionName` already handles (that one resolves to "European
+ * Union" too, coincidentally, but this map exists so a future bloc that
+ * doesn't share its code with a real region still translates). Small and
+ * local rather than another data file, since there's only ever been the
+ * one bloc so far.
+ */
+const BLOC_NAMES: Record<string, Record<string, string>> = {
+  EU: { es: "Unión Europea", fr: "Union européenne" },
+};
+
+function blocName(blocCode: string, fallback: string, language: string): string {
+  return BLOC_NAMES[blocCode]?.[language] ?? fallback;
+}
 
 /**
  * Ceiling a rubric tier's `points` can be set to in the admin console, and
@@ -218,7 +236,7 @@ export function rankImpact(
  *   its own) stays a normal top-level row too - see the comment where
  *   `childrenByBloc` is built for why.
  */
-export function groupScores(scores: CountryScore[]): GroupedScore[] {
+export function groupScores(scores: CountryScore[], language = "en"): GroupedScore[] {
   const byCode = new Map(scores.map((s) => [s.code, s]));
   const childrenByParent = new Map<string, CountryScore[]>();
   const hiddenFromTopLevel = new Set<string>();
@@ -281,14 +299,16 @@ export function groupScores(scores: CountryScore[]): GroupedScore[] {
   // CountryScore themselves - their group row is built from the children alone.
   for (const [parentCode, children] of childrenByParent) {
     if (byCode.has(parentCode)) continue;
-    grouped.push(syntheticGroup(parentCode, getJurisdiction(parentCode)?.name ?? parentCode, children));
+    grouped.push(syntheticGroup(parentCode, jurisdictionName(parentCode, language), children));
   }
 
   // Blocs have no jurisdiction entry at all, so this is the only place they
   // are ever produced.
   for (const [blocCode, bloc] of Object.entries(POLITICAL_BLOCS)) {
     const children = childrenByBloc.get(blocCode);
-    if (children && children.length > 0) grouped.push(syntheticGroup(blocCode, bloc.name, children));
+    if (children && children.length > 0) {
+      grouped.push(syntheticGroup(blocCode, blocName(blocCode, bloc.name, language), children));
+    }
   }
 
   return grouped;
@@ -385,9 +405,40 @@ export function scoreTextColor(score: number): string {
   return band.label === "Moderate" ? "#8A6D23" : band.color;
 }
 
+/**
+ * `SCORE_BANDS`' own `label` (and `NOT_ENOUGH_DATA_BAND` in
+ * scoreboardFilters.ts) stay plain English identifiers - they're used as
+ * filter values/matching keys (ScoreboardFilters.tsx's band chips,
+ * scoreboardFilters.ts's `matchesFilters`), not just display text, so
+ * they can't be swapped for a translated string outright. This is the
+ * display-only translation for wherever a band's *name* is actually shown
+ * to a reader - same "raw value for logic, translated label for display"
+ * split as CONTINENTS/Deployment Explorer's own metric keys.
+ */
+const BAND_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
+  "Very ineffective": { es: "Muy ineficaz", fr: "Très inefficace" },
+  Ineffective: { es: "Ineficaz", fr: "Inefficace" },
+  Moderate: { es: "Moderado", fr: "Modéré" },
+  Effective: { es: "Eficaz", fr: "Efficace" },
+  "Very effective": { es: "Muy eficaz", fr: "Très efficace" },
+  // Not a real band - scoreboardFilters.ts's NOT_ENOUGH_DATA_BAND, included
+  // here too so ScoreboardFilters.tsx's band chips can translate every chip
+  // through the same bandLabelText() call regardless of which one it is.
+  "Not enough data": { es: "Datos insuficientes", fr: "Données insuffisantes" },
+};
+
+/** A raw band label (or NOT_ENOUGH_DATA_BAND) translated for display - see BAND_LABEL_TRANSLATIONS above. */
+export function bandLabelText(label: string, language = "en"): string {
+  return BAND_LABEL_TRANSLATIONS[label]?.[language] ?? label;
+}
+
+export function scoreBandLabel(score: number, language = "en"): string {
+  return bandLabelText(scoreBand(score).label, language);
+}
+
 /** "Good (75%)" - the band leads so a reader isn't left comparing two raw numbers, the percentage follows for anyone who wants the detail. */
-export function scoreLabel(score: number): string {
-  return `${scoreBand(score).label} (${Math.round(score * 100)}%)`;
+export function scoreLabel(score: number, language = "en"): string {
+  return `${scoreBandLabel(score, language)} (${Math.round(score * 100)}%)`;
 }
 
 /** Ceiling of the 0-5 impact (question weight) scale editable in the admin console. */
@@ -442,7 +493,20 @@ export function impactBand(weight: number): (typeof IMPACT_BANDS)[number] {
   return chosen;
 }
 
-/** "Very low" - see IMPACT_BANDS for why this replaces the raw weight in the UI. */
-export function impactLabel(weight: number): string {
-  return impactBand(weight).label;
+// Same "raw value for logic, translated label for display" split as
+// BAND_LABEL_TRANSLATIONS above - impactBand(weight).label itself stays
+// English (nothing currently keys off it the way score bands are used as
+// filter values, but keeping the pattern consistent costs nothing).
+const IMPACT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
+  "Very low": { es: "Muy bajo", fr: "Très faible" },
+  Low: { es: "Bajo", fr: "Faible" },
+  Moderate: { es: "Moderado", fr: "Modéré" },
+  High: { es: "Alto", fr: "Élevé" },
+  "Very high": { es: "Muy alto", fr: "Très élevé" },
+};
+
+/** "Very low" - see IMPACT_BANDS for why this replaces the raw weight in the UI. Defaults to "en" - PDF export (CountryReportDocument.tsx) calls this with no language and stays English. */
+export function impactLabel(weight: number, language = "en"): string {
+  const label = impactBand(weight).label;
+  return IMPACT_LABEL_TRANSLATIONS[label]?.[language] ?? label;
 }

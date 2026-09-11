@@ -1,0 +1,64 @@
+[
+  {
+    "id": 0,
+    "heading": "Bienvenue sur l'Explorateur de Politiques Solaires",
+    "body": "Explorez l'environnement politique international pour le solaire et le stockage en aval du compteur. Identifiez les lacunes politiques à fort impact pour accélérer la transition énergétique"
+  },
+  {
+    "id": 1,
+    "heading": "Le classement",
+    "body": "Chaque juridiction disposant de données, classée selon la part du questionnaire réellement répondue - pas selon le score, pour que les lignes les plus modestes soient aussi visibles que les plus impressionnantes.",
+    "spotlightTag": "Le classement",
+    "spotlightCaption": "Sélectionnez une juridiction pour voir ses détails."
+  },
+  {
+    "id": 2,
+    "spotlightTag": "Recherche",
+    "spotlightCaption": "Accédez directement à une juridiction par son nom, depuis n'importe où sur la carte."
+  },
+  {
+    "id": 3,
+    "spotlightTag": "Filtrer et trier",
+    "spotlightCaption": "Réduisez la liste par continent, pays ou bande de score, et changez le critère de tri."
+  },
+  {
+    "id": 5,
+    "spotlightTag": "Résumé",
+    "spotlightCaption": "Score et exhaustivité des données, détaillés par section."
+  },
+  {
+    "id": 6,
+    "spotlightTag": "Avancées politiques",
+    "spotlightCaption": "Les changements qui feraient le plus progresser le score de cette juridiction, classés par points pondérés."
+  },
+  {
+    "id": 7,
+    "spotlightTag": "Paysage politique",
+    "spotlightCaption": "Chaque question, sa grille de notation, et les preuves derrière chaque réponse - modifiable par tous."
+  },
+  {
+    "id": 11,
+    "spotlightTag": "Modifier une réponse",
+    "spotlightCaption": "Cliquez sur un niveau de la grille pour enregistrer ce qui est réellement en place, puis utilisez Preuves pour ajouter la citation qui l'étaye - une loi, une décision d'un régulateur, ou les données propres d'un opérateur de marché."
+  },
+  {
+    "id": 12,
+    "spotlightTag": "Soumettre pour relecture",
+    "spotlightCaption": "Regroupez tout ce que vous avez modifié durant cette session en une seule suggestion, avec votre nom et votre organisation - un administrateur la relit avant de l'accepter ou de l'annuler."
+  },
+  {
+    "id": 8,
+    "spotlightTag": "Comparer",
+    "spotlightCaption": "Ouvrez deux juridictions côte à côte, avec un onglet et une section partagés."
+  },
+  {
+    "id": 9,
+    "spotlightTag": "En savoir plus",
+    "spotlightCaption": "La Charte se trouve sous À propos, le fonctionnement du score est dans Aide - ou explorez vous-même l'ensemble des questions dans la Console d'administration."
+  },
+  {
+    "id": 10,
+    "heading": "Commencer à explorer",
+    "body": "Choisissez une juridiction, ou parcourez le classement et complétez les informations politiques manquantes."
+  }
+]

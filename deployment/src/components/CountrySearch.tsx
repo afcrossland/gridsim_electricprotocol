@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { Autocomplete, Box, Paper, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useTranslation } from "react-i18next";
 
 import FlagImg from "./FlagImg";
-import { jurisdictions } from "../lib/jurisdictions";
+import { jurisdictionName, jurisdictions } from "../lib/jurisdictions";
 import { EMBER_SOLAR } from "../lib/emberSolar";
 import { EMBER_GENERATION } from "../lib/emberGeneration";
 
@@ -26,13 +27,18 @@ interface Props {
  * either real Ember dataset actually covers it.
  */
 export default function CountrySearch({ selected, onSelect }: Props) {
+  const { t, i18n } = useTranslation();
   const options = useMemo<Option[]>(
     () =>
       jurisdictions
         .filter((j) => j.mappable)
         .map((j) => ({
           code: j.code,
-          label: j.name,
+          label: jurisdictionName(j.code, i18n.language),
+          // `region` is still English-only (a UN sub-region or the parent
+          // country's own build-time name) - no client-side API covers UN
+          // M49 sub-region names the way Intl.DisplayNames covers
+          // countries, so this grouping header is a known, smaller gap.
           group: j.region ?? "Other",
           hasData: j.code in EMBER_SOLAR || j.code in EMBER_GENERATION,
         }))
@@ -40,7 +46,7 @@ export default function CountrySearch({ selected, onSelect }: Props) {
           (a, b) =>
             a.group.localeCompare(b.group) || Number(b.hasData) - Number(a.hasData) || a.label.localeCompare(b.label),
         ),
-    [],
+    [i18n.language],
   );
 
   const value = options.find((o) => o.code === selected) ?? null;
@@ -86,7 +92,7 @@ export default function CountrySearch({ selected, onSelect }: Props) {
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Search countries"
+            placeholder={t("footer.searchPlaceholder")}
             variant="standard"
             slotProps={{
               input: {

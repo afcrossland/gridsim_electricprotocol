@@ -14,8 +14,9 @@ import {
 } from "@mui/material";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import SearchIcon from "@mui/icons-material/Search";
+import { useTranslation } from "react-i18next";
 
-import { jurisdictions } from "../../lib/jurisdictions";
+import { jurisdictionName, jurisdictions } from "../../lib/jurisdictions";
 import type { CountryScore } from "../../lib/types";
 import FlagImg from "../ui/FlagImg";
 
@@ -44,6 +45,7 @@ interface Props {
  * is obvious even with several picked.
  */
 export default function ComparePicker({ primaryCode, allScores, compareEntries, maxCount, onAdd, onRemove }: Props) {
+  const { t, i18n } = useTranslation();
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [query, setQuery] = useState("");
 
@@ -54,9 +56,10 @@ export default function ComparePicker({ primaryCode, allScores, compareEntries, 
     () =>
       jurisdictions
         .filter((j) => j.mappable && j.code !== primaryCode && !comparedCodes.has(j.code))
+        .map((j) => ({ code: j.code, name: jurisdictionName(j.code, i18n.language) }))
         .filter((j) => j.name.toLowerCase().includes(query.trim().toLowerCase()))
         .sort((a, b) => a.name.localeCompare(b.name)),
-    [primaryCode, comparedCodes, query],
+    [primaryCode, comparedCodes, query, i18n.language],
   );
 
   const atMax = compareEntries.length >= maxCount;
@@ -68,14 +71,16 @@ export default function ComparePicker({ primaryCode, allScores, compareEntries, 
 
   return (
     <>
-      <Tooltip title={compareEntries.length === 0 ? "" : `${compareEntries.length}/${maxCount} being compared`}>
+      <Tooltip
+        title={compareEntries.length === 0 ? "" : t("comparePicker.beingCompared", { count: compareEntries.length, maxCount })}
+      >
         <Button
           size="small"
           data-tour="compare-button"
           startIcon={<CompareArrowsIcon fontSize="small" />}
           onClick={(e) => setAnchor(e.currentTarget)}
         >
-          {compareEntries.length === 0 ? "Compare" : `Comparing (${compareEntries.length})`}
+          {compareEntries.length === 0 ? t("comparePicker.compare") : t("comparePicker.comparing", { count: compareEntries.length })}
         </Button>
       </Tooltip>
 
@@ -93,7 +98,7 @@ export default function ComparePicker({ primaryCode, allScores, compareEntries, 
               variant="standard"
               fullWidth
               autoFocus
-              placeholder="Search countries and states"
+              placeholder={t("footer.searchPlaceholder")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               slotProps={{
@@ -136,7 +141,7 @@ export default function ComparePicker({ primaryCode, allScores, compareEntries, 
 
             {candidates.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-                No matches.
+                {t("comparePicker.noMatches")}
               </Typography>
             ) : (
               candidates.map((j) => {
@@ -160,7 +165,7 @@ export default function ComparePicker({ primaryCode, allScores, compareEntries, 
             <>
               <Divider />
               <Typography variant="caption" color="text.secondary" sx={{ p: 1.5, display: "block" }}>
-                Up to {maxCount} at once - remove one above to add another.
+                {t("comparePicker.maxReached", { maxCount })}
               </Typography>
             </>
           )}

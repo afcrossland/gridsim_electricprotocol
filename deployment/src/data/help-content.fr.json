@@ -1,0 +1,85 @@
+[
+  {
+    "heading": "Ce que montre cet outil",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Cette carte montre l'ampleur de l'énergie solaire entre pays selon trois mesures :" }] },
+      {
+        "type": "list",
+        "items": [
+          [{ "text": "Capacité installée", "bold": true }, { "text": " — capacité solaire totale installée" }],
+          [{ "text": "Capacité par habitant", "bold": true }, { "text": " — capacité installée rapportée à la population" }],
+          [{ "text": "Part solaire de l'électricité", "bold": true }, { "text": " — part de la production d'électricité issue du solaire" }]
+        ]
+      },
+      { "type": "paragraph", "runs": [{ "text": "Utilisez les commandes en bas de la carte pour changer de vue." }] },
+      { "type": "paragraph", "runs": [{ "text": "Tous les pays sont disponibles dans l'offre gratuite. Les membres peuvent accéder à des mesures supplémentaires." }] }
+    ]
+  },
+  {
+    "heading": "Explorer la carte",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Sélectionnez un pays sur la carte, ou recherchez-le par nom, pour voir ses données et son évolution dans le temps." }] },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "Utilisez la flèche pour revenir à la liste des pays. Le bouton " },
+          { "text": "Filtre", "bold": true },
+          { "text": " permet de restreindre la carte à certains continents." }
+        ]
+      }
+    ]
+  },
+  {
+    "heading": "Données et méthodologie",
+    "blocks": [
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "Les données proviennent d'" },
+          { "text": "Ember", "bold": true, "href": "https://ember-energy.org/" },
+          { "text": " et de la " },
+          { "text": "Banque mondiale", "bold": true, "href": "https://data.worldbank.org/" },
+          { "text": "." }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "runs": [{ "text": "La capacité solaire installée et la part solaire de l'électricité proviennent directement des jeux de données publiés par Ember. Les données de population utilisées pour la mesure par habitant proviennent de la Banque mondiale." }]
+      },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "La seule mesure calculée par cet outil est la " },
+          { "text": "capacité par habitant", "bold": true },
+          { "text": " :" }
+        ]
+      },
+      { "type": "formula", "text": "capacité solaire installée ÷ population" },
+      { "type": "paragraph", "runs": [{ "text": "Tous les autres chiffres sont reproduits tels quels à partir des jeux de données sources." }] },
+      {
+        "type": "paragraph",
+        "runs": [
+          { "text": "Les jeux de données sont publiés sous la " },
+          { "text": "licence Creative Commons Attribution 4.0", "bold": true },
+          { "text": "." }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "runs": [{ "text": "Licence Creative Commons Attribution 4.0", "href": "https://creativecommons.org/licenses/by/4.0/" }]
+      }
+    ]
+  },
+  {
+    "heading": "Disponibilité des données",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "La disponibilité des données varie selon les pays et les mesures. Si vous disposez de données supplémentaires ou repérez une erreur, contactez-nous." }] }
+    ]
+  },
+  {
+    "heading": "Mises à jour des données",
+    "blocks": [
+      { "type": "paragraph", "runs": [{ "text": "Les chiffres reflètent les données disponibles lors de la dernière mise à jour de cet outil. La date de mise à jour est indiquée dans l'outil." }] }
+    ]
+  }
+]

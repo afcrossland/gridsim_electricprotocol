@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Box, Button, Chip, Collapse, IconButton, Paper, Stack, Typography } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useTranslation } from "react-i18next";
 
 import type { Suggestion } from "../../lib/suggestions";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -10,6 +11,12 @@ const STATUS_COLOR: Record<Suggestion["status"], "warning" | "success" | "error"
   pending: "warning",
   accepted: "success",
   rejected: "error",
+};
+
+const STATUS_LABEL_KEY: Record<Suggestion["status"], string> = {
+  pending: "suggestionsReview.statusPending",
+  accepted: "suggestionsReview.statusAccepted",
+  rejected: "suggestionsReview.statusRejected",
 };
 
 /** Border/tint colour for the whole row, not just the status Chip, so accepted/rejected read at a glance across the list. */
@@ -31,6 +38,7 @@ const STATUS_BORDER: Record<Suggestion["status"], string> = {
  * anyone for the same reason the rest of the Admin console is (no auth yet).
  */
 export default function SuggestionsReview() {
+  const { t } = useTranslation();
   const suggestions = useProtocolStore((s) => s.suggestions);
   const reviewSuggestion = useProtocolStore((s) => s.reviewSuggestion);
 
@@ -42,8 +50,7 @@ export default function SuggestionsReview() {
   if (sorted.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary">
-        No suggested changes yet. When someone uses "Submit revised evidence" on a country's page,
-        it shows up here for review.
+        {t("suggestionsReview.empty")}
       </Typography>
     );
   }
@@ -64,6 +71,7 @@ function SuggestionRow({
   suggestion: Suggestion;
   onReview: (id: string, decision: "accepted" | "rejected") => void;
 }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(suggestion.status === "pending");
 
   return (
@@ -78,21 +86,22 @@ function SuggestionRow({
             <Typography variant="subtitle1">{suggestion.countryName}</Typography>
           </Box>
           <Typography variant="body2" color="text.secondary">
-            <Box component="span" sx={{ fontWeight: 600 }}>From:</Box> {suggestion.submitterName}
+            <Box component="span" sx={{ fontWeight: 600 }}>{t("suggestionsReview.from")}</Box> {suggestion.submitterName}
             {" · "}
-            <Box component="span" sx={{ fontWeight: 600 }}>Organisation:</Box> {suggestion.submitterOrganisation}
+            <Box component="span" sx={{ fontWeight: 600 }}>{t("suggestionsReview.organisation")}</Box>{" "}
+            {suggestion.submitterOrganisation}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {new Date(suggestion.submittedAt).toLocaleString()} - {suggestion.changes.length} change
-            {suggestion.changes.length === 1 ? "" : "s"}
+            {new Date(suggestion.submittedAt).toLocaleString()} -{" "}
+            {t("suggestionsReview.changeCount", { count: suggestion.changes.length })}
           </Typography>
         </Box>
 
         <Chip
           size="small"
-          label={suggestion.status}
+          label={t(STATUS_LABEL_KEY[suggestion.status])}
           color={STATUS_COLOR[suggestion.status]}
-          sx={{ fontWeight: 700, textTransform: "capitalize" }}
+          sx={{ fontWeight: 700 }}
         />
 
         <IconButton size="small" onClick={() => setExpanded((v) => !v)}>
@@ -118,12 +127,12 @@ function SuggestionRow({
         <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
           {suggestion.status !== "accepted" && (
             <Button size="small" variant="contained" color="success" onClick={() => onReview(suggestion.id, "accepted")}>
-              Accept
+              {t("suggestionsReview.accept")}
             </Button>
           )}
           {suggestion.status !== "rejected" && (
             <Button size="small" variant="outlined" color="error" onClick={() => onReview(suggestion.id, "rejected")}>
-              Reject
+              {t("suggestionsReview.reject")}
             </Button>
           )}
         </Box>
