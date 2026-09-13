@@ -29,7 +29,7 @@ import { emberCountry } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
 import { jurisdictionName, CONTINENTS, continentOf } from "../lib/jurisdictions";
 import { codesForMetric, valueForMetric, type Metric } from "../lib/metrics";
-import { POPULATION } from "../lib/population";
+import { POPULATION, populationActual } from "../lib/population";
 
 interface Props {
   metric: Metric;
@@ -95,6 +95,47 @@ function CrossLinkTile({ href, label, accent }: { href: string; label: string; a
       </Box>
     </Box>
   );
+}
+
+/**
+ * A pair of these sit at the top of the detail panel body - population and
+ * solar-per-capita, the two figures that give the headline capacity number
+ * below them some context. Same card shell as CrossLinkTile (border, radius,
+ * padding) but no accent colour or CTA button, since there's nothing to
+ * click through to - just a label/value pair, optionally with a tooltip for
+ * the source/year (population's World Bank year).
+ */
+function StatTile({ label, value, tooltip }: { label: string; value: string; tooltip?: string }) {
+  const content = (
+    <Box
+      sx={{
+        flex: 1,
+        borderRadius: "12px",
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+        p: 1.5,
+        textAlign: "center",
+      }}
+    >
+      <Typography
+        sx={{
+          fontSize: "0.6875rem",
+          fontWeight: 600,
+          letterSpacing: "0.04em",
+          color: "text.secondary",
+          textTransform: "uppercase",
+          mb: 0.5,
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography sx={{ fontWeight: 800, fontSize: "1rem", color: "text.primary", lineHeight: 1.2 }}>
+        {value}
+      </Typography>
+    </Box>
+  );
+  return tooltip ? <Tooltip title={tooltip}>{content}</Tooltip> : content;
 }
 
 /**
@@ -173,6 +214,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
   const selectedEmberCountry = selectedCountry ? emberCountry(selectedCountry) : undefined;
   const selectedGenerationCountry = selectedCountry ? generationCountry(selectedCountry) : undefined;
   const selectedPopulation = selectedCountry ? POPULATION[selectedCountry] : undefined;
+  const selectedCapacityPerCapita = selectedCountry ? valueForMetric(selectedCountry, "capacityPerCapita") : null;
 
   if (selectedCountry && (selectedEmberCountry || selectedGenerationCountry)) {
     return (
@@ -187,22 +229,33 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
           <Typography variant="h2" sx={{ fontSize: "1.125rem", flex: 1, minWidth: 0 }} noWrap>
             {jurisdictionName(selectedCountry, i18n.language)}
           </Typography>
-          {/* The population figure the per-capita metric actually divides
-              by - shown here rather than only implied by the map, since a
-              per-capita reading is meaningless without knowing the
-              assumption behind it. See lib/population.ts / World Bank. */}
-          {selectedPopulation && (
-            <Tooltip title={t("sidebar.worldBankYear", { year: selectedPopulation.year })}>
-              <Typography
-                variant="caption"
-                sx={{ color: "text.secondary", flexShrink: 0, whiteSpace: "nowrap" }}
-              >
-                {t("sidebar.population", { value: selectedPopulation.populationMillions.toLocaleString() })}
-              </Typography>
-            </Tooltip>
-          )}
         </Box>
         <Box sx={{ p: 2, overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
+          {/* Population, and the "capacityPerCapita" metric the map itself
+              can show, as a pair of stat tiles - so a visitor sees both
+              regardless of which metric is active on the map. A per-capita
+              reading is meaningless without knowing the population it's
+              dividing by, hence showing both together rather than either
+              alone. See lib/population.ts / World Bank; map.perCapita's
+              copy is reused for consistency with the map's own tooltip. */}
+          {(selectedPopulation || selectedCapacityPerCapita !== null) && (
+            <Box sx={{ display: "flex", gap: 1 }}>
+              {selectedPopulation && (
+                <StatTile
+                  label={t("sidebar.populationLabel")}
+                  value={populationActual(selectedCountry!)!.toLocaleString(i18n.language)}
+                  tooltip={t("sidebar.worldBankYear", { year: selectedPopulation.year })}
+                />
+              )}
+              {selectedCapacityPerCapita !== null && (
+                <StatTile
+                  label={t("sidebar.perCapitaLabel")}
+                  value={t("map.perCapita", { value: selectedCapacityPerCapita.toFixed(selectedCapacityPerCapita < 1 ? 2 : 0) })}
+                />
+              )}
+            </Box>
+          )}
+
           {/* Same country, elsewhere - Deployment Explorer only shows
               uptake, not the policy environment behind it or the grid
               context around it, so these link straight out to both other
