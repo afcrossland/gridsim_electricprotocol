@@ -25,7 +25,7 @@ export default function GenerationDetail({ country }: Props) {
   const { t } = useTranslation();
   const { series } = country;
   const latest = series[series.length - 1];
-  const points = series.map((p) => ({ value: p.sharePct, label: String(p.year) }));
+  const points = series.map((p) => ({ value: p.sharePct, label: String(p.year), year: p.year }));
 
   return (
     <Box>
@@ -43,7 +43,7 @@ export default function GenerationDetail({ country }: Props) {
         })}
       </Typography>
 
-      <TimeseriesChart points={points} />
+      <TimeseriesChart points={points} formatValue={(v) => `${v.toFixed(1)}%`} />
     </Box>
   );
 }

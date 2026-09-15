@@ -259,10 +259,9 @@ export default function QuestionCard({ question, response, code, compareEntries 
                     alignItems: "flex-start",
                   }}
                 >
-                  {/* TODO: title/note are free text, may be written in a
-                      researcher's own local language - no translate-to-
-                      English mechanism exists yet. See EvidenceItem's own
-                      doc comment in lib/types.ts. */}
+                  {/* title/note are free text, not translated - see
+                      EvidenceItem's doc comment in lib/types.ts and
+                      ROADMAP.md's "Known gaps flagged in code". */}
                   <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
                     <TextField
                       fullWidth

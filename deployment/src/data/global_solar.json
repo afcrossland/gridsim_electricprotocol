@@ -1,0 +1,118 @@
+{
+  "source": "Computed by scripts/build_global_solar.py from src/data/ember_solar.json - not an Ember-published series. See this script's own docstring for the forward-fill methodology; flagged as a derived figure per Ember's CC BY 4.0 attribution terms.",
+  "fetchedAt": "2026-09-15T08:06:01.233479+00:00",
+  "country": {
+    "name": "Global",
+    "granularity": "annual",
+    "annualSeries": [
+      {
+        "year": 2000,
+        "gw": 0.04
+      },
+      {
+        "year": 2001,
+        "gw": 0.05
+      },
+      {
+        "year": 2002,
+        "gw": 0.06
+      },
+      {
+        "year": 2003,
+        "gw": 0.08
+      },
+      {
+        "year": 2004,
+        "gw": 0.1
+      },
+      {
+        "year": 2005,
+        "gw": 0.1
+      },
+      {
+        "year": 2006,
+        "gw": 0.16
+      },
+      {
+        "year": 2007,
+        "gw": 0.22
+      },
+      {
+        "year": 2008,
+        "gw": 0.33
+      },
+      {
+        "year": 2009,
+        "gw": 1.0
+      },
+      {
+        "year": 2010,
+        "gw": 2.97
+      },
+      {
+        "year": 2011,
+        "gw": 5.26
+      },
+      {
+        "year": 2012,
+        "gw": 8.78
+      },
+      {
+        "year": 2013,
+        "gw": 13.44
+      },
+      {
+        "year": 2014,
+        "gw": 16.64
+      },
+      {
+        "year": 2015,
+        "gw": 20.01
+      },
+      {
+        "year": 2016,
+        "gw": 297.37
+      },
+      {
+        "year": 2017,
+        "gw": 399.59
+      },
+      {
+        "year": 2018,
+        "gw": 496.24
+      },
+      {
+        "year": 2019,
+        "gw": 647.96
+      },
+      {
+        "year": 2020,
+        "gw": 828.35
+      },
+      {
+        "year": 2021,
+        "gw": 997.15
+      },
+      {
+        "year": 2022,
+        "gw": 1228.46
+      },
+      {
+        "year": 2023,
+        "gw": 1663.38
+      },
+      {
+        "year": 2024,
+        "gw": 2208.31
+      },
+      {
+        "year": 2025,
+        "gw": 2808.04
+      },
+      {
+        "year": 2026,
+        "gw": 3025.22
+      }
+    ]
+  }
+}

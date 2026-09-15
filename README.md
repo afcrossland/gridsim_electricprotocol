@@ -598,8 +598,8 @@ text written by whoever researches a jurisdiction, and may be written in
 that researcher's own local language. That's expected and fine, but there
 is currently no mechanism to translate this content to English (a
 translation-API call at submission time, or an on-demand "translate"
-action in a review UI, are both plausible later options) - flagged as a
-TODO on `EvidenceItem`'s own doc comment, not built.
+action in a review UI, are both plausible later options) - see
+`ROADMAP.md`'s "Known gaps flagged in code" section, not built.
 
 ## Layout
 

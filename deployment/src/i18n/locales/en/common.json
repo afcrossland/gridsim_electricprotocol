@@ -60,8 +60,11 @@
     "noMatches": "No jurisdictions match this filter.",
     "backToRanking": "Back to ranking",
     "worldBankYear": "World Bank, {{year}}",
+    "worldBankYearRange": "World Bank, {{from}}-{{to}}",
+    "global": "Global",
     "populationLabel": "Population",
     "perCapitaLabel": "Solar per Capita",
+    "latestCapacityLabel": "Latest Installed Capacity",
     "open": "Open",
     "comingSoonLabel": "Coming Soon: {{label}}",
     "connectWithGscMembers": "Connect with GSC Members",
@@ -82,16 +85,12 @@
     "perCapita": "{{value}} W per capita",
     "capacity": "{{value}} MW"
   },
-  "totalTile": {
-    "title": "World total installed",
-    "value": "{{value}} GW",
-    "asOf": "As of {{month}}-{{year}}",
-    "freshnessTooltip": "Some countries' own latest figure is a little older - Ember doesn't publish every country on the same schedule"
-  },
   "detail": {
     "installedCapacity": "Installed solar capacity",
     "asOfMonthEmber": "as of {{month}} {{year}} - Ember",
     "asOfYearEmber": "as of {{year}} - Ember",
+    "asOfMonth": "as of {{month}} {{year}}",
+    "asOfYear": "as of {{year}}",
     "shareOfGeneration": "Solar share of generation",
     "shareCaption": "of {{year}}'s electricity generation ({{solar}} of {{total}} TWh) - Ember"
   },

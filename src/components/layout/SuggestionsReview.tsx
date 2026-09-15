@@ -33,9 +33,10 @@ const STATUS_BORDER: Record<Suggestion["status"], string> = {
  * one reverts exactly the fields it touched, via `reviewSuggestion` in the
  * store.
  *
- * TODO: only ever shows suggestions submitted in this same browser - see
- * the TODO on `diffResponses` in `lib/suggestions.ts` for why, and open to
- * anyone for the same reason the rest of the Admin console is (no auth yet).
+ * Only ever shows suggestions submitted in this same browser, and open to
+ * anyone the same as the rest of the Admin console - see ROADMAP.md's
+ * "Known gaps flagged in code" section (and `diffResponses` in
+ * `lib/suggestions.ts`) for why.
  */
 export default function SuggestionsReview() {
   const { t } = useTranslation();

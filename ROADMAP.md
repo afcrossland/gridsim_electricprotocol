@@ -30,6 +30,34 @@ persistence contract for the fullest version of this.
   as a local review workflow but only ever show suggestions submitted in
   that same browser - see the `TODO` at the top of `lib/suggestions.ts`.
 
+## Known gaps flagged in code
+
+Every `TODO` comment in the codebase, consolidated here so they're all in one
+place rather than only discoverable by grepping. Each inline comment now just
+points back to this section instead of repeating the full explanation - if
+you're reading this after fixing one, delete its entry here and its pointer
+comment(s) together.
+
+- **Evidence citations have no translate-to-English mechanism.**
+  `EvidenceItem.title`/`.note` (`src/lib/types.ts`) are free text a
+  jurisdiction's researcher writes, often in their own language - distinct
+  from this app's own i18next-translated UI strings (`src/i18n/`) and
+  deliberately never run through them (see `src/components/layout/
+  QuestionCard.tsx`'s evidence form). A translation-API call at submission
+  time, or an on-demand "translate" action in the review UI, are both
+  plausible later options; neither is built. Flagged 2026-09-11, not an
+  oversight.
+- **Suggestions only ever show up in the browser that submitted them.**
+  `diffResponses` (`src/lib/suggestions.ts`) and `SuggestionsReview.tsx` are
+  written so the local `suggestions` array can be swapped for real API calls
+  without changing shape, but there is no backend yet to carry a submitted
+  suggestion to an admin on a different device. Closed by **Phase 6** below.
+- **Admin console has no real authentication.** Open to anyone who finds the
+  URL - no password, no login, no record of who changed what (`grep -rn
+  "Stands in for auth" src/` to find the UI's own callout in
+  `TopNavbar.tsx`; the same gap is why `SuggestionsReview.tsx` is equally
+  open). Closed by **Phase 2** below.
+
 ## Decisions already made
 
 Settled 26 August 2026. Each of these changed the shape of the plan below

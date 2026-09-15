@@ -7,6 +7,16 @@ import { monthAbbrev } from "../lib/formatMonth";
 
 interface Props {
   country: EmberCountry;
+  /**
+   * False for the "Global" pseudo-country (see lib/globalSolar.ts) - its
+   * number is Claude's own computed forward-fill sum of every country's
+   * Ember figure, not something Ember itself publishes, so crediting Ember
+   * directly on it would misattribute a derived number as their own (see
+   * scripts/build_global_solar.py's docstring on the CC BY 4.0 requirement
+   * to flag a derived figure as such). Defaults to true - every real
+   * country's own number genuinely is Ember's.
+   */
+  attributeToEmber?: boolean;
 }
 
 /**
@@ -20,7 +30,7 @@ interface Props {
  * x-axis (same convention as GenerationDetail's own chart) and its
  * headline reads "as of YYYY", not a specific month it doesn't have.
  */
-export default function CountryDetail({ country }: Props) {
+export default function CountryDetail({ country, attributeToEmber = true }: Props) {
   const { t, i18n } = useTranslation();
 
   if (country.granularity === "monthly") {
@@ -29,6 +39,7 @@ export default function CountryDetail({ country }: Props) {
     const points = series.map((p) => ({
       value: p.gw,
       label: `${monthAbbrev(p.month, i18n.language)} ${p.year}`,
+      year: p.year,
     }));
 
     return (
@@ -40,17 +51,20 @@ export default function CountryDetail({ country }: Props) {
           {latest.gw.toLocaleString()} GW
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t("detail.asOfMonthEmber", { month: monthAbbrev(latest.month, i18n.language), year: latest.year })}
+          {t(attributeToEmber ? "detail.asOfMonthEmber" : "detail.asOfMonth", {
+            month: monthAbbrev(latest.month, i18n.language),
+            year: latest.year,
+          })}
         </Typography>
 
-        <TimeseriesChart points={points} />
+        <TimeseriesChart points={points} formatValue={(v) => `${v.toLocaleString()} GW`} />
       </Box>
     );
   }
 
   const { annualSeries } = country;
   const latest = annualSeries[annualSeries.length - 1];
-  const points = annualSeries.map((p) => ({ value: p.gw, label: String(p.year) }));
+  const points = annualSeries.map((p) => ({ value: p.gw, label: String(p.year), year: p.year }));
 
   return (
     <Box>
@@ -61,10 +75,10 @@ export default function CountryDetail({ country }: Props) {
         {latest.gw.toLocaleString()} GW
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t("detail.asOfYearEmber", { year: latest.year })}
+        {t(attributeToEmber ? "detail.asOfYearEmber" : "detail.asOfYear", { year: latest.year })}
       </Typography>
 
-      <TimeseriesChart points={points} />
+      <TimeseriesChart points={points} formatValue={(v) => `${v.toLocaleString()} GW`} />
     </Box>
   );
 }

@@ -45,48 +45,29 @@ export function emberCountry(code: string): EmberCountry | undefined {
   return EMBER_SOLAR[code];
 }
 
-function latestPoint(country: EmberCountry): { year: number; month: number; gw: number } {
+/**
+ * An EmberCountry's own most recent point - `month` is `null` for an
+ * annual-granularity country rather than a sentinel value, so a caller
+ * formatting "as of ..." text can tell the two shapes apart (see
+ * CountryDetail.tsx's own monthly/annual branches, which this mirrors).
+ * Exported (not just used internally by latestSolarMW below) so the
+ * "Global" pseudo-country and Sidebar.tsx's stat tiles can read the same
+ * latest-point logic off any EmberCountry - real or synthetic - without
+ * duplicating it.
+ */
+export function latestPointOf(country: EmberCountry): { year: number; month: number | null; gw: number } {
   if (country.granularity === "monthly") {
     const p = country.series[country.series.length - 1];
     return { year: p.year, month: p.month, gw: p.gw };
   }
   const p = country.annualSeries[country.annualSeries.length - 1];
-  return { year: p.year, month: 12, gw: p.gw }; // an annual figure means "as of the end of that year"
+  return { year: p.year, month: null, gw: p.gw };
 }
 
 /** Most recent installed capacity, in MW - null if this code has no Ember data at all. */
 export function latestSolarMW(code: string): number | null {
   const country = EMBER_SOLAR[code];
   if (!country) return null;
-  return latestPoint(country).gw * 1000;
+  return latestPointOf(country).gw * 1000;
 }
 
-/**
- * World total installed solar capacity, in GW - each country's own latest
- * available point (whichever granularity it is), summed. Shown as a
- * headline stat tile on the map, not tied to whichever metric is currently
- * selected.
- */
-export function totalInstalledGW(): number {
-  return Object.values(EMBER_SOLAR).reduce((sum, c) => sum + latestPoint(c).gw, 0);
-}
-
-/**
- * The most recent (year, month) any country's own latest point reaches -
- * the "As of" date on the total-installed tile. Some countries' own latest
- * point trails behind this (not every country is on the same reporting
- * schedule, and an annual-only country's point is treated as "end of that
- * year"), so this reads as the freshest the total ever gets, not a
- * guarantee every country's contribution is this current.
- */
-export function latestSolarMonth(): { year: number; month: number } {
-  return Object.values(EMBER_SOLAR).reduce(
-    (latest, c) => {
-      const p = latestPoint(c);
-      return p.year > latest.year || (p.year === latest.year && p.month > latest.month)
-        ? { year: p.year, month: p.month }
-        : latest;
-    },
-    { year: 0, month: 0 },
-  );
-}

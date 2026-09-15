@@ -23,14 +23,10 @@ export interface Suggestion {
 }
 
 /**
- * TODO: this whole flow only works within one visitor's own browser - there
- * is no backend yet to carry a submitted suggestion to an admin on a
- * different device, or to make "admin" mean anything more than "whoever
- * opens the Admin console" (same stand-in-for-auth caveat as the console
- * itself). Both are deferred until a real backend exists; this module and
- * the store fields it feeds are written so that swapping the local
- * `suggestions` array for real API calls later should not need the shape
- * to change.
+ * Only works within one visitor's own browser until a real backend exists -
+ * see ROADMAP.md's "Known gaps flagged in code" section (closed by Phase 6).
+ * Written so swapping the local `suggestions` array for real API calls later
+ * should not need this shape to change.
  */
 export function diffResponses(
   before: Response[],

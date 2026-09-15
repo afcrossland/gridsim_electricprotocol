@@ -42,6 +42,6 @@ export function syntheticSeries(
     const t = i / (years.length - 1 || 1);
     const base = from + (to - from) * t;
     const noise = (rand() - 0.5) * Math.abs(to - from) * 0.12;
-    return { value: Math.max(0, base + noise), label: String(year) };
+    return { value: Math.max(0, base + noise), label: String(year), year };
   });
 }

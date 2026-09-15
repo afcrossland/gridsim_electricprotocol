@@ -11,6 +11,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -19,17 +20,20 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import PublicIcon from "@mui/icons-material/Public";
 import { useTranslation } from "react-i18next";
 
 import CountryDetail from "./CountryDetail";
 import GenerationDetail from "./GenerationDetail";
 import LockedMetricsSection from "./LockedMetricsSection";
 import FlagImg from "./FlagImg";
-import { emberCountry } from "../lib/emberSolar";
+import { emberCountry, latestPointOf } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
+import { monthAbbrev } from "../lib/formatMonth";
+import { GLOBAL_CODE, GLOBAL_SOLAR, globalLatestSolarMW } from "../lib/globalSolar";
 import { jurisdictionName, CONTINENTS, continentOf } from "../lib/jurisdictions";
 import { codesForMetric, valueForMetric, type Metric } from "../lib/metrics";
-import { POPULATION, populationActual } from "../lib/population";
+import { POPULATION, populationActual, worldPopulationActual, worldPopulationMillions, worldPopulationYearRange } from "../lib/population";
 
 interface Props {
   metric: Metric;
@@ -187,6 +191,7 @@ const PANEL_SX = {
  */
 export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }: Props) {
   const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const [continents, setContinents] = useState<string[]>([]);
   const [desc, setDesc] = useState(true);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
@@ -205,16 +210,61 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
       .sort((a, b) => (desc ? b.value! - a.value! : a.value! - b.value!));
   }, [metric, continents, desc, i18n.language]);
 
+  const isGlobalSelected = selectedCountry === GLOBAL_CODE;
+
   // A country with a real Ember history for either dataset swaps the whole
   // sidebar over to its timeseries (capacity section, then generation-mix
   // section below it if that data exists too - both shown together
   // regardless of which metric is active on the map, per Andrew's
   // instruction 2026-09-09). A country with neither just stays highlighted
-  // in the ranking list below.
-  const selectedEmberCountry = selectedCountry ? emberCountry(selectedCountry) : undefined;
-  const selectedGenerationCountry = selectedCountry ? generationCountry(selectedCountry) : undefined;
-  const selectedPopulation = selectedCountry ? POPULATION[selectedCountry] : undefined;
-  const selectedCapacityPerCapita = selectedCountry ? valueForMetric(selectedCountry, "capacityPerCapita") : null;
+  // in the ranking list below. The pinned "Global" row (GLOBAL_CODE) is
+  // structured as its own EmberCountry (see lib/globalSolar.ts) precisely so
+  // it can slot into `selectedEmberCountry` here and render through this
+  // same CountryDetail path unchanged - it has no generation-mix data of its
+  // own, so selectedGenerationCountry always stays undefined for it.
+  const selectedEmberCountry = isGlobalSelected
+    ? GLOBAL_SOLAR
+    : selectedCountry
+      ? emberCountry(selectedCountry)
+      : undefined;
+  const selectedGenerationCountry =
+    selectedCountry && !isGlobalSelected ? generationCountry(selectedCountry) : undefined;
+  const selectedPopulation = selectedCountry && !isGlobalSelected ? POPULATION[selectedCountry] : undefined;
+  const [worldPopMinYear, worldPopMaxYear] = worldPopulationYearRange();
+  const selectedPopulationValue = isGlobalSelected
+    ? worldPopulationActual()
+    : selectedCountry
+      ? populationActual(selectedCountry)
+      : null;
+  const selectedPopulationTooltip = isGlobalSelected
+    ? t("sidebar.worldBankYearRange", { from: worldPopMinYear, to: worldPopMaxYear })
+    : selectedPopulation
+      ? t("sidebar.worldBankYear", { year: selectedPopulation.year })
+      : undefined;
+  const selectedCapacityPerCapita = isGlobalSelected
+    ? globalLatestSolarMW() / worldPopulationMillions()
+    : selectedCountry
+      ? valueForMetric(selectedCountry, "capacityPerCapita")
+      : null;
+  // Same latest-point logic CountryDetail.tsx's own headline number and
+  // "as of" caption use, read off the same selectedEmberCountry object so
+  // this tile and that headline can never disagree - see lib/emberSolar.ts's
+  // latestPointOf. `month` is null for an annual-granularity country (or
+  // the Global row, always annual), so the tooltip falls back to a
+  // year-only "as of" the same way CountryDetail.tsx's own annual branch
+  // does.
+  const selectedLatestPoint = selectedEmberCountry ? latestPointOf(selectedEmberCountry) : null;
+  // Global's own number is a computed aggregate, not something Ember
+  // itself publishes - see CountryDetail.tsx's own attributeToEmber prop -
+  // so its tooltip drops the "- Ember" credit the real-country keys carry.
+  const selectedLatestCapacityTooltip = selectedLatestPoint
+    ? selectedLatestPoint.month !== null
+      ? t(isGlobalSelected ? "detail.asOfMonth" : "detail.asOfMonthEmber", {
+          month: monthAbbrev(selectedLatestPoint.month, i18n.language),
+          year: selectedLatestPoint.year,
+        })
+      : t(isGlobalSelected ? "detail.asOfYear" : "detail.asOfYearEmber", { year: selectedLatestPoint.year })
+    : undefined;
 
   if (selectedCountry && (selectedEmberCountry || selectedGenerationCountry)) {
     return (
@@ -225,32 +275,48 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
               <ArrowBackIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <FlagImg code={selectedCountry} size={22} />
+          {isGlobalSelected ? (
+            <PublicIcon sx={{ fontSize: 22, color: "primary.main" }} />
+          ) : (
+            <FlagImg code={selectedCountry} size={22} />
+          )}
           <Typography variant="h2" sx={{ fontSize: "1.125rem", flex: 1, minWidth: 0 }} noWrap>
-            {jurisdictionName(selectedCountry, i18n.language)}
+            {isGlobalSelected ? t("sidebar.global") : jurisdictionName(selectedCountry, i18n.language)}
           </Typography>
         </Box>
         <Box sx={{ p: 2, overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
-          {/* Population, and the "capacityPerCapita" metric the map itself
-              can show, as a pair of stat tiles - so a visitor sees both
-              regardless of which metric is active on the map. A per-capita
-              reading is meaningless without knowing the population it's
-              dividing by, hence showing both together rather than either
-              alone. See lib/population.ts / World Bank; map.perCapita's
-              copy is reused for consistency with the map's own tooltip. */}
-          {(selectedPopulation || selectedCapacityPerCapita !== null) && (
+          {/* Population, the "capacityPerCapita" metric the map itself can
+              show, and the latest installed-capacity figure, as a row of
+              stat tiles - so a visitor sees all three regardless of which
+              metric is active on the map. A per-capita reading is
+              meaningless without knowing the population it's dividing by,
+              hence showing that pair together rather than either alone. See
+              lib/population.ts / World Bank; map.perCapita's copy is reused
+              for consistency with the map's own tooltip. The capacity
+              tile's tooltip carries the Ember "as of" date - the one place
+              in this row a reader might reasonably ask how current a
+              number is, so that's where it's surfaced rather than as a
+              separate label of its own. */}
+          {(selectedPopulationValue !== null || selectedCapacityPerCapita !== null || selectedLatestPoint) && (
             <Box sx={{ display: "flex", gap: 1 }}>
-              {selectedPopulation && (
+              {selectedPopulationValue !== null && (
                 <StatTile
                   label={t("sidebar.populationLabel")}
-                  value={populationActual(selectedCountry!)!.toLocaleString(i18n.language)}
-                  tooltip={t("sidebar.worldBankYear", { year: selectedPopulation.year })}
+                  value={selectedPopulationValue.toLocaleString(i18n.language)}
+                  tooltip={selectedPopulationTooltip}
                 />
               )}
               {selectedCapacityPerCapita !== null && (
                 <StatTile
                   label={t("sidebar.perCapitaLabel")}
                   value={t("map.perCapita", { value: selectedCapacityPerCapita.toFixed(selectedCapacityPerCapita < 1 ? 2 : 0) })}
+                />
+              )}
+              {selectedLatestPoint && (
+                <StatTile
+                  label={t("sidebar.latestCapacityLabel")}
+                  value={`${selectedLatestPoint.gw.toLocaleString()} GW`}
+                  tooltip={selectedLatestCapacityTooltip}
                 />
               )}
             </Box>
@@ -263,23 +329,32 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
               actually opens on this country (?country=<code>, added to
               that app 2026-09-10); Future Grid Simulator only links to its
               homepage for now - it's an external site with no documented
-              per-country URL of its own to deep-link into. */}
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <CrossLinkTile
-              href={`${import.meta.env.BASE_URL}policy/?country=${selectedCountry}`}
-              label={t("sidebar.policyExplorer")}
-              accent="#008194"
-            />
-            <CrossLinkTile
-              href="https://futuregridsimulator.globalsolarcouncil.org/"
-              label={t("sidebar.futureGridSimulator")}
-              accent="#C98600"
-            />
-          </Box>
+              per-country URL of its own to deep-link into. Neither makes
+              sense for the pinned "Global" row - there's no single country
+              code to deep-link either tool into - so both this and the
+              GSC-members tile below are skipped for it. */}
+          {!isGlobalSelected && (
+            <>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <CrossLinkTile
+                  href={`${import.meta.env.BASE_URL}policy/?country=${selectedCountry}`}
+                  label={t("sidebar.policyExplorer")}
+                  accent="#008194"
+                />
+                <CrossLinkTile
+                  href="https://futuregridsimulator.globalsolarcouncil.org/"
+                  label={t("sidebar.futureGridSimulator")}
+                  accent="#C98600"
+                />
+              </Box>
 
-          <ComingSoonTile label={t("sidebar.connectWithGscMembers")} />
+              <ComingSoonTile label={t("sidebar.connectWithGscMembers")} />
+            </>
+          )}
 
-          {selectedEmberCountry && <CountryDetail country={selectedEmberCountry} />}
+          {selectedEmberCountry && (
+            <CountryDetail country={selectedEmberCountry} attributeToEmber={!isGlobalSelected} />
+          )}
           {selectedGenerationCountry && <GenerationDetail country={selectedGenerationCountry} />}
 
           <LockedMetricsSection countryCode={selectedCountry} />
@@ -395,6 +470,50 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
       </Box>
 
       <Box data-tour="ranking-list" sx={{ flex: 1, overflowY: "auto", p: 2 }}>
+        {/* Pinned "Global" row - the world's own total (or per-capita)
+            installed capacity, always first regardless of the sort/filter
+            controls above (it isn't part of `rows`, so neither touches it),
+            in a soft aqua tint rather than the ranking rows' plain grey so
+            it reads as a different kind of thing, not just the current #1
+            entry. Shown for "Installed Capacity" and "Per Capita" - both
+            are real, additive-then-divided global figures (see
+            globalLatestSolarMW/worldPopulationMillions). Skipped for
+            "Share of Electricity": a % share is already relative, not
+            additive, and there's no computed global generation total to
+            divide by the way there is a computed global capacity one. */}
+        {metric !== "share" && (
+          <Box
+            onClick={() => onSelect(GLOBAL_CODE)}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.25,
+              pl: 1.25,
+              pr: 1,
+              py: 0.9,
+              mb: 0.75,
+              borderRadius: "8px",
+              border: "1px solid",
+              borderColor: "primary.main",
+              cursor: "pointer",
+              overflow: "hidden",
+              bgcolor: theme.palette.mode === "dark" ? "rgba(0,171,187,0.18)" : "rgba(0,171,187,0.08)",
+              transition: "background-color 120ms ease",
+              "&:hover": { bgcolor: theme.palette.mode === "dark" ? "rgba(0,171,187,0.26)" : "rgba(0,171,187,0.14)" },
+            }}
+          >
+            <PublicIcon sx={{ fontSize: 16, color: "primary.main", flexShrink: 0 }} />
+            <Typography variant="subtitle1" noWrap sx={{ flex: 1, minWidth: 0, fontWeight: 700 }}>
+              {t("sidebar.global")}
+            </Typography>
+            <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: "primary.dark", flexShrink: 0 }}>
+              {metric === "capacityPerCapita"
+                ? `${(globalLatestSolarMW() / worldPopulationMillions()).toFixed(0)} W/cap`
+                : `${globalLatestSolarMW().toLocaleString()} MW`}
+            </Typography>
+          </Box>
+        )}
+
         {/* Light-grey tiles on the sidebar's own white background, matching
             ep_policymap's Scoreboard.tsx row style exactly (#E5E7EB border,
             8px radius, action.hover fill) rather than the plain

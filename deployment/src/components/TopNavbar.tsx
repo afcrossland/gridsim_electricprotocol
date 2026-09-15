@@ -5,7 +5,6 @@ import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useTranslation } from "react-i18next";
 
-import EmberBadge from "./EmberBadge";
 
 interface Props {
   mode: PaletteMode;
@@ -105,18 +104,6 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
         </Box>
 
         <Box sx={{ flex: 1 }} />
-
-        <EmberBadge
-          sx={{
-            // Hidden below `sm` - the mobile layout shows this same badge
-            // in the footer instead (see App.tsx), added there 2026-09-10.
-            // This row (logo+title, Ember badge, Take the tour, Help,
-            // dark-mode toggle) overflowed on a phone with nothing set to
-            // hide, so it's never both places at once.
-            display: { xs: "none", sm: "flex" },
-            flexShrink: 0,
-          }}
-        />
 
         <Box onClick={onStartTour} sx={navItemSx(false)}>
           {/* Abbreviated below `sm`, same as Policy Explorer's own nav -

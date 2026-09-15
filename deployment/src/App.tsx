@@ -26,8 +26,12 @@ export default function App({ mode, setMode }: Props) {
   const { t } = useTranslation();
   // One three-way selector, not a view+basis pair - see the plan in
   // README.md. Replaced the old separate view/basis toggles 2026-09-09 per
-  // Andrew's instruction.
-  const [metric, setMetric] = useState<Metric>("capacity");
+  // Andrew's instruction. Defaults to "capacityPerCapita" (not "capacity")
+  // per his follow-up instruction 2026-09-15 - the raw MW figure favours
+  // large countries regardless of how much solar they've actually deployed
+  // relative to their population, so per-capita is the more informative
+  // first view.
+  const [metric, setMetric] = useState<Metric>("capacityPerCapita");
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   // Same "page" concept as ep_policymap's own App.tsx, just local state
   // here rather than a store field - this app has nothing else that needs
@@ -225,6 +229,12 @@ export default function App({ mode, setMode }: Props) {
                 </ToggleButtonGroup>
 
                 <Box sx={{ flex: 1 }} />
+                {/* Moved here from TopNavbar's desktop header row
+                    2026-09-15 per Andrew's instruction - sits directly left
+                    of the language switcher instead. Desktop only; mobile
+                    keeps its own separate EmberBadge row below this footer
+                    (unchanged, see below). */}
+                {!isMobile && <EmberBadge />}
                 <LanguageSwitcher />
               </Box>
 
