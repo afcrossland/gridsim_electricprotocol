@@ -20,6 +20,9 @@ interface NominatimResult {
  * Deployment Explorer's own map+search footer layout). Flags per result
  * (and in the input once something's picked) mirror CountrySearch.tsx's
  * own FlagImg treatment there - added 2026-09-15 per Andrew's instruction.
+ * `maxWidth: "60%"` (matching CountrySearch's own) added 2026-09-18 so this
+ * doesn't overflow a narrow phone screen when it sits next to the mobile
+ * Map/List toggle in App.tsx's own mobile layout.
  */
 export default function LocationSearchBar({
   selectedCountryCode,
@@ -63,7 +66,7 @@ export default function LocationSearchBar({
   return (
     <Autocomplete
       size="small"
-      sx={{ width: 320 }}
+      sx={{ width: 320, maxWidth: "60%" }}
       options={options}
       getOptionLabel={(o) => o.display_name}
       loading={loading}

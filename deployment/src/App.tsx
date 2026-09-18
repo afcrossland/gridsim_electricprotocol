@@ -191,14 +191,15 @@ export default function App({ mode, setMode }: Props) {
             <>
               {/* Footer bar - the metric selector and language switcher, same
                   role as ep_policymap's own bottom bar. The metric selector
-                  persists here in every mobile state (List, Map, and a
-                  country's own detail page alike) per Andrew's instruction
-                  2026-09-10 - it's cheap to keep around since, with search
-                  moved up next to the Map/List toggle (see above), this is the
-                  only other control in the footer on mobile, so there's no
-                  overlap risk the way there was when search used to share this
-                  bar too. Search itself stays desktop-only here - on mobile
-                  it's always up next to the toggle instead. */}
+                  used to persist here in every mobile state (List, Map, and
+                  a country's own detail page alike) per Andrew's instruction
+                  2026-09-10 - reversed 2026-09-18 ("when we click on a
+                  country the toggle... should disappear"): it colours the
+                  map, so once a country is selected (mobile's own full-screen
+                  detail view, or the desktop sidebar open) it no longer
+                  reflects anything on screen. Search itself stays
+                  desktop-only here - on mobile it's always up next to the
+                  Map/List toggle instead. */}
               <Box
                 sx={{
                   flexShrink: 0,
@@ -214,19 +215,28 @@ export default function App({ mode, setMode }: Props) {
               >
                 {!isMobile && <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />}
 
-                <ToggleButtonGroup
-                  data-tour="metric-selector"
-                  size="small"
-                  exclusive
-                  value={metric}
-                  onChange={(_, v) => v && setMetric(v)}
-                >
-                  {METRICS.map((m) => (
-                    <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
-                      {isMobile ? t(`metricsShort.${m}`) : t(`metrics.${m}`)}
-                    </ToggleButton>
-                  ))}
-                </ToggleButtonGroup>
+                {/* Hidden once a country is selected, per Andrew's own
+                    instruction 2026-09-18 ("when we click on a country the
+                    toggle... on the footer should disappear") - it colours
+                    the map, which isn't visible any more on mobile once the
+                    sidebar takes the full screen, and on desktop it no
+                    longer reflects anything the sidebar's own content is
+                    about. */}
+                {!selectedCountry && (
+                  <ToggleButtonGroup
+                    data-tour="metric-selector"
+                    size="small"
+                    exclusive
+                    value={metric}
+                    onChange={(_, v) => v && setMetric(v)}
+                  >
+                    {METRICS.map((m) => (
+                      <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
+                        {isMobile ? t(`metricsShort.${m}`) : t(`metrics.${m}`)}
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                )}
 
                 <Box sx={{ flex: 1 }} />
                 {/* Moved here from TopNavbar's desktop header row

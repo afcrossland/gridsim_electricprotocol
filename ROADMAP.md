@@ -207,6 +207,18 @@ comment(s) together.
 Requests Andrew has flagged for later, recorded here so they don't get
 lost - not yet started.
 
+- **TODO: compare the Solar Homes Calculator's generic-model results to
+  the MCS standard.** Flagged 2026-09-18. The generic 8760-profile model
+  (`calculateGeneric.ts` - real PVGIS generation, the PC1 demand shape,
+  `batteryDispatch.ts`'s own dispatch loop) has never been checked against
+  a known-correct reference; the real MCS MGD003 lookup-table method
+  (`calculateGB.ts`, deleted 2026-09-16 - see the "Known gaps" entry above)
+  is exactly that reference for GB. Needs: pick a handful of GB
+  postcodes/system specs, run both paths (would mean temporarily
+  resurrecting `calculateGB.ts`, or re-deriving its numbers by hand from
+  the MCS tables directly) and compare annual generation, self-consumption
+  %, and payback - flagging anywhere the generic model diverges enough to
+  matter. Not started.
 - **Download a location's own timeseries as an .xlsx.** Generation, demand,
   battery charge, battery discharge and battery state of charge (the same
   five/six series the Generation/Demand/Dispatch tabs already compute) as
