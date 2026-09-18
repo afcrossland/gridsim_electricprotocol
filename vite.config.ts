@@ -20,17 +20,21 @@ export default defineConfig(({ mode }) => {
     base: env.VITE_BASE || "/",
 
     /**
-     * Three HTML entries, not the default single root one - the site root
+     * Four HTML entries, not the default single root one - the site root
      * is the static Electric Futures Playbook splash (`index.html`, no JS
      * bundle of its own), the Solar Policy Explorer app lives at `/policy/`,
-     * and the Solar Deployment Explorer app (moved in from the standalone
-     * ep_deploymentexplorer project, 2026-09-09, so everything serves from
-     * one dev server on one port) lives at `/deployment/`. All three still
-     * get the same `base` prefix above regardless of where their own HTML
-     * file sits in the output tree. `/deployment/` has its own `src/` tree
-     * (`deployment/src/`), separate from this project's root `src/` (which
-     * the policy app itself uses) - two different apps, so they can't share
-     * one `main.tsx`.
+     * the Solar Deployment Explorer app (moved in from the standalone
+     * ep_deploymentexplorer project, 2026-09-09) lives at `/deployment/`,
+     * and the Solar Homes Calculator (moved in from the standalone
+     * ep_solarCalculator project the same way, 2026-09-15 - it started as
+     * its own separate project with a dev-server proxy bridging the two,
+     * but Andrew wanted this back down to one dev server, so it moved in
+     * here instead) lives at `/calculator/`. All four still get the same
+     * `base` prefix above regardless of where their own HTML file sits in
+     * the output tree. `/deployment/` and `/calculator/` each have their
+     * own `src/` tree, separate from this project's root `src/` (which the
+     * policy app itself uses) - three different apps, so none of them can
+     * share one `main.tsx`.
      */
     build: {
       rollupOptions: {
@@ -38,6 +42,7 @@ export default defineConfig(({ mode }) => {
           main: fileURLToPath(new URL("./index.html", import.meta.url)),
           policy: fileURLToPath(new URL("./policy/index.html", import.meta.url)),
           deployment: fileURLToPath(new URL("./deployment/index.html", import.meta.url)),
+          calculator: fileURLToPath(new URL("./calculator/index.html", import.meta.url)),
         },
       },
     },

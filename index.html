@@ -35,6 +35,8 @@
     --citrus-dark: #C98600;
     --peach: #F6AB84;
     --peach-dark: #B85C2E;
+    --moss: #7FB08A;
+    --moss-dark: #3F7A5C;
     --ink: #0F1B22;
     --muted: #6B7280;
   }
@@ -138,6 +140,7 @@
   }
 
   .tile {
+    position: relative;
     background: rgba(255,255,255,0.96);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.6);
@@ -150,6 +153,20 @@
     flex-direction: column;
     align-items: center;
     transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s ease;
+  }
+
+  .beta-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--aqua-dark);
+    background: rgba(0,171,187,0.12);
+    border-radius: 10px;
+    padding: 3px 9px;
   }
 
   .tile:hover, .tile:focus-visible {
@@ -169,6 +186,7 @@
   .tile.deployment h2 { color: var(--peach-dark); }
   .tile.grid h2 { color: var(--citrus-dark); }
   .tile.policy h2 { color: var(--aqua-dark); }
+  .tile.savings h2 { color: var(--moss-dark); }
   .tile.disabled h2 { color: #6B7280; }
 
   .tile p.body {
@@ -203,6 +221,7 @@
   .tile.deployment .cta { background: var(--peach-dark); }
   .tile.grid .cta { background: var(--citrus-dark); }
   .tile.policy .cta { background: var(--aqua); }
+  .tile.savings .cta { background: var(--moss-dark); }
   a.cta:hover { filter: brightness(1.08); transform: translateX(2px); }
 
   .cta svg { width: 15px; height: 15px; flex-shrink: 0; }
@@ -217,11 +236,14 @@
   .tile.deployment .secondary { color: var(--peach-dark); }
   .tile.grid .secondary { color: var(--citrus-dark); }
   .tile.policy .secondary { color: var(--aqua-dark); }
+  .tile.savings .secondary { color: var(--moss-dark); }
   .secondary:hover { text-decoration: underline; }
 
   /* Not open yet - greyed out, static, no hover affordance or working link.
-     Shared by every not-yet-built tile (Solar Economics Explorer, Solar
-     Savings Calculator) rather than duplicated per tile. */
+     Solar Economics Explorer is the only tile left using this as of
+     2026-09-18 - the Solar Homes Calculator tile moved to its own live
+     "savings" color (`--moss`) once it shipped as a real, clickable beta,
+     with a "Beta" badge (`.beta-badge`) instead of a greyed-out CTA. */
   .tile.disabled {
     cursor: default;
     filter: grayscale(1);
@@ -274,6 +296,7 @@
     </div>
 
     <div class="tile policy">
+      <span class="beta-badge">Beta</span>
       <h2>Solar Policy<br />Explorer</h2>
       <p class="body">Explore the international policy environment for solar + storage. Identify policy gaps to accelerate the energy transition.</p>
       <div class="actions">
@@ -306,11 +329,15 @@
       </div>
     </div>
 
-    <div class="tile savings disabled" aria-disabled="true">
-      <h2>Solar Savings<br />Calculator</h2>
+    <div class="tile savings">
+      <span class="beta-badge">Beta</span>
+      <h2>Solar Homes<br />Calculator</h2>
       <p class="body">Estimate the benefits from solar and storage in any jurisdiction.</p>
       <div class="actions">
-        <span class="cta">Coming soon</span>
+        <a class="cta" href="calculator/" aria-label="Explore the Solar Homes Calculator">
+          Explore
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
         <span class="secondary">Take the tour</span>
       </div>
     </div>
