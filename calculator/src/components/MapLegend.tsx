@@ -11,7 +11,12 @@ interface Props {
  * glass card pinned top-left of the map on desktop, a full-width banner
  * pinned to the map's top edge below `md` on mobile. Per Andrew's own
  * instruction 2026-09-16 ("take the legend/colour style from deployment
- * explorer").
+ * explorer"). The desktop title dropped its own `textTransform:
+ * "uppercase"` 2026-09-18 ("on legend we have Annual irradiance (kWh/kWp)
+ * on the map. Lets not capitalise as it messes up the units") - this
+ * app's own generation legend title has a mixed-case unit (kWh/kWp) that
+ * CSS uppercase mangles into KWH/KWP; titles are already written in the
+ * case they should display (see METRIC_LEGEND_TITLES in mapMetrics.ts).
  */
 export default function MapLegend({ title }: Props) {
   const theme = useTheme();
@@ -67,7 +72,6 @@ export default function MapLegend({ title }: Props) {
           fontWeight: 600,
           letterSpacing: "0.06em",
           color: "text.secondary",
-          textTransform: "uppercase",
           mb: 0.75,
           lineHeight: 1.3,
         }}

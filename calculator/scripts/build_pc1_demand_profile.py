@@ -14,6 +14,12 @@ presets still supply - see demandProfile.ts).
 
 This script is a one-off generator, not run at build/dev time - its output
 (src/data/pc1-demand-profile.json) is committed and imported directly.
+Whenever this file's output changes, `country-self-sufficiency.json` (built
+from it - see build_self_sufficiency.ts) goes stale until re-run too - use
+`npm run calculator:build-datasets` (from the repo root) to chain both
+scripts (plus build_country_irradiance.py) in the right order, per Andrew's
+own instruction 2026-09-18 ("update the code so this repeats every time we
+update the demand profile/irradiance").
 
 Simplifications (flagged - this is still a placeholder per ROADMAP.md):
 - Season boundaries are approximated by calendar month, not Elexon's actual

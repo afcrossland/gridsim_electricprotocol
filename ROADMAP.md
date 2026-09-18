@@ -169,23 +169,31 @@ comment(s) together.
   snapshot, not a live calculation.** As of 2026-09-16 the map's own metric
   selector (`WorldMap.tsx`, `lib/mapMetrics.ts`) defaults to self-sufficiency
   (%), coloured from `calculator/src/data/country-self-sufficiency.json` -
-  one % per country for a single fixed default system (10 panels at 500Wp,
-  10kWh battery, 3,500 kWh/yr demand), built by running the app's own real
-  generation/demand/dispatch model (`genericSource.ts`, `demandProfile.ts`,
-  `batteryDispatch.ts`) offline via `scripts/build_self_sufficiency.ts`
-  (`npx tsx scripts/build_self_sufficiency.ts` from `calculator/`) rather
-  than reimplementing the maths. **This file goes stale the moment any of
-  those three inputs change** - a `country-irradiance.json` rebuild (this
-  already happened once, 2026-09-17, when the irradiance script switched
-  from a synthetic model to real PVGIS data, then again the same day when
-  the `optimalangles=1` bug was found and fixed - both times this file had
-  to be manually regenerated afterward, which it was), a new demand
+  as of 2026-09-18 a `{ low, medium, high }` % per country for three fixed
+  system tiers (low: 8 panels at 500Wp/5kWh battery/5,000 kWh/yr demand;
+  medium: 10 panels/10kWh/4,000 kWh/yr, the same "normal house" default the
+  Design tab itself starts from, and the only tier the map's own colour
+  view currently reads; high: 14 panels/15kWh/3,500 kWh/yr), built by
+  running the app's own real generation/demand/dispatch model
+  (`genericSource.ts`, `demandProfile.ts`, `batteryDispatch.ts`) offline
+  via `scripts/build_self_sufficiency.ts` rather than reimplementing the
+  maths. **This file goes stale the moment any of those inputs change** - a
+  `country-irradiance.json` rebuild (this already happened several times -
+  2026-09-17's switch from a synthetic model to real PVGIS data, the
+  `optimalangles=1` fix the same day, the `usehorizon=0` and
+  biggest-city-point fixes 2026-09-18, each requiring this file to be
+  manually regenerated afterward, which it was), a new demand
   shape/database (see the entry above and the "global household demand"
   item below), or a changed dispatch model (round-trip efficiency, charge
-  power cap, export limit) - and nothing currently catches that drift
-  automatically; re-running the script is a manual step someone has to
-  remember every time. A real fix would wire regeneration into whatever
-  pipeline updates those upstream datasets.
+  power cap, export limit). Partially addressed 2026-09-18 per Andrew's own
+  instruction ("update the code so this repeats every time we update the
+  demand profile/irradiance"): `npm run calculator:build-datasets` (root
+  `package.json`) now chains all three generator scripts in the right
+  order, so regenerating either upstream dataset regenerates this one too
+  in the same command - but running that command is still something a
+  person has to choose to do, not something a build/CI step forces. A full
+  fix would wire it into whatever pipeline updates those upstream datasets
+  automatically, with no human step at all.
 - **TODO: the Dispatch tab's charts need explainer text.** As of
   2026-09-18, "Monthly total" and "Daily dispatch across the year"
   (`DispatchPanel.tsx`'s own `withExportAboveAxis`) show solar export

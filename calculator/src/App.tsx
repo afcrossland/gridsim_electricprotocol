@@ -247,7 +247,7 @@ export default function App({ mode, setMode }: Props) {
           {!loading && results && (
             <Box sx={{ px: 2, pb: 2, display: "flex", gap: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
               <Stat label="Total generation" value={`${results.annualGenerationKWh.toLocaleString()} kWh/yr`} />
-              <Stat label="Self sufficiency" value={`${results.pctDemandMet.toFixed(1)}%`} />
+              <Stat label="Self sufficiency" value={`${results.pctDemandMet}%`} />
               <Stat label="Payback range" value="Coming soon" muted />
             </Box>
           )}

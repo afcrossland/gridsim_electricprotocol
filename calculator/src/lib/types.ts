@@ -98,7 +98,7 @@ export interface SavingsResults {
   exportedKWh: number;
   /** Total annual demand this result was computed against (the band/custom kWh, plus EV charging if on) - lets the UI show "from grid" as demandKWh - selfConsumedKWh without re-deriving it from pctDemandMet. */
   demandKWh: number;
-  /** selfConsumedKWh / demand, as a percentage (0-100, capped there) to 1dp - mirrors mygridgb's own `pctMet`, rounded to 1dp instead of a whole percent per Andrew's own instruction 2026-09-18. */
+  /** selfConsumedKWh / demand, as a whole percentage (0-100, capped there), rounded down - mirrors mygridgb's own `pctMet`. */
   pctDemandMet: number;
   /** Low/mid/high install-cost estimate rows - see lib/payback.ts. */
   paybackRows: PaybackRow[];

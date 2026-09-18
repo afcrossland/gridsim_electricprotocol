@@ -14,7 +14,8 @@
     "build:geometry": "python3 scripts/build_geometry.py",
     "build:indicators": "python3 scripts/build_indicator_answers.py",
     "export:consultant-review": "vitest run --config scripts/vitest.extract.config.ts && python3 scripts/export_consultant_review.py",
-    "export:questions-doc": "python3 scripts/export_questions_doc.py"
+    "export:questions-doc": "python3 scripts/export_questions_doc.py",
+    "calculator:build-datasets": "cd calculator && python3 scripts/build_country_irradiance.py && python3 scripts/build_pc1_demand_profile.py && npx tsx scripts/build_self_sufficiency.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

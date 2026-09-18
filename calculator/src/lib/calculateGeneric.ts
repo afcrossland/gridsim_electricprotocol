@@ -34,12 +34,11 @@ export async function calculateGeneric(inputs: SavingsInputs): Promise<SavingsRe
   const { selfConsumedKWh, exportedKWh, hourly: dispatchHourly } = simulateDispatch(generation, demandProfile, batteryKWh);
 
   const annualGenerationKWh = Math.round(generation.reduce((sum, v) => sum + v, 0));
-  // 1dp, not a whole percent, per Andrew's own instruction 2026-09-18
-  // ("allow 1dp on the self-sufficiency when displaying it"); rounded DOWN
-  // (Math.floor, not Math.round) per his own follow-up instruction the
-  // same day ("when calc self sufficiency, round down to nearest 0.1%") -
+  // Rounded DOWN (Math.floor, not Math.round) to a whole percent, per
+  // Andrew's own instruction 2026-09-18 ("round down to nearest 0.1%",
+  // later revised the same day to "round down to nearest %" instead) -
   // never overstate how much of demand solar+battery actually covers.
-  const pctDemandMet = Math.min(100, Math.floor((selfConsumedKWh / annualKWh) * 1000) / 10);
+  const pctDemandMet = Math.min(100, Math.floor((selfConsumedKWh / annualKWh) * 100));
 
   // Self-consumed kWh (solar used directly + battery discharge) split by
   // hour into day/night, so the day/night import-tariff sliders each apply

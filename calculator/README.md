@@ -22,50 +22,90 @@ v1 - working end to end. English-only UI.
 Same map + sidebar shell as Deployment Explorer: `TopNavbar` up top, the map
 as a flex sibling of the sidebar (not an overlay), a footer bar with a
 location search box, the map's own metric selector, and the language
-switcher.
+switcher. Headings follow the same GSC theme typography Deployment Explorer
+already used (`mui-theme.tsx`, shared verbatim between the two apps) -
+top-level tab headings use the theme's own `h5` (no inline weight
+override), and every sub-section label ("Monthly total", "Tariffs",
+"Payback", etc.) uses `overline` (small, uppercase, letter-spaced grey),
+matching Deployment Explorer's own `CountryDetail.tsx`/`GenerationDetail.tsx`
+convention rather than the plain `subtitle2` this app used until
+2026-09-18.
+
+**Mobile** (below MUI's `md` breakpoint), ported from Deployment Explorer's
+own mobile layout 2026-09-18: the map and sidebar can't sit side by side
+(the sidebar's own desktop width alone is wider than most phones), so they
+become a List/Map `ToggleButtonGroup` instead - the search box moves up
+next to that toggle (off the footer, which is desktop-only there). Picking
+a location takes over the *entire* screen on mobile (no toggle/search
+above it) rather than opening a side panel, with its own back arrow to
+return to the List/Map toggle.
 
 **Default (no location selected)**: the sidebar shows an intro line and a
 **league table** - every country ranked by the map's current metric (flag,
 name, value), sortable ascending/descending, and clicking a row selects
 that country exactly like clicking it on the map (`CountryLeagueTable.tsx`).
+Each row's own displayed value differs by metric, per Andrew's own
+instruction 2026-09-18: **Generation** shows kWh/panel/yr for a 500Wp panel
+(the header reads "Ranked by generation (based on 500Wp panel)") rather
+than the panel-size-agnostic kWh/kWp/yr the map's own legend/tooltip still
+use; **Self-sufficiency** shows a low-high range across the three
+precomputed system tiers (see below) rather than the single medium figure
+the list is actually ranked by.
 
 **Map metric selector** (`ToggleButtonGroup` in the footer, same pattern as
-Policy/Deployment Explorer's own): two views, coloured with the same
+Policy/Deployment Explorer's own; hidden once a location is selected,
+2026-09-18, since it colours a map that's no longer the focus of the view
+at that point - see App.tsx): two views, coloured with the same
 amber-to-aqua ramp as the sibling apps (`lib/mapColor.ts`).
 - **Self-sufficiency (%)** - the default. Coloured from a *precomputed*
-  per-country dataset (`data/country-self-sufficiency.json`), normalised
-  against a fixed 60-100% domain (not 0-100% or the dataset's own min/max -
-  almost every country clears 50% with this system size, so a wider domain
-  would waste most of the ramp on a range nothing falls into).
+  per-country dataset (`data/country-self-sufficiency.json`), reading only
+  its "medium" tier (see below), normalised against a fixed 50-100% domain
+  (not 0-100% or the dataset's own min/max - almost every country clears
+  50% with this system size, so a wider domain would waste most of the ramp
+  on a range nothing falls into; the domain's own midpoint is deliberately
+  75%, not the naive 80%, per Andrew's own instruction 2026-09-18).
 - **Generation** - annual kWh/kWp, coloured from the same
   `country-irradiance.json` dataset the calculation itself reads, log-scale
-  normalised (unbounded, right-skewed figures).
+  normalised (unbounded, right-skewed figures). The map's own legend/hover
+  tooltip show this in kWh/kWp/yr (panel-size-agnostic); only the league
+  table's own row values (above) convert this to kWh/panel/yr.
 
 See `lib/mapMetrics.ts` for both metrics' value loaders/domains/formatters,
 and `components/WorldMap.tsx` for how the selected metric drives the
 choropleth (a fixed MapLibre `fill-color` expression interpolating on
 `feature-state.norm`; only the per-country `norm` value written into that
 feature-state changes when the metric changes - same pattern as
-Deployment Explorer's own map).
+Deployment Explorer's own map). The floating legend's own title
+(`MapLegend.tsx`) is NOT rendered in CSS uppercase, unlike the sibling
+apps' own copy of that component - a mixed-case unit like "kWh/kWp" reads
+as "KWH/KWP" under `text-transform: uppercase`, so this app's own copy
+dropped that rule 2026-09-18.
 
 **Picking a location** (map click, search, or a league-table row) opens the
 sidebar's detail view: a back arrow + flag + name header, three headline
 tiles (Total generation, Self sufficiency, Payback range - the last one
-reads "Coming soon", a deliberate placeholder, not a bug), then four tabs:
+reads "Coming soon", a deliberate placeholder, not a bug), then four tabs
+(Design first, per Andrew's own instruction 2026-09-18 - "when click on
+country, default to design tab"):
 
 | Tab | Content |
 |---|---|
-| **Economics** | Panel/battery spec, a from-solar/from-grid breakdown, three tariff sliders (import price day, import price night, export sale value - all $/kWh), then the payback table those sliders drive. |
-| **Design** | Four sliders - panel count (0-50, default 10), panel size (400-750Wp, default 500), battery (0-40kWh, default 10), annual demand (500-20,000kWh, default 4,000) - each its own icon-labelled card. No EV charging controls (still exists in the model at a fixed default, just not user-editable); no submit button - changing a slider on either this tab or Economics auto-recalculates (debounced 300ms) via `App.tsx`'s own effect. |
+| **Design** | Four sliders - panel count (0-50, default 10, step 1), panel size (400-750Wp, default 500, step 10Wp), battery (0-40kWh, default 10, step 2.5kWh), annual demand (500-20,000kWh, default 4,000, step 250kWh) - each its own icon-labelled card. No EV charging controls (still exists in the model at a fixed default, just not user-editable); no submit button - changing a slider on either this tab or Economics auto-recalculates (debounced 300ms) via `App.tsx`'s own effect. |
 | **Generation & demand** | The 8760-hour generation profile (`generationProfile`) plotted together with the real demand profile the dispatch simulation itself ran against (`demandProfile`, both in `SavingsResults`) - not an illustrative shape, the same system's own demand - as a monthly-total grouped bar chart (`DualMonthlyBarChart.tsx`) above a year-long daily line chart (`MultiLineChart.tsx`, GSC yellow for generation, GSC teal for demand). Click a day, or drag across several, to zoom into their hourly values - and keep dragging within that zoomed view to narrow further, recursively, down to a single day. Originally two separate tabs (Generation, Demand), merged 2026-09-17 so the two are directly comparable on shared axes rather than viewed apart. |
-| **Dispatch** | How solar, the battery and the grid cover demand, hour by hour - a signed stacked-bar chart (solar-to-demand/battery-discharge/grid/solar-to-battery stacked upward, solar-export stacked downward, from one shared zero axis) at monthly, yearly-daily, and hourly-drill-down resolution, plus a separate battery state-of-charge (%) chart below it. |
+| **Dispatch** | A "From solar"/"From grid" tile pair and an annual-energy-flow Sankey diagram (`SankeyDiagram.tsx`, hand-built SVG - Solar+Grid import on the left, Battery in the middle, Demand+Grid export+Losses on the right) up top, then how solar, the battery and the grid cover demand hour by hour: a repeated colour-key legend above each chart (not just once at the top, per Andrew's own instruction 2026-09-18 - "do we need more legends?"), "Monthly total" as a signed stacked-bar chart (`StackedBarChart.tsx`), then "Daily dispatch across the year" (and its hourly drill-down) as a smoothed stacked-area chart instead (`StackedAreaChart.tsx`, per Andrew's own instruction 2026-09-18 - "can we do as a stacked area... keep bars elsewhere"). Solar-to-demand/battery-discharge/solar-to-battery/grid stack upward from one shared zero axis; solar export stacks *above* the axis too on "Monthly total" and the daily view (not below, at reduced opacity - `DispatchPanel.tsx`'s own `withExportAboveAxis`), but stays below the axis at full opacity on the hourly drill-down. A separate battery state-of-charge (%) chart sits below all of that. |
+| **Economics** | Panel/battery spec, three tariff sliders (import price day, import price night, export sale value) shown in the visitor's own local currency symbol (`lib/currency.ts` - USD/CAD/AUD/NZD/EUR/GBP by country, USD elsewhere; a display-symbol swap only, not real conversion), then a cost/IRR/payback table (`PaybackTable.tsx` - low/typical/high install-cost estimates: $2,000 fixed + $0.40/Wp of panel + $400/kWh of battery, each with its own pre-tax unlevered IRR and payback year count) and a separate year-by-year saving table (`YearlySavingsTable.tsx` - import saving, which grows with inflation, vs. export revenue, which doesn't, for 25 years, each figure prefixed with the currency symbol). |
 
 `GenerationTimeseries.tsx` (now only the Dispatch tab's own state-of-charge
 chart), `MultiLineChart.tsx` (the Generation & demand tab's own multi-series
-line chart) and `StackedBarChart.tsx` (Dispatch's own flow chart) all
-implement the same click-or-drag-and-keep-zooming interaction independently,
-since they're different mark types (single line vs. multi-line vs. signed
-stacked bars).
+line chart), `StackedBarChart.tsx` ("Monthly total") and `StackedAreaChart.tsx`
+("Daily dispatch across the year" and its hourly drill-down) all implement
+the same click-or-drag-and-keep-zooming interaction independently, since
+they're different mark types (single line vs. multi-line vs. signed stacked
+bars vs. smoothed stacked areas). Every chart's own y-axis uses
+`lib/chartFormat.ts`'s `niceTicks()` (round tick steps, a ceiling *at or
+above* the real data max so nothing clips) and `formatAxisValue()` (plain
+numbers with thousands separators - never abbreviated as "1.2k", per
+Andrew's own instruction 2026-09-18).
 
 ## How the calculation works
 
@@ -129,14 +169,25 @@ imports from the grid. The same function also tracks state of charge (%)
 hour-by-hour, for the Dispatch tab's own chart.
 
 **Self-sufficiency map metric**: `data/country-self-sufficiency.json` is a
-precomputed % per country for one fixed default system (10 panels at
-500Wp, a 10kWh battery, 3,500 kWh/yr demand), built by running this exact
+precomputed `{ low, medium, high }` % per country, one per system tier -
+low (8 panels at 500Wp, a 5kWh battery, 5,000 kWh/yr demand), medium (10
+panels, 10kWh, 4,000 kWh/yr - the same "normal house" default the Design
+tab itself starts from, and the only tier the map's own colour view
+actually reads today), high (14 panels, 15kWh, 3,500 kWh/yr) - added
+2026-09-18 per Andrew's own instruction. Built by running this exact
 model - not a reimplementation of it - via
 `scripts/build_self_sufficiency.ts` (`npx tsx
-scripts/build_self_sufficiency.ts` from `calculator/`). **It goes stale**
-the moment the irradiance database, the demand shape, or the dispatch
-model's own assumptions change, and regenerating it is a manual step - see
-ROADMAP.md.
+scripts/build_self_sufficiency.ts` from `calculator/`, or `npm run
+calculator:build-datasets` from the repo root to chain it after the
+irradiance/demand-profile scripts). **It goes stale** the moment the
+irradiance database, the demand shape, or the dispatch model's own
+assumptions change - the chained npm script means one command now
+regenerates all three in the right order instead of someone having to
+remember to run this one too, but running that command is still a manual
+step, not wired into any build/CI check - see ROADMAP.md. The league
+table's own low-high range display (see "Layout" above) reads "low" and
+"high" straight from this file via `lib/mapMetrics.ts`'s own
+`loadSelfSufficiencyTiers()`.
 
 **Known placeholders, tracked as TODOs** (see the repo root's own
 `ROADMAP.md` for the consolidated, up-to-date list): the country-irradiance
@@ -161,7 +212,20 @@ npx tsc -b && npx vitest run && npm run build:dev
 
 Three one-off generator scripts under `scripts/`, each with its own doc
 comment covering method and caveats - re-run only when their own upstream
-assumptions change, not at build/dev time:
+assumptions change, not at build/dev time. Since the self-sufficiency
+dataset (the third one) is built *from* the other two's own output, it
+goes stale whenever either of them changes - per Andrew's own instruction
+2026-09-18 ("update the code so this repeats every time we update the
+demand profile/irradiance"), all three are now chained under one root
+`package.json` script instead of relying on someone remembering to run
+the third one too:
+
+```sh
+# From the repo root - runs all three, in order
+npm run calculator:build-datasets
+```
+
+Or individually, from `calculator/`:
 
 ```sh
 # Per-country 8760 irradiance profile (Python, needs shapely)
@@ -170,7 +234,7 @@ python3 scripts/build_country_irradiance.py
 # The PC1 demand shape (Python)
 python3 scripts/build_pc1_demand_profile.py
 
-# The self-sufficiency map dataset (TypeScript, via tsx - reuses the real
-# generation/demand/dispatch model directly, run from calculator/)
+# The self-sufficiency map dataset, all three system tiers (TypeScript,
+# via tsx - reuses the real generation/demand/dispatch model directly)
 npx tsx scripts/build_self_sufficiency.ts
 ```
