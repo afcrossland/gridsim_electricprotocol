@@ -16,6 +16,7 @@ import type { CountryScore, GroupedScore } from "../../lib/types";
 import { useProtocolStore } from "../../stores/protocolStore";
 import FlagImg from "../ui/FlagImg";
 import ScoreboardFilters from "./ScoreboardFilters";
+import RankedRow from "../../../shared/components/RankedRow";
 
 /**
  * What a row's tile shows, driven by the current sort - sorting by score
@@ -149,80 +150,58 @@ function Row({
 
   return (
     <Box>
-      <Box
-        onClick={() =>
-          group.hasOwnScore ? onSelect(group.code) : setExpanded((v) => !v)
-        }
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1.25,
-          pl: 1.25,
-          pr: 1,
-          py: 0.9,
-          borderRadius: "8px",
-          border: "1px solid",
-          borderColor: selected ? "primary.main" : "#E5E7EB",
-          cursor: "pointer",
-          overflow: "hidden",
-          bgcolor: selected ? "action.selected" : "action.hover",
-          transition: "background-color 120ms ease, border-color 120ms ease",
-          "&:hover": { bgcolor: selected ? "action.selected" : "#F3F4F6" },
-          "&:hover .row-chevron": { color: "primary.main", transform: "translateX(2px)" },
-        }}
-      >
-        {rank !== undefined && (
+      {/* Ported onto the shared `RankedRow` 2026-09-19, per Andrew's own
+          instruction ("the tiles used to rank countries should be the
+          same") - the tile itself (border/radius/hover/selected shading)
+          is now shared with deployment's and calculator's own rows; the
+          expand/collapse grouping below stays here, since neither sibling
+          app has subdivided countries to group. */}
+      <RankedRow
+        rank={rank}
+        flag={<FlagImg code={group.code} size={16} />}
+        name={group.name}
+        value={
           <Typography
-            variant="caption"
-            sx={{ width: 16, textAlign: "right", fontWeight: 600, flexShrink: 0 }}
-          >
-            {rank}
-          </Typography>
-        )}
-
-        <FlagImg code={group.code} size={16} />
-
-        <Typography variant="subtitle1" noWrap sx={{ flex: 1, minWidth: 0 }}>
-          {group.name}
-        </Typography>
-
-        <Typography
-          variant="body2"
-          noWrap={isCompletenessSort(sort) || group.ranked}
-          sx={{
-            width: 130,
-            textAlign: "right",
-            fontWeight: 700,
-            flexShrink: 0,
-            lineHeight: isCompletenessSort(sort) || group.ranked ? undefined : 1.2,
-            color: tileDisplay(group, sort, t, i18n.language).color,
-          }}
-        >
-          {tileDisplay(group, sort, t, i18n.language).text}
-        </Typography>
-
-        {group.isGroup ? (
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded((v) => !v);
+            variant="body2"
+            noWrap={isCompletenessSort(sort) || group.ranked}
+            sx={{
+              width: 130,
+              textAlign: "right",
+              fontWeight: 700,
+              flexShrink: 0,
+              lineHeight: isCompletenessSort(sort) || group.ranked ? undefined : 1.2,
+              color: tileDisplay(group, sort, t, i18n.language).color,
             }}
-            sx={{ flexShrink: 0, p: 0.25 }}
           >
-            <ExpandMoreIcon
+            {tileDisplay(group, sort, t, i18n.language).text}
+          </Typography>
+        }
+        selected={selected}
+        onClick={() => (group.hasOwnScore ? onSelect(group.code) : setExpanded((v) => !v))}
+        trailing={
+          group.isGroup ? (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((v) => !v);
+              }}
+              sx={{ flexShrink: 0, p: 0.25 }}
+            >
+              <ExpandMoreIcon
+                fontSize="small"
+                sx={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 150ms" }}
+              />
+            </IconButton>
+          ) : (
+            <ChevronRightIcon
+              className="row-chevron"
               fontSize="small"
-              sx={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 150ms" }}
+              sx={{ color: "text.disabled", flexShrink: 0, transition: "color 120ms, transform 120ms" }}
             />
-          </IconButton>
-        ) : (
-          <ChevronRightIcon
-            className="row-chevron"
-            fontSize="small"
-            sx={{ color: "text.disabled", flexShrink: 0, transition: "color 120ms, transform 120ms" }}
-          />
-        )}
-      </Box>
+          )
+        }
+      />
 
       {group.isGroup && (
         <Collapse in={expanded}>

@@ -37,7 +37,7 @@ export default function RefineForm({
   onAnnualKWhChange: (kwh: number) => void;
 }) {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, width: "100%" }}>
+    <Box data-tour="design-sliders" sx={{ display: "flex", flexDirection: "column", gap: 3, width: "100%" }}>
       <Typography variant="h5">
         Design your system
       </Typography>

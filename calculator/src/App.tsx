@@ -3,23 +3,21 @@ import {
   Box,
   CircularProgress,
   Divider,
-  IconButton,
   Tab,
   Tabs,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import type { PaletteMode } from "@mui/material/styles";
 
 import CountryLeagueTable from "./components/CountryLeagueTable";
 import DispatchPanel from "./components/DispatchPanel";
-import FlagImg from "./components/FlagImg";
+import FlagImg from "../../shared/components/FlagImg";
 import GenerationDemandPanel from "./components/GenerationDemandPanel";
+import HelpPage from "./components/HelpPage";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import LocationSearchBar from "./components/LocationSearchBar";
 import RefineForm from "./components/RefineForm";
@@ -31,6 +29,16 @@ import { countryCodeOf } from "./lib/jurisdictions";
 import { METRIC_LABELS } from "./lib/mapMetrics";
 import type { Metric } from "./lib/mapMetrics";
 import type { DemandInput, Location, PanelArray, SavingsResults, Tariffs } from "./lib/types";
+import { buildScenes } from "./tour/scenes";
+import DetailHeader from "../../shared/components/DetailHeader";
+import FooterComposition from "../../shared/components/FooterComposition";
+import SidebarShell from "../../shared/components/SidebarShell";
+import TourOverlay from "../../shared/tour/TourOverlay";
+import { useTourState } from "../../shared/tour/useTourState";
+
+const TOUR_SEEN_KEY = "calculator-tour-seen";
+/** Real, real-generation-data location the tour's own Design/Dispatch scenes select - see `tour/scenes.ts`'s own doc comment. */
+const DEMO_LOCATION: Location = { lat: 51.5019, lon: -0.1187, displayName: "United Kingdom", countryCode: "gb", mapCode: "GB" };
 
 const METRICS: Metric[] = ["selfSufficiency", "generation"];
 
@@ -39,7 +47,7 @@ interface Props {
   setMode: (mode: PaletteMode) => void;
 }
 
-type TabKey = "results" | "refine" | "generation" | "dispatch";
+export type TabKey = "results" | "refine" | "generation" | "dispatch";
 
 // EV charging stays fixed/hidden per Andrew's own instruction 2026-09-16
 // ("hide the EV and tariff boxes"). Tariffs came back 2026-09-17 ("on
@@ -96,6 +104,15 @@ export default function App({ mode, setMode }: Props) {
   // 2026-09-16 - generation (the map's own original, and only, view before
   // this selector existed) is the alternative.
   const [metric, setMetric] = useState<Metric>("selfSufficiency");
+  // Same "page" concept as the sibling apps' own App.tsx - switches the
+  // whole main area over to the new Help page (see HelpPage.tsx) and back.
+  const [page, setPage] = useState<"map" | "help">("map");
+
+  // The tour/Help/Login header buttons, and the tour itself, are all new
+  // 2026-09-19 (this app had none before) - built on the same shared
+  // `shared/tour/` engine deployment's own tour was ported onto the same
+  // day. See `tour/scenes.ts` for the scene content.
+  const { tourOpen, openTour, dismissTour, setTourSceneId, heroScene } = useTourState(TOUR_SEEN_KEY);
 
   // Mobile layout, ported from Deployment Explorer's own App.tsx
   // (deployment/src/App.tsx) 2026-09-18 - below `md`, the map and sidebar
@@ -152,6 +169,20 @@ export default function App({ mode, setMode }: Props) {
     setResults(null);
   }
 
+  // Finishing (or skipping) the tour returns to a defined start position -
+  // the whole map, nothing selected, the default metric - rather than
+  // leaving the tour's own demo location (`DEMO_LOCATION` above) selected
+  // behind it. Per Andrew's own instruction 2026-09-19 ("after the tour,
+  // as part of the defined process, we need to go to a start position
+  // showing whole map, no country selected and a particular ranking on
+  // the sidebar").
+  function dismissTourToStart() {
+    dismissTour();
+    closeSidebar();
+    setTab("refine");
+    setMetric("selfSufficiency");
+  }
+
   // Shared by the map's own click handler and the league table's row click
   // (CountryLeagueTable) - a row click selects that country exactly like
   // clicking it on the map does, per Andrew's own instruction 2026-09-16
@@ -186,6 +217,8 @@ export default function App({ mode, setMode }: Props) {
       metric={metric}
     />
   );
+
+  const tourScenes = buildScenes(() => selectLocation(DEMO_LOCATION), setTab);
 
   // Extracted so the exact same JSX renders in three places - the desktop
   // sidebar, mobile's full-screen detail view (once a location is picked),
@@ -225,18 +258,14 @@ export default function App({ mode, setMode }: Props) {
               an h2 name at 1.125rem) - per Andrew's instruction
               2026-09-15. The arrow always goes back out to the full
               map - there's no multi-step wizard to step back through
-              any more now that Economics/Design are just tabs. */}
-          <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1, borderBottom: results ? "none" : "1px solid", borderColor: "divider" }}>
-            <Tooltip title="Back to map">
-              <IconButton size="small" onClick={closeSidebar}>
-                <ArrowBackIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <FlagImg code={location.countryCode} size={22} />
-            <Typography variant="h2" sx={{ fontSize: "1.125rem", flex: 1, minWidth: 0 }} noWrap>
-              {location.displayName}
-            </Typography>
-          </Box>
+              any more now that Economics/Design are just tabs. Ported
+              onto the shared `DetailHeader` 2026-09-19. */}
+          <DetailHeader
+            onBack={closeSidebar}
+            flag={<FlagImg code={location.countryCode} size={22} />}
+            name={location.displayName}
+            sx={{ borderBottom: results ? "none" : "1px solid", borderColor: "divider" }}
+          />
 
           {/* Three headline tiles, per Andrew's own instruction
               2026-09-16 - the same numbers the Economics tab breaks
@@ -308,128 +337,142 @@ export default function App({ mode, setMode }: Props) {
 
   return (
     <Box sx={{ height: "100dvh", width: "100%", display: "flex", flexDirection: "column", overflowX: "hidden" }}>
-      <TopNavbar mode={mode} setMode={setMode} />
-
-      {isMobile ? (
-        location ? (
-          // A location's own detail view takes the full screen on mobile -
-          // no room for a Map/List toggle on top of it too, and its own
-          // back arrow (in sidebarContent's own header) already gets you
-          // out - same as Deployment Explorer's own equivalent state.
-          <Box sx={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", bgcolor: "background.paper" }}>
-            {sidebarContent}
-          </Box>
-        ) : (
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            {/* Search sits left-aligned next to the Map/List toggle, both in
-                one row - same relocation Deployment Explorer's own mobile
-                layout made (off its own separate row, which doesn't exist
-                here any more once search moves off the footer). */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 1,
-                px: 2,
-                pt: 1.5,
-                pb: 1,
-                bgcolor: "background.paper",
-              }}
-            >
-              {/* No location selected in this branch (see the `location ? ... : ...`
-                  just above) - `selectedCountryCode` is always undefined here,
-                  not `location?.countryCode` (a TS control-flow-analysis
-                  limitation narrows `location` to `never` inside a ternary
-                  nested this deep, not `null`, so the optional-chain access
-                  itself fails to typecheck even though it's logically fine). */}
-              <LocationSearchBar selectedCountryCode={undefined} onSelect={selectLocation} />
-              <ToggleButtonGroup size="small" exclusive value={mobileView} onChange={(_, next) => next && setMobileView(next)}>
-                <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                  List
-                </ToggleButton>
-                <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                  Map
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-            <Divider />
-            {mobileView === "map" ? (
-              <Box sx={{ flex: 1, minHeight: 0, position: "relative" }}>{map}</Box>
-            ) : (
-              <Box
-                sx={{ flex: 1, minHeight: 0, bgcolor: "background.paper", overflow: "hidden", display: "flex", flexDirection: "column" }}
-              >
-                {sidebarContent}
-              </Box>
-            )}
-          </Box>
-        )
-      ) : (
-        // Same map + sidebar layout as Deployment Explorer's own desktop
-        // App.tsx - the map is a flex sibling of the sidebar, not an overlay.
-        <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>{map}</Box>
-          <Box
-            sx={{
-              width: location ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_DEFAULT_WIDTH,
-              flexShrink: 0,
-              borderLeft: "1px solid",
-              borderColor: "divider",
-              bgcolor: "background.paper",
-              display: "flex",
-              flexDirection: "column",
-              transition: "width 220ms ease",
-              overflow: "hidden",
-            }}
-          >
-            {sidebarContent}
-          </Box>
-        </Box>
+      {/* Hidden through the tour's opening hero scene, same as the sibling
+          apps' own App.tsx hide their equivalent nav/footer there, for an
+          unobstructed view of the map. */}
+      {!heroScene && (
+        <TopNavbar mode={mode} setMode={setMode} page={page} setPage={setPage} onStartTour={openTour} />
       )}
 
-      <Box
-        sx={{
-          flexShrink: 0,
-          height: 56,
-          bgcolor: "background.paper",
-          borderTop: "1px solid",
-          borderColor: "divider",
-          display: "flex",
-          alignItems: "center",
-          px: 2,
-          gap: 1.5,
-        }}
-      >
-        {/* Desktop only - on mobile the search box moved up next to the
-            Map/List toggle (see above), so this footer's only content is
-            the metric selector, same reasoning as Deployment Explorer's
-            own footer (deployment/src/App.tsx: "search itself stays
-            desktop-only here"). */}
-        {!isMobile && <LocationSearchBar selectedCountryCode={location?.countryCode} onSelect={selectLocation} />}
-        {/* Same ToggleButtonGroup-in-the-footer pattern, and the same
-            position immediately after the search box, as Policy Explorer's
-            own map-metric toggle (src/App.tsx) and Deployment Explorer's
-            own (deployment/src/App.tsx) - per Andrew's own instruction
-            2026-09-16 ("move the toggle on the map mode to the left like
-            on deployment calculator"). Hidden once a location is selected,
-            per Andrew's own instruction 2026-09-18 ("when we click on a
-            country the toggle... on the footer should disappear") - it
-            colours the map, which isn't visible any more on mobile once
-            the sidebar takes the full screen, and on desktop it no longer
-            reflects anything the sidebar's own content is about. */}
-        {!location && (
-          <ToggleButtonGroup size="small" exclusive value={metric} onChange={(_, v: Metric | null) => v && setMetric(v)}>
-            {METRICS.map((m) => (
-              <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
-                {METRIC_LABELS[m]}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        )}
-        <Box sx={{ flex: 1 }} />
-        <LanguageSwitcher />
-      </Box>
+      {page === "help" ? (
+        <HelpPage onBack={() => setPage("map")} />
+      ) : (
+        <>
+          {heroScene ? (
+            <Box sx={{ flex: 1, position: "relative" }}>{map}</Box>
+          ) : isMobile ? (
+            location ? (
+              // A location's own detail view takes the full screen on mobile -
+              // no room for a Map/List toggle on top of it too, and its own
+              // back arrow (in sidebarContent's own header) already gets you
+              // out - same as Deployment Explorer's own equivalent state.
+              <Box sx={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", bgcolor: "background.paper" }}>
+                {sidebarContent}
+              </Box>
+            ) : (
+              <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                {/* Search sits left-aligned next to the Map/List toggle, both in
+                    one row - same relocation Deployment Explorer's own mobile
+                    layout made (off its own separate row, which doesn't exist
+                    here any more once search moves off the footer). */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1,
+                    px: 2,
+                    pt: 1.5,
+                    pb: 1,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  {/* No location selected in this branch (see the `location ? ... : ...`
+                      just above) - `selectedCountryCode` is always undefined here,
+                      not `location?.countryCode` (a TS control-flow-analysis
+                      limitation narrows `location` to `never` inside a ternary
+                      nested this deep, not `null`, so the optional-chain access
+                      itself fails to typecheck even though it's logically fine). */}
+                  <Box data-tour="location-search">
+                    <LocationSearchBar selectedCountryCode={undefined} onSelect={selectLocation} />
+                  </Box>
+                  <ToggleButtonGroup size="small" exclusive value={mobileView} onChange={(_, next) => next && setMobileView(next)}>
+                    <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
+                      List
+                    </ToggleButton>
+                    <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
+                      Map
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+                <Divider />
+                {mobileView === "map" ? (
+                  <Box sx={{ flex: 1, minHeight: 0, position: "relative" }}>{map}</Box>
+                ) : (
+                  <Box
+                    sx={{ flex: 1, minHeight: 0, bgcolor: "background.paper", overflow: "hidden", display: "flex", flexDirection: "column" }}
+                  >
+                    {sidebarContent}
+                  </Box>
+                )}
+              </Box>
+            )
+          ) : (
+            // Same map + sidebar layout as Deployment Explorer's own desktop
+            // App.tsx - the map is a flex sibling of the sidebar, not an overlay.
+            <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
+              <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>{map}</Box>
+              <SidebarShell width={location ? SIDEBAR_EXPANDED_WIDTH : SIDEBAR_DEFAULT_WIDTH}>{sidebarContent}</SidebarShell>
+            </Box>
+          )}
+
+          {!heroScene && (
+            <FooterComposition
+              search={
+                // Desktop only - on mobile the search box moved up next to the
+                // Map/List toggle (see above), so this footer's only content is
+                // the metric selector, same reasoning as Deployment Explorer's
+                // own footer (deployment/src/App.tsx: "search itself stays
+                // desktop-only here").
+                !isMobile && (
+                  <Box data-tour="location-search">
+                    <LocationSearchBar selectedCountryCode={location?.countryCode} onSelect={selectLocation} />
+                  </Box>
+                )
+              }
+              toggle={
+                // Same ToggleButtonGroup-in-the-footer pattern, and the same
+                // position immediately after the search box, as Policy Explorer's
+                // own map-metric toggle (src/App.tsx) and Deployment Explorer's
+                // own (deployment/src/App.tsx) - per Andrew's own instruction
+                // 2026-09-16 ("move the toggle on the map mode to the left like
+                // on deployment calculator"). Hidden once a location is selected,
+                // per Andrew's own instruction 2026-09-18 ("when we click on a
+                // country the toggle... on the footer should disappear") - it
+                // colours the map, which isn't visible any more on mobile once
+                // the sidebar takes the full screen, and on desktop it no longer
+                // reflects anything the sidebar's own content is about.
+                !location && (
+                  <ToggleButtonGroup size="small" exclusive value={metric} onChange={(_, v: Metric | null) => v && setMetric(v)}>
+                    {METRICS.map((m) => (
+                      <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
+                        {METRIC_LABELS[m]}
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                )
+              }
+              languageSwitcher={<LanguageSwitcher />}
+            />
+          )}
+
+          {tourOpen && (
+            <TourOverlay
+              scenes={tourScenes}
+              onDismiss={dismissTourToStart}
+              onSceneChange={setTourSceneId}
+              heroFooter={
+                <>
+                  by The Global Solar Council&ensp;·&ensp;
+                  <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
+                    Solar. Storage. Future Secured.
+                  </Box>
+                </>
+              }
+            />
+          )}
+        </>
+      )}
     </Box>
   );
 }

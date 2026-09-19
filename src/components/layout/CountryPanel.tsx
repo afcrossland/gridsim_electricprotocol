@@ -4,7 +4,6 @@ import {
   Button,
   Collapse,
   Divider,
-  IconButton,
   Stack,
   Tab,
   Tabs,
@@ -13,7 +12,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CheckIcon from "@mui/icons-material/Check";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -36,6 +34,7 @@ import SectionRail, { type RailSection } from "./SectionRail";
 import SubmitSuggestionDialog from "./SubmitSuggestionDialog";
 import FlagImg from "../ui/FlagImg";
 import StatTile from "../ui/StatTile";
+import DetailHeader from "../../../shared/components/DetailHeader";
 
 export { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab };
 
@@ -287,27 +286,13 @@ export default function CountryPanel({
             row squeezed the country name toward nothing on a narrow screen,
             since the tiles and headerAction refused to shrink and nothing
             wrapped. Desktop keeps them on one line, where there's room. */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            mb: isMobile ? 1 : 1.5,
-            flexWrap: isMobile ? "wrap" : "nowrap",
-          }}
+        <DetailHeader
+          onBack={onBack}
+          backTooltip={t("countryPanel.backToScoreboard")}
+          flag={<FlagImg code={code} size={28} />}
+          name={score.name}
+          sx={{ p: 0, gap: 1.5, mb: isMobile ? 1 : 1.5, flexWrap: isMobile ? "wrap" : "nowrap" }}
         >
-          {onBack && (
-            <Tooltip title={t("countryPanel.backToScoreboard")}>
-              <IconButton size="small" onClick={onBack}>
-                <ArrowBackIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
-          <FlagImg code={code} size={28} />
-          <Typography variant="h2" sx={{ flex: 1, minWidth: 0 }} noWrap>
-            {score.name}
-          </Typography>
-
           {!isMobile && (
             <>
               <Box sx={{ flexShrink: 0 }}>
@@ -344,7 +329,7 @@ export default function CountryPanel({
           </Tooltip>
 
           {headerAction}
-        </Box>
+        </DetailHeader>
 
         {isMobile && (
           <Collapse in={!headerShrunk}>

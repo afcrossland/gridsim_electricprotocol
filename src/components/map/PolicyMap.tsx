@@ -6,10 +6,7 @@ import type {
   MapRef,
   StyleSpecification,
 } from "react-map-gl/maplibre";
-import { Box, IconButton, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import { Box, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useTranslation } from "react-i18next";
@@ -21,7 +18,9 @@ import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP, scoreLabel } from "../..
 import { qualifiedName } from "../../lib/jurisdictions";
 import FlagImg from "../ui/FlagImg";
 import type { CountryScore } from "../../lib/types";
-import MapLegend from "./MapLegend";
+import MapLegend from "../../../shared/components/MapLegend";
+import MapZoomControls from "../../../shared/components/MapZoomControls";
+import { useProtocolStore } from "../../stores/protocolStore";
 
 /**
  * Whole-globe camera for the very first paint, before the world geometry has
@@ -173,6 +172,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const showingLegendBanner = isMobile && !selectedCountry && !hideLegend;
+  const mapMetric = useProtocolStore((s) => s.mapMetric);
 
   // The base style's own country- and continent-name labels compete with the
   // choropleth and our own hover tooltip for the same information, so they
@@ -442,67 +442,23 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         )}
       </MapGL>
 
-      {/* Top-right zoom controls, matching the sibling gridsim-frontend
-          project's own - hover only recolours the icon, not the button
-          chrome, per the user's correction away from that source's actual
-          hover (which also swaps background/outline). */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: showingLegendBanner ? 64 : 16,
-          right: 16,
-          zIndex: 10,
-          display: "flex",
-          flexDirection: "column",
-          gap: 0.5,
+      <MapZoomControls
+        topOffset={showingLegendBanner ? 64 : 16}
+        labels={{ zoomIn: t("map.zoomIn"), zoomOut: t("map.zoomOut"), reset: t("map.backToFullMap") }}
+        onZoomIn={() => mapRef.current?.getMap().zoomIn({ duration: 300 })}
+        onZoomOut={() => mapRef.current?.getMap().zoomOut({ duration: 300 })}
+        onReset={() => {
+          // Clearing the selection alone was a no-op when nothing was
+          // selected - found 2026-09-19 in the sibling deployment app's
+          // own identical pattern: `onCountryClick(null)` only re-fits
+          // the globe via the effect above when `selectedCountry`
+          // actually *changes*, so a manually-zoomed, no-selection map
+          // just stayed zoomed if it was already null. Calling
+          // `fitBounds` directly here fixes that regardless.
+          onCountryClick(null);
+          mapRef.current?.getMap().fitBounds(WORLD_BOUNDS, { padding: 24, duration: 900 });
         }}
-      >
-        <IconButton
-          onClick={() => mapRef.current?.getMap().zoomIn({ duration: 300 })}
-          aria-label={t("map.zoomIn")}
-          sx={{
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 3,
-            width: 36,
-            height: 36,
-            color: "text.secondary",
-            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
-          }}
-        >
-          <AddIcon fontSize="small" />
-        </IconButton>
-        <IconButton
-          onClick={() => mapRef.current?.getMap().zoomOut({ duration: 300 })}
-          aria-label={t("map.zoomOut")}
-          sx={{
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 3,
-            width: 36,
-            height: 36,
-            color: "text.secondary",
-            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
-          }}
-        >
-          <RemoveIcon fontSize="small" />
-        </IconButton>
-        <IconButton
-          onClick={() => onCountryClick(null)}
-          aria-label={t("map.backToFullMap")}
-          sx={{
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 3,
-            width: 36,
-            height: 36,
-            color: "text.secondary",
-            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
-          }}
-        >
-          <ZoomOutMapIcon fontSize="small" />
-        </IconButton>
-      </Box>
+      />
 
       {hover && (
         <Paper
@@ -534,7 +490,13 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         </Paper>
       )}
 
-      {!selectedCountry && !hideLegend && <MapLegend />}
+      {!selectedCountry && !hideLegend && (
+        <MapLegend
+          title={mapMetric === "score" ? t("legend.protocolScore") : t("legend.questionsAnswered")}
+          rampStops={SCORE_RAMP}
+          tickLabels={["0%", "25%", "50%", "75%", "100%"]}
+        />
+      )}
     </Box>
   );
 }

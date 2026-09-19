@@ -1,7 +1,7 @@
-import { Box, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Box, Divider, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
+import HelpPageShell from "../../../shared/components/HelpPageShell";
 import { getCharter } from "../../i18n/charter";
 import { getHelpContent } from "../../i18n/help";
 
@@ -29,61 +29,38 @@ export default function HelpPage({ onBack }: Props) {
   const CHARTER = getCharter(i18n.language);
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <Box
-        sx={{
-          px: 3,
-          py: 2,
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-          borderBottom: "1px solid",
-          borderColor: "divider",
-        }}
-      >
-        <Tooltip title={t("help.back")}>
-          <IconButton size="small" onClick={onBack}>
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Typography variant="h2">{t("help.title")}</Typography>
-      </Box>
-
-      <Box sx={{ flex: 1, overflowY: "auto", p: 3, display: "flex", justifyContent: "center" }}>
-        <Stack spacing={3} sx={{ maxWidth: 720, width: "100%" }}>
-          <Box>
-            <Typography variant="h5" gutterBottom sx={{ color: "primary.dark", fontWeight: 700 }}>
-              {CHARTER.title}
-            </Typography>
-            {CHARTER.intro.map((para) => (
-              <Typography key={para.slice(0, 32)} variant="body2" sx={{ mb: 1.5 }}>
-                {para}
+    <HelpPageShell title={t("help.title")} onBack={onBack} backTooltip={t("help.back")}>
+      <Box>
+        <Typography variant="h5" gutterBottom sx={{ color: "primary.dark", fontWeight: 700 }}>
+          {CHARTER.title}
+        </Typography>
+        {CHARTER.intro.map((para) => (
+          <Typography key={para.slice(0, 32)} variant="body2" sx={{ mb: 1.5 }}>
+            {para}
+          </Typography>
+        ))}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+          {CHARTER.rights.map((right) => (
+            <Box key={right.heading}>
+              <Typography variant="subtitle2" gutterBottom>
+                {right.heading}
               </Typography>
-            ))}
-            <Stack spacing={2} sx={{ mt: 2 }}>
-              {CHARTER.rights.map((right) => (
-                <Box key={right.heading}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    {right.heading}
-                  </Typography>
-                  <Typography variant="body2">{right.body}</Typography>
-                </Box>
-              ))}
-            </Stack>
-          </Box>
-
-          <Divider />
-
-          {topics.map((topic) => (
-            <Box key={topic.heading}>
-              <Typography variant="h6" gutterBottom>
-                {topic.heading}
-              </Typography>
-              <Typography variant="body2">{topic.body}</Typography>
+              <Typography variant="body2">{right.body}</Typography>
             </Box>
           ))}
-        </Stack>
+        </Box>
       </Box>
-    </Box>
+
+      <Divider />
+
+      {topics.map((topic) => (
+        <Box key={topic.heading}>
+          <Typography variant="h6" gutterBottom>
+            {topic.heading}
+          </Typography>
+          <Typography variant="body2">{topic.body}</Typography>
+        </Box>
+      ))}
+    </HelpPageShell>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Box, Divider, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
@@ -10,8 +10,12 @@ import HelpPage from "./components/HelpPage";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import Sidebar from "./components/Sidebar";
 import TopNavbar from "./components/TopNavbar";
-import ScrollStory from "./scrollstory/ScrollStory";
+import { getScenes } from "./i18n/scenes";
 import { type Metric } from "./lib/metrics";
+import FooterComposition from "../../shared/components/FooterComposition";
+import SidebarShell from "../../shared/components/SidebarShell";
+import TourOverlay from "../../shared/tour/TourOverlay";
+import { useTourState } from "../../shared/tour/useTourState";
 
 interface Props {
   mode: PaletteMode;
@@ -23,7 +27,7 @@ const TOUR_SEEN_KEY = "deployment-tour-seen";
 const SIDEBAR_WIDTH = 460;
 
 export default function App({ mode, setMode }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   // One three-way selector, not a view+basis pair - see the plan in
   // README.md. Replaced the old separate view/basis toggles 2026-09-09 per
   // Andrew's instruction. Defaults to "capacityPerCapita" (not "capacity")
@@ -48,55 +52,24 @@ export default function App({ mode, setMode }: Props) {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileView, setMobileView] = useState<"map" | "list">("list");
 
-  // Opens automatically on a visitor's first-ever visit, tracked in
-  // localStorage rather than a store field (this app has no persisted
-  // store) - same "seen once" idea as Policy Explorer's own `tourSeen`,
-  // just a plain flag rather than something read/restored elsewhere.
-  const [tourOpen, setTourOpen] = useState(false);
-  useEffect(() => {
-    if (!localStorage.getItem(TOUR_SEEN_KEY)) setTourOpen(true);
-  }, []);
-  const dismissTour = () => {
-    setTourOpen(false);
-    localStorage.setItem(TOUR_SEEN_KEY, "1");
+  // Ported onto the shared `useTourState` (`shared/tour/`) 2026-09-19 -
+  // the localStorage "seen once" flag, the hero-scene-hides-chrome
+  // derivation, and the `?showTour=1`/`?skipIntro=1` URL-param wiring are
+  // all the same behaviour, now shared with calculator's own new tour.
+  const { tourOpen, openTour, dismissTour, setTourSceneId, heroScene } = useTourState(TOUR_SEEN_KEY);
+
+  // Finishing (or skipping) the tour returns to a defined start position -
+  // the whole map, nothing selected, the default metric - rather than
+  // leaving the tour's own demo country (see scrollstory/scenes.ts's own
+  // DEMO_COUNTRY) selected behind it. Per Andrew's own instruction
+  // 2026-09-19 ("after the tour, as part of the defined process, we need
+  // to go to a start position showing whole map, no country selected and
+  // a particular ranking on the sidebar").
+  const dismissTourToStart = () => {
+    dismissTour();
+    setSelectedCountry(null);
+    setMetric("capacityPerCapita");
   };
-
-  // The tour's opening scene wants an unobstructed globe, same as Policy
-  // Explorer's own `onboardingHero` - added 2026-09-11, this app didn't
-  // have it before (the sidebar/nav/footer stayed on screen through the
-  // hero scene, which Andrew flagged as inconsistent with Policy Explorer
-  // once he noticed the difference). `tourSceneId` is reported up from
-  // ScrollStory via `onSceneChange`; scene 0 is always the hero layout
-  // (see scrollstory/scenes.ts).
-  const [tourSceneId, setTourSceneId] = useState(0);
-  const heroScene = tourOpen && tourSceneId === 0;
-
-  // A link into the app can force the tour open even for a returning
-  // visitor - same ?showTour=1 param and param-stripping pattern as Policy
-  // Explorer's own App.tsx, used by the Playbook homepage's "Show me how"
-  // button.
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("showTour")) return;
-    setTourOpen(true);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("showTour");
-    window.history.replaceState({}, "", url);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // The inverse - marks the tour as already seen without opening it, so a
-  // first-ever visitor arriving via the Playbook's "Click to explore" link
-  // doesn't get the tour anyway despite never having seen it. Same
-  // ?skipIntro=1 param Policy Explorer's own "Click to explore" link uses.
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("skipIntro")) return;
-    setTourOpen(false);
-    localStorage.setItem(TOUR_SEEN_KEY, "1");
-    const url = new URL(window.location.href);
-    url.searchParams.delete("skipIntro");
-    window.history.replaceState({}, "", url);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const map = (
     <DeploymentMap
@@ -113,7 +86,7 @@ export default function App({ mode, setMode }: Props) {
   return (
     <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
       {!heroScene && (
-        <TopNavbar mode={mode} setMode={setMode} page={page} setPage={setPage} onStartTour={() => setTourOpen(true)} />
+        <TopNavbar mode={mode} setMode={setMode} page={page} setPage={setPage} onStartTour={openTour} />
       )}
 
       {page === "help" ? (
@@ -177,9 +150,7 @@ export default function App({ mode, setMode }: Props) {
             // view above, which needs neither.
             <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
               <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>{map}</Box>
-              <Box sx={{ width: SIDEBAR_WIDTH, flexShrink: 0, borderLeft: "1px solid", borderColor: "divider" }}>
-                {list}
-              </Box>
+              <SidebarShell width={SIDEBAR_WIDTH}>{list}</SidebarShell>
             </Box>
           )}
 
@@ -199,54 +170,49 @@ export default function App({ mode, setMode }: Props) {
                   detail view, or the desktop sidebar open) it no longer
                   reflects anything on screen. Search itself stays
                   desktop-only here - on mobile it's always up next to the
-                  Map/List toggle instead. */}
-              <Box
-                sx={{
-                  flexShrink: 0,
-                  height: 48,
-                  bgcolor: "background.paper",
-                  borderTop: "1px solid",
-                  borderColor: "divider",
-                  display: "flex",
-                  alignItems: "center",
-                  px: 2,
-                  gap: 1.5,
-                }}
-              >
-                {!isMobile && <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />}
-
-                {/* Hidden once a country is selected, per Andrew's own
-                    instruction 2026-09-18 ("when we click on a country the
-                    toggle... on the footer should disappear") - it colours
-                    the map, which isn't visible any more on mobile once the
-                    sidebar takes the full screen, and on desktop it no
-                    longer reflects anything the sidebar's own content is
-                    about. */}
-                {!selectedCountry && (
-                  <ToggleButtonGroup
-                    data-tour="metric-selector"
-                    size="small"
-                    exclusive
-                    value={metric}
-                    onChange={(_, v) => v && setMetric(v)}
-                  >
-                    {METRICS.map((m) => (
-                      <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
-                        {isMobile ? t(`metricsShort.${m}`) : t(`metrics.${m}`)}
-                      </ToggleButton>
-                    ))}
-                  </ToggleButtonGroup>
-                )}
-
-                <Box sx={{ flex: 1 }} />
-                {/* Moved here from TopNavbar's desktop header row
-                    2026-09-15 per Andrew's instruction - sits directly left
-                    of the language switcher instead. Desktop only; mobile
-                    keeps its own separate EmberBadge row below this footer
-                    (unchanged, see below). */}
-                {!isMobile && <EmberBadge />}
-                <LanguageSwitcher />
-              </Box>
+                  Map/List toggle instead. Shell ported onto the shared
+                  `FooterBar` 2026-09-19 - the same 48px height this app
+                  already used, so zero visual change from this swap alone.
+                  Composition (search/toggle/extra/language-switcher, in
+                  that order) further ported onto the shared
+                  `FooterComposition` the same day, per Andrew's own
+                  instruction ("footer composition... should be the same
+                  and common") - EmberBadge is this app's own `extra` slot,
+                  the one thing policy/calculator have none of. */}
+              <FooterComposition
+                search={!isMobile && <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />}
+                toggle={
+                  // Hidden once a country is selected, per Andrew's own
+                  // instruction 2026-09-18 ("when we click on a country the
+                  // toggle... on the footer should disappear") - it colours
+                  // the map, which isn't visible any more on mobile once the
+                  // sidebar takes the full screen, and on desktop it no
+                  // longer reflects anything the sidebar's own content is
+                  // about.
+                  !selectedCountry && (
+                    <ToggleButtonGroup
+                      data-tour="metric-selector"
+                      size="small"
+                      exclusive
+                      value={metric}
+                      onChange={(_, v) => v && setMetric(v)}
+                    >
+                      {METRICS.map((m) => (
+                        <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
+                          {isMobile ? t(`metricsShort.${m}`) : t(`metrics.${m}`)}
+                        </ToggleButton>
+                      ))}
+                    </ToggleButtonGroup>
+                  )
+                }
+                // Moved here from TopNavbar's desktop header row 2026-09-15
+                // per Andrew's instruction - sits directly left of the
+                // language switcher instead. Desktop only; mobile keeps its
+                // own separate EmberBadge row below this footer (unchanged,
+                // see below).
+                extra={!isMobile && <EmberBadge />}
+                languageSwitcher={<LanguageSwitcher />}
+              />
 
               {/* Ember credit, mobile only - moved here 2026-09-10 from its own
                   row below the header (added there earlier the same day) per
@@ -269,7 +235,26 @@ export default function App({ mode, setMode }: Props) {
           )}
 
           {tourOpen && (
-            <ScrollStory onDismiss={dismissTour} onSelectCountry={setSelectedCountry} onSceneChange={setTourSceneId} />
+            <TourOverlay
+              scenes={getScenes(i18n.language, setSelectedCountry)}
+              onDismiss={dismissTourToStart}
+              onSceneChange={setTourSceneId}
+              labels={{
+                scrollToBegin: t("scrollStory.scrollToBegin"),
+                previous: t("scrollStory.previous"),
+                next: t("scrollStory.next"),
+                skipIntro: t("scrollStory.skipIntro"),
+                startExploring: t("scrollStory.startExploring"),
+              }}
+              heroFooter={
+                <>
+                  {t("byGsc")}&ensp;·&ensp;
+                  <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
+                    {t("tagline")}
+                  </Box>
+                </>
+              }
+            />
           )}
         </>
       )}

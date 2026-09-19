@@ -1,7 +1,7 @@
-import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
+import HelpPageShell from "../../../shared/components/HelpPageShell";
 import { getHelpContent, type HelpRun } from "../i18n/help";
 
 interface Props {
@@ -40,78 +40,55 @@ export default function HelpPage({ onBack }: Props) {
   const sections = getHelpContent(i18n.language);
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <Box
-        sx={{
-          px: 3,
-          py: 2,
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-          borderBottom: "1px solid",
-          borderColor: "divider",
-        }}
-      >
-        <Tooltip title={t("help.back")}>
-          <IconButton size="small" onClick={onBack}>
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Typography variant="h2">{t("help.title")}</Typography>
-      </Box>
-
-      <Box sx={{ flex: 1, overflowY: "auto", p: 3, display: "flex", justifyContent: "center" }}>
-        <Stack spacing={3} sx={{ maxWidth: 720, width: "100%" }}>
-          {sections.map((section) => (
-            <Box key={section.heading}>
-              <Typography variant="h6" gutterBottom>
-                {section.heading}
-              </Typography>
-              {section.blocks.map((block, i) => {
-                if (block.type === "paragraph") {
-                  return (
-                    <Typography key={i} variant="body2" sx={{ mt: i > 0 ? 1 : 0 }}>
-                      {block.runs.map((run, j) => (
-                        <Run key={j} run={run} />
+    <HelpPageShell title={t("help.title")} onBack={onBack} backTooltip={t("help.back")}>
+      {sections.map((section) => (
+        <Box key={section.heading}>
+          <Typography variant="h6" gutterBottom>
+            {section.heading}
+          </Typography>
+          {section.blocks.map((block, i) => {
+            if (block.type === "paragraph") {
+              return (
+                <Typography key={i} variant="body2" sx={{ mt: i > 0 ? 1 : 0 }}>
+                  {block.runs.map((run, j) => (
+                    <Run key={j} run={run} />
+                  ))}
+                </Typography>
+              );
+            }
+            if (block.type === "list") {
+              return (
+                <Box key={i} component="ul" sx={{ my: 1, pl: 3 }}>
+                  {block.items.map((item, j) => (
+                    <Typography key={j} component="li" variant="body2">
+                      {item.map((run, k) => (
+                        <Run key={k} run={run} />
                       ))}
                     </Typography>
-                  );
-                }
-                if (block.type === "list") {
-                  return (
-                    <Box key={i} component="ul" sx={{ my: 1, pl: 3 }}>
-                      {block.items.map((item, j) => (
-                        <Typography key={j} component="li" variant="body2">
-                          {item.map((run, k) => (
-                            <Run key={k} run={run} />
-                          ))}
-                        </Typography>
-                      ))}
-                    </Box>
-                  );
-                }
-                return (
-                  <Typography
-                    key={i}
-                    variant="body2"
-                    sx={{
-                      my: 1,
-                      py: 1,
-                      px: 1.5,
-                      borderRadius: 1,
-                      bgcolor: "action.hover",
-                      fontFamily: "monospace",
-                      textAlign: "center",
-                    }}
-                  >
-                    {block.text}
-                  </Typography>
-                );
-              })}
-            </Box>
-          ))}
-        </Stack>
-      </Box>
-    </Box>
+                  ))}
+                </Box>
+              );
+            }
+            return (
+              <Typography
+                key={i}
+                variant="body2"
+                sx={{
+                  my: 1,
+                  py: 1,
+                  px: 1.5,
+                  borderRadius: 1,
+                  bgcolor: "action.hover",
+                  fontFamily: "monospace",
+                  textAlign: "center",
+                }}
+              >
+                {block.text}
+              </Typography>
+            );
+          })}
+        </Box>
+      ))}
+    </HelpPageShell>
   );
 }

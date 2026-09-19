@@ -5,9 +5,9 @@ import type { PaletteMode } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
 import App from "./App";
-import { getTheme } from "./mui-theme";
+import { getTheme } from "../../shared/theme/mui-theme";
 import i18n, { LANGUAGE_KEY, SUPPORTED_LANGUAGES } from "./i18n";
-import "./index.css";
+import "../../shared/index.css";
 
 // No persisted store in this app (see ThemedApp's own comment below) - a
 // returning visitor's language choice lives in localStorage instead, same

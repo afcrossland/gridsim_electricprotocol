@@ -4,7 +4,7 @@ import { capitalizeFirst } from "../../lib/text";
 import { impactColor, impactLabel, impactTextColor, scoreBand, scoreTextColor } from "../../lib/scoring";
 import type { CountryScore, EvidenceItem, ImpactItem, Question, Response, Section } from "../../lib/types";
 
-// Design tokens - the GSC brand palette (src/mui-theme.tsx), plain hex rather
+// Design tokens - the GSC brand palette (shared/theme/mui-theme.tsx), plain hex rather
 // than MUI theme tokens. Ported from the sibling gridsim-frontend project's
 // own PDF report (src/components/report/ReportDocument.tsx there) - same
 // page geometry, same header/footer/heading conventions, same reliance on

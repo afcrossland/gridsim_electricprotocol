@@ -1,16 +1,29 @@
-import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import { Box } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
 
+import AppHeader from "../../../shared/components/AppHeader";
+import AuthButton from "../../../shared/components/AuthButton";
+import NavItem from "../../../shared/components/NavItem";
+
+interface Props {
+  mode: PaletteMode;
+  setMode: (mode: PaletteMode) => void;
+  page: "map" | "help";
+  setPage: (page: "map" | "help") => void;
+  onStartTour: () => void;
+}
+
 /**
- * Same identity-bar shape as the sibling apps' own TopNavbar.tsx - logo,
- * title stacked over the "by GSC · tagline" subtitle, dark-mode toggle on
- * the right. No nav links yet (no Help page, no tour) - ported the chrome,
- * not the full nav surface, per Andrew's own instruction 2026-09-15 ("bring
- * in all of the key formatting from deployment").
+ * Ported onto the shared `AppHeader` (`shared/components/`) 2026-09-19 -
+ * the identity block (logo/title/subtitle) and dark-mode toggle are now
+ * the shared component. Gained Tour/Help/Login nav links the same day,
+ * per Andrew's own instruction ("give calculator the same buttons too") -
+ * this app had none before; the buttons are the same shared `NavItem`/
+ * `AuthButton` deployment and policy already use, with new content
+ * (`../tour/scenes.ts`, `./HelpPage.tsx`) behind them since this app had
+ * no tour or Help page at all.
  */
-export default function TopNavbar({ mode, setMode }: { mode: PaletteMode; setMode: (mode: PaletteMode) => void }) {
+export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }: Props) {
   // Unlike the sibling apps (which link back to their shared site root via
   // BASE_URL), this app's own BASE_URL is "/calculator/" - one path segment
   // below the Electric Futures Playbook root it needs to return to, not
@@ -20,40 +33,32 @@ export default function TopNavbar({ mode, setMode }: { mode: PaletteMode; setMod
   };
 
   return (
-    <AppBar position="static" color="inherit" elevation={1}>
-      <Toolbar variant="dense" sx={{ gap: { xs: 0.5, sm: 2 }, px: { xs: 1, sm: 2 } }}>
-        <Box
-          onClick={goHome}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            flexShrink: 0,
-            minWidth: 0,
-            cursor: "pointer",
-            "&:hover": { opacity: 0.8 },
-          }}
-        >
-          <Box component="img" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" sx={{ height: 34, width: 34, flexShrink: 0 }} />
-          <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 700, fontSize: "1rem", color: "primary.main", letterSpacing: "-0.01em", lineHeight: 1.2 }}>
-              Solar Homes Calculator
-            </Typography>
-            <Typography sx={{ fontSize: "0.65rem", color: "text.secondary", lineHeight: 1.3, display: { xs: "none", sm: "block" } }}>
-              by The Global Solar Council&ensp;·&ensp;
-              <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
-                Solar. Storage. Future Secured.
-              </Box>
-            </Typography>
-          </Box>
+    <AppHeader
+      title="Solar Homes Calculator"
+      byline={
+        <>
+          by The Global Solar Council&ensp;·&ensp;
+          <span style={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>Solar. Storage. Future Secured.</span>
+        </>
+      }
+      mode={mode}
+      setMode={setMode}
+      onLogoClick={goHome}
+    >
+      <NavItem active={false} onClick={onStartTour}>
+        <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+          Take the tour
         </Box>
+        <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+          Tour
+        </Box>
+      </NavItem>
 
-        <Box sx={{ flex: 1 }} />
+      <NavItem active={page === "help"} onClick={() => setPage(page === "help" ? "map" : "help")}>
+        Help
+      </NavItem>
 
-        <IconButton onClick={() => setMode(mode === "light" ? "dark" : "light")} size="small">
-          {mode === "light" ? <DarkModeOutlinedIcon fontSize="small" /> : <LightModeOutlinedIcon fontSize="small" />}
-        </IconButton>
-      </Toolbar>
-    </AppBar>
+      <AuthButton label="Login" mode={mode} />
+    </AppHeader>
   );
 }

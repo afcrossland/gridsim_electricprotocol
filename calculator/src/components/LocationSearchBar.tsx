@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Autocomplete, Box, CircularProgress, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
-import FlagImg from "./FlagImg";
+import FlagImg from "../../../shared/components/FlagImg";
 import type { Location } from "../lib/types";
 
 interface NominatimResult {

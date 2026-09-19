@@ -1,27 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Map as MapGL, Source, Layer } from "react-map-gl/maplibre";
-import type { LayerProps, MapLayerMouseEvent, MapRef, StyleSpecification } from "react-map-gl/maplibre";
-import { Box, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import type { LayerProps, MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useTranslation } from "react-i18next";
 
 import World from "../assets/jurisdictions.geojson?url";
-import mapStyleJsonLight from "../assets/map_gsc.json";
-import mapStyleJsonDark from "../assets/map_gsc_dark.json";
-import MapLegend from "./MapLegend";
+import MapLegend from "../../../shared/components/MapLegend";
+import MapZoomControls from "../../../shared/components/MapZoomControls";
+import { GSC_RAMP, COLOR_NO_DATA, logNormalize } from "../../../shared/lib/mapColor";
+import { loadMapStyle } from "../../../shared/lib/mapStyle";
 import { canonicalCode, jurisdictionName, resolveTargets } from "../lib/jurisdictions";
-import {
-  COLOR_NO_DATA,
-  RAMP_STOPS,
-  codesForMetric,
-  domainForMetric,
-  valueForMap,
-  type Metric,
-} from "../lib/metrics";
+import { codesForMetric, domainForMetric, valueForMap, type Metric } from "../lib/metrics";
 
 const INITIAL_VIEW = { longitude: 10, latitude: 20, zoom: 1.4 };
 const WORLD_BOUNDS: [[number, number], [number, number]] = [
@@ -78,7 +69,7 @@ function boundsOf(data: FeatureCollection, codes: string[]): [[number, number], 
 const FILL_COLOR = [
   "case",
   ["!=", ["feature-state", "norm"], null],
-  ["interpolate", ["linear"], ["feature-state", "norm"], ...RAMP_STOPS.flatMap((s) => [s.stop, s.color])],
+  ["interpolate", ["linear"], ["feature-state", "norm"], ...GSC_RAMP.flatMap((s) => [s.stop, s.color])],
   COLOR_NO_DATA,
 ];
 
@@ -127,15 +118,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const mapStyle = useMemo(() => {
-    const base = theme.palette.mode === "dark" ? mapStyleJsonDark : mapStyleJsonLight;
-    const style = structuredClone(base) as { sources: Record<string, { url?: string }>; glyphs?: string };
-    const key = import.meta.env.VITE_MAPTILER_KEY;
-    const source = style.sources?.maptiler_planet_v4;
-    if (source?.url) source.url = source.url.replace("placeholder", key);
-    if (style.glyphs) style.glyphs = style.glyphs.replace("placeholder", key);
-    return style as unknown as StyleSpecification;
-  }, [theme.palette.mode]);
+  const mapStyle = useMemo(() => loadMapStyle(theme.palette.mode), [theme.palette.mode]);
 
   // Switching `mapStyle` (light/dark) makes MapLibre re-style the whole
   // map, which recreates the "countries" GeoJSON source from scratch and
@@ -171,12 +154,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
     // magnitude (a handful of countries near 0%, a few past 20%), and a
     // linear 0-1 normalisation would paint almost everything at the bottom
     // of the ramp either way.
-    const norm = (v: number) => {
-      const logMin = Math.log10(min || 1);
-      const logMax = Math.log10(max || 1);
-      const logSpan = logMax - logMin || 1;
-      return Math.min(1, Math.max(0, (Math.log10(Math.max(v, min || 1)) - logMin) / logSpan));
-    };
+    const norm = (v: number) => logNormalize(v, min, max);
 
     // Clear every feature first - otherwise a subdivided country's states
     // would keep a stale value from a previous metric once nothing in the
@@ -254,69 +232,29 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
         )}
       </MapGL>
 
-      {!hideLegend && <MapLegend title={legendTitle} />}
+      {!hideLegend && <MapLegend title={legendTitle} rampStops={GSC_RAMP} />}
 
       {/* Top-right zoom controls, ported verbatim from ep_policymap's own
           PolicyMap.tsx (hand-built IconButtons, not MapLibre's
           NavigationControl) - same top offset trick for the mobile legend
           banner, which spans the full width up here too. */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: isMobile ? 64 : 16,
-          right: 16,
-          zIndex: 10,
-          display: "flex",
-          flexDirection: "column",
-          gap: 0.5,
+      <MapZoomControls
+        topOffset={isMobile ? 64 : 16}
+        onZoomIn={() => mapRef.current?.getMap().zoomIn({ duration: 300 })}
+        onZoomOut={() => mapRef.current?.getMap().zoomOut({ duration: 300 })}
+        onReset={() => {
+          // Clearing the selection alone was a no-op when nothing was
+          // selected (found 2026-09-19 testing the shared MapZoomControls
+          // port): `onCountryClick(null)` only re-fits the world via the
+          // effect above when `selectedCountry` actually *changes* - if
+          // it's already null, React never re-runs that effect, so a
+          // manually-zoomed, no-selection map just stayed zoomed. Calling
+          // `fitBounds` directly here fixes that regardless of whether a
+          // selection was cleared or there was never one to begin with.
+          onCountryClick(null);
+          mapRef.current?.getMap().fitBounds(WORLD_BOUNDS, { padding: 24, duration: 600 });
         }}
-      >
-        <IconButton
-          onClick={() => mapRef.current?.getMap().zoomIn({ duration: 300 })}
-          aria-label="Zoom in"
-          sx={{
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 3,
-            width: 36,
-            height: 36,
-            color: "text.secondary",
-            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
-          }}
-        >
-          <AddIcon fontSize="small" />
-        </IconButton>
-        <IconButton
-          onClick={() => mapRef.current?.getMap().zoomOut({ duration: 300 })}
-          aria-label="Zoom out"
-          sx={{
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 3,
-            width: 36,
-            height: 36,
-            color: "text.secondary",
-            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
-          }}
-        >
-          <RemoveIcon fontSize="small" />
-        </IconButton>
-        <IconButton
-          onClick={() => onCountryClick(null)}
-          aria-label="Back to full map view"
-          sx={{
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 3,
-            width: 36,
-            height: 36,
-            color: "text.secondary",
-            "&:hover": { bgcolor: "background.paper", color: "primary.main" },
-          }}
-        >
-          <ZoomOutMapIcon fontSize="small" />
-        </IconButton>
-      </Box>
+      />
 
       {hover && hoveredName && (
         <Box

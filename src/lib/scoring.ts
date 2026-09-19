@@ -1,5 +1,6 @@
 import { EU27 } from "../data/sourcedAnswers";
 import { getJurisdiction, jurisdictionName } from "./jurisdictions";
+import { GSC_RAMP } from "../../shared/lib/mapColor";
 import type {
   CountryScore,
   GroupedScore,
@@ -337,23 +338,23 @@ function syntheticGroup(code: string, name: string, children: CountryScore[]): G
 
 /**
  * Colour ramp for the choropleth, low score to high - amber to teal/aqua
- * via a pale warm cream midpoint, adopted 2026-09-11 from Deployment
- * Explorer's own ramp (`deployment/src/lib/metrics.ts`'s `RAMP_STOPS`) once
- * that one had been through its own round of iteration there. An earlier
- * attempt to bring an orange-to-teal ramp here on 2026-09-10 was reverted
- * the same day - Andrew's intent at the time was to try that scale on
- * Deployment Explorer first, not here yet. This is that finished ramp
- * following through, per his later instruction once it had settled.
+ * via a pale warm cream midpoint. Now just this app's own name for
+ * `shared/lib/mapColor.ts`'s `GSC_RAMP`, confirmed byte-identical to
+ * deployment's and calculator's own ramps before being centralized there
+ * 2026-09-19; kept as its own export here (rather than switching every
+ * caller in this file to `GSC_RAMP` directly) since `scoreColor()` and
+ * the map's own fill expression read as "the score ramp," not "the
+ * shared map ramp," in this app's own vocabulary.
  */
-export const SCORE_RAMP = [
-  { stop: 0.0, color: "#FBB114" },
-  { stop: 0.25, color: "#F8CB6E" },
-  { stop: 0.5, color: "#F5E6C8" },
-  { stop: 0.75, color: "#7AC8C1" },
-  { stop: 1.0, color: "#00ABBB" },
-] as const;
+export const SCORE_RAMP = GSC_RAMP;
 
-/** Countries below the completeness threshold, and those with no data at all. */
+/**
+ * Countries below the completeness threshold, and those with no data at
+ * all. Two tiers, unlike the sibling apps (which have no completeness
+ * concept and just one no-data grey) - genuinely different from
+ * `shared/lib/mapColor.ts`'s own `COLOR_NO_DATA`, not merely differently
+ * named, so these stay local rather than importing that one.
+ */
 export const COLOR_INSUFFICIENT = "#D1D5DB";
 export const COLOR_NO_DATA = "#EDEBE4";
 

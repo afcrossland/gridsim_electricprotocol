@@ -3,7 +3,7 @@ import { Autocomplete, Box, Paper, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
 
-import FlagImg from "./FlagImg";
+import FlagImg from "../../../shared/components/FlagImg";
 import { jurisdictionName, jurisdictions } from "../lib/jurisdictions";
 import { EMBER_SOLAR } from "../lib/emberSolar";
 import { EMBER_GENERATION } from "../lib/emberGeneration";

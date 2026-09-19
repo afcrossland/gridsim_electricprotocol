@@ -1,19 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Map as MapGL, Source, Layer } from "react-map-gl/maplibre";
-import type { LayerProps, MapLayerMouseEvent, MapRef, StyleSpecification } from "react-map-gl/maplibre";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import type { LayerProps, MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
+import { Box, Typography, useTheme } from "@mui/material";
 import type { Feature, FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import World from "../assets/jurisdictions.geojson?url";
-import mapStyleJsonLight from "../assets/map_gsc.json";
-import mapStyleJsonDark from "../assets/map_gsc_dark.json";
-import MapLegend from "./MapLegend";
+import MapLegend from "../../../shared/components/MapLegend";
+import MapZoomControls from "../../../shared/components/MapZoomControls";
+import { GSC_RAMP, COLOR_NO_DATA } from "../../../shared/lib/mapColor";
+import { loadMapStyle } from "../../../shared/lib/mapStyle";
 import { jurisdictionName } from "../lib/jurisdictions";
-import { COLOR_NO_DATA, RAMP_STOPS } from "../lib/mapColor";
 import { METRIC_LEGEND_TITLES, formatMetricValue, loadMetricValues, normalizeForMetric } from "../lib/mapMetrics";
 import type { Metric } from "../lib/mapMetrics";
 
@@ -33,7 +30,7 @@ const WORLD_BOUNDS: [[number, number], [number, number]] = [
 const FILL_COLOR = [
   "case",
   ["!=", ["feature-state", "norm"], null],
-  ["interpolate", ["linear"], ["feature-state", "norm"], ...RAMP_STOPS.flatMap((s) => [s.stop, s.color])],
+  ["interpolate", ["linear"], ["feature-state", "norm"], ...GSC_RAMP.flatMap((s) => [s.stop, s.color])],
   COLOR_NO_DATA,
 ];
 
@@ -108,15 +105,7 @@ export default function WorldMap({
     paint: { "line-color": "#008194", "line-width": 2.5 },
   };
 
-  const mapStyle = useMemo(() => {
-    const base = theme.palette.mode === "dark" ? mapStyleJsonDark : mapStyleJsonLight;
-    const style = structuredClone(base) as { sources: Record<string, { url?: string }>; glyphs?: string };
-    const key = import.meta.env.VITE_MAPTILER_KEY;
-    const source = style.sources?.maptiler_planet_v4;
-    if (source?.url) source.url = source.url.replace("placeholder", key);
-    if (style.glyphs) style.glyphs = style.glyphs.replace("placeholder", key);
-    return style as unknown as StyleSpecification;
-  }, [theme.palette.mode]);
+  const mapStyle = useMemo(() => loadMapStyle(theme.palette.mode), [theme.palette.mode]);
 
   useEffect(() => {
     setSourceReady(false);
@@ -249,35 +238,20 @@ export default function WorldMap({
         )}
       </MapGL>
 
-      <MapLegend title={METRIC_LEGEND_TITLES[metric]} />
+      {/* uppercaseTitle=false since this metric's own title can carry a
+          mixed-case unit ("kWh/kWp") that CSS uppercase would mangle into
+          "KWH/KWP" - see the shared MapLegend's own doc comment. */}
+      <MapLegend title={METRIC_LEGEND_TITLES[metric]} rampStops={GSC_RAMP} uppercaseTitle={false} />
 
       {/* Same top offset, zIndex, sizing and shadow as Deployment
           Explorer's own zoom controls (DeploymentMap.tsx) - per Andrew's
           own instruction 2026-09-16 ("the legend should be placed in the
           same place as deployment explorer"). */}
-      <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: 10, display: "flex", flexDirection: "column", gap: 0.5 }}>
-        <IconButton
-          size="small"
-          onClick={() => mapRef.current?.getMap().zoomIn()}
-          sx={{ bgcolor: "background.paper", borderRadius: 1, boxShadow: 3, width: 36, height: 36, "&:hover": { bgcolor: "background.paper" } }}
-        >
-          <AddIcon fontSize="small" />
-        </IconButton>
-        <IconButton
-          size="small"
-          onClick={() => mapRef.current?.getMap().zoomOut()}
-          sx={{ bgcolor: "background.paper", borderRadius: 1, boxShadow: 3, width: 36, height: 36, "&:hover": { bgcolor: "background.paper" } }}
-        >
-          <RemoveIcon fontSize="small" />
-        </IconButton>
-        <IconButton
-          size="small"
-          onClick={() => mapRef.current?.getMap().fitBounds(WORLD_BOUNDS, { padding: 24, duration: 600 })}
-          sx={{ bgcolor: "background.paper", borderRadius: 1, boxShadow: 3, width: 36, height: 36, "&:hover": { bgcolor: "background.paper" } }}
-        >
-          <ZoomOutMapIcon fontSize="small" />
-        </IconButton>
-      </Box>
+      <MapZoomControls
+        onZoomIn={() => mapRef.current?.getMap().zoomIn()}
+        onZoomOut={() => mapRef.current?.getMap().zoomOut()}
+        onReset={() => mapRef.current?.getMap().fitBounds(WORLD_BOUNDS, { padding: 24, duration: 600 })}
+      />
 
       {/* Same hover-tooltip shape as the sibling apps' own maps (name +
           value, offset from the cursor) - per Andrew's own instruction

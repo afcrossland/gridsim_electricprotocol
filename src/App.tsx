@@ -13,6 +13,7 @@ import LanguageSwitcher from "./components/ui/LanguageSwitcher";
 import PolicyMap from "./components/map/PolicyMap";
 import JurisdictionSearch from "./components/map/JurisdictionSearch";
 import ScrollStory from "./scrollstory/ScrollStory";
+import FooterComposition from "../shared/components/FooterComposition";
 import { sourcedCountries } from "./data/sourcedAnswers";
 import { qualifiedName, resolveTargets } from "./lib/jurisdictions";
 import { scoreCountry } from "./lib/scoring";
@@ -451,51 +452,39 @@ export default function App() {
           whole viewport regardless of whether a sidebar is open next to it.
           Hidden through the tour's opening scene and the Charter that
           follows it, along with the top bar and legend. */}
+      {/* Ported onto the shared `FooterComposition` 2026-09-19, per
+          Andrew's own instruction ("footer composition... should be the
+          same and common") - the shell was already this same 48px bar,
+          just built inline here before this port. */}
       {!onboardingHero && (
-      <Box
-        sx={{
-          flexShrink: 0,
-          height: 48,
-          bgcolor: "background.paper",
-          borderTop: "1px solid",
-          borderColor: "divider",
-          display: "flex",
-          alignItems: "center",
-          px: 2,
-          gap: 1.5,
-        }}
-      >
-        {/* Hidden whenever the mobile Map/List toggle is active - search
-            already sits above the content in both of those views (see
-            above) instead of down here. */}
-        {!mobileToggleActive && (
-          <Box sx={{ width: 280, maxWidth: "60%" }}>
-            <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={handleSelectCountry} />
-          </Box>
-        )}
-
-        {/* What the map paints - moved here from the legend card so the
-            legend only ever displays the current choice, rather than also
-            being where it's made. */}
-        {!mobileListActive && (
-        <ToggleButtonGroup
-          size="small"
-          exclusive
-          value={mapMetric}
-          onChange={(_, next) => next && setMapMetric(next)}
-        >
-          <ToggleButton value="score" sx={{ py: 0.25, px: 2, fontSize: "0.7rem" }}>
-            {t("footer.score")}
-          </ToggleButton>
-          <ToggleButton value="completeness" sx={{ py: 0.25, px: 2, fontSize: "0.7rem" }}>
-            {t("footer.completeness")}
-          </ToggleButton>
-        </ToggleButtonGroup>
-        )}
-
-        <Box sx={{ flex: 1 }} />
-        <LanguageSwitcher />
-      </Box>
+        <FooterComposition
+          search={
+            // Hidden whenever the mobile Map/List toggle is active - search
+            // already sits above the content in both of those views (see
+            // above) instead of down here.
+            !mobileToggleActive && (
+              <Box sx={{ width: 280, maxWidth: "60%" }}>
+                <JurisdictionSearch scores={scores} selected={selectedCountry} onSelect={handleSelectCountry} />
+              </Box>
+            )
+          }
+          toggle={
+            // What the map paints - moved here from the legend card so the
+            // legend only ever displays the current choice, rather than also
+            // being where it's made.
+            !mobileListActive && (
+              <ToggleButtonGroup size="small" exclusive value={mapMetric} onChange={(_, next) => next && setMapMetric(next)}>
+                <ToggleButton value="score" sx={{ py: 0.25, px: 2, fontSize: "0.7rem" }}>
+                  {t("footer.score")}
+                </ToggleButton>
+                <ToggleButton value="completeness" sx={{ py: 0.25, px: 2, fontSize: "0.7rem" }}>
+                  {t("footer.completeness")}
+                </ToggleButton>
+              </ToggleButtonGroup>
+            )
+          }
+          languageSwitcher={<LanguageSwitcher />}
+        />
       )}
     </Box>
   );

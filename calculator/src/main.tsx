@@ -5,8 +5,8 @@ import type { PaletteMode } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
 import App from "./App";
-import { getTheme } from "./mui-theme";
-import "./index.css";
+import { getTheme } from "../../shared/theme/mui-theme";
+import "../../shared/index.css";
 
 /** Same shape as the sibling apps' own ThemedApp - plain useState, no persisted store. */
 function ThemedApp() {

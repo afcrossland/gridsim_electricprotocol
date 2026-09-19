@@ -1,28 +1,4 @@
-export type SceneLayout = "hero" | "story";
-
-export interface SpotlightTarget {
-  /** CSS selector for the live-app element to highlight, e.g. '[data-tour="metric-selector"]'. */
-  selector: string;
-  caption: string;
-  tag?: string;
-  arrow?: "up" | "down" | "left" | "right";
-}
-
-export interface Scene {
-  id: number;
-  heading: string;
-  body: string;
-  layout: SceneLayout;
-  spotlight?: SpotlightTarget;
-  /**
-   * The country the live app should have selected while this scene is
-   * active - undefined leaves whatever's already selected alone, `null`
-   * clears it. Only the country-detail scene sets one; every other scene
-   * clears it, so scrolling back doesn't leave a stale selection open
-   * behind an earlier scene's spotlight.
-   */
-  selectCountry?: string | null;
-}
+import type { Scene } from "../../../shared/tour/types";
 
 /**
  * Demo country for the "click a country" scene - has real data in all
@@ -44,52 +20,60 @@ export const DEMO_COUNTRY = "DE";
  * actually selects a real country (`DEMO_COUNTRY`) so it can spotlight the
  * real detail panel that appears, rather than describing it over a static
  * screenshot.
+ *
+ * Built as a function taking `onSelectCountry` (not a static array), since
+ * moving onto the shared `Scene.onEnter` hook 2026-09-19 (see
+ * `shared/tour/types.ts`) means each scene's own side effect has to close
+ * over the callback that runs it - `selectCountry` used to be a plain
+ * data field the caller (ScrollStory.tsx) interpreted itself.
  */
-export const SCENES: Scene[] = [
-  {
-    id: 0,
-    heading: "Welcome to the Solar Deployment Explorer",
-    body: "See how much solar power countries really have.",
-    layout: "hero",
-    selectCountry: null,
-  },
-  {
-    id: 1,
-    heading: "",
-    body: "",
-    layout: "story",
-    selectCountry: null,
-    spotlight: {
-      selector: '[data-tour="metric-selector"]',
-      tag: "Three views",
-      caption: "Switch between installed capacity, capacity per person, and how much of a country's electricity comes from solar.",
-      arrow: "down",
+export function buildScenes(onSelectCountry: (code: string | null) => void): Scene[] {
+  return [
+    {
+      id: 0,
+      heading: "Welcome to the Solar Deployment Explorer",
+      body: "See how much solar power countries really have.",
+      layout: "hero",
+      onEnter: () => onSelectCountry(null),
     },
-  },
-  {
-    id: 2,
-    heading: "",
-    body: "",
-    layout: "story",
-    selectCountry: null,
-    spotlight: {
-      selector: '[data-tour="ranking-list"]',
-      tag: "Pick a country",
-      caption: "Click a country on the map, search for one, or pick from this list to see its own numbers and history.",
-      arrow: "right",
+    {
+      id: 1,
+      heading: "",
+      body: "",
+      layout: "story",
+      onEnter: () => onSelectCountry(null),
+      spotlight: {
+        selector: '[data-tour="metric-selector"]',
+        tag: "Three views",
+        caption: "Switch between installed capacity, capacity per person, and how much of a country's electricity comes from solar.",
+        arrow: "down",
+      },
     },
-  },
-  {
-    id: 3,
-    heading: "",
-    body: "",
-    layout: "story",
-    selectCountry: DEMO_COUNTRY,
-    spotlight: {
-      selector: '[data-tour="country-detail"]',
-      tag: "Click a country",
-      caption: "See its installed capacity, its share of electricity, and the population used for the per-person view - plus links to see it in the other GSC tools.",
-      arrow: "right",
+    {
+      id: 2,
+      heading: "",
+      body: "",
+      layout: "story",
+      onEnter: () => onSelectCountry(null),
+      spotlight: {
+        selector: '[data-tour="ranking-list"]',
+        tag: "Pick a country",
+        caption: "Click a country on the map, search for one, or pick from this list to see its own numbers and history.",
+        arrow: "right",
+      },
     },
-  },
-];
+    {
+      id: 3,
+      heading: "",
+      body: "",
+      layout: "story",
+      onEnter: () => onSelectCountry(DEMO_COUNTRY),
+      spotlight: {
+        selector: '[data-tour="country-detail"]',
+        tag: "Click a country",
+        caption: "See its installed capacity, its share of electricity, and the population used for the per-person view - plus links to see it in the other GSC tools.",
+        arrow: "right",
+      },
+    },
+  ];
+}

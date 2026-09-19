@@ -140,7 +140,7 @@ export default function DispatchPanel({ dispatch }: { dispatch: DispatchHourly }
         <Stat label="From grid" value={`${fromGridKWh.toLocaleString()} kWh`} />
       </Box>
 
-      <Box>
+      <Box data-tour="dispatch-sankey">
         <Typography variant="overline" sx={{ display: "block", color: "text.secondary", mb: 1 }}>
           Annual energy flow
         </Typography>

@@ -215,6 +215,21 @@ comment(s) together.
 Requests Andrew has flagged for later, recorded here so they don't get
 lost - not yet started.
 
+- **TODO: port this app's own onboarding tour onto the shared tour engine.**
+  Flagged 2026-09-19, as part of the ongoing shared-UI effort across this
+  app, `deployment/`, and `calculator/` (see `shared/` and the doc comments
+  throughout it for what's already common: header, footer composition,
+  help page shell, map legend/zoom controls/colour ramp, ranked-list tile,
+  country detail header, theme/CSS/fonts, language switcher, flags). This
+  app's own tour (`src/scrollstory/`) is the richest and most divergent of
+  the three - a `cta` scene layout, a `media` union, a Charter-reveal step -
+  and was deliberately left un-ported when deployment's tour was extracted
+  into `shared/tour/` and calculator got a brand-new tour built on it
+  (2026-09-19), same "leave the most divergent one for later" call made for
+  this app's map/sidebar in the first round. Porting it means either
+  extending `shared/tour/types.ts`'s `SceneLayout`/`Scene` shape to cover
+  the `cta` layout and `media` union, or confirming they can be expressed
+  through the existing `spotlight`/`onEnter` shape instead. Not started.
 - **TODO: compare the Solar Homes Calculator's generic-model results to
   the MCS standard.** Flagged 2026-09-18. The generic 8760-profile model
   (`calculateGeneric.ts` - real PVGIS generation, the PC1 demand shape,

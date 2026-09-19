@@ -13,7 +13,6 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
@@ -26,7 +25,9 @@ import { useTranslation } from "react-i18next";
 import CountryDetail from "./CountryDetail";
 import GenerationDetail from "./GenerationDetail";
 import LockedMetricsSection from "./LockedMetricsSection";
-import FlagImg from "./FlagImg";
+import FlagImg from "../../../shared/components/FlagImg";
+import DetailHeader from "../../../shared/components/DetailHeader";
+import RankedRow from "../../../shared/components/RankedRow";
 import { emberCountry, latestPointOf } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
 import { monthAbbrev } from "../lib/formatMonth";
@@ -269,21 +270,13 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
   if (selectedCountry && (selectedEmberCountry || selectedGenerationCountry)) {
     return (
       <Box data-tour="country-detail" sx={PANEL_SX}>
-        <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1, borderBottom: "1px solid", borderColor: "divider" }}>
-          <Tooltip title={t("sidebar.backToRanking")}>
-            <IconButton size="small" onClick={() => onSelect(null)}>
-              <ArrowBackIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          {isGlobalSelected ? (
-            <PublicIcon sx={{ fontSize: 22, color: "primary.main" }} />
-          ) : (
-            <FlagImg code={selectedCountry} size={22} />
-          )}
-          <Typography variant="h2" sx={{ fontSize: "1.125rem", flex: 1, minWidth: 0 }} noWrap>
-            {isGlobalSelected ? t("sidebar.global") : jurisdictionName(selectedCountry, i18n.language)}
-          </Typography>
-        </Box>
+        <DetailHeader
+          onBack={() => onSelect(null)}
+          backTooltip={t("sidebar.backToRanking")}
+          flag={isGlobalSelected ? <PublicIcon sx={{ fontSize: 22, color: "primary.main" }} /> : <FlagImg code={selectedCountry} size={22} />}
+          name={isGlobalSelected ? t("sidebar.global") : jurisdictionName(selectedCountry, i18n.language)}
+          sx={{ borderBottom: "1px solid", borderColor: "divider" }}
+        />
         <Box sx={{ p: 2, overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Population, the "capacityPerCapita" metric the map itself can
               show, and the latest installed-capacity figure, as a row of
@@ -480,7 +473,11 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
             globalLatestSolarMW/worldPopulationMillions). Skipped for
             "Share of Electricity": a % share is already relative, not
             additive, and there's no computed global generation total to
-            divide by the way there is a computed global capacity one. */}
+            divide by the way there is a computed global capacity one.
+            Deliberately NOT the shared `RankedRow` below - its always-on
+            aqua tint (not selected/hover-driven) and icon-instead-of-flag
+            make this a genuinely different tile, not the same one with
+            different data. */}
         {metric !== "share" && (
           <Box
             onClick={() => onSelect(GLOBAL_CODE)}
@@ -514,41 +511,18 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
           </Box>
         )}
 
-        {/* Light-grey tiles on the sidebar's own white background, matching
-            ep_policymap's Scoreboard.tsx row style exactly (#E5E7EB border,
-            8px radius, action.hover fill) rather than the plain
-            border-left-highlight rows this used before. */}
+        {/* Ported onto the shared `RankedRow` 2026-09-19, per Andrew's own
+            instruction ("the tiles used to rank countries should be the
+            same") - matches ep_policymap's Scoreboard.tsx row style
+            exactly (#E5E7EB border, 8px radius, action.hover fill). */}
         <Stack spacing={0.75}>
-          {rows.map((r, i) => {
-            const selected = r.code === selectedCountry;
-            return (
-              <Box
-                key={r.code}
-                onClick={() => onSelect(r.code)}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.25,
-                  pl: 1.25,
-                  pr: 1,
-                  py: 0.9,
-                  borderRadius: "8px",
-                  border: "1px solid",
-                  borderColor: selected ? "primary.main" : "#E5E7EB",
-                  cursor: "pointer",
-                  overflow: "hidden",
-                  bgcolor: selected ? "action.selected" : "action.hover",
-                  transition: "background-color 120ms ease, border-color 120ms ease",
-                  "&:hover": { bgcolor: selected ? "action.selected" : "#F3F4F6" },
-                }}
-              >
-                <Typography variant="caption" sx={{ width: 16, textAlign: "right", fontWeight: 600, flexShrink: 0 }}>
-                  {i + 1}
-                </Typography>
-                <FlagImg code={r.code} size={16} />
-                <Typography variant="subtitle1" noWrap sx={{ flex: 1, minWidth: 0 }}>
-                  {r.name}
-                </Typography>
+          {rows.map((r, i) => (
+            <RankedRow
+              key={r.code}
+              rank={i + 1}
+              flag={<FlagImg code={r.code} size={16} />}
+              name={r.name}
+              value={
                 <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: "primary.dark", flexShrink: 0 }}>
                   {metric === "share"
                     ? `${r.value!.toFixed(1)}%`
@@ -556,9 +530,11 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
                       ? `${r.value!.toFixed(0)} W/cap`
                       : `${r.value!.toLocaleString()} MW`}
                 </Typography>
-              </Box>
-            );
-          })}
+              }
+              selected={r.code === selectedCountry}
+              onClick={() => onSelect(r.code)}
+            />
+          ))}
         </Stack>
         {rows.length === 0 && (
           <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>

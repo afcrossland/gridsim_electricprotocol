@@ -1,6 +1,6 @@
 import selfSufficiencyByCode from "../data/country-self-sufficiency.json";
 import { annualKWhPerKWp, loadCountryIrradiance } from "./countryIrradiance";
-import { logNormalize } from "./mapColor";
+import { logNormalize } from "../../../shared/lib/mapColor";
 
 /**
  * The map's own metric selector, per Andrew's own instruction 2026-09-16

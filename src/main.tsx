@@ -4,10 +4,10 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
 import App from "./App";
-import { getTheme } from "./mui-theme";
+import { getTheme } from "../shared/theme/mui-theme";
 import { useProtocolStore } from "./stores/protocolStore";
 import "./i18n";
-import "./index.css";
+import "../shared/index.css";
 
 /**
  * Rebuilds the theme only when `mode` actually changes - getTheme() is not

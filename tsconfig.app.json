@@ -25,5 +25,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["./src", "./deployment/src", "./calculator/src"]
+  "include": ["./src", "./deployment/src", "./calculator/src", "./shared"]
 }

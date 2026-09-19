@@ -3,7 +3,8 @@ import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
-import FlagImg from "./FlagImg";
+import FlagImg from "../../../shared/components/FlagImg";
+import RankedRow from "../../../shared/components/RankedRow";
 import { loadCountryIrradiance } from "../lib/countryIrradiance";
 import { countryCodeOf, jurisdictionName } from "../lib/jurisdictions";
 import { METRIC_LABELS, formatMetricValue, loadMetricValues, loadSelfSufficiencyTiers } from "../lib/mapMetrics";
@@ -90,7 +91,7 @@ export default function CountryLeagueTable({
   const sorted = rows ? [...rows].sort((a, b) => (desc ? b.value - a.value : a.value - b.value)) : null;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+    <Box data-tour="ranking-list" sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2, pb: 1 }}>
         <Typography variant="subtitle2" color="text.secondary">
           {/* "(based on 500Wp panel)" qualifier added 2026-09-18 per
@@ -108,43 +109,28 @@ export default function CountryLeagueTable({
       </Box>
 
       <Box sx={{ flex: 1, overflowY: "auto", px: 2, pb: 2 }}>
+        {/* Ported onto the shared `RankedRow` 2026-09-19, per Andrew's own
+            instruction ("the tiles used to rank countries should be the
+            same") - converges this row's own minor style differences
+            (rank column width, border colour, name weight) onto the
+            majority shape deployment's and policy's own rows already
+            shared. */}
         <Stack spacing={0.75}>
           {sorted?.map((r, i) => (
-            <Box
+            <RankedRow
               key={r.code}
+              rank={i + 1}
+              flag={<FlagImg code={countryCodeOf(r.code)} size={16} />}
+              name={r.name}
+              value={
+                <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: "primary.dark", flexShrink: 0 }}>
+                  {metric === "generation"
+                    ? formatGenerationRow(r.value)
+                    : (r.lowHighLabel ?? formatMetricValue(metric, r.value))}
+                </Typography>
+              }
               onClick={() => onSelect({ code: r.code, name: r.name, lat: r.lat, lon: r.lon })}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.25,
-                pl: 1.25,
-                pr: 1,
-                py: 0.9,
-                borderRadius: "8px",
-                border: "1px solid",
-                borderColor: "divider",
-                cursor: "pointer",
-                bgcolor: "action.hover",
-                transition: "background-color 120ms ease",
-                "&:hover": { bgcolor: "action.selected" },
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{ width: 20, textAlign: "right", fontWeight: 600, flexShrink: 0, color: "text.secondary" }}
-              >
-                {i + 1}
-              </Typography>
-              <FlagImg code={countryCodeOf(r.code)} size={16} />
-              <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, fontWeight: 600 }}>
-                {r.name}
-              </Typography>
-              <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: "primary.dark", flexShrink: 0 }}>
-                {metric === "generation"
-                  ? formatGenerationRow(r.value)
-                  : (r.lowHighLabel ?? formatMetricValue(metric, r.value))}
-              </Typography>
-            </Box>
+            />
           ))}
         </Stack>
       </Box>

@@ -1,10 +1,10 @@
-import { AppBar, Box, Button, IconButton, Toolbar, Tooltip, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useTranslation } from "react-i18next";
 
+import AppHeader from "../../../shared/components/AppHeader";
+import AuthButton from "../../../shared/components/AuthButton";
+import NavItem from "../../../shared/components/NavItem";
 
 interface Props {
   mode: PaletteMode;
@@ -15,33 +15,13 @@ interface Props {
 }
 
 /**
- * Plain underlined-link look, ported from ep_policymap's own
- * TopNavbar.tsx's navItemSx - active gets the aqua text + bottom border,
- * everything else grey until hovered.
- */
-function navItemSx(active: boolean) {
-  return {
-    display: "flex",
-    alignItems: "center",
-    height: "100%",
-    px: { xs: 1, sm: 2 },
-    cursor: "pointer",
-    color: active ? "primary.main" : "text.secondary",
-    fontWeight: active ? 500 : 400,
-    fontSize: "0.875rem",
-    borderBottom: active ? "2px solid" : "2px solid transparent",
-    borderColor: active ? "primary.main" : "transparent",
-    transition: "color 0.15s ease, border-color 0.15s ease",
-    userSelect: "none" as const,
-    "&:hover": { color: "primary.main" },
-  };
-}
-
-/**
- * Same identity-bar shape as ep_policymap's TopNavbar.tsx - logo, then
- * title stacked over the "by GSC · tagline" subtitle. Now with a Help nav
- * link too (added 2026-09-10, same navItemSx style as Policy Explorer's
- * own), plus the Ember badge and the dark-mode toggle.
+ * Ported onto the shared `AppHeader`/`NavItem` (`shared/components/`)
+ * 2026-09-19 - the identity block (logo/title/subtitle) and dark-mode
+ * toggle are now the shared component; everything below (Tour/Help nav
+ * links, the lock/login placeholder button, i18n) stays exactly as it
+ * was, composed as `AppHeader`'s own `children`. This is the first of the
+ * three apps ported onto `shared/` - see the "shared UI" plan for the
+ * others still pending (root app, calculator).
  */
 export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }: Props) {
   const { t } = useTranslation();
@@ -55,108 +35,41 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
   };
 
   return (
-    <AppBar position="static" color="inherit" elevation={1}>
-      <Toolbar variant="dense" sx={{ gap: { xs: 0.5, sm: 2 }, px: { xs: 1, sm: 2 } }}>
-        <Box
-          onClick={goHome}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            flexShrink: 0,
-            minWidth: 0,
-            cursor: "pointer",
-            "&:hover": { opacity: 0.8 },
-          }}
-        >
-          <Box
-            component="img"
-            src={`${import.meta.env.BASE_URL}favicon.png`}
-            alt=""
-            sx={{ height: 34, width: 34, flexShrink: 0 }}
-          />
-          <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: "1rem",
-                color: "primary.main",
-                letterSpacing: "-0.01em",
-                lineHeight: 1.2,
-              }}
-            >
-              {t("appName")}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: "0.65rem",
-                color: "text.secondary",
-                lineHeight: 1.3,
-                display: { xs: "none", sm: "block" },
-              }}
-            >
-              {t("byGsc")}&ensp;·&ensp;
-              <Box component="span" sx={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>
-                {t("tagline")}
-              </Box>
-            </Typography>
-          </Box>
+    <AppHeader
+      title={t("appName")}
+      byline={
+        <>
+          {t("byGsc")}&ensp;·&ensp;
+          <span style={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>{t("tagline")}</span>
+        </>
+      }
+      mode={mode}
+      setMode={setMode}
+      onLogoClick={goHome}
+      darkModeTooltip={{ toLight: t("theme.switchToLight"), toDark: t("theme.switchToDark") }}
+    >
+      <NavItem active={false} onClick={onStartTour}>
+        {/* Abbreviated below `sm`, same as Policy Explorer's own nav -
+            "Take the tour" alone was part of the header's mobile overflow. */}
+        <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+          {t("nav.takeTheTour")}
         </Box>
-
-        <Box sx={{ flex: 1 }} />
-
-        <Box onClick={onStartTour} sx={navItemSx(false)}>
-          {/* Abbreviated below `sm`, same as Policy Explorer's own nav -
-              "Take the tour" alone was part of the header's mobile overflow. */}
-          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-            {t("nav.takeTheTour")}
-          </Box>
-          <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-            {t("nav.takeTheTourShort")}
-          </Box>
+        <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+          {t("nav.takeTheTourShort")}
         </Box>
+      </NavItem>
 
-        <Box onClick={() => setPage(page === "help" ? "map" : "help")} sx={navItemSx(page === "help")}>
-          {t("nav.help")}
-        </Box>
+      <NavItem active={page === "help"} onClick={() => setPage(page === "help" ? "map" : "help")}>
+        {t("nav.help")}
+      </NavItem>
 
-        {/* Same filled-button treatment as Policy Explorer's "Admin
-            console" (ep_policymap/src/components/layout/TopNavbar.tsx) -
-            added 2026-09-11 per Andrew's instruction. No sign-in exists
-            yet, same "stands in for auth" state that button started in, so
-            this one is a placeholder too - "Coming soon" on hover rather
-            than a dead click. Icon-only on a phone, same breakpoint
-            swap as that button's own mobile treatment. */}
-        <Tooltip title={t("nav.comingSoon")}>
-          <IconButton
-            sx={{
-              display: { xs: "inline-flex", sm: "none" },
-              ml: 1.5,
-              bgcolor: mode === "dark" ? "#4B5563" : "primary.main",
-              color: "primary.contrastText",
-              "&:hover": { bgcolor: mode === "dark" ? "#5B6570" : "primary.dark" },
-            }}
-          >
-            <LockOutlinedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={t("nav.comingSoon")}>
-          <Button
-            size="small"
-            variant="contained"
-            startIcon={<LockOutlinedIcon fontSize="small" />}
-            sx={{ display: { xs: "none", sm: "inline-flex" }, ml: 1.5 }}
-          >
-            {t("nav.login")}
-          </Button>
-        </Tooltip>
-
-        <Tooltip title={mode === "dark" ? t("theme.switchToLight") : t("theme.switchToDark")}>
-          <IconButton size="small" onClick={() => setMode(mode === "dark" ? "light" : "dark")} sx={{ ml: 0.5 }}>
-            {mode === "dark" ? <LightModeOutlinedIcon fontSize="small" /> : <DarkModeOutlinedIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-      </Toolbar>
-    </AppBar>
+      {/* Same filled-button treatment as Policy Explorer's "Admin
+          console" (ep_policymap/src/components/layout/TopNavbar.tsx) -
+          added 2026-09-11 per Andrew's instruction. No sign-in exists
+          yet, same "stands in for auth" state that button started in, so
+          this one is a placeholder too - "Coming soon" on hover rather
+          than a dead click. Ported onto the shared `AuthButton` 2026-09-19. */}
+      <AuthButton label={t("nav.login")} mode={mode} tooltip={t("nav.comingSoon")} />
+    </AppHeader>
   );
 }
