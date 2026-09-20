@@ -24,17 +24,19 @@ interface Props {
  * no tour or Help page at all.
  */
 export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }: Props) {
-  // Unlike the sibling apps (which link back to their shared site root via
-  // BASE_URL), this app's own BASE_URL is "/calculator/" - one path segment
-  // below the Electric Futures Playbook root it needs to return to, not
-  // the root itself, so this is hardcoded rather than derived from it.
+  // Same as the sibling apps' own TopNavbar.tsx: `base` in vite.config.ts is
+  // one setting shared by all four HTML entries (the site root splash page
+  // and the three app subpaths), so `BASE_URL` always resolves to the site
+  // root regardless of which app reads it - "/" in dev, the GitHub Pages
+  // repo-name prefix in production. A literal "/" here worked in dev but
+  // 404'd once deployed - found 2026-09-20 after this app synced to git.
   const goHome = () => {
-    window.location.href = "/";
+    window.location.href = import.meta.env.BASE_URL;
   };
 
   return (
     <AppHeader
-      title="Solar Homes Calculator"
+      title="Homes Calculator"
       byline={
         <>
           by The Global Solar Council&ensp;·&ensp;

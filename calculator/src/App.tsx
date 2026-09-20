@@ -281,7 +281,21 @@ export default function App({ mode, setMode }: Props) {
             </Box>
           )}
 
-          <Tabs value={tab} onChange={(_, v: TabKey) => setTab(v)} sx={{ borderBottom: "1px solid", borderColor: "divider", px: 2 }}>
+          {/* `scrollable` + always-visible scroll buttons, not policy's own
+              `fullWidth` on mobile - fullWidth works there with three short
+              labels, but "Generation & demand" here wouldn't fit four equal
+              slots on a narrow phone without wrapping. The chevron arrows
+              are also what makes it obvious there's a tab off-screen at all -
+              found 2026-09-20 after Andrew reported this row wasn't
+              scrollable on mobile and gave no hint more tabs existed. */}
+          <Tabs
+            value={tab}
+            onChange={(_, v: TabKey) => setTab(v)}
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
+            sx={{ borderBottom: "1px solid", borderColor: "divider", px: 2, minWidth: 0 }}
+          >
             <Tab value="refine" label="Design" />
             <Tab value="generation" label="Generation &amp; demand" />
             <Tab value="dispatch" label="Dispatch" />
@@ -383,7 +397,16 @@ export default function App({ mode, setMode }: Props) {
                       limitation narrows `location` to `never` inside a ternary
                       nested this deep, not `null`, so the optional-chain access
                       itself fails to typecheck even though it's logically fine). */}
-                  <Box data-tour="location-search">
+                  {/* minWidth: 0 lets this shrink below its own content's
+                      natural size - without it, this plain wrapper Box (added
+                      only so the tour's Spotlight has a `data-tour` selector
+                      to target) blocked the flex-shrink chain LocationSearchBar's
+                      own `width: 320, maxWidth: "60%"` relies on, so on a
+                      narrow phone this box stayed a full 320px wide and pushed
+                      the List/Map toggle off the right edge of the screen -
+                      found 2026-09-20 after Andrew spotted the toggle clipped
+                      on mobile. */}
+                  <Box data-tour="location-search" sx={{ minWidth: 0, flexShrink: 1 }}>
                     <LocationSearchBar selectedCountryCode={undefined} onSelect={selectLocation} />
                   </Box>
                   <ToggleButtonGroup size="small" exclusive value={mobileView} onChange={(_, next) => next && setMobileView(next)}>
@@ -425,7 +448,7 @@ export default function App({ mode, setMode }: Props) {
                 // own footer (deployment/src/App.tsx: "search itself stays
                 // desktop-only here").
                 !isMobile && (
-                  <Box data-tour="location-search">
+                  <Box data-tour="location-search" sx={{ minWidth: 0, flexShrink: 1 }}>
                     <LocationSearchBar selectedCountryCode={location?.countryCode} onSelect={selectLocation} />
                   </Box>
                 )

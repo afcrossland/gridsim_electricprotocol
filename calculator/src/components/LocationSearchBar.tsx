@@ -23,6 +23,18 @@ interface NominatimResult {
  * `maxWidth: "60%"` (matching CountrySearch's own) added 2026-09-18 so this
  * doesn't overflow a narrow phone screen when it sits next to the mobile
  * Map/List toggle in App.tsx's own mobile layout.
+ *
+ * The width/maxWidth constraint lives on this wrapping `Box`, not on the
+ * `Autocomplete` itself (unlike an earlier version of this file) - the
+ * `Autocomplete`'s own parent (App.tsx's plain `<Box data-tour=...>`) has no
+ * defined width, so a percentage `maxWidth` set directly on the Autocomplete
+ * resolved against that undefined containing block and was ignored for the
+ * *flex item's* own size: the wrapper rendered at the full hard-coded 320px
+ * regardless, while the Autocomplete inside separately shrank to 60% of
+ * that, leaving dead space and pushing the sibling Map/List toggle off the
+ * right edge of the screen (found 2026-09-20, matching CountrySearch.tsx's
+ * own Paper-wraps-Autocomplete shape fixes it - the constrained element must
+ * be the one that's actually the flex item).
  */
 export default function LocationSearchBar({
   selectedCountryCode,
@@ -64,53 +76,55 @@ export default function LocationSearchBar({
   let debounce: ReturnType<typeof setTimeout>;
 
   return (
-    <Autocomplete
-      size="small"
-      sx={{ width: 320, maxWidth: "60%" }}
-      options={options}
-      getOptionLabel={(o) => o.display_name}
-      loading={loading}
-      filterOptions={(x) => x}
-      onInputChange={(_, value) => {
-        clearTimeout(debounce);
-        debounce = setTimeout(() => search(value), 400);
-      }}
-      onChange={(_, value) => value && pick(value)}
-      renderOption={(props, option) => {
-        const { key, ...liProps } = props as typeof props & { key: string };
-        return (
-          <Box component="li" key={key} {...liProps} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <FlagImg code={option.address?.country_code ?? ""} />
-            <Typography variant="body2" sx={{ flex: 1, minWidth: 0 }} noWrap>
-              {option.display_name}
-            </Typography>
-          </Box>
-        );
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          placeholder="Search for a country or city"
-          slotProps={{
-            input: {
-              ...params.InputProps,
-              startAdornment: selectedCountryCode ? (
-                <Box sx={{ ml: 0.5, mr: 0.25, display: "flex" }}>
-                  <FlagImg code={selectedCountryCode} />
-                </Box>
-              ) : (
-                <SearchIcon sx={{ fontSize: 18, color: "text.disabled", ml: 0.5, mr: 0.25, flexShrink: 0 }} />
-              ),
-              endAdornment: (
-                <>
-                  {loading ? <CircularProgress color="inherit" size={16} /> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            },
-          }}
-        />
-      )}
-    />
+    <Box sx={{ width: 320, maxWidth: "60%" }}>
+      <Autocomplete
+        size="small"
+        sx={{ width: "100%" }}
+        options={options}
+        getOptionLabel={(o) => o.display_name}
+        loading={loading}
+        filterOptions={(x) => x}
+        onInputChange={(_, value) => {
+          clearTimeout(debounce);
+          debounce = setTimeout(() => search(value), 400);
+        }}
+        onChange={(_, value) => value && pick(value)}
+        renderOption={(props, option) => {
+          const { key, ...liProps } = props as typeof props & { key: string };
+          return (
+            <Box component="li" key={key} {...liProps} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <FlagImg code={option.address?.country_code ?? ""} />
+              <Typography variant="body2" sx={{ flex: 1, minWidth: 0 }} noWrap>
+                {option.display_name}
+              </Typography>
+            </Box>
+          );
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder="Search for a country or city"
+            slotProps={{
+              input: {
+                ...params.InputProps,
+                startAdornment: selectedCountryCode ? (
+                  <Box sx={{ ml: 0.5, mr: 0.25, display: "flex" }}>
+                    <FlagImg code={selectedCountryCode} />
+                  </Box>
+                ) : (
+                  <SearchIcon sx={{ fontSize: 18, color: "text.disabled", ml: 0.5, mr: 0.25, flexShrink: 0 }} />
+                ),
+                endAdornment: (
+                  <>
+                    {loading ? <CircularProgress color="inherit" size={16} /> : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              },
+            }}
+          />
+        )}
+      />
+    </Box>
   );
 }
