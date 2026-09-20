@@ -6,11 +6,21 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import App from "./App";
 import { getTheme } from "../../shared/theme/mui-theme";
+import { getStoredMode, setStoredMode } from "../../shared/lib/darkMode";
 import "../../shared/index.css";
 
-/** Same shape as the sibling apps' own ThemedApp - plain useState, no persisted store. */
+/**
+ * Same shape as the sibling apps' own ThemedApp - no persisted store of its
+ * own, but `mode` now reads/writes the cross-app `DARK_MODE_KEY` (see
+ * shared/lib/darkMode.ts) rather than plain unpersisted useState, so a
+ * choice made here carries over to the other two apps too.
+ */
 function ThemedApp() {
-  const [mode, setMode] = useState<PaletteMode>("light");
+  const [mode, setModeState] = useState<PaletteMode>(() => getStoredMode() ?? "light");
+  const setMode = (m: PaletteMode) => {
+    setStoredMode(m);
+    setModeState(m);
+  };
   const theme = useMemo(() => getTheme(mode), [mode]);
   return (
     <ThemeProvider theme={theme}>

@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import App from "./App";
 import { getTheme } from "../../shared/theme/mui-theme";
+import { getStoredMode, setStoredMode } from "../../shared/lib/darkMode";
 import i18n, { LANGUAGE_KEY, SUPPORTED_LANGUAGES } from "./i18n";
 import "../../shared/index.css";
 
@@ -20,11 +21,17 @@ if (savedLanguage && (SUPPORTED_LANGUAGES as readonly string[]).includes(savedLa
 
 /**
  * Same shape as ep_policymap's ThemedApp in main.tsx, but with plain
- * `useState` instead of a Zustand store - this app has no persisted store
- * yet, and the toggle doesn't need to survive a reload for a demo.
+ * `useState` instead of a Zustand store. `mode` now reads/writes the
+ * cross-app `DARK_MODE_KEY` (see shared/lib/darkMode.ts) rather than
+ * resetting to light on every load, so a choice made here carries over to
+ * the other two apps too.
  */
 function ThemedApp() {
-  const [mode, setMode] = useState<PaletteMode>("light");
+  const [mode, setModeState] = useState<PaletteMode>(() => getStoredMode() ?? "light");
+  const setMode = (m: PaletteMode) => {
+    setStoredMode(m);
+    setModeState(m);
+  };
   const theme = useMemo(() => getTheme(mode), [mode]);
   return (
     <ThemeProvider theme={theme}>

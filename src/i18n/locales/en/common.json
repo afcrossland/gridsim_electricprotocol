@@ -3,8 +3,6 @@
   "tagline": "Solar. Storage. Future Secured.",
   "byGsc": "by The Global Solar Council",
   "nav": {
-    "takeTheTour": "Take the tour",
-    "takeTheTourShort": "Tour",
     "help": "Help",
     "adminConsole": "Admin console"
   },
@@ -194,6 +192,7 @@
     "previous": "Previous",
     "next": "Next",
     "skipIntro": "Skip intro",
-    "startExploring": "Start exploring"
+    "startExploring": "Start exploring",
+    "readDocs": "Read documentation"
   }
 }

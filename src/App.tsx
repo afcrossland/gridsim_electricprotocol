@@ -247,6 +247,16 @@ export default function App() {
             selectCountry(null);
             setWelcomeSeen(false);
           }}
+          // Tour and Help now share one entry point (the nav's own single
+          // "Help" button, and this) - per Andrew's own instruction
+          // 2026-09-20. Ends the tour exactly like `onDismiss` (back to the
+          // plain world view, nothing selected) and opens the Help page
+          // instead of leaving the map showing.
+          onReadDocs={() => {
+            setTourSeen(true);
+            selectCountry(null);
+            setPage("help");
+          }}
           // Suspends the tour's own wheel/keyboard scene-navigation while
           // the Charter is open on top of it, so scrolling the Charter's
           // own long text does not also drive the tour underneath.

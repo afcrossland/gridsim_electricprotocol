@@ -71,6 +71,16 @@ export default function App({ mode, setMode }: Props) {
     setMetric("capacityPerCapita");
   };
 
+  // Help and Tour now share one entry point (the header's own single "Help"
+  // button, and this) - the hero scene's own "Read documentation" button,
+  // per Andrew's own instruction 2026-09-20. Nothing in the hero scene has
+  // run any `onEnter` side effect yet (only later scenes do), so this only
+  // needs to mark the tour seen and switch pages.
+  const openDocsFromTour = () => {
+    dismissTour();
+    setPage("help");
+  };
+
   const map = (
     <DeploymentMap
       metric={metric}
@@ -86,7 +96,7 @@ export default function App({ mode, setMode }: Props) {
   return (
     <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
       {!heroScene && (
-        <TopNavbar mode={mode} setMode={setMode} page={page} setPage={setPage} onStartTour={openTour} />
+        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} />
       )}
 
       {page === "help" ? (
@@ -239,12 +249,14 @@ export default function App({ mode, setMode }: Props) {
               scenes={getScenes(i18n.language, setSelectedCountry)}
               onDismiss={dismissTourToStart}
               onSceneChange={setTourSceneId}
+              onReadDocs={openDocsFromTour}
               labels={{
                 scrollToBegin: t("scrollStory.scrollToBegin"),
                 previous: t("scrollStory.previous"),
                 next: t("scrollStory.next"),
                 skipIntro: t("scrollStory.skipIntro"),
                 startExploring: t("scrollStory.startExploring"),
+                readDocs: t("scrollStory.readDocs"),
               }}
               heroFooter={
                 <>

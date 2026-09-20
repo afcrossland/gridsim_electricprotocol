@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 
@@ -9,21 +8,22 @@ import NavItem from "../../../shared/components/NavItem";
 interface Props {
   mode: PaletteMode;
   setMode: (mode: PaletteMode) => void;
-  page: "map" | "help";
-  setPage: (page: "map" | "help") => void;
-  onStartTour: () => void;
+  onOpenHelp: () => void;
 }
 
 /**
  * Ported onto the shared `AppHeader`/`NavItem` (`shared/components/`)
  * 2026-09-19 - the identity block (logo/title/subtitle) and dark-mode
- * toggle are now the shared component; everything below (Tour/Help nav
- * links, the lock/login placeholder button, i18n) stays exactly as it
- * was, composed as `AppHeader`'s own `children`. This is the first of the
- * three apps ported onto `shared/` - see the "shared UI" plan for the
- * others still pending (root app, calculator).
+ * toggle are now the shared component. Tour and Help merged into one
+ * button 2026-09-20 ("combine the tour and help... Click help, get the
+ * welcome to screen and then have a new button which is 'read
+ * documentation'") - clicking it opens the tour's own hero scene
+ * (`onOpenHelp` is just `openTour` from `useTourState`), which now has a
+ * "Read documentation" button of its own (`shared/tour/TourOverlay.tsx`'s
+ * `onReadDocs`) for a visitor who wants the written docs instead of the
+ * guided walkthrough.
  */
-export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }: Props) {
+export default function TopNavbar({ mode, setMode, onOpenHelp }: Props) {
   const { t } = useTranslation();
   // Same as ep_policymap's own TopNavbar.tsx: the logo leaves this app
   // entirely, back to the Electric Futures Playbook splash at the site
@@ -48,18 +48,7 @@ export default function TopNavbar({ mode, setMode, page, setPage, onStartTour }:
       onLogoClick={goHome}
       darkModeTooltip={{ toLight: t("theme.switchToLight"), toDark: t("theme.switchToDark") }}
     >
-      <NavItem active={false} onClick={onStartTour}>
-        {/* Abbreviated below `sm`, same as Policy Explorer's own nav -
-            "Take the tour" alone was part of the header's mobile overflow. */}
-        <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-          {t("nav.takeTheTour")}
-        </Box>
-        <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-          {t("nav.takeTheTourShort")}
-        </Box>
-      </NavItem>
-
-      <NavItem active={page === "help"} onClick={() => setPage(page === "help" ? "map" : "help")}>
+      <NavItem active={false} onClick={onOpenHelp}>
         {t("nav.help")}
       </NavItem>
 

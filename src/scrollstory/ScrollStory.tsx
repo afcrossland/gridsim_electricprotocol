@@ -90,9 +90,18 @@ interface Props {
   onOpenCharter?: () => void;
   /** True while the Charter is open on top of the tour - suspends wheel/keyboard scene navigation so scrolling the Charter's own content doesn't also drive the tour underneath it. */
   paused?: boolean;
+  /**
+   * Ends the tour and opens the Help page instead - added 2026-09-20 so
+   * Tour and Help share one entry point, matching deployment's and
+   * calculator's own `shared/tour/TourOverlay.tsx` (`onReadDocs`). Kept as
+   * a separate prop from `onOpenCharter` since the Charter and the Help
+   * page's own topics are different documents, not the same thing under
+   * two names.
+   */
+  onReadDocs?: () => void;
 }
 
-export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, paused = false }: Props) {
+export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, onReadDocs, paused = false }: Props) {
   const { t, i18n } = useTranslation();
   // Recomputed per language via getScenes() (see src/i18n/scenes.ts) rather
   // than imported as a static array - everything but the text itself
@@ -437,6 +446,16 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, p
                 sx={{ ...PILL, border: "none", cursor: "pointer", fontFamily: "inherit", "&:hover": { bgcolor: "#F0FBFC" } }}
               >
                 {t("scrollStory.readCharter")}
+              </Box>
+            )}
+
+            {onReadDocs && (
+              <Box
+                component="button"
+                onClick={onReadDocs}
+                sx={{ ...PILL, border: "none", cursor: "pointer", fontFamily: "inherit", "&:hover": { bgcolor: "#F0FBFC" } }}
+              >
+                {t("scrollStory.readDocs")}
               </Box>
             )}
           </Box>

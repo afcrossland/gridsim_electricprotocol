@@ -53,29 +53,16 @@ export default function TopNavbar() {
       darkModeTooltip={{ toLight: t("theme.switchToLight"), toDark: t("theme.switchToDark") }}
     >
       <Box sx={{ display: "flex", alignItems: "stretch", height: "100%" }}>
-        {page !== "admin" && (
-          <>
-            <NavItem active={false} onClick={() => setTourSeen(false)}>
-              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-                {t("nav.takeTheTour")}
-              </Box>
-              <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-                {t("nav.takeTheTourShort")}
-              </Box>
-            </NavItem>
-
-            <Box sx={{ width: "1px", height: 20, bgcolor: "divider", mx: 0.5, alignSelf: "center" }} />
-          </>
-        )}
-
         <Box data-tour="nav-links" sx={{ display: "flex", alignItems: "center" }}>
-          {/* The Charter link used to live here too, but it's already
-              reachable from the tour's own "Read the Citizens
-              Electrification Charter" pill - a second nav entry pointing
-              at the same modal was redundant. Its text now opens the Help
-              page instead, so it's still readable without the tour. */}
+          {/* Tour and Help merged into this one button 2026-09-20 ("combine
+              the tour and help... Click help, get the welcome to screen and
+              then have a new button which is 'read documentation'") -
+              clicking it reopens the tour's own hero scene (`setTourSeen`
+              false), which has its own "Read documentation" pill
+              (`onReadDocs` above) for a visitor who wants the Help page's
+              written topics instead of the guided walkthrough. */}
           {page !== "admin" && (
-            <NavItem active={page === "help"} onClick={() => setPage(page === "help" ? "map" : "help")}>
+            <NavItem active={page === "help"} onClick={() => setTourSeen(false)}>
               {t("nav.help")}
             </NavItem>
           )}

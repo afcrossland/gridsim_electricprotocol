@@ -3,8 +3,6 @@
   "tagline": "Solaire. Stockage. Avenir assuré.",
   "byGsc": "par le Global Solar Council",
   "nav": {
-    "takeTheTour": "Faire la visite",
-    "takeTheTourShort": "Visite",
     "help": "Aide",
     "login": "Connexion",
     "comingSoon": "Bientôt disponible"
@@ -42,7 +40,8 @@
     "previous": "Précédent",
     "next": "Suivant",
     "skipIntro": "Passer l'introduction",
-    "startExploring": "Commencer à explorer"
+    "startExploring": "Commencer à explorer",
+    "readDocs": "Lire la documentation"
   },
   "sidebar": {
     "heading": "Explorateur de Déploiement Solaire",

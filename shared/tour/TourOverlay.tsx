@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
 import Spotlight from "./Spotlight";
 import type { Scene } from "./types";
@@ -70,6 +71,7 @@ interface Labels {
   next: string;
   skipIntro: string;
   startExploring: string;
+  readDocs: string;
 }
 
 const DEFAULT_LABELS: Labels = {
@@ -78,6 +80,7 @@ const DEFAULT_LABELS: Labels = {
   next: "Next",
   skipIntro: "Skip intro",
   startExploring: "Start exploring",
+  readDocs: "Read documentation",
 };
 
 interface Props {
@@ -89,6 +92,15 @@ interface Props {
   labels?: Partial<Labels>;
   /** Rendered in the hero scene's own footer line (e.g. "by GSC · tagline") - a ReactNode so each app can style/translate it as it likes. Omit for no footer line. */
   heroFooter?: ReactNode;
+  /**
+   * Shows a "Read documentation" button in the hero card, alongside the
+   * "Scroll to begin" hint - added 2026-09-20 so Help and Tour can share
+   * one entry point: clicking Help opens this same hero scene, and a
+   * visitor who doesn't want the guided walkthrough can jump straight to
+   * the written docs instead. Omit for the plain tour-only hero (no
+   * documentation page to jump to, or the app doesn't want this).
+   */
+  onReadDocs?: () => void;
 }
 
 /**
@@ -106,7 +118,7 @@ interface Props {
  * Mounted as a fixed, full-viewport overlay above the real app, which
  * stays mounted underneath the whole time.
  */
-export default function TourOverlay({ scenes, onDismiss, onSceneChange, labels, heroFooter }: Props) {
+export default function TourOverlay({ scenes, onDismiss, onSceneChange, labels, heroFooter, onReadDocs }: Props) {
   const L = { ...DEFAULT_LABELS, ...labels };
   const [activeScene, setActiveScene] = useState(0);
   const scene = scenes[activeScene];
@@ -223,7 +235,17 @@ export default function TourOverlay({ scenes, onDismiss, onSceneChange, labels, 
             >
               {scene.heading}
             </Typography>
-            <Typography sx={{ color: "#6B7280", fontSize: "1.0625rem", lineHeight: 1.6, mb: 2.5 }}>{scene.body}</Typography>
+            <Typography sx={{ color: "#6B7280", fontSize: "1.0625rem", lineHeight: 1.6, mb: onReadDocs ? 2 : 2.5 }}>{scene.body}</Typography>
+            {onReadDocs && (
+              <Button
+                onClick={onReadDocs}
+                variant="outlined"
+                startIcon={<DescriptionOutlinedIcon fontSize="small" />}
+                sx={{ mb: 2.5, pointerEvents: "auto", borderRadius: "22px" }}
+              >
+                {L.readDocs}
+              </Button>
+            )}
             {heroFooter && (
               <Box sx={{ pt: 2, borderTop: "1px solid #E5E7EB" }}>
                 <Typography sx={{ fontSize: "0.8125rem", color: "#9CA3AF", lineHeight: 1.4 }}>{heroFooter}</Typography>

@@ -3,8 +3,6 @@
   "tagline": "Solar. Almacenamiento. Futuro asegurado.",
   "byGsc": "por el Consejo Solar Global",
   "nav": {
-    "takeTheTour": "Hacer el recorrido",
-    "takeTheTourShort": "Recorrido",
     "help": "Ayuda",
     "adminConsole": "Consola de administración"
   },
@@ -194,6 +192,7 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "skipIntro": "Saltar introducción",
-    "startExploring": "Empieza a explorar"
+    "startExploring": "Empieza a explorar",
+    "readDocs": "Leer la documentación"
   }
 }

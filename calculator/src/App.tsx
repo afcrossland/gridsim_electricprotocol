@@ -183,6 +183,17 @@ export default function App({ mode, setMode }: Props) {
     setMetric("selfSufficiency");
   }
 
+  // Help and Tour now share one entry point (both the header's own single
+  // "Help" button, and this) - the hero scene's own "Read documentation"
+  // button, per Andrew's own instruction 2026-09-20. Nothing in the hero
+  // scene has run any `onEnter` side effect yet (only later scenes do), so
+  // this only needs to mark the tour seen and switch pages - no map/sidebar
+  // state to reset the way `dismissTourToStart` above does.
+  function openDocsFromTour() {
+    dismissTour();
+    setPage("help");
+  }
+
   // Shared by the map's own click handler and the league table's row click
   // (CountryLeagueTable) - a row click selects that country exactly like
   // clicking it on the map does, per Andrew's own instruction 2026-09-16
@@ -355,7 +366,7 @@ export default function App({ mode, setMode }: Props) {
           apps' own App.tsx hide their equivalent nav/footer there, for an
           unobstructed view of the map. */}
       {!heroScene && (
-        <TopNavbar mode={mode} setMode={setMode} page={page} setPage={setPage} onStartTour={openTour} />
+        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} />
       )}
 
       {page === "help" ? (
@@ -484,6 +495,7 @@ export default function App({ mode, setMode }: Props) {
               scenes={tourScenes}
               onDismiss={dismissTourToStart}
               onSceneChange={setTourSceneId}
+              onReadDocs={openDocsFromTour}
               heroFooter={
                 <>
                   by The Global Solar Council&ensp;·&ensp;

@@ -8,6 +8,7 @@ import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
 import { resolveTargets } from "../lib/jurisdictions";
 import { DEFAULT_SCOREBOARD_FILTERS, type ScoreboardFilters } from "../lib/scoreboardFilters";
 import { diffResponses, type Suggestion } from "../lib/suggestions";
+import { getStoredMode, setStoredMode } from "../../shared/lib/darkMode";
 import {
   WINDROSE,
   type CountryPanelTab,
@@ -293,7 +294,12 @@ function initialState() {
     // `setWelcomeSeen(false)` calls, never a default.
     welcomeSeen: true,
     tourSeen: false,
-    mode: "light" as const,
+    // Cross-app choice (see shared/lib/darkMode.ts) - `merge` below also
+    // re-applies this on every load, since this app's own persisted `mode`
+    // (in this store's own localStorage entry, alongside everything else
+    // partialize keeps) would otherwise win over a choice made in a
+    // sibling app after this store was first created.
+    mode: getStoredMode() ?? "light",
     language: DEFAULT_LANGUAGE,
     sections: protocol.sections.map((s) => ({ ...s })),
     questions: protocol.questions.map((q) => ({ ...q })),
@@ -331,7 +337,10 @@ export const useProtocolStore = create<ProtocolState>()(
       setPage: (page) => set({ page }),
       setWelcomeSeen: (welcomeSeen) => set({ welcomeSeen }),
       setTourSeen: (tourSeen) => set({ tourSeen }),
-      setMode: (mode) => set({ mode }),
+      setMode: (mode) => {
+        setStoredMode(mode);
+        set({ mode });
+      },
       setLanguage: (language) => {
         i18n.changeLanguage(language);
         set({ language });
@@ -817,6 +826,11 @@ export const useProtocolStore = create<ProtocolState>()(
         return {
           ...current,
           ...state,
+          // The shared cross-app key (see shared/lib/darkMode.ts), not
+          // whatever this app's own persisted `mode` field says - it can be
+          // stale the moment a sibling app's own toggle writes a newer
+          // value to that key without this store ever hearing about it.
+          mode: getStoredMode() ?? state.mode ?? current.mode,
           sections,
           questions,
           responses: [...byKey.values()],
