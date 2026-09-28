@@ -43,10 +43,13 @@ only real one.
 ## Layout
 
 Deliberately matched to the Policy Explorer's own chrome, not
-approximately - same fonts (Eastman Grotesque, copied verbatim into
-`deployment/src/assets/fonts/`), same MUI theme (`deployment/src/mui-theme.tsx`
-exports the same `getTheme(mode)` shape), same header/sidebar/footer
-sizing and positioning.
+approximately - same fonts, same MUI theme, same header/sidebar/footer
+sizing and positioning. As of 2026-09-19 this isn't just visual parity -
+fonts, the theme (`getTheme(mode)`), and most of the header/footer/sidebar/
+map-chrome components listed below are the literal same shared code now,
+not separately maintained copies - see the root `../README.md`'s "Shared
+UI" section for the full list and `shared/`'s own doc comments for why
+each piece moved there.
 
 - **Header** (`TopNavbar.tsx`) - logo + "Solar Deployment Explorer" + GSC
   tagline on the left (logo and title share one flex container with
@@ -123,6 +126,12 @@ already handles this well:
   header, shown only below `sm` - never both copies at once. "Take the
   tour" abbreviates to "Tour" below `sm`, the same two-span pattern Policy
   Explorer's own nav items use.
+
+  **Updated 2026-09-20**: Tour and Help merged into one nav button
+  ("Help" - see the root `../README.md`'s "Shared UI" section) - clicking
+  it opens the tour's own welcome scene, which now has its own "Read
+  documentation" button leading to this page. The separate "Take the
+  tour"/"Tour" nav link described above no longer exists.
 - **Footer's metric selector** - a new `METRIC_SHORT_LABELS` in
   `lib/metrics.ts` ("Capacity" / "Per Capita" / "Share") swaps in below
   `md`, since the full labels alone are wider than most phone screens. It
@@ -355,6 +364,12 @@ midpoint instead of green - `#FBB114` → `#F8CB6E` → `#F5E6C8` → `#7AC8C1`
 → `#00ABBB`. The cream is warm enough not to read as `COLOR_NO_DATA`
 (#E5E7EB, a cool grey) the way the original neutral-grey midpoint attempt
 (version 3's predecessor) did.
+
+**Moved 2026-09-19**: this settled ramp (confirmed byte-identical to
+Policy Explorer's own `SCORE_RAMP` and calculator's own ramp by then) is
+`GSC_RAMP` in `shared/lib/mapColor.ts` now, not `lib/metrics.ts`'s own
+`RAMP_STOPS` - that export (and this file's own `COLOR_NO_DATA`) were
+removed once nothing here still imported them.
 
 **A real `0` is treated as "no data" on the map, 2026-09-10**
 (`lib/metrics.ts`'s new `valueForMap`, used by the map's fill colour and

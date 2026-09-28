@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import { useEffect, useMemo, useState } from "react";
+import { Box, Stack, Typography } from "@mui/material";
 
+import ContinentFilter from "../../../shared/components/ContinentFilter";
+import FilterBar from "../../../shared/components/FilterBar";
 import FlagImg from "../../../shared/components/FlagImg";
 import RankedRow from "../../../shared/components/RankedRow";
 import { loadCountryIrradiance } from "../lib/countryIrradiance";
-import { countryCodeOf, jurisdictionName } from "../lib/jurisdictions";
+import { continentOf, countryCodeOf, jurisdictionName } from "../lib/jurisdictions";
 import { METRIC_LABELS, formatMetricValue, loadMetricValues, loadSelfSufficiencyTiers } from "../lib/mapMetrics";
 import type { Metric } from "../lib/mapMetrics";
 
@@ -39,30 +39,53 @@ function formatGenerationRow(kWhPerKWp: number): string {
  * on deployment explorer in the sidebar") - same card-list shape as
  * Deployment Explorer's own `Sidebar.tsx` ranking view (rank number, flag,
  * name, value; sortable ascending/descending; a row click selects that
- * country exactly like a map click). Simpler than deployment's own version
- * - no continent filter, no pinned "Global" row, since neither concept
- * exists here yet. Each row's own displayed value differs by metric:
- * generation shows kWh/panel/yr for a 500Wp panel (`formatGenerationRow`),
- * self-sufficiency shows a low-high range across the three precomputed
- * system tiers rather than the single medium figure the list is actually
- * ranked by (`r.lowHighLabel` - see `loadSelfSufficiencyTiers`'s own doc
- * comment for why).
+ * country exactly like a map click). Gained the same continent filter box
+ * deployment's and policy's own lists already had 2026-09-28, on the
+ * shared `FilterBar`/`ContinentFilter` - no pinned "Global" row, since that
+ * concept doesn't exist here. Each row's own displayed value differs by
+ * metric: generation shows kWh/panel/yr for a 500Wp panel
+ * (`formatGenerationRow`), self-sufficiency shows a low-high range across
+ * the three precomputed system tiers rather than the single medium figure
+ * the list is actually ranked by (`r.lowHighLabel` - see
+ * `loadSelfSufficiencyTiers`'s own doc comment for why).
  *
  * Re-fetches whenever `metric` changes (via `loadMetricValues`, which
  * shares its cache with WorldMap.tsx's own copy for "generation" - see
  * lib/countryIrradiance.ts's own module-level cache - so switching the map
  * metric selector doesn't trigger a second download of the ~10MB
  * irradiance dataset).
+ *
+ * Sort direction and the filter (both selection and expanded/collapsed
+ * state) are controlled by `App.tsx`, not local state here - this
+ * component unmounts entirely once a location is selected (it's only
+ * rendered in the `!location` branch of `App.tsx`'s own sidebar content),
+ * so anything kept as this component's own `useState` would silently reset
+ * every time a visitor picked a country and went back. Found 2026-09-28
+ * after Andrew reported the filter not persisting across a country visit -
+ * deployment's/policy's own equivalent state never had this bug since it
+ * lives in a sidebar component that stays mounted across a selection.
  */
 export default function CountryLeagueTable({
   metric,
   onSelect,
+  desc,
+  onToggleSort,
+  continents,
+  onContinentsChange,
+  filtersExpanded,
+  onToggleFiltersExpanded,
 }: {
   metric: Metric;
   onSelect: (params: { code: string; name: string; lat: number; lon: number }) => void;
+  desc: boolean;
+  onToggleSort: () => void;
+  continents: string[];
+  onContinentsChange: (continents: string[]) => void;
+  filtersExpanded: boolean;
+  onToggleFiltersExpanded: () => void;
 }) {
   const [rows, setRows] = useState<Row[] | null>(null);
-  const [desc, setDesc] = useState(true);
+  const filtersActive = continents.length > 0;
 
   useEffect(() => {
     let mounted = true;
@@ -88,12 +111,17 @@ export default function CountryLeagueTable({
     };
   }, [metric]);
 
-  const sorted = rows ? [...rows].sort((a, b) => (desc ? b.value - a.value : a.value - b.value)) : null;
+  const sorted = useMemo(() => {
+    if (!rows) return null;
+    const filtered =
+      continents.length === 0 ? rows : rows.filter((r) => continents.includes(continentOf(r.code) ?? ""));
+    return [...filtered].sort((a, b) => (desc ? b.value - a.value : a.value - b.value));
+  }, [rows, continents, desc]);
 
   return (
     <Box data-tour="ranking-list" sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2, pb: 1 }}>
-        <Typography variant="subtitle2" color="text.secondary">
+      <Box sx={{ px: 2, pb: 1 }}>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
           {/* "(based on 500Wp panel)" qualifier added 2026-09-18 per
               Andrew's own instruction - the generation metric's own row
               values are shown per-panel here (see formatGenerationRow
@@ -101,11 +129,17 @@ export default function CountryLeagueTable({
           Ranked by {METRIC_LABELS[metric].toLowerCase()}
           {metric === "generation" && " (based on 500Wp panel)"}
         </Typography>
-        <Tooltip title={desc ? "Sort ascending" : "Sort descending"}>
-          <IconButton size="small" onClick={() => setDesc((d) => !d)}>
-            {desc ? <ArrowDownwardIcon fontSize="small" /> : <ArrowUpwardIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
+
+        <FilterBar
+          active={filtersActive}
+          expanded={filtersExpanded}
+          onToggleExpanded={onToggleFiltersExpanded}
+          onClear={() => onContinentsChange([])}
+          sortDesc={desc}
+          onToggleSort={onToggleSort}
+        >
+          <ContinentFilter value={continents} onChange={onContinentsChange} />
+        </FilterBar>
       </Box>
 
       <Box sx={{ flex: 1, overflowY: "auto", px: 2, pb: 2 }}>

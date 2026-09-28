@@ -1,5 +1,6 @@
 import index from "../data/jurisdictions.json";
 import subdivisionNames from "../data/subdivision-names.json";
+import { CONTINENTS, continentOfRegion, continentOverrideFor } from "../../../shared/lib/continents";
 
 export interface Jurisdiction {
   code: string;
@@ -124,38 +125,14 @@ export function canonicalCode(featureCode: string): string {
   return featureCode;
 }
 
-// Ported from ep_policymap/src/lib/jurisdictions.ts - same reasoning there
-// applies here (a short, ordinary continent list rather than the ~20-value
-// `region` field).
-export const CONTINENTS = ["Africa", "Asia", "Europe", "North America", "South America", "Oceania"] as const;
-
-const CONTINENT_BY_REGION: Record<string, string> = {
-  "Northern Africa": "Africa",
-  "Eastern Africa": "Africa",
-  "Middle Africa": "Africa",
-  "Southern Africa": "Africa",
-  "Western Africa": "Africa",
-  "Central Asia": "Asia",
-  "Eastern Asia": "Asia",
-  "South-Eastern Asia": "Asia",
-  "Southern Asia": "Asia",
-  "Western Asia": "Asia",
-  "Eastern Europe": "Europe",
-  "Northern Europe": "Europe",
-  "Southern Europe": "Europe",
-  "Western Europe": "Europe",
-  Caribbean: "North America",
-  "Central America": "North America",
-  "Northern America": "North America",
-  "South America": "South America",
-  "Australia and New Zealand": "Oceania",
-  Melanesia: "Oceania",
-  Micronesia: "Oceania",
-  Polynesia: "Oceania",
-};
+// Moved to shared/lib/continents.ts 2026-09-28 - confirmed byte-identical
+// to ep_policymap's own copy before that, per this file's own history.
+export { CONTINENTS };
 
 export function continentOf(code: string): string | null {
+  const override = continentOverrideFor(code);
+  if (override) return override;
   const j = byCode.get(code);
   if (!j) return null;
-  return (j.region && CONTINENT_BY_REGION[j.region]) ?? null;
+  return continentOfRegion(j.region);
 }

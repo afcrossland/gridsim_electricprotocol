@@ -1,4 +1,5 @@
 import index from "../data/jurisdictions.json";
+import { continentOfRegion, continentOverrideFor } from "../../../shared/lib/continents";
 
 export interface Jurisdiction {
   code: string;
@@ -36,4 +37,22 @@ export function jurisdictionName(code: string): string {
 /** The ISO 3166-1 alpha-2 country code a (possibly subnational, e.g. "US-CA") jurisdiction code belongs to. */
 export function countryCodeOf(code: string): string {
   return code.split("-")[0];
+}
+
+/**
+ * A jurisdiction's continent, for the ranked list's own filter (added
+ * 2026-09-28 per Andrew's own instruction "this should use a common
+ * element" - deployment's and policy's own lists already had this). Same
+ * parent-walk as policy's own `continentOf` (not deployment's simpler
+ * version, which never needs one) - a subnational jurisdiction's own
+ * `region` field holds its parent's *name*, not a UN sub-region, so this
+ * looks the parent up instead.
+ */
+export function continentOf(code: string): string | null {
+  const override = continentOverrideFor(code);
+  if (override) return override;
+  const j = byCode.get(code);
+  if (!j) return null;
+  const region = j.parent ? byCode.get(j.parent)?.region : j.region;
+  return continentOfRegion(region);
 }

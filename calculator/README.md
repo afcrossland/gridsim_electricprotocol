@@ -23,13 +23,22 @@ Same map + sidebar shell as Deployment Explorer: `TopNavbar` up top, the map
 as a flex sibling of the sidebar (not an overlay), a footer bar with a
 location search box, the map's own metric selector, and the language
 switcher. Headings follow the same GSC theme typography Deployment Explorer
-already used (`mui-theme.tsx`, shared verbatim between the two apps) -
-top-level tab headings use the theme's own `h5` (no inline weight
-override), and every sub-section label ("Monthly total", "Tariffs",
-"Payback", etc.) uses `overline` (small, uppercase, letter-spaced grey),
-matching Deployment Explorer's own `CountryDetail.tsx`/`GenerationDetail.tsx`
-convention rather than the plain `subtitle2` this app used until
-2026-09-18.
+already used (`shared/theme/mui-theme.tsx`, the root project's shared UI
+toolkit - see `../README.md`'s "Shared UI" section) - top-level tab
+headings use the theme's own `h5` (no inline weight override), and every
+sub-section label ("Monthly total", "Tariffs", "Payback", etc.) uses
+`overline` (small, uppercase, letter-spaced grey), matching Deployment
+Explorer's own `CountryDetail.tsx`/`GenerationDetail.tsx` convention rather
+than the plain `subtitle2` this app used until 2026-09-18.
+
+**Header** (`TopNavbar.tsx`, ported onto the shared `AppHeader` 2026-09-19)
+gained a "Help" nav link and a "Login" placeholder button the same day,
+matching the sibling apps. Clicking "Help" opens an onboarding tour
+(`tour/scenes.ts`, built on `shared/tour/`) - its opening welcome scene has
+a "Read documentation" button (added 2026-09-20, merging what used to be
+separate Tour/Help entry points) leading to this app's own `HelpPage.tsx`.
+Dark mode (the sun/moon toggle) persists across all three apps via one
+shared `localStorage` key - see the root README's "Dark mode" section.
 
 **Mobile** (below MUI's `md` breakpoint), ported from Deployment Explorer's
 own mobile layout 2026-09-18: the map and sidebar can't sit side by side
@@ -56,7 +65,7 @@ the list is actually ranked by.
 Policy/Deployment Explorer's own; hidden once a location is selected,
 2026-09-18, since it colours a map that's no longer the focus of the view
 at that point - see App.tsx): two views, coloured with the same
-amber-to-aqua ramp as the sibling apps (`lib/mapColor.ts`).
+amber-to-aqua ramp as the sibling apps (`shared/lib/mapColor.ts`).
 - **Self-sufficiency (%)** - the default. Coloured from a *precomputed*
   per-country dataset (`data/country-self-sufficiency.json`), reading only
   its "medium" tier (see below), normalised against a fixed 50-100% domain

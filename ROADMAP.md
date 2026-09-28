@@ -215,6 +215,24 @@ comment(s) together.
 Requests Andrew has flagged for later, recorded here so they don't get
 lost - not yet started.
 
+- **TODO: the Solar Homes Calculator's ranked list doesn't scroll well once
+  filtered to North America, Oceania, or Europe.** Flagged 2026-09-28,
+  right after the ranked list gained a continent filter
+  (`CountryLeagueTable.tsx`, on the shared `FilterBar`/`ContinentFilter`).
+  Not yet reproduced/diagnosed - a quick programmatic check of the scroll
+  container itself (`overflowY: auto`, `scrollHeight` genuinely taller than
+  `clientHeight`) and a synthetic mouse-wheel scroll both looked fine, so
+  the issue is either specific to a real trackpad/touch input this pass
+  didn't simulate, or a rendering/interaction glitch only visible with the
+  real row count these three continents produce (all three are among the
+  longest lists - Europe and North America especially, once Russia/
+  Bonaire-style edge cases are counted). A same-day "zoom the map to the
+  filtered countries' extent" feature (`WorldMap.tsx`'s own `fitToCodes`
+  prop) was tried and then reverted the same day at Andrew's request
+  (unrelated to this bug, not because it caused it) - worth checking
+  whether this scroll issue is still reproducible now that it's gone,
+  before assuming it needs its own separate fix. Needs reproducing
+  directly in a real browser before attempting anything. Not started.
 - **TODO: port this app's own onboarding tour onto the shared tour engine.**
   Flagged 2026-09-19, as part of the ongoing shared-UI effort across this
   app, `deployment/`, and `calculator/` (see `shared/` and the doc comments

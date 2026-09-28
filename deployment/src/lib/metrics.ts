@@ -66,23 +66,3 @@ export function domainForMetric(metric: Metric): [number, number] {
   return [Math.min(...values), Math.max(...values)];
 }
 
-/**
- * Amber to teal/aqua, low value to high, with a warm cream midpoint -
- * fixed 2026-09-10: a straight RGB blend from amber (#FBB114) to aqua
- * (#00ABBB) naturally passes through green in the middle (R drops, G stays
- * high, B rises - a green midpoint is just what that particular pair of
- * endpoints blends through in RGB space), and Andrew didn't want a green
- * stop in an amber-to-teal ramp. Routed through a pale warm cream instead
- * (#F5E6C8) - distinct from both amber and teal, and, importantly, warm
- * enough not to read as `COLOR_NO_DATA` (#E5E7EB, a cool grey) the way an
- * earlier neutral-grey midpoint attempt did.
- */
-export const RAMP_STOPS = [
-  { stop: 0, color: "#FBB114" },
-  { stop: 0.25, color: "#F8CB6E" },
-  { stop: 0.5, color: "#F5E6C8" },
-  { stop: 0.75, color: "#7AC8C1" },
-  { stop: 1, color: "#00ABBB" },
-];
-
-export const COLOR_NO_DATA = "#E5E7EB";

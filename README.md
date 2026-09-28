@@ -10,7 +10,7 @@ Vite, MUI 7 with the GSC theme and Eastman Grotesque, MapLibre via
 
 ## Site structure
 
-The built site has three HTML entries, not one - see `vite.config.ts`'s
+The built site has four HTML entries, not one - see `vite.config.ts`'s
 `build.rollupOptions.input`:
 
 - **`/`** - `index.html` at the repo root is a static, unbundled splash page
@@ -22,17 +22,23 @@ The built site has three HTML entries, not one - see `vite.config.ts`'s
   this README describes what lives here.
 - **`/deployment/`** - the Solar Deployment Explorer, moved in 2026-09-09
   from the standalone `ep_deploymentexplorer` project so everything serves
-  from one dev server on one port (`npm run dev` here now covers all three).
+  from one dev server on one port (`npm run dev` here now covers all four).
   `deployment/index.html` mounts its **own** `deployment/src/main.tsx` - a
   separate source tree from this project's root `src/` (which the policy
   app uses), since they're two different apps that can't share one
   `main.tsx`. See `deployment/README.md` for everything specific to that app
   (its Ember/World Bank data imports, its own component conventions); this
   README is still the Policy Explorer's own.
+- **`/calculator/`** - the Solar Homes Calculator, moved in 2026-09-15 from
+  the standalone `ep_solarCalculator` project the same way. `calculator/
+  index.html` mounts its own `calculator/src/main.tsx`, a third separate
+  source tree. See `calculator/README.md`.
 
-All three entries share the same `base` (see Deployment below), so asset
+All four entries share the same `base` (see Deployment below), so asset
 URLs resolve correctly under either the GitHub Pages subpath or a custom
-domain regardless of which entry references them.
+domain regardless of which entry references them. All three apps (policy,
+deployment, calculator) also share one common UI toolkit at `shared/` -
+see "Shared UI" below.
 
 Three URL params the app itself understands, all meant for links coming
 from elsewhere: `?skipIntro=1` marks the onboarding tour as already seen
@@ -430,14 +436,91 @@ disagree (map coloured by one measure, list ordered by the other). Removed
 remains as a Scoreboard-only preference. `scoreboardSortDirection` replaced
 the old `scoreboardSort` field in the store - not persisted, same as before.
 
+## Shared UI (`shared/`)
+
+Started 2026-09-19: a common UI toolkit at the repo root, sibling to `src/`,
+`deployment/src/`, and `calculator/src/` - plain importable TS/TSX, no
+`package.json` or build step of its own (same as how `deployment/src`/
+`calculator/src` already work as imported source, not app roots), added to
+`tsconfig.app.json`'s `include`. Before this, small UI concepts were
+deliberately duplicated per app (see the "Localization" section below for
+what that convention used to look like) - `shared/` is that convention
+being reversed piece by piece, grounded each time in proven byte-level or
+near-byte-level identity between the apps' own copies, not assumption.
+
+What's shared today:
+
+- **`shared/components/`** - `AppHeader.tsx` + `NavItem.tsx` (the header's
+  logo/title/dark-mode-toggle identity block and nav-link style),
+  `FooterBar.tsx`/`FooterComposition.tsx` (the footer shell and its fixed
+  slot order: search, toggle, an app-specific `extra` slot, language
+  switcher), `HelpPageShell.tsx` (the Help page's back-arrow/heading/
+  scroll-container shell - each app's own topic content stays its own),
+  `MapLegend.tsx`/`MapZoomControls.tsx` (the map's floating legend card and
+  zoom in/out/reset buttons), `SidebarShell.tsx`/`DetailHeader.tsx` (the
+  sidebar's desktop wrapper and a selected-item's back-arrow/flag/name
+  header row), `RankedRow.tsx` (one row of any app's ranked list tile),
+  `AuthButton.tsx` (the Login/Admin-console lock-icon button),
+  `LanguageSwitcher.tsx`, and `FlagImg.tsx`.
+- **`shared/lib/mapColor.ts`** - `GSC_RAMP` (the amber-to-aqua choropleth
+  ramp all three maps use), `COLOR_NO_DATA`, `logNormalize`/
+  `linearNormalize`. **`shared/lib/mapStyle.ts`** - the MapTiler style
+  loader (light/dark JSON + API key substitution); its two style JSON files
+  live in `shared/assets/`. **`shared/lib/darkMode.ts`** - the
+  cross-app dark-mode `localStorage` key (see "Dark mode" below).
+- **`shared/theme/mui-theme.tsx`** - `getTheme(mode)`, one MUI theme for
+  all three apps (see "Dark mode" below). **`shared/index.css`** - the
+  `@font-face` declarations and root CSS reset; its fonts live in
+  `shared/assets/fonts/`.
+- **`shared/tour/`** - the onboarding-tour engine (`TourOverlay.tsx`'s
+  wheel/keyboard scene navigation, progress dots, nav/skip UI;
+  `Spotlight.tsx`'s cutout-and-caption mechanic; `useTourState.ts`'s
+  seen-flag + `?showTour=1`/`?skipIntro=1` URL handling), extracted from
+  deployment's own tour. Deployment's tour runs on this now; calculator's
+  brand-new tour (`calculator/src/tour/scenes.ts`) was built on it from
+  scratch. **Policy's own tour is not on this engine** - it's the richest
+  and most divergent of the three (a `cta` scene layout, a `media` union,
+  Charter integration) and still lives at `src/scrollstory/ScrollStory.tsx`
+  as its own system; porting it is tracked in `ROADMAP.md`.
+
+Each shared component takes plain props/callbacks for whatever genuinely
+differs per app (an app-specific tooltip, an optional `onClick` where one
+app's button is a real link and the others are placeholders, a caller-
+supplied `sx` override) rather than either forcing one rigid shape onto all
+three or declining to share at all - see any given component's own doc
+comment for the specific escape hatch it offers and why.
+
+**What's still bespoke to policy specifically**, beyond its own tour: the
+map style loader in `PolicyMap.tsx` (its own inline version, not
+`shared/lib/mapStyle.ts`, though it does use the shared style JSON assets),
+and `Scoreboard.tsx`'s `ChildRow` (the indented province/state row shown
+when a subdivided country's group row is expanded - a genuinely different
+tile shape with no equivalent in the other two apps, which have no
+subdivided countries to group).
+
 ## Dark mode
 
-`src/mui-theme.tsx` exports `getTheme(mode)`, not a single static theme -
-brand hues (aqua, citrus, teal, orange) stay the same in both modes; only
-neutrals (backgrounds, text, dividers, and every literal colour baked into
-the MUI component overrides) flip. `main.tsx` mounts a small `ThemedApp` that
-reads `mode` from the store and rebuilds the theme via `useMemo` when it
-changes; the toggle itself is the sun/moon icon in the nav.
+`shared/theme/mui-theme.tsx` (moved out of this app's own `src/` 2026-09-19,
+alongside the rest of the shared-UI move - see "Shared UI" above) exports
+`getTheme(mode)`, not a single static theme - brand hues (aqua, citrus,
+teal, orange) stay the same in both modes; only neutrals (backgrounds,
+text, dividers, and every literal colour baked into the MUI component
+overrides) flip. `main.tsx` mounts a small `ThemedApp` that reads `mode`
+from the store and rebuilds the theme via `useMemo` when it changes; the
+toggle itself is the sun/moon icon in the nav.
+
+**The choice itself is shared across all three apps**, not just this one -
+added 2026-09-20 per Andrew's own instruction ("dark mode should persist
+across the app... when selected in one section apply to all"). Since
+policy, deployment and calculator are three separate page loads, not one
+SPA, the only way a choice made in one carries into another is a common
+`localStorage` key: `shared/lib/darkMode.ts`'s `DARK_MODE_KEY`. Deployment/
+calculator (which have no persisted store of their own) read it once at
+mount and write to it on every toggle; this app's own `setMode` action
+(`stores/protocolStore.ts`) does the same, and its `merge` function
+(zustand's `persist` hydration hook) always prefers the shared key's value
+over whatever this app's own persisted `mode` field says, so a more recent
+choice made in a sibling app is never shadowed by a stale local one.
 
 The live map gets its own dark variant too - `src/assets/map_gsc_dark.json`
 is a transformed copy of the base MapTiler style (`map_gsc.json`: dark
@@ -454,15 +537,19 @@ nav.
 
 ## Map controls
 
-`PolicyMap.tsx`'s top-right zoom buttons (hand-built `IconButton`s, not
-MapLibre's own `NavigationControl` - see the sibling gridsim-frontend
-project's identical treatment) got a third button below zoom in/out,
-2026-09-10: **back to full map view** (`ZoomOutMapIcon`), which just calls
-`onCountryClick(null)` - clearing `selectedCountry` already triggers the
-existing `fitBounds(WORLD_BOUNDS)` effect on its own, so the button needed
-no new camera logic, only `onCountryClick`'s prop type widened from
-`(code: string) => void` to `(code: string | null) => void` (the handler
-passed in from `App.tsx`, `handleSelectCountry`, already accepted null).
+The map's top-right zoom in/out/reset buttons (hand-built `IconButton`s,
+not MapLibre's own `NavigationControl` - see the sibling gridsim-frontend
+project's identical treatment) are `shared/components/MapZoomControls.tsx`
+now (see "Shared UI" above), same as deployment's and calculator's own maps
+use. The reset button (`ZoomOutMapIcon`) originally just called
+`onCountryClick(null)`, on the assumption that clearing `selectedCountry`
+would always trigger the existing `fitBounds(WORLD_BOUNDS)` effect - true
+the first time, but a no-op if `selectedCountry` was already `null` (e.g.
+a visitor had manually zoomed/panned with nothing selected), since React
+doesn't re-run an effect whose dependency hasn't changed. Found 2026-09-19
+via the identical bug in deployment's own map; fixed in both by having the
+reset button call `mapRef.current?.getMap().fitBounds(WORLD_BOUNDS, ...)`
+directly, in addition to (not instead of) `onCountryClick(null)`.
 
 ## Playbook tile order
 
@@ -475,12 +562,20 @@ component involved.
 
 Added 2026-09-11, matching the sibling `gridsim-frontend` project's own
 setup: `i18next` + `react-i18next`, one dependency in the root
-`package.json` shared by both apps (see `vite.config.ts`'s multi-entry
-build) but **two separate `i18n/` setups** - `src/i18n/` (Policy Explorer)
-and `deployment/src/i18n/` (Deployment Explorer) - matching how every other
-concept these two apps have in common
-(`CountrySearch`/`JurisdictionSearch`, `EmberBadge`, `LanguageSwitcher`
-itself) is already duplicated per-app rather than shared cross-tree.
+`package.json` shared by both apps at the time (see `vite.config.ts`'s
+multi-entry build) but **two separate `i18n/` setups** - `src/i18n/`
+(Policy Explorer) and `deployment/src/i18n/` (Deployment Explorer), each
+with their own translated strings. This still holds - `i18n/` itself was
+never a shared-UI candidate, since the two apps' strings are genuinely
+different - but the framing that follows is dated: at the time,
+`CountrySearch`/`JurisdictionSearch`, `EmberBadge` and `LanguageSwitcher`
+were all cited as examples of concepts "duplicated per-app rather than
+shared cross-tree." `LanguageSwitcher` is not one of those examples
+anymore - it (and `FlagImg`) moved to `shared/components/` 2026-09-19 as a
+presentational shell each app wires up to its own language state (see
+"Shared UI" above); `CountrySearch`/`JurisdictionSearch` and `EmberBadge`
+are still genuinely bespoke per app (the former each query a different
+underlying dataset shape, `EmberBadge` only exists in deployment at all).
 
 Each app's `i18n/index.ts` exports `SUPPORTED_LANGUAGES` (currently `["en",
 "es", "fr"]` in both), `DEFAULT_LANGUAGE`, and a `resources` object built
@@ -608,22 +703,29 @@ index.html               root entry - the static playbook splash, no bundle
 policy/index.html         app entry - mounts src/main.tsx
 deployment/index.html     Solar Deployment Explorer entry - mounts deployment/src/main.tsx
                           (a separate app entirely - see deployment/README.md)
-public/fonts/, favicon.png   assets both entries reference by root-absolute path
+calculator/index.html     Solar Homes Calculator entry - mounts calculator/src/main.tsx
+                          (a separate app entirely - see calculator/README.md)
+public/fonts/, favicon.png   assets all entries reference by root-absolute path
+shared/                  common UI toolkit used by all three apps - see
+                          "Shared UI" above (components/, lib/, theme/,
+                          tour/, index.css, assets/)
 src/
   main.tsx               mounts ThemedApp (theme + store wiring) -> App
-  mui-theme.tsx           getTheme(mode) - see Dark mode above
-  scrollstory/            the scroll-driven onboarding tour (ScrollStory, scenes.ts)
+  scrollstory/            this app's own onboarding tour (ScrollStory, scenes.ts) -
+                          not yet on shared/tour/, see "Shared UI" above
   lib/scoring.ts          score, completeness and impact ranking (+ tests)
   lib/types.ts            shared domain types
   lib/suggestions.ts       Suggestion diffing - see Editing and the Admin console
   stores/protocolStore.ts   all mutable state and every mutation
-  components/map/         PolicyMap choropleth + legend (light/dark map styles)
+  components/map/         PolicyMap choropleth (light/dark map styles)
   components/layout/      TopNavbar, Scoreboard, CountryPanel, ImpactList, AdminConsole
   data/protocol.seed.json   generated - edit the importer, not this file
 scripts/import_xlsx.py    the one-time spreadsheet import
 deployment/src/, deployment/scripts/   Solar Deployment Explorer's own source
                           and one-time data imports - entirely separate from
                           everything above; see deployment/README.md
+calculator/src/           Solar Homes Calculator's own source - entirely
+                          separate from everything above; see calculator/README.md
 ```
 
 `src/assets/world.geojson` comes from GridSim and is grid-level, so a country

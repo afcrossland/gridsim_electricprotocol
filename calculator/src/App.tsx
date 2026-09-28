@@ -12,6 +12,7 @@ import {
   useTheme,
 } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
+import LockIcon from "@mui/icons-material/Lock";
 
 import CountryLeagueTable from "./components/CountryLeagueTable";
 import DispatchPanel from "./components/DispatchPanel";
@@ -41,6 +42,19 @@ const TOUR_SEEN_KEY = "calculator-tour-seen";
 const DEMO_LOCATION: Location = { lat: 51.5019, lon: -0.1187, displayName: "United Kingdom", countryCode: "gb", mapCode: "GB" };
 
 const METRICS: Metric[] = ["selfSufficiency", "generation"];
+
+/**
+ * The map's own view selector - the two real `Metric`s, plus a third,
+ * member-only "Global simulator" option that isn't real map data at all
+ * (see `WorldMap.tsx`'s own `locked` prop) - a locked teaser for a future
+ * tool that would let a member set one panel/battery/demand configuration
+ * and see self-sufficiency recalculated for every country at once, rather
+ * than one country at a time on the Design tab. Matches deployment's own
+ * `LockedMetricChart.tsx` convention: blurred placeholder content behind a
+ * lock icon and "Members only" label, no real computation behind it yet.
+ */
+type MapView = Metric | "globalSimulator";
+const MAP_VIEWS: MapView[] = [...METRICS, "globalSimulator"];
 
 interface Props {
   mode: PaletteMode;
@@ -102,11 +116,27 @@ export default function App({ mode, setMode }: Props) {
   const [tab, setTab] = useState<TabKey>("refine");
   // Self-sufficiency is the default view, per Andrew's own instruction
   // 2026-09-16 - generation (the map's own original, and only, view before
-  // this selector existed) is the alternative.
-  const [metric, setMetric] = useState<Metric>("selfSufficiency");
+  // this selector existed) is the alternative. "Global simulator" (added
+  // 2026-09-28) is a third, member-only option in the same toggle group,
+  // but isn't a real `Metric` - it never drives real map data, only a
+  // locked teaser over whichever real metric was last active (see
+  // `mapView` below and `WorldMap.tsx`'s own `locked` prop).
+  const [mapView, setMapView] = useState<MapView>("selfSufficiency");
+  const metric: Metric = mapView === "globalSimulator" ? "selfSufficiency" : mapView;
   // Same "page" concept as the sibling apps' own App.tsx - switches the
   // whole main area over to the new Help page (see HelpPage.tsx) and back.
   const [page, setPage] = useState<"map" | "help">("map");
+
+  // CountryLeagueTable's own sort/filter state, lifted up here rather than
+  // kept as that component's own useState - it unmounts entirely once a
+  // location is selected (only rendered in the `!location` sidebar
+  // branch), so state kept there would silently reset every time a visitor
+  // picked a country and came back. Found 2026-09-28 after Andrew reported
+  // exactly that ("after i click on a country... and then go back, the
+  // filter needs to persist").
+  const [leagueDesc, setLeagueDesc] = useState(true);
+  const [leagueContinents, setLeagueContinents] = useState<string[]>([]);
+  const [leagueFiltersExpanded, setLeagueFiltersExpanded] = useState(false);
 
   // The tour/Help/Login header buttons, and the tour itself, are all new
   // 2026-09-19 (this app had none before) - built on the same shared
@@ -180,7 +210,7 @@ export default function App({ mode, setMode }: Props) {
     dismissTour();
     closeSidebar();
     setTab("refine");
-    setMetric("selfSufficiency");
+    setMapView("selfSufficiency");
   }
 
   // Help and Tour now share one entry point (both the header's own single
@@ -226,6 +256,7 @@ export default function App({ mode, setMode }: Props) {
       selectedPoint={location && !location.mapCode ? { lat: location.lat, lon: location.lon } : null}
       onSelect={handleSelect}
       metric={metric}
+      locked={mapView === "globalSimulator"}
     />
   );
 
@@ -240,25 +271,54 @@ export default function App({ mode, setMode }: Props) {
     <>
       {!location && (
         <>
-          {/* Same heading+description text style as Deployment
-              Explorer's own default sidebar (Sidebar.tsx: 1.375rem/700
-              heading, a bold lead phrase running into a normal-weight
-              body2 sentence) - copy rewritten for this app rather than
-              reused, per Andrew's instruction 2026-09-15. The ranked
-              list below it is new (per Andrew's own instruction
-              2026-09-16: "a league table of countries like on
-              deployment explorer"). */}
-          <Box sx={{ p: 2, pb: 1.5 }}>
-            <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "text.primary", lineHeight: 1.2, mb: 0.5 }}>
-              Solar Homes Calculator
-            </Typography>
-            <Typography variant="body2">
-              <strong>Pick a country on the map or search below</strong>{" "}
-              to configure a solar and battery system and see how much of your own electricity it could cover,
-              what you'd export, and how quickly it could pay for itself.
-            </Typography>
+          {/* Blurred and non-interactive while the "Global simulator"
+              teaser is active - the whole default sidebar (heading, blurb,
+              and the ranked list, still ranked by whichever metric was
+              last real - see `metric` above) isn't the point of this view
+              any more. `display: flex`/`flex: 1`/`minHeight: 0` mirror
+              CountryLeagueTable's own root Box so wrapping it here doesn't
+              break the flex-sizing chain it relies on to fill (and scroll
+              within) the sidebar - the same bug this teaser's map-side
+              wrapper hit first, see WorldMap.tsx's own equivalent wrapper. */}
+          <Box
+            aria-hidden={mapView === "globalSimulator"}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              minHeight: 0,
+              ...(mapView === "globalSimulator" && { filter: "blur(6px)", pointerEvents: "none", userSelect: "none" }),
+            }}
+          >
+            {/* Same heading+description text style as Deployment
+                Explorer's own default sidebar (Sidebar.tsx: 1.375rem/700
+                heading, a bold lead phrase running into a normal-weight
+                body2 sentence) - copy rewritten for this app rather than
+                reused, per Andrew's instruction 2026-09-15. The ranked
+                list below it is new (per Andrew's own instruction
+                2026-09-16: "a league table of countries like on
+                deployment explorer"). */}
+            <Box sx={{ p: 2, pb: 1.5 }}>
+              <Typography sx={{ fontSize: "1.375rem", fontWeight: 700, color: "text.primary", lineHeight: 1.2, mb: 0.5 }}>
+                Solar Homes Calculator
+              </Typography>
+              <Typography variant="body2">
+                <strong>Pick a country on the map or search below</strong>{" "}
+                to configure a solar and battery system and see how much of your own electricity it could cover,
+                what you'd export, and how quickly it could pay for itself.
+              </Typography>
+            </Box>
+            <CountryLeagueTable
+              metric={metric}
+              onSelect={handleSelect}
+              desc={leagueDesc}
+              onToggleSort={() => setLeagueDesc((d) => !d)}
+              continents={leagueContinents}
+              onContinentsChange={setLeagueContinents}
+              filtersExpanded={leagueFiltersExpanded}
+              onToggleFiltersExpanded={() => setLeagueFiltersExpanded((v) => !v)}
+            />
           </Box>
-          <CountryLeagueTable metric={metric} onSelect={handleSelect} />
         </>
       )}
 
@@ -341,11 +401,8 @@ export default function App({ mode, setMode }: Props) {
                 panels={arrays[0].panels}
                 onPanelsChange={(panels) => setArrays([{ ...arrays[0], panels }])}
                 panelWatts={arrays[0].panelWatts}
-                onPanelWattsChange={(panelWatts) => setArrays([{ ...arrays[0], panelWatts }])}
                 batteryKWh={batteryKWh}
-                onBatteryChange={setBatteryKWh}
                 annualKWh={demand.annualKWh ?? 4000}
-                onAnnualKWhChange={(annualKWh) => setDemand({ ...demand, annualKWh })}
               />
             )}
 
@@ -477,10 +534,11 @@ export default function App({ mode, setMode }: Props) {
                 // the sidebar takes the full screen, and on desktop it no longer
                 // reflects anything the sidebar's own content is about.
                 !location && (
-                  <ToggleButtonGroup size="small" exclusive value={metric} onChange={(_, v: Metric | null) => v && setMetric(v)}>
-                    {METRICS.map((m) => (
-                      <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem" }}>
-                        {METRIC_LABELS[m]}
+                  <ToggleButtonGroup size="small" exclusive value={mapView} onChange={(_, v: MapView | null) => v && setMapView(v)}>
+                    {MAP_VIEWS.map((m) => (
+                      <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem", gap: 0.5 }}>
+                        {m === "globalSimulator" && <LockIcon sx={{ fontSize: 13 }} />}
+                        {m === "globalSimulator" ? "Global simulator" : METRIC_LABELS[m]}
                       </ToggleButton>
                     ))}
                   </ToggleButtonGroup>

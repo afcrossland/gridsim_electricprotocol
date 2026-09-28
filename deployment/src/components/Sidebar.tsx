@@ -1,23 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  Badge,
-  Box,
-  Button,
-  Checkbox,
-  Collapse,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import { Box, Stack, Tooltip, Typography, useTheme } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PublicIcon from "@mui/icons-material/Public";
 import { useTranslation } from "react-i18next";
@@ -25,14 +7,16 @@ import { useTranslation } from "react-i18next";
 import CountryDetail from "./CountryDetail";
 import GenerationDetail from "./GenerationDetail";
 import LockedMetricsSection from "./LockedMetricsSection";
-import FlagImg from "../../../shared/components/FlagImg";
+import ContinentFilter from "../../../shared/components/ContinentFilter";
 import DetailHeader from "../../../shared/components/DetailHeader";
+import FilterBar from "../../../shared/components/FilterBar";
+import FlagImg from "../../../shared/components/FlagImg";
 import RankedRow from "../../../shared/components/RankedRow";
 import { emberCountry, latestPointOf } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
 import { monthAbbrev } from "../lib/formatMonth";
 import { GLOBAL_CODE, GLOBAL_SOLAR, globalLatestSolarMW } from "../lib/globalSolar";
-import { jurisdictionName, CONTINENTS, continentOf } from "../lib/jurisdictions";
+import { jurisdictionName, continentOf } from "../lib/jurisdictions";
 import { codesForMetric, valueForMetric, type Metric } from "../lib/metrics";
 import { POPULATION, populationActual, worldPopulationActual, worldPopulationMillions, worldPopulationYearRange } from "../lib/population";
 
@@ -375,91 +359,39 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
           {metric === "share" ? t("sidebar.descriptionShare") : t("sidebar.descriptionCapacity")}
         </Typography>
 
-        {/* Same collapsed-by-default filter pattern as ep_policymap's
-            ScoreboardFilters.tsx - icon + badge dot, "Filter" label, a
-            Clear button once something's actually set, sort direction on
-            the right. */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <Tooltip title={filtersExpanded ? t("sidebar.hideFilters") : t("sidebar.filterThisList")}>
-            <IconButton size="small" onClick={() => setFiltersExpanded((v) => !v)}>
-              <Badge color="primary" variant="dot" invisible={!filtersActive}>
-                <FilterListIcon fontSize="small" />
-              </Badge>
-            </IconButton>
-          </Tooltip>
-          <Typography
-            variant="body2"
-            onClick={() => setFiltersExpanded((v) => !v)}
-            sx={{ cursor: "pointer", userSelect: "none" }}
-          >
-            {t("sidebar.filter")}
-          </Typography>
-          {filtersActive && (
-            <Button size="small" onClick={() => setContinents([])} sx={{ fontWeight: 400 }}>
-              {t("sidebar.clear")}
-            </Button>
-          )}
-
-          <Box sx={{ flex: 1 }} />
-
-          <Tooltip title={desc ? t("sidebar.highToLow") : t("sidebar.lowToHigh")}>
-            <IconButton size="small" onClick={() => setDesc((v) => !v)}>
-              {desc ? <ArrowDownwardIcon fontSize="small" /> : <ArrowUpwardIcon fontSize="small" />}
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        <Collapse in={filtersExpanded}>
-          <Box
-            sx={{
-              p: 1.5,
-              mt: 1,
-              borderRadius: 1.5,
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "divider",
-            }}
-          >
-            <TextField
-              select
-              size="small"
-              label={t("sidebar.continent")}
-              value={continents}
-              onChange={(e) => {
-                const value = e.target.value;
-                setContinents(typeof value === "string" ? value.split(",") : value);
-              }}
-              slotProps={{
-                select: {
-                  multiple: true,
-                  // Selected values stay the raw English CONTINENTS strings
-                  // (continentOf()/matching logic depends on that), only the
-                  // rendered label is translated - t() with no matching key
-                  // falls back to the raw key, but every value here always
-                  // has one (see the `continents` block in common.json).
-                  renderValue: (selected) =>
-                    (selected as string[]).length > 0
-                      ? (selected as string[]).map((c) => t(`continents.${c}`)).join(", ")
-                      : t("sidebar.allContinents"),
-                },
-              }}
-              sx={{ minWidth: 220, width: "100%" }}
-            >
-              {CONTINENTS.map((c) => (
-                <MenuItem key={c} value={c}>
-                  <Checkbox
-                    icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                    checkedIcon={<CheckBoxIcon fontSize="small" />}
-                    checked={continents.includes(c)}
-                    size="small"
-                    sx={{ mr: 1 }}
-                  />
-                  {t(`continents.${c}`)}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
-        </Collapse>
+        {/* Ported onto the shared `FilterBar`/`ContinentFilter` 2026-09-28,
+            per Andrew's own instruction ("this should use a common
+            element") when calculator gained its own filter box - confirmed
+            byte-identical shell to policy's own ScoreboardFilters.tsx
+            before this. */}
+        <FilterBar
+          active={filtersActive}
+          expanded={filtersExpanded}
+          onToggleExpanded={() => setFiltersExpanded((v) => !v)}
+          onClear={() => setContinents([])}
+          sortDesc={desc}
+          onToggleSort={() => setDesc((v) => !v)}
+          labels={{
+            filter: t("sidebar.filter"),
+            hideFilters: t("sidebar.hideFilters"),
+            clear: t("sidebar.clear"),
+            sortAscending: t("sidebar.lowToHigh"),
+            sortDescending: t("sidebar.highToLow"),
+          }}
+        >
+          <ContinentFilter
+            value={continents}
+            onChange={setContinents}
+            label={t("sidebar.continent")}
+            allLabel={t("sidebar.allContinents")}
+            // Selected values stay the raw English CONTINENTS strings
+            // (continentOf()/matching logic depends on that), only the
+            // rendered label is translated - t() with no matching key
+            // falls back to the raw key, but every value here always has
+            // one (see the `continents` block in common.json).
+            translate={(c) => t(`continents.${c}`)}
+          />
+        </FilterBar>
       </Box>
 
       <Box data-tour="ranking-list" sx={{ flex: 1, overflowY: "auto", p: 2 }}>

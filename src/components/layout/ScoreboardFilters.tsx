@@ -1,27 +1,11 @@
 import { useMemo, useState } from "react";
-import {
-  Autocomplete,
-  Badge,
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  Collapse,
-  IconButton,
-  MenuItem,
-  Slider,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import { Autocomplete, Box, Checkbox, Chip, Slider, TextField, Typography } from "@mui/material";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import { useTranslation } from "react-i18next";
 
-import { CONTINENTS } from "../../lib/jurisdictions";
+import ContinentFilter from "../../../shared/components/ContinentFilter";
+import FilterBar from "../../../shared/components/FilterBar";
 import { SCORE_BANDS, bandLabelText } from "../../lib/scoring";
 import {
   NOT_ENOUGH_DATA_BAND,
@@ -89,166 +73,112 @@ export default function ScoreboardFilters({ groups }: Props) {
 
   return (
     <Box data-tour="scoreboard-filters" sx={{ mb: 2 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-        <Tooltip title={expanded ? t("scoreboard.hideFilters") : t("scoreboard.filterThisList")}>
-          <IconButton size="small" onClick={() => setExpanded((v) => !v)}>
-            <Badge color="primary" variant="dot" invisible={!active}>
-              <FilterListIcon fontSize="small" />
-            </Badge>
-          </IconButton>
-        </Tooltip>
-        <Typography
-          variant="body2"
-          onClick={() => setExpanded((v) => !v)}
-          sx={{ cursor: "pointer", userSelect: "none" }}
-        >
-          {t("scoreboard.filter")}
-        </Typography>
-        {active && (
-          <Button
+      {/* Ported onto the shared `FilterBar`/`ContinentFilter` 2026-09-28,
+          per Andrew's own instruction ("this should use a common element")
+          when calculator gained its own filter box - confirmed
+          byte-identical shell to deployment's own Sidebar.tsx filter block
+          before this. The country/band/range controls below stay this
+          app's own - neither sibling app has an equivalent concept. */}
+      <FilterBar
+        active={active}
+        expanded={expanded}
+        onToggleExpanded={() => setExpanded((v) => !v)}
+        onClear={() => {
+          resetFilters();
+          setRangeDraft([0, 100]);
+        }}
+        sortDesc={sortDirection === "desc"}
+        onToggleSort={() => setSortDirection(sortDirection === "desc" ? "asc" : "desc")}
+        labels={{
+          filter: t("scoreboard.filter"),
+          hideFilters: t("scoreboard.hideFilters"),
+          clear: t("scoreboard.clear"),
+          sortAscending: t("scoreboard.lowToHigh"),
+          sortDescending: t("scoreboard.highToLow"),
+        }}
+      >
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 1.5 }}>
+          <ContinentFilter
+            value={filters.continents}
+            onChange={(continents) => setFilters({ continents })}
+            label={t("scoreboard.continent")}
+            allLabel={t("scoreboard.allContinents")}
+            // Selected values stay the raw English CONTINENTS strings
+            // (continentOfGroup()/matching logic depends on that), only
+            // the rendered label is translated.
+            translate={(c) => t(`continents.${c}`)}
+            sx={{ minWidth: 160, flex: 1 }}
+          />
+
+          <Autocomplete
+            multiple
+            disableCloseOnSelect
             size="small"
-            onClick={() => {
-              resetFilters();
-              setRangeDraft([0, 100]);
-            }}
-            sx={{ fontWeight: 400 }}
-          >
-            {t("scoreboard.clear")}
-          </Button>
-        )}
-
-        <Box sx={{ flex: 1 }} />
-
-        {/* What the list sorts by is the map's own metric toggle
-            (score/completeness) now, not a choice made here too - see
-            Scoreboard.tsx. Only the direction is still a Scoreboard-only
-            preference. */}
-        <Tooltip title={sortDirection === "desc" ? t("scoreboard.highToLow") : t("scoreboard.lowToHigh")}>
-          <IconButton size="small" onClick={() => setSortDirection(sortDirection === "desc" ? "asc" : "desc")}>
-            {sortDirection === "desc" ? <ArrowDownwardIcon fontSize="small" /> : <ArrowUpwardIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      <Collapse in={expanded}>
-        <Box
-          sx={{
-            p: 1.5,
-            mt: 1,
-            borderRadius: 1.5,
-            bgcolor: "background.paper",
-            border: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 1.5 }}>
-            <TextField
-              select
-              size="small"
-              label={t("scoreboard.continent")}
-              value={filters.continents}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFilters({ continents: typeof value === "string" ? value.split(",") : value });
-              }}
-              slotProps={{
-                select: {
-                  multiple: true,
-                  // Selected values stay the raw English CONTINENTS strings
-                  // (continentOfGroup()/matching logic depends on that),
-                  // only the rendered label is translated.
-                  renderValue: (selected) =>
-                    (selected as string[]).length > 0
-                      ? (selected as string[]).map((c) => t(`continents.${c}`)).join(", ")
-                      : t("scoreboard.allContinents"),
-                },
-              }}
-              sx={{ minWidth: 160, flex: 1 }}
-            >
-              {CONTINENTS.map((c) => (
-                <MenuItem key={c} value={c}>
+            options={countryOptions}
+            value={selectedCountries}
+            getOptionLabel={(o) => o.name}
+            isOptionEqualToValue={(a, b) => a.code === b.code}
+            onChange={(_, next) => setFilters({ countries: next.map((o) => o.code) })}
+            sx={{ minWidth: 220, flex: 2 }}
+            renderOption={(props, option, { selected }) => {
+              const { key, ...optionProps } = props;
+              return (
+                <li key={key} {...optionProps}>
                   <Checkbox
                     icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
                     checkedIcon={<CheckBoxIcon fontSize="small" />}
-                    checked={filters.continents.includes(c)}
+                    checked={selected}
                     size="small"
                     sx={{ mr: 1 }}
                   />
-                  {t(`continents.${c}`)}
-                </MenuItem>
-              ))}
-            </TextField>
+                  {option.name}
+                </li>
+              );
+            }}
+            renderInput={(params) => <TextField {...params} label={t("scoreboard.countries")} />}
+          />
+        </Box>
 
-            <Autocomplete
-              multiple
-              disableCloseOnSelect
+        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
+          {t("scoreboard.score")}
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1.5 }}>
+          {ALL_BANDS.map((band) => (
+            <Chip
+              key={band}
+              label={bandLabelText(band, i18n.language)}
               size="small"
-              options={countryOptions}
-              value={selectedCountries}
-              getOptionLabel={(o) => o.name}
-              isOptionEqualToValue={(a, b) => a.code === b.code}
-              onChange={(_, next) => setFilters({ countries: next.map((o) => o.code) })}
-              sx={{ minWidth: 220, flex: 2 }}
-              renderOption={(props, option, { selected }) => {
-                const { key, ...optionProps } = props;
-                return (
-                  <li key={key} {...optionProps}>
-                    <Checkbox
-                      icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                      checkedIcon={<CheckBoxIcon fontSize="small" />}
-                      checked={selected}
-                      size="small"
-                      sx={{ mr: 1 }}
-                    />
-                    {option.name}
-                  </li>
-                );
-              }}
-              renderInput={(params) => <TextField {...params} label={t("scoreboard.countries")} />}
+              onClick={() => toggleBand(band)}
+              color={filters.bands.includes(band) ? "primary" : "default"}
+              variant={filters.bands.includes(band) ? "filled" : "outlined"}
             />
-          </Box>
+          ))}
+        </Box>
 
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
-            {t("scoreboard.score")}
-          </Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1.5 }}>
-            {ALL_BANDS.map((band) => (
-              <Chip
-                key={band}
-                label={bandLabelText(band, i18n.language)}
-                size="small"
-                onClick={() => toggleBand(band)}
-                color={filters.bands.includes(band) ? "primary" : "default"}
-                variant={filters.bands.includes(band) ? "filled" : "outlined"}
-              />
-            ))}
-          </Box>
-
-          <Box sx={{ px: 0.5, pt: 2 }}>
-            <Slider
-              size="small"
-              value={rangeDraft}
-              min={0}
-              max={100}
-              onChange={(_, next) => setRangeDraft(next as [number, number])}
-              onChangeCommitted={(_, next) => {
-                const [minScore, maxScore] = next as [number, number];
-                setFilters({ minScore, maxScore });
-              }}
-              valueLabelDisplay="on"
-              valueLabelFormat={(v) => `${v}%`}
-            />
-            <Box sx={{ display: "flex", justifyContent: "space-between", mt: -0.5 }}>
-              <Typography variant="caption" color="text.secondary">
-                0%
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                100%
-              </Typography>
-            </Box>
+        <Box sx={{ px: 0.5, pt: 2 }}>
+          <Slider
+            size="small"
+            value={rangeDraft}
+            min={0}
+            max={100}
+            onChange={(_, next) => setRangeDraft(next as [number, number])}
+            onChangeCommitted={(_, next) => {
+              const [minScore, maxScore] = next as [number, number];
+              setFilters({ minScore, maxScore });
+            }}
+            valueLabelDisplay="on"
+            valueLabelFormat={(v) => `${v}%`}
+          />
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: -0.5 }}>
+            <Typography variant="caption" color="text.secondary">
+              0%
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              100%
+            </Typography>
           </Box>
         </Box>
-      </Collapse>
+      </FilterBar>
     </Box>
   );
 }
