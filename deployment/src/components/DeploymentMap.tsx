@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Map as MapGL, Source, Layer } from "react-map-gl/maplibre";
 import type { LayerProps, MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useTranslation } from "react-i18next";
 
 import World from "../assets/jurisdictions.geojson?url";
+import FlagImg from "../../../shared/components/FlagImg";
+import MapHoverTooltip from "../../../shared/components/MapHoverTooltip";
 import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
 import { GSC_RAMP, COLOR_NO_DATA, logNormalize } from "../../../shared/lib/mapColor";
@@ -256,32 +258,27 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
         }}
       />
 
+      {/* Design lifted from the sibling gridsim-frontend project's own map
+          hover tooltip 2026-09-29, applied as the shared
+          `MapHoverTooltip` across all three apps - see that component's
+          own doc comment. */}
       {hover && hoveredName && (
-        <Box
-          sx={{
-            position: "absolute",
-            left: hover.x + 12,
-            top: hover.y + 12,
-            pointerEvents: "none",
-            bgcolor: "background.paper",
-            borderRadius: "8px",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
-            px: 1.5,
-            py: 1,
-            minWidth: 140,
-          }}
-        >
-          <Typography sx={{ fontWeight: 700, fontSize: "0.8125rem", color: "text.primary" }}>{hoveredName}</Typography>
-          <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-            {hoveredValue === null
+        <MapHoverTooltip
+          x={hover.x}
+          y={hover.y}
+          flag={<FlagImg code={hover.code} size={16} />}
+          name={hoveredName}
+          value={
+            hoveredValue === null
               ? t("map.noData")
               : metric === "share"
                 ? t("map.share", { value: hoveredValue.toFixed(1) })
                 : metric === "capacityPerCapita"
                   ? t("map.perCapita", { value: hoveredValue.toFixed(0) })
-                  : t("map.capacity", { value: hoveredValue.toLocaleString() })}
-          </Typography>
-        </Box>
+                  : t("map.capacity", { value: hoveredValue.toLocaleString() })
+          }
+          exploreLabel={t("map.clickToExplore")}
+        />
       )}
     </Box>
   );

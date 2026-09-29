@@ -5,7 +5,10 @@
   "nav": {
     "help": "Help",
     "login": "Login",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "member": "Member",
+    "memberUnlocked": "Member content unlocked",
+    "logInPrompt": "Log in with the member password"
   },
   "theme": {
     "switchToDark": "Switch to dark mode",
@@ -82,7 +85,8 @@
     "noData": "No data",
     "share": "{{value}}% of generation",
     "perCapita": "{{value}} W per capita",
-    "capacity": "{{value}} MW"
+    "capacity": "{{value}} MW",
+    "clickToExplore": "Click to explore →"
   },
   "detail": {
     "installedCapacity": "Installed solar capacity",

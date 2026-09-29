@@ -57,7 +57,8 @@
     "moreDataNeeded": "Plus de données nécessaires",
     "zoomIn": "Zoomer",
     "zoomOut": "Dézoomer",
-    "backToFullMap": "Retour à la carte complète"
+    "backToFullMap": "Retour à la carte complète",
+    "clickToExplore": "Cliquez pour explorer →"
   },
   "countryPanel": {
     "backToScoreboard": "Retour au classement",

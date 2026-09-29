@@ -6,7 +6,7 @@ import type {
   MapRef,
   StyleSpecification,
 } from "react-map-gl/maplibre";
-import { Box, Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useTranslation } from "react-i18next";
@@ -18,6 +18,7 @@ import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP, scoreLabel } from "../..
 import { qualifiedName } from "../../lib/jurisdictions";
 import FlagImg from "../ui/FlagImg";
 import type { CountryScore } from "../../lib/types";
+import MapHoverTooltip from "../../../shared/components/MapHoverTooltip";
 import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -460,34 +461,32 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         }}
       />
 
+      {/* Design lifted from the sibling gridsim-frontend project's own map
+          hover tooltip 2026-09-29, applied as the shared
+          `MapHoverTooltip` across all three apps - see that component's
+          own doc comment. */}
       {hover && (
-        <Paper
-          elevation={4}
-          sx={{
-            position: "absolute",
-            left: hover.x + 12,
-            top: hover.y + 12,
-            px: 1.5,
-            py: 1,
-            pointerEvents: "none",
-            minWidth: 160,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-            <FlagImg code={hover.code} />
-            <Typography variant="subtitle1">{qualifiedName(hover.code, i18n.language)}</Typography>
-          </Box>
-          {hovered && hovered.ranked ? (
-            <>
-              <Typography variant="caption" sx={{ display: "block" }}>
-                {t("map.policyScore")}
-              </Typography>
-              <Typography variant="h5">{scoreLabel(hovered.score, i18n.language)}</Typography>
-            </>
-          ) : (
-            <Typography variant="caption">{t("map.moreDataNeeded")}</Typography>
-          )}
-        </Paper>
+        <MapHoverTooltip
+          x={hover.x}
+          y={hover.y}
+          flag={<FlagImg code={hover.code} size={16} />}
+          name={qualifiedName(hover.code, i18n.language)}
+          value={
+            hovered && hovered.ranked ? (
+              <>
+                <Typography variant="caption" sx={{ display: "block", color: "text.secondary" }}>
+                  {t("map.policyScore")}
+                </Typography>
+                <Typography variant="h5" sx={{ color: "text.primary" }}>
+                  {scoreLabel(hovered.score, i18n.language)}
+                </Typography>
+              </>
+            ) : (
+              t("map.moreDataNeeded")
+            )
+          }
+          exploreLabel={t("map.clickToExplore")}
+        />
       )}
 
       {!selectedCountry && !hideLegend && (

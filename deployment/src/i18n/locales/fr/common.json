@@ -5,7 +5,10 @@
   "nav": {
     "help": "Aide",
     "login": "Connexion",
-    "comingSoon": "Bientôt disponible"
+    "comingSoon": "Bientôt disponible",
+    "member": "Membre",
+    "memberUnlocked": "Contenu membre débloqué",
+    "logInPrompt": "Connectez-vous avec le mot de passe membre"
   },
   "theme": {
     "switchToDark": "Passer en mode sombre",
@@ -82,7 +85,8 @@
     "noData": "Aucune donnée",
     "share": "{{value}} % de la production",
     "perCapita": "{{value}} W par habitant",
-    "capacity": "{{value}} MW"
+    "capacity": "{{value}} MW",
+    "clickToExplore": "Cliquez pour explorer →"
   },
   "detail": {
     "installedCapacity": "Capacité solaire installée",

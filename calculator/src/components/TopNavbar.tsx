@@ -8,6 +8,8 @@ interface Props {
   mode: PaletteMode;
   setMode: (mode: PaletteMode) => void;
   onOpenHelp: () => void;
+  member: boolean;
+  onOpenLogin: () => void;
 }
 
 /**
@@ -22,8 +24,13 @@ interface Props {
  * `useTourState`), which now has a "Read documentation" button of its own
  * (`shared/tour/TourOverlay.tsx`'s `onReadDocs`) for a visitor who wants
  * the written docs instead of the guided walkthrough.
+ *
+ * "Login" opens the shared password popup (`onOpenLogin`, `App.tsx`'s own
+ * `LoginModal`) 2026-09-28 - once `member` is true it becomes an inert
+ * "Member" label instead (see `AuthButton`'s own `onClick` doc comment for
+ * why `undefined` rather than a no-op function).
  */
-export default function TopNavbar({ mode, setMode, onOpenHelp }: Props) {
+export default function TopNavbar({ mode, setMode, onOpenHelp, member, onOpenLogin }: Props) {
   // Same as the sibling apps' own TopNavbar.tsx: `base` in vite.config.ts is
   // one setting shared by all four HTML entries (the site root splash page
   // and the three app subpaths), so `BASE_URL` always resolves to the site
@@ -51,7 +58,12 @@ export default function TopNavbar({ mode, setMode, onOpenHelp }: Props) {
         Help
       </NavItem>
 
-      <AuthButton label="Login" mode={mode} />
+      <AuthButton
+        label={member ? "Member" : "Login"}
+        mode={mode}
+        tooltip={member ? "Member content unlocked" : "Log in with the member password"}
+        onClick={member ? undefined : onOpenLogin}
+      />
     </AppHeader>
   );
 }

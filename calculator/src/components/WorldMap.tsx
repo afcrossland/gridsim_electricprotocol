@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Map as MapGL, Source, Layer } from "react-map-gl/maplibre";
 import type { LayerProps, MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Button, CircularProgress, Typography, useTheme } from "@mui/material";
 import LockIcon from "@mui/icons-material/Lock";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import World from "../assets/jurisdictions.geojson?url";
+import FlagImg from "../../../shared/components/FlagImg";
+import MapHoverTooltip from "../../../shared/components/MapHoverTooltip";
 import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
 import { GSC_RAMP, COLOR_NO_DATA } from "../../../shared/lib/mapColor";
 import { loadMapStyle } from "../../../shared/lib/mapStyle";
-import { jurisdictionName } from "../lib/jurisdictions";
+import { computeGlobalSelfSufficiency } from "../lib/globalSimulation";
+import { countryCodeOf, jurisdictionName } from "../lib/jurisdictions";
 import { METRIC_LEGEND_TITLES, formatMetricValue, loadMetricValues, normalizeForMetric } from "../lib/mapMetrics";
 import type { Metric } from "../lib/mapMetrics";
 import SliderField from "./SliderField";
@@ -86,22 +90,26 @@ export default function WorldMap({
   selectedPoint,
   onSelect,
   metric,
-  locked = false,
+  globalSimulator = false,
+  member = false,
 }: {
   selectedCode: string | null;
   /** A lat/lon to fly to when there's no map feature to fit bounds to - a search-picked (rather than map-clicked) location has no jurisdictions.json code, so this is the only signal available for it. */
   selectedPoint: { lat: number; lon: number } | null;
   onSelect: (params: { code: string; name: string; lat: number; lon: number }) => void;
   metric: Metric;
+  /** True while the map metric toggle is set to "Global simulator" - added 2026-09-28. Combined with `member` below to decide whether this shows the real, working panel or just a locked teaser. */
+  globalSimulator?: boolean;
   /**
-   * Shows the "Global simulator" member-only teaser instead of a working
-   * map - added 2026-09-28. The real map underneath (whatever `metric`
-   * currently is) still renders, just blurred and non-interactive, same
-   * "blur the real thing, overlay a lock" convention as deployment's own
-   * `LockedMetricChart.tsx`; there is no real per-country-at-once
-   * calculation behind this yet.
+   * The shared cross-app login flag (`shared/lib/membership.ts`) - a
+   * non-member sees `globalSimulator` as a locked teaser (blurred map,
+   * disabled sliders, a lock + "Members only" message - the only state
+   * that existed before 2026-09-29). A member gets the real thing: a
+   * working panel of live panels/battery/demand sliders and a "Simulate"
+   * button that recomputes self-sufficiency for every country at once
+   * (`computeGlobalSelfSufficiency`) and recolours the map with it.
    */
-  locked?: boolean;
+  member?: boolean;
 }) {
   const mapRef = useRef<MapRef>(null);
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
@@ -109,6 +117,47 @@ export default function WorldMap({
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
   const [metricValues, setMetricValues] = useState<Record<string, number> | null>(null);
   const theme = useTheme();
+
+  // The Global simulator's own config/results - kept local to this
+  // component (not lifted to App.tsx) since nothing outside the map needs
+  // them. Dragging a slider only updates `simConfig` (the panel's own
+  // displayed numbers) - it deliberately does NOT touch `simValues`, so the
+  // map/legend stay showing the last simulated result, constant, until
+  // "Simulate" is clicked again. Found 2026-09-29: an earlier version
+  // cleared `simValues` on every slider change, which snapped the map back
+  // to the plain default view mid-drag, before a new simulation had even
+  // run - the opposite of "constant." "Click to simulate" (not a live
+  // recompute on every drag tick) is still the real control, per Andrew's
+  // own instruction - it just means "only update on click," not "clear on
+  // every change in between."
+  const [simConfig, setSimConfig] = useState({ panels: 14, batteryKWh: 13.5, annualKWh: 4200 });
+  const [simValues, setSimValues] = useState<Record<string, number> | null>(null);
+  const [simulating, setSimulating] = useState(false);
+
+  const updateSimConfig = (patch: Partial<typeof simConfig>) => {
+    setSimConfig((c) => ({ ...c, ...patch }));
+  };
+
+  const runSimulation = async () => {
+    setSimulating(true);
+    try {
+      const values = await computeGlobalSelfSufficiency({
+        panels: simConfig.panels,
+        panelWatts: 500,
+        batteryKWh: simConfig.batteryKWh,
+        annualKWh: simConfig.annualKWh,
+      });
+      setSimValues(values);
+    } finally {
+      setSimulating(false);
+    }
+  };
+
+  // A non-member sees the old locked teaser; a member sees the real map,
+  // simulated results and all, once they've actually run one.
+  const isTeaser = globalSimulator && !member;
+  const isSimMode = globalSimulator && member;
+  const effectiveValues = isSimMode && simValues ? simValues : metricValues;
 
   const selectedLayer: LayerProps = {
     id: "world-selected",
@@ -152,20 +201,20 @@ export default function WorldMap({
 
   useEffect(() => {
     const map = mapRef.current?.getMap();
-    if (!map || !sourceReady || !worldData || !metricValues) return;
+    if (!map || !sourceReady || !worldData || !effectiveValues) return;
 
-    const values = Object.values(metricValues);
+    const values = Object.values(effectiveValues);
     const min = Math.min(...values);
     const max = Math.max(...values);
 
     for (const f of worldData.features) {
       const code = f.properties?.code;
       if (typeof code !== "string") continue;
-      const value = metricValues[code];
+      const value = effectiveValues[code];
       const norm = value === undefined ? null : normalizeForMetric(metric, value, min, max);
       map.setFeatureState({ source: "countries", id: code }, { norm });
     }
-  }, [sourceReady, worldData, metricValues, metric]);
+  }, [sourceReady, worldData, effectiveValues, metric]);
 
   useEffect(() => {
     const map = mapRef.current?.getMap();
@@ -223,16 +272,16 @@ export default function WorldMap({
     onSelect({ code, name: jurisdictionName(code), lat: event.lngLat.lat, lon: event.lngLat.lng });
   };
 
-  const hoveredValue = hover && metricValues ? (metricValues[hover.code] ?? null) : null;
+  const hoveredValue = hover && effectiveValues ? (effectiveValues[hover.code] ?? null) : null;
 
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
       <Box
-        aria-hidden={locked}
+        aria-hidden={isTeaser}
         sx={{
           width: "100%",
           height: "100%",
-          ...(locked && { filter: "blur(6px)", pointerEvents: "none", userSelect: "none" }),
+          ...(isTeaser && { filter: "blur(6px)", pointerEvents: "none", userSelect: "none" }),
         }}
       >
         <MapGL
@@ -240,7 +289,7 @@ export default function WorldMap({
           mapStyle={mapStyle}
           initialViewState={INITIAL_VIEW}
           style={{ width: "100%", height: "100%" }}
-          interactiveLayerIds={!locked && worldData ? ["world-fill"] : []}
+          interactiveLayerIds={!isTeaser && worldData ? ["world-fill"] : []}
           onClick={handleClick}
           onMouseMove={handleMouseMove}
           onMouseOut={() => setHover(null)}
@@ -272,47 +321,125 @@ export default function WorldMap({
           onZoomOut={() => mapRef.current?.getMap().zoomOut()}
           onReset={() => mapRef.current?.getMap().fitBounds(WORLD_BOUNDS, { padding: 24, duration: 600 })}
         />
+
+        {isSimMode && (
+          <GlobalSimulatorPanel
+            config={simConfig}
+            onConfigChange={updateSimConfig}
+            onSimulate={runSimulation}
+            simulating={simulating}
+            hasResults={simValues !== null}
+          />
+        )}
       </Box>
 
-      {/* Same hover-tooltip shape as the sibling apps' own maps (name +
-          value, offset from the cursor) - per Andrew's own instruction
-          2026-09-16. */}
-      {!locked && hover && (
-        <Box
-          sx={{
-            position: "absolute",
-            left: hover.x + 12,
-            top: hover.y + 12,
-            pointerEvents: "none",
-            bgcolor: "background.paper",
-            borderRadius: "8px",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
-            px: 1.5,
-            py: 1,
-            minWidth: 140,
-          }}
-        >
-          <Typography sx={{ fontWeight: 700, fontSize: "0.8125rem", color: "text.primary" }}>
-            {jurisdictionName(hover.code)}
-          </Typography>
-          <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-            {hoveredValue === null ? "No data" : formatMetricValue(metric, hoveredValue)}
-          </Typography>
-        </Box>
+      {/* Design lifted from the sibling gridsim-frontend project's own map
+          hover tooltip 2026-09-29, applied as the shared
+          `MapHoverTooltip` across all three apps - see that component's
+          own doc comment. */}
+      {!isTeaser && hover && (
+        <MapHoverTooltip
+          x={hover.x}
+          y={hover.y}
+          flag={<FlagImg code={countryCodeOf(hover.code)} size={16} />}
+          name={jurisdictionName(hover.code)}
+          value={hoveredValue === null ? "No data" : formatMetricValue(metric, hoveredValue)}
+        />
       )}
 
-      {locked && <GlobalSimulatorTeaser />}
+      {isTeaser && <GlobalSimulatorTeaser />}
     </Box>
   );
 }
 
 /**
- * The "Global simulator" member-only teaser - a small card of disabled,
- * plausible-looking panel/battery/demand sliders (the same fields the
- * Design tab's own `RefineForm` uses for one country at a time), floating
- * over the blurred map, plus a lock + "Members only" message centered over
- * everything. No real per-country-at-once calculation exists behind this
- * yet - see `App.tsx`'s own `MapView`/`locked` doc comments.
+ * The real, working "Global simulator" panel - shown once `member` is true
+ * (added 2026-09-29, "let's get the global simulator working... when I
+ * click members and login, enable this mode"). Three live sliders (panel
+ * wattage stays fixed at 500Wp, matching the "medium" tier every other
+ * self-sufficiency figure in this app is calibrated against - not exposed
+ * here, same as the teaser's own mock never exposed it) plus an explicit
+ * "Simulate" button, per Andrew's own instruction ("the sliders adjust...
+ * but to keep stable let's have click to simulate") - dragging a slider
+ * only updates this panel's own numbers, never triggers the ~230-country
+ * recompute by itself. Floats over the map in the same spot the locked
+ * teaser used, but nothing here is blurred or disabled.
+ */
+function GlobalSimulatorPanel({
+  config,
+  onConfigChange,
+  onSimulate,
+  simulating,
+  hasResults,
+}: {
+  config: { panels: number; batteryKWh: number; annualKWh: number };
+  onConfigChange: (patch: Partial<{ panels: number; batteryKWh: number; annualKWh: number }>) => void;
+  onSimulate: () => void;
+  simulating: boolean;
+  hasResults: boolean;
+}) {
+  return (
+    <Box
+      sx={{
+        position: "absolute",
+        // Clears the map legend, which floats at the same top:16/left:16
+        // spot (shared/components/MapLegend.tsx) - found 2026-09-29 after
+        // the two overlapped, cutting off this panel's own top slider.
+        top: 108,
+        left: 16,
+        width: 220,
+        display: "flex",
+        flexDirection: "column",
+        gap: 1,
+      }}
+    >
+      <SliderField
+        heading="Number of panels"
+        value={config.panels}
+        unit=""
+        min={0}
+        max={50}
+        step={1}
+        onChange={(panels) => onConfigChange({ panels })}
+      />
+      <SliderField
+        heading="Battery"
+        value={config.batteryKWh}
+        unit="kWh"
+        min={0}
+        max={40}
+        step={2.5}
+        precision={1}
+        onChange={(batteryKWh) => onConfigChange({ batteryKWh })}
+      />
+      <SliderField
+        heading="Annual electricity demand"
+        value={config.annualKWh}
+        unit="kWh"
+        min={500}
+        max={20000}
+        step={250}
+        onChange={(annualKWh) => onConfigChange({ annualKWh })}
+      />
+      <Button
+        variant="contained"
+        onClick={onSimulate}
+        disabled={simulating}
+        startIcon={simulating ? <CircularProgress size={14} color="inherit" /> : <PlayArrowIcon fontSize="small" />}
+        sx={{ borderRadius: "22px", boxShadow: "0 6px 20px rgba(0,0,0,0.28)" }}
+      >
+        {simulating ? "Simulating…" : hasResults ? "Re-simulate" : "Simulate"}
+      </Button>
+    </Box>
+  );
+}
+
+/**
+ * The "Global simulator" locked teaser shown to a non-member - a small
+ * card of disabled, plausible-looking panel/battery/demand sliders (the
+ * same fields `GlobalSimulatorPanel` above uses for real once a member logs
+ * in), floating over the blurred map, plus a lock + "Members only" message
+ * centered over everything.
  */
 function GlobalSimulatorTeaser() {
   return (

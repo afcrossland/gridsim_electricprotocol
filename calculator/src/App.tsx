@@ -33,7 +33,9 @@ import type { DemandInput, Location, PanelArray, SavingsResults, Tariffs } from 
 import { buildScenes } from "./tour/scenes";
 import DetailHeader from "../../shared/components/DetailHeader";
 import FooterComposition from "../../shared/components/FooterComposition";
+import LoginModal from "../../shared/components/LoginModal";
 import SidebarShell from "../../shared/components/SidebarShell";
+import { isMember } from "../../shared/lib/membership";
 import TourOverlay from "../../shared/tour/TourOverlay";
 import { useTourState } from "../../shared/tour/useTourState";
 
@@ -45,13 +47,15 @@ const METRICS: Metric[] = ["selfSufficiency", "generation"];
 
 /**
  * The map's own view selector - the two real `Metric`s, plus a third,
- * member-only "Global simulator" option that isn't real map data at all
- * (see `WorldMap.tsx`'s own `locked` prop) - a locked teaser for a future
- * tool that would let a member set one panel/battery/demand configuration
- * and see self-sufficiency recalculated for every country at once, rather
- * than one country at a time on the Design tab. Matches deployment's own
- * `LockedMetricChart.tsx` convention: blurred placeholder content behind a
- * lock icon and "Members only" label, no real computation behind it yet.
+ * member-only "Global simulator" option that lets a member set one
+ * panel/battery/demand configuration and see self-sufficiency recalculated
+ * for every country at once, rather than one country at a time on the
+ * Design tab (`WorldMap.tsx`'s own `GlobalSimulatorPanel`/
+ * `computeGlobalSelfSufficiency`). A non-member sees a locked teaser
+ * instead (`WorldMap.tsx`'s own `GlobalSimulatorTeaser`), matching
+ * deployment's own `LockedMetricChart.tsx` convention - real functionality
+ * added 2026-09-29, per Andrew's own instruction ("let's get the global
+ * simulator working... when I click members and login, enable this mode").
  */
 type MapView = Metric | "globalSimulator";
 const MAP_VIEWS: MapView[] = [...METRICS, "globalSimulator"];
@@ -117,10 +121,12 @@ export default function App({ mode, setMode }: Props) {
   // Self-sufficiency is the default view, per Andrew's own instruction
   // 2026-09-16 - generation (the map's own original, and only, view before
   // this selector existed) is the alternative. "Global simulator" (added
-  // 2026-09-28) is a third, member-only option in the same toggle group,
-  // but isn't a real `Metric` - it never drives real map data, only a
-  // locked teaser over whichever real metric was last active (see
-  // `mapView` below and `WorldMap.tsx`'s own `locked` prop).
+  // 2026-09-28, made real 2026-09-29) is a third, member-only option in the
+  // same toggle group, but isn't a real `Metric` in this state - it forces
+  // `metric` to "selfSufficiency" below regardless, since that's the
+  // measure it simulates too, and WorldMap.tsx's own `globalSimulator`/
+  // `member` props decide whether that shows the real panel or a locked
+  // teaser.
   const [mapView, setMapView] = useState<MapView>("selfSufficiency");
   const metric: Metric = mapView === "globalSimulator" ? "selfSufficiency" : mapView;
   // Same "page" concept as the sibling apps' own App.tsx - switches the
@@ -137,6 +143,17 @@ export default function App({ mode, setMode }: Props) {
   const [leagueDesc, setLeagueDesc] = useState(true);
   const [leagueContinents, setLeagueContinents] = useState<string[]>([]);
   const [leagueFiltersExpanded, setLeagueFiltersExpanded] = useState(false);
+
+  // The "Login" header button + its password popup - a client-side gate,
+  // not real auth (see shared/lib/membership.ts's own doc comment), added
+  // 2026-09-28 per Andrew's own instruction. `member` seeds from the same
+  // cross-app localStorage flag dark mode already uses this pattern for -
+  // logging in on a sibling app already unlocks this one on the next load.
+  // Unlocks the Design tab's own locked sliders (RefineForm.tsx) and turns
+  // the map's own Global Simulator from a locked teaser into the real,
+  // working thing (WorldMap.tsx's own `member` prop).
+  const [member, setMember] = useState(isMember);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   // The tour/Help/Login header buttons, and the tour itself, are all new
   // 2026-09-19 (this app had none before) - built on the same shared
@@ -256,7 +273,8 @@ export default function App({ mode, setMode }: Props) {
       selectedPoint={location && !location.mapCode ? { lat: location.lat, lon: location.lon } : null}
       onSelect={handleSelect}
       metric={metric}
-      locked={mapView === "globalSimulator"}
+      globalSimulator={mapView === "globalSimulator"}
+      member={member}
     />
   );
 
@@ -272,22 +290,28 @@ export default function App({ mode, setMode }: Props) {
       {!location && (
         <>
           {/* Blurred and non-interactive while the "Global simulator"
-              teaser is active - the whole default sidebar (heading, blurb,
-              and the ranked list, still ranked by whichever metric was
-              last real - see `metric` above) isn't the point of this view
-              any more. `display: flex`/`flex: 1`/`minHeight: 0` mirror
-              CountryLeagueTable's own root Box so wrapping it here doesn't
-              break the flex-sizing chain it relies on to fill (and scroll
-              within) the sidebar - the same bug this teaser's map-side
-              wrapper hit first, see WorldMap.tsx's own equivalent wrapper. */}
+              teaser is active for a non-member - the whole default sidebar
+              (heading, blurb, and the ranked list, still ranked by
+              whichever metric was last real - see `metric` above) isn't
+              the point of this view any more. A member sees the real
+              sidebar here too, same as the map itself (WorldMap.tsx's own
+              `member` prop) - found 2026-09-29, this blur was still keyed
+              on `mapView` alone before, so a logged-in member saw a working
+              map next to a still-blurred sidebar. `display: flex`/
+              `flex: 1`/`minHeight: 0` mirror CountryLeagueTable's own root
+              Box so wrapping it here doesn't break the flex-sizing chain it
+              relies on to fill (and scroll within) the sidebar - the same
+              bug this teaser's map-side wrapper hit first, see
+              WorldMap.tsx's own equivalent wrapper. */}
           <Box
-            aria-hidden={mapView === "globalSimulator"}
+            aria-hidden={mapView === "globalSimulator" && !member}
             sx={{
               display: "flex",
               flexDirection: "column",
               flex: 1,
               minHeight: 0,
-              ...(mapView === "globalSimulator" && { filter: "blur(6px)", pointerEvents: "none", userSelect: "none" }),
+              ...(mapView === "globalSimulator" &&
+                !member && { filter: "blur(6px)", pointerEvents: "none", userSelect: "none" }),
             }}
           >
             {/* Same heading+description text style as Deployment
@@ -304,8 +328,8 @@ export default function App({ mode, setMode }: Props) {
               </Typography>
               <Typography variant="body2">
                 <strong>Pick a country on the map or search below</strong>{" "}
-                to configure a solar and battery system and see how much of your own electricity it could cover,
-                what you'd export, and how quickly it could pay for itself.
+                to configure a solar and battery system and see how much of household electricity it could cover
+                over a year. Click on a country to look at possible paybacks against different tariffs.
               </Typography>
             </Box>
             <CountryLeagueTable
@@ -401,8 +425,12 @@ export default function App({ mode, setMode }: Props) {
                 panels={arrays[0].panels}
                 onPanelsChange={(panels) => setArrays([{ ...arrays[0], panels }])}
                 panelWatts={arrays[0].panelWatts}
+                onPanelWattsChange={(panelWatts) => setArrays([{ ...arrays[0], panelWatts }])}
                 batteryKWh={batteryKWh}
+                onBatteryChange={setBatteryKWh}
                 annualKWh={demand.annualKWh ?? 4000}
+                onAnnualKWhChange={(annualKWh) => setDemand({ ...demand, annualKWh })}
+                member={member}
               />
             )}
 
@@ -423,7 +451,7 @@ export default function App({ mode, setMode }: Props) {
           apps' own App.tsx hide their equivalent nav/footer there, for an
           unobstructed view of the map. */}
       {!heroScene && (
-        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} />
+        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} member={member} onOpenLogin={() => setLoginOpen(true)} />
       )}
 
       {page === "help" ? (
@@ -537,7 +565,7 @@ export default function App({ mode, setMode }: Props) {
                   <ToggleButtonGroup size="small" exclusive value={mapView} onChange={(_, v: MapView | null) => v && setMapView(v)}>
                     {MAP_VIEWS.map((m) => (
                       <ToggleButton key={m} value={m} sx={{ py: 0.25, px: 1.5, fontSize: "0.7rem", gap: 0.5 }}>
-                        {m === "globalSimulator" && <LockIcon sx={{ fontSize: 13 }} />}
+                        {m === "globalSimulator" && !member && <LockIcon sx={{ fontSize: 13 }} />}
                         {m === "globalSimulator" ? "Global simulator" : METRIC_LABELS[m]}
                       </ToggleButton>
                     ))}
@@ -566,6 +594,8 @@ export default function App({ mode, setMode }: Props) {
           )}
         </>
       )}
+
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setMember(true)} />
     </Box>
   );
 }

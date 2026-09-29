@@ -13,7 +13,9 @@ import TopNavbar from "./components/TopNavbar";
 import { getScenes } from "./i18n/scenes";
 import { type Metric } from "./lib/metrics";
 import FooterComposition from "../../shared/components/FooterComposition";
+import LoginModal from "../../shared/components/LoginModal";
 import SidebarShell from "../../shared/components/SidebarShell";
+import { isMember } from "../../shared/lib/membership";
 import TourOverlay from "../../shared/tour/TourOverlay";
 import { useTourState } from "../../shared/tour/useTourState";
 
@@ -41,6 +43,18 @@ export default function App({ mode, setMode }: Props) {
   // here rather than a store field - this app has nothing else that needs
   // to read or restore it.
   const [page, setPage] = useState<"map" | "help">("map");
+
+  // The "Login" header button + its password popup - a client-side gate,
+  // not real auth (see shared/lib/membership.ts's own doc comment), added
+  // 2026-09-28 per Andrew's own instruction. `member` seeds from the same
+  // cross-app localStorage flag dark mode already uses this pattern for -
+  // logging in on a sibling app already unlocks this one on the next load.
+  // Nothing in this app currently reads `member` to unlock content - its
+  // own "Members only" charts (LockedMetricsSection.tsx) advertise metrics
+  // with no real data source at all, not real content behind a paywall, so
+  // they stay locked regardless (see TopNavbar.tsx's own doc comment).
+  const [member, setMember] = useState(isMember);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   // Mobile layout, added 2026-09-10 - ported from Policy Explorer's own
   // App.tsx, which already handles this well: below `md`, the map and
@@ -96,7 +110,7 @@ export default function App({ mode, setMode }: Props) {
   return (
     <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
       {!heroScene && (
-        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} />
+        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} member={member} onOpenLogin={() => setLoginOpen(true)} />
       )}
 
       {page === "help" ? (
@@ -270,6 +284,8 @@ export default function App({ mode, setMode }: Props) {
           )}
         </>
       )}
+
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setMember(true)} />
     </Box>
   );
 }

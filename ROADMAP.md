@@ -215,6 +215,23 @@ comment(s) together.
 Requests Andrew has flagged for later, recorded here so they don't get
 lost - not yet started.
 
+- **TODO: add a categorical badge to the map hover tooltip.** Flagged
+  2026-09-29, when the tooltip's design was lifted from the sibling
+  gridsim-frontend project's own map hover card (`shared/components/
+  MapHoverTooltip.tsx`, now shared across policy, deployment and
+  calculator). gridsim's own version shows a small colour-coded pill next
+  to its value (e.g. a "Low/Moderate/High" carbon-intensity badge) -
+  deliberately left out of this pass ("do not show the l/m/h tile (yet)")
+  since each app's own equivalent needs its own design decision, not a
+  blind copy of gridsim's carbon-specific colours: calculator already has
+  real low/medium/high self-sufficiency tiers per country
+  (`data/country-self-sufficiency.json`) that could become this badge
+  directly; policy's own score bands (`SCORE_BANDS` in `lib/scoring.ts` -
+  "Very ineffective" through "Very effective") are the closest existing
+  equivalent there; deployment has no categorical concept at all yet.
+  `MapHoverTooltip`'s own `value` prop already accepts any `ReactNode`, so
+  adding a badge is a per-app content change, not a shared-component one.
+  Not started.
 - **TODO: the Solar Homes Calculator's ranked list doesn't scroll well once
   filtered to North America, Oceania, or Europe.** Flagged 2026-09-28,
   right after the ranked list gained a continent filter

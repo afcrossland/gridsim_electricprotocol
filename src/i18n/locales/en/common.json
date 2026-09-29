@@ -57,7 +57,8 @@
     "moreDataNeeded": "More data needed",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
-    "backToFullMap": "Back to full map view"
+    "backToFullMap": "Back to full map view",
+    "clickToExplore": "Click to explore →"
   },
   "countryPanel": {
     "backToScoreboard": "Back to scoreboard",

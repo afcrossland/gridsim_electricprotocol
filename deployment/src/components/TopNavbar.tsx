@@ -9,6 +9,8 @@ interface Props {
   mode: PaletteMode;
   setMode: (mode: PaletteMode) => void;
   onOpenHelp: () => void;
+  member: boolean;
+  onOpenLogin: () => void;
 }
 
 /**
@@ -23,7 +25,7 @@ interface Props {
  * `onReadDocs`) for a visitor who wants the written docs instead of the
  * guided walkthrough.
  */
-export default function TopNavbar({ mode, setMode, onOpenHelp }: Props) {
+export default function TopNavbar({ mode, setMode, onOpenHelp, member, onOpenLogin }: Props) {
   const { t } = useTranslation();
   // Same as ep_policymap's own TopNavbar.tsx: the logo leaves this app
   // entirely, back to the Electric Futures Playbook splash at the site
@@ -54,11 +56,21 @@ export default function TopNavbar({ mode, setMode, onOpenHelp }: Props) {
 
       {/* Same filled-button treatment as Policy Explorer's "Admin
           console" (ep_policymap/src/components/layout/TopNavbar.tsx) -
-          added 2026-09-11 per Andrew's instruction. No sign-in exists
-          yet, same "stands in for auth" state that button started in, so
-          this one is a placeholder too - "Coming soon" on hover rather
-          than a dead click. Ported onto the shared `AuthButton` 2026-09-19. */}
-      <AuthButton label={t("nav.login")} mode={mode} tooltip={t("nav.comingSoon")} />
+          added 2026-09-11 per Andrew's instruction. Opens the shared
+          password popup 2026-09-28 (`onOpenLogin`, `App.tsx`'s own
+          `LoginModal`) - this app's own "Members only" charts
+          (LockedMetricChart.tsx) stay locked regardless of `member`, since
+          they're a teaser for metrics with no real data source at all, not
+          real content behind a paywall; logging in here still contributes
+          to the shared cross-app member flag other apps' own real gated
+          content reads. Once `member` is true the button becomes an inert
+          "Member" label instead. */}
+      <AuthButton
+        label={member ? t("nav.member") : t("nav.login")}
+        mode={mode}
+        tooltip={member ? t("nav.memberUnlocked") : t("nav.logInPrompt")}
+        onClick={member ? undefined : onOpenLogin}
+      />
     </AppHeader>
   );
 }
