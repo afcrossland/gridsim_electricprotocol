@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
-import { Box, Stack, Tooltip, Typography, useTheme } from "@mui/material";
+import { Autocomplete, Box, Checkbox, Stack, TextField, Tooltip, Typography, useTheme } from "@mui/material";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PublicIcon from "@mui/icons-material/Public";
 import { useTranslation } from "react-i18next";
@@ -12,13 +14,14 @@ import DetailHeader from "../../../shared/components/DetailHeader";
 import FilterBar from "../../../shared/components/FilterBar";
 import FlagImg from "../../../shared/components/FlagImg";
 import RankedRow from "../../../shared/components/RankedRow";
+import { aggregateEmberCountries } from "../lib/aggregateSolar";
 import { emberCountry, latestPointOf } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
 import { monthAbbrev } from "../lib/formatMonth";
 import { GLOBAL_CODE, GLOBAL_SOLAR, globalLatestSolarMW } from "../lib/globalSolar";
 import { jurisdictionName, continentOf } from "../lib/jurisdictions";
 import { codesForMetric, valueForMetric, type Metric } from "../lib/metrics";
-import { POPULATION, populationActual, worldPopulationActual, worldPopulationMillions, worldPopulationYearRange } from "../lib/population";
+import { POPULATION, populationActual, regionPopulationActual, regionPopulationMillions, regionPopulationYearRange } from "../lib/population";
 
 interface Props {
   metric: Metric;
@@ -26,6 +29,8 @@ interface Props {
   onSelect: (code: string | null) => void;
   /** Hides the "Solar Deployment Explorer" heading below - only on mobile, where it sits directly under TopNavbar's own copy of the same title and reads as an immediate duplicate. On desktop the sidebar is beside the map, not under the header, so the heading still earns its place there. */
   isMobile?: boolean;
+  /** Shows the member-only "Compare countries" multi-select in the filter panel - see its own doc comment below. */
+  member: boolean;
 }
 
 /**
@@ -168,19 +173,78 @@ const PANEL_SX = {
   height: "100%",
 } as const;
 
+/** Pseudo-jurisdiction code for the continent filter's own pinned aggregate row - see `GLOBAL_CODE`'s own doc comment for the same reasoning, just scoped to whatever the filter currently matches instead of every country. */
+const REGION_CODE = "REGION";
+
+/** Pseudo-jurisdiction code for the member-only "Compare countries" multi-select's own pinned aggregate row - see `GLOBAL_CODE`'s own doc comment for the same reasoning, just scoped to a hand-picked set of countries instead of a continent. */
+const MULTI_CODE = "SELECTION";
+
+/**
+ * The pinned "Global" row and the continent filter's own "Region" row share
+ * this exact tile - a soft aqua tint (not selected/hover-driven, unlike the
+ * ranking rows below) and an icon instead of a flag, since neither
+ * represents one real jurisdiction. Extracted 2026-09-30 when the region
+ * row was added, rather than duplicating this a second time.
+ */
+function PinnedAggregateRow({ onClick, label, value }: { onClick: () => void; label: string; value: string }) {
+  const theme = useTheme();
+  return (
+    <Box
+      onClick={onClick}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.25,
+        pl: 1.25,
+        pr: 1,
+        py: 0.9,
+        mb: 0.75,
+        borderRadius: "8px",
+        border: "1px solid",
+        borderColor: "primary.main",
+        cursor: "pointer",
+        overflow: "hidden",
+        bgcolor: theme.palette.mode === "dark" ? "rgba(0,171,187,0.18)" : "rgba(0,171,187,0.08)",
+        transition: "background-color 120ms ease",
+        "&:hover": { bgcolor: theme.palette.mode === "dark" ? "rgba(0,171,187,0.26)" : "rgba(0,171,187,0.14)" },
+      }}
+    >
+      <PublicIcon sx={{ fontSize: 16, color: "primary.main", flexShrink: 0 }} />
+      <Typography variant="subtitle1" noWrap sx={{ flex: 1, minWidth: 0, fontWeight: 700 }}>
+        {label}
+      </Typography>
+      <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: "primary.dark", flexShrink: 0 }}>
+        {value}
+      </Typography>
+    </Box>
+  );
+}
+
 /**
  * Ranking + filters, same role as ep_policymap's Scoreboard.tsx +
  * ScoreboardFilters.tsx combined into one (this app has no separate
  * per-country detail view yet to justify splitting them) - a country's own
  * row is what drives both browsing and selecting one on the map.
  */
-export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }: Props) {
+export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, member }: Props) {
   const { t, i18n } = useTranslation();
-  const theme = useTheme();
   const [continents, setContinents] = useState<string[]>([]);
+  // Member-only "Compare countries" multi-select (added 2026-09-30, per
+  // Andrew's own instruction "we should also be able to select multiple
+  // countries... a member-only country multi-select, sitting right next to
+  // the existing continent dropdown") - any hand-picked set of countries
+  // gets the exact same pinned-aggregate-row treatment as the continent
+  // filter's own "Region" row (`aggregateEmberCountries`,
+  // `regionPopulationActual`), just fed a chosen code list instead of a
+  // continent-filtered one. Kept deliberately distinct from the footer's
+  // own single-country "Search countries" box (a *different* action - jump
+  // straight to one country's own page, not build an aggregate of several)
+  // rather than merged into it, so the two don't read as duplicates of each
+  // other.
+  const [multiCodes, setMultiCodes] = useState<string[]>([]);
   const [desc, setDesc] = useState(true);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
-  const filtersActive = continents.length > 0;
+  const filtersActive = continents.length > 0 || multiCodes.length > 0;
 
   const rows = useMemo(() => {
     return codesForMetric(metric)
@@ -196,41 +260,105 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
   }, [metric, continents, desc, i18n.language]);
 
   const isGlobalSelected = selectedCountry === GLOBAL_CODE;
+  const isRegionSelected = selectedCountry === REGION_CODE;
+  const isMultiSelected = selectedCountry === MULTI_CODE;
+
+  // The continent filter's own aggregate - every EMBER_SOLAR code the
+  // filter currently matches (independent of `rows` above, which is
+  // further filtered to whatever has a non-null value for the *current*
+  // metric - the region aggregate always draws from the full capacity
+  // universe, same as Global does, since "share" hides both rows anyway).
+  // Only computed when a filter is actually active; `[]` otherwise, so
+  // `regionEmberCountry` below is `null` and the pinned row/detail branch
+  // simply don't render.
+  const regionCodes = useMemo(
+    () => (continents.length === 0 ? [] : codesForMetric("capacity").filter((code) => continents.includes(continentOf(code) ?? ""))),
+    [continents],
+  );
+  const regionLabel = continents.length === 1 ? t(`continents.${continents[0]}`) : t("sidebar.region");
+  const regionEmberCountry = useMemo(
+    () => (regionCodes.length > 0 ? aggregateEmberCountries(regionCodes, regionLabel) : null),
+    [regionCodes, regionLabel],
+  );
+
+  // The "Compare countries" multi-select's own aggregate - same mechanism
+  // as the region one above, just fed `multiCodes` (hand-picked, member
+  // only) instead of a continent-filtered list. `multiCountryOptions` is
+  // the same "every EMBER_SOLAR code, alphabetical" universe policy's own
+  // ScoreboardFilters.tsx country Autocomplete uses for the same control.
+  const multiCountryOptions = useMemo(
+    () =>
+      codesForMetric("capacity")
+        .map((code) => ({ code, name: jurisdictionName(code, i18n.language) }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [i18n.language],
+  );
+  const selectedMultiOptions = multiCountryOptions.filter((o) => multiCodes.includes(o.code));
+  const multiLabel =
+    multiCodes.length === 0
+      ? ""
+      : multiCodes.length <= 2
+        ? multiCodes.map((c) => jurisdictionName(c, i18n.language)).join(", ")
+        : t("sidebar.countriesSelected", { count: multiCodes.length });
+  const multiEmberCountry = useMemo(
+    () => (multiCodes.length > 0 ? aggregateEmberCountries(multiCodes, multiLabel) : null),
+    [multiCodes, multiLabel],
+  );
 
   // A country with a real Ember history for either dataset swaps the whole
   // sidebar over to its timeseries (capacity section, then generation-mix
   // section below it if that data exists too - both shown together
   // regardless of which metric is active on the map, per Andrew's
   // instruction 2026-09-09). A country with neither just stays highlighted
-  // in the ranking list below. The pinned "Global" row (GLOBAL_CODE) is
-  // structured as its own EmberCountry (see lib/globalSolar.ts) precisely so
-  // it can slot into `selectedEmberCountry` here and render through this
-  // same CountryDetail path unchanged - it has no generation-mix data of its
-  // own, so selectedGenerationCountry always stays undefined for it.
+  // in the ranking list below. The pinned "Global" row (GLOBAL_CODE), the
+  // continent filter's own "Region" row (REGION_CODE) and the "Compare
+  // countries" multi-select's own row (MULTI_CODE, added 2026-09-30) are
+  // all structured as their own EmberCountry (lib/globalSolar.ts,
+  // lib/aggregateSolar.ts) precisely so any of them can slot into
+  // `selectedEmberCountry` here and render through this same CountryDetail
+  // path unchanged - none has generation-mix data of its own, so
+  // selectedGenerationCountry always stays undefined for all three.
+  const isAggregateSelected = isGlobalSelected || isRegionSelected || isMultiSelected;
   const selectedEmberCountry = isGlobalSelected
     ? GLOBAL_SOLAR
-    : selectedCountry
-      ? emberCountry(selectedCountry)
-      : undefined;
+    : isRegionSelected
+      ? (regionEmberCountry ?? undefined)
+      : isMultiSelected
+        ? (multiEmberCountry ?? undefined)
+        : selectedCountry
+          ? emberCountry(selectedCountry)
+          : undefined;
   const selectedGenerationCountry =
-    selectedCountry && !isGlobalSelected ? generationCountry(selectedCountry) : undefined;
-  const selectedPopulation = selectedCountry && !isGlobalSelected ? POPULATION[selectedCountry] : undefined;
-  const [worldPopMinYear, worldPopMaxYear] = worldPopulationYearRange();
+    selectedCountry && !isAggregateSelected ? generationCountry(selectedCountry) : undefined;
+  const selectedPopulation = selectedCountry && !isAggregateSelected ? POPULATION[selectedCountry] : undefined;
+  const [aggregatePopMinYear, aggregatePopMaxYear] = isRegionSelected
+    ? regionPopulationYearRange(regionCodes)
+    : isMultiSelected
+      ? regionPopulationYearRange(multiCodes)
+      : regionPopulationYearRange();
   const selectedPopulationValue = isGlobalSelected
-    ? worldPopulationActual()
-    : selectedCountry
-      ? populationActual(selectedCountry)
-      : null;
-  const selectedPopulationTooltip = isGlobalSelected
-    ? t("sidebar.worldBankYearRange", { from: worldPopMinYear, to: worldPopMaxYear })
+    ? regionPopulationActual()
+    : isRegionSelected
+      ? regionPopulationActual(regionCodes)
+      : isMultiSelected
+        ? regionPopulationActual(multiCodes)
+        : selectedCountry
+          ? populationActual(selectedCountry)
+          : null;
+  const selectedPopulationTooltip = isAggregateSelected
+    ? t("sidebar.worldBankYearRange", { from: aggregatePopMinYear, to: aggregatePopMaxYear })
     : selectedPopulation
       ? t("sidebar.worldBankYear", { year: selectedPopulation.year })
       : undefined;
   const selectedCapacityPerCapita = isGlobalSelected
-    ? globalLatestSolarMW() / worldPopulationMillions()
-    : selectedCountry
-      ? valueForMetric(selectedCountry, "capacityPerCapita")
-      : null;
+    ? globalLatestSolarMW() / regionPopulationMillions()
+    : isRegionSelected && regionEmberCountry
+      ? (latestPointOf(regionEmberCountry).gw * 1000) / regionPopulationMillions(regionCodes)
+      : isMultiSelected && multiEmberCountry
+        ? (latestPointOf(multiEmberCountry).gw * 1000) / regionPopulationMillions(multiCodes)
+        : selectedCountry
+          ? valueForMetric(selectedCountry, "capacityPerCapita")
+          : null;
   // Same latest-point logic CountryDetail.tsx's own headline number and
   // "as of" caption use, read off the same selectedEmberCountry object so
   // this tile and that headline can never disagree - see lib/emberSolar.ts's
@@ -239,16 +367,17 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
   // year-only "as of" the same way CountryDetail.tsx's own annual branch
   // does.
   const selectedLatestPoint = selectedEmberCountry ? latestPointOf(selectedEmberCountry) : null;
-  // Global's own number is a computed aggregate, not something Ember
-  // itself publishes - see CountryDetail.tsx's own attributeToEmber prop -
-  // so its tooltip drops the "- Ember" credit the real-country keys carry.
+  // Global's, a region's and a compared selection's own numbers are all a
+  // computed aggregate, not something Ember itself publishes - see
+  // CountryDetail.tsx's own attributeToEmber prop - so their tooltip drops
+  // the "- Ember" credit the real-country keys carry.
   const selectedLatestCapacityTooltip = selectedLatestPoint
     ? selectedLatestPoint.month !== null
-      ? t(isGlobalSelected ? "detail.asOfMonth" : "detail.asOfMonthEmber", {
+      ? t(isAggregateSelected ? "detail.asOfMonth" : "detail.asOfMonthEmber", {
           month: monthAbbrev(selectedLatestPoint.month, i18n.language),
           year: selectedLatestPoint.year,
         })
-      : t(isGlobalSelected ? "detail.asOfYear" : "detail.asOfYearEmber", { year: selectedLatestPoint.year })
+      : t(isAggregateSelected ? "detail.asOfYear" : "detail.asOfYearEmber", { year: selectedLatestPoint.year })
     : undefined;
 
   if (selectedCountry && (selectedEmberCountry || selectedGenerationCountry)) {
@@ -257,8 +386,22 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
         <DetailHeader
           onBack={() => onSelect(null)}
           backTooltip={t("sidebar.backToRanking")}
-          flag={isGlobalSelected ? <PublicIcon sx={{ fontSize: 22, color: "primary.main" }} /> : <FlagImg code={selectedCountry} size={22} />}
-          name={isGlobalSelected ? t("sidebar.global") : jurisdictionName(selectedCountry, i18n.language)}
+          flag={
+            isAggregateSelected ? (
+              <PublicIcon sx={{ fontSize: 22, color: "primary.main" }} />
+            ) : (
+              <FlagImg code={selectedCountry} size={22} />
+            )
+          }
+          name={
+            isGlobalSelected
+              ? t("sidebar.global")
+              : isRegionSelected
+                ? regionLabel
+                : isMultiSelected
+                  ? multiLabel
+                  : jurisdictionName(selectedCountry, i18n.language)
+          }
           sx={{ borderBottom: "1px solid", borderColor: "divider" }}
         />
         <Box sx={{ p: 2, overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
@@ -307,10 +450,11 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
               that app 2026-09-10); Future Grid Simulator only links to its
               homepage for now - it's an external site with no documented
               per-country URL of its own to deep-link into. Neither makes
-              sense for the pinned "Global" row - there's no single country
-              code to deep-link either tool into - so both this and the
-              GSC-members tile below are skipped for it. */}
-          {!isGlobalSelected && (
+              sense for the pinned "Global" row or the continent filter's
+              own "Region" row - there's no single country code to
+              deep-link either tool into - so both this and the GSC-members
+              tile below are skipped for both. */}
+          {!isAggregateSelected && (
             <>
               <Box sx={{ display: "flex", gap: 1 }}>
                 <CrossLinkTile
@@ -330,7 +474,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
           )}
 
           {selectedEmberCountry && (
-            <CountryDetail country={selectedEmberCountry} attributeToEmber={!isGlobalSelected} />
+            <CountryDetail country={selectedEmberCountry} attributeToEmber={!isAggregateSelected} />
           )}
           {selectedGenerationCountry && <GenerationDetail country={selectedGenerationCountry} />}
 
@@ -368,7 +512,10 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
           active={filtersActive}
           expanded={filtersExpanded}
           onToggleExpanded={() => setFiltersExpanded((v) => !v)}
-          onClear={() => setContinents([])}
+          onClear={() => {
+            setContinents([]);
+            setMultiCodes([]);
+          }}
           sortDesc={desc}
           onToggleSort={() => setDesc((v) => !v)}
           labels={{
@@ -391,56 +538,105 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile }:
             // one (see the `continents` block in common.json).
             translate={(c) => t(`continents.${c}`)}
           />
+
+          {/* Member-only "Compare countries" - see this component's own
+              state comment above for why this lives here rather than
+              merged into the footer's own single-country search. Hidden
+              entirely for a non-member rather than shown locked/blurred -
+              a filter-panel control is minor enough that a persistent
+              "Members only" teaser here would just be clutter for the
+              majority of visitors, unlike the map's own Global Simulator
+              view. */}
+          {member && (
+            <Autocomplete
+              multiple
+              disableCloseOnSelect
+              size="small"
+              options={multiCountryOptions}
+              value={selectedMultiOptions}
+              getOptionLabel={(o) => o.name}
+              isOptionEqualToValue={(a, b) => a.code === b.code}
+              onChange={(_, next) => setMultiCodes(next.map((o) => o.code))}
+              sx={{ mt: 1.5, width: "100%" }}
+              renderOption={(props, option, { selected }) => {
+                const { key, ...optionProps } = props;
+                return (
+                  <li key={key} {...optionProps}>
+                    <Checkbox
+                      icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                      checkedIcon={<CheckBoxIcon fontSize="small" />}
+                      checked={selected}
+                      size="small"
+                      sx={{ mr: 1 }}
+                    />
+                    {option.name}
+                  </li>
+                );
+              }}
+              renderInput={(params) => <TextField {...params} label={t("sidebar.compareCountries")} />}
+            />
+          )}
         </FilterBar>
       </Box>
 
       <Box data-tour="ranking-list" sx={{ flex: 1, overflowY: "auto", p: 2 }}>
         {/* Pinned "Global" row - the world's own total (or per-capita)
             installed capacity, always first regardless of the sort/filter
-            controls above (it isn't part of `rows`, so neither touches it),
-            in a soft aqua tint rather than the ranking rows' plain grey so
-            it reads as a different kind of thing, not just the current #1
-            entry. Shown for "Installed Capacity" and "Per Capita" - both
-            are real, additive-then-divided global figures (see
-            globalLatestSolarMW/worldPopulationMillions). Skipped for
+            controls above (it isn't part of `rows`, so neither touches it).
+            Shown for "Installed Capacity" and "Per Capita" - both are real,
+            additive-then-divided global figures (see
+            globalLatestSolarMW/regionPopulationMillions). Skipped for
             "Share of Electricity": a % share is already relative, not
             additive, and there's no computed global generation total to
-            divide by the way there is a computed global capacity one.
-            Deliberately NOT the shared `RankedRow` below - its always-on
-            aqua tint (not selected/hover-driven) and icon-instead-of-flag
-            make this a genuinely different tile, not the same one with
-            different data. */}
+            divide by the way there is a computed global capacity one. */}
         {metric !== "share" && (
-          <Box
+          <PinnedAggregateRow
             onClick={() => onSelect(GLOBAL_CODE)}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.25,
-              pl: 1.25,
-              pr: 1,
-              py: 0.9,
-              mb: 0.75,
-              borderRadius: "8px",
-              border: "1px solid",
-              borderColor: "primary.main",
-              cursor: "pointer",
-              overflow: "hidden",
-              bgcolor: theme.palette.mode === "dark" ? "rgba(0,171,187,0.18)" : "rgba(0,171,187,0.08)",
-              transition: "background-color 120ms ease",
-              "&:hover": { bgcolor: theme.palette.mode === "dark" ? "rgba(0,171,187,0.26)" : "rgba(0,171,187,0.14)" },
-            }}
-          >
-            <PublicIcon sx={{ fontSize: 16, color: "primary.main", flexShrink: 0 }} />
-            <Typography variant="subtitle1" noWrap sx={{ flex: 1, minWidth: 0, fontWeight: 700 }}>
-              {t("sidebar.global")}
-            </Typography>
-            <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: "primary.dark", flexShrink: 0 }}>
-              {metric === "capacityPerCapita"
-                ? `${(globalLatestSolarMW() / worldPopulationMillions()).toFixed(0)} W/cap`
-                : `${globalLatestSolarMW().toLocaleString()} MW`}
-            </Typography>
-          </Box>
+            label={t("sidebar.global")}
+            value={
+              metric === "capacityPerCapita"
+                ? `${(globalLatestSolarMW() / regionPopulationMillions()).toFixed(0)} W/cap`
+                : `${globalLatestSolarMW().toLocaleString()} MW`
+            }
+          />
+        )}
+
+        {/* The continent filter's own aggregate row - same tile, same
+            pinned position, one country's worth of it built live from
+            whatever the filter currently matches (lib/aggregateSolar.ts)
+            rather than every country. Added 2026-09-30 per Andrew's own
+            instruction ("when we filter we want a new sidebar element
+            (same style as global) that shows the deployment metrics for
+            the filtered region"). Same "share" skip as Global, plus its
+            own: nothing to show while no filter is active, or if the
+            filter matched no EMBER_SOLAR-covered country at all. */}
+        {metric !== "share" && continents.length > 0 && regionEmberCountry && (
+          <PinnedAggregateRow
+            onClick={() => onSelect(REGION_CODE)}
+            label={regionLabel}
+            value={
+              metric === "capacityPerCapita"
+                ? `${((latestPointOf(regionEmberCountry).gw * 1000) / regionPopulationMillions(regionCodes)).toFixed(0)} W/cap`
+                : `${(latestPointOf(regionEmberCountry).gw * 1000).toLocaleString()} MW`
+            }
+          />
+        )}
+
+        {/* The "Compare countries" multi-select's own aggregate row - same
+            tile again, built from a hand-picked set of countries instead of
+            a continent. Member-only (the control that populates
+            `multiCodes` is itself hidden for a non-member, so this simply
+            never has anything to show for one). Added 2026-09-30. */}
+        {metric !== "share" && member && multiCodes.length > 0 && multiEmberCountry && (
+          <PinnedAggregateRow
+            onClick={() => onSelect(MULTI_CODE)}
+            label={multiLabel}
+            value={
+              metric === "capacityPerCapita"
+                ? `${((latestPointOf(multiEmberCountry).gw * 1000) / regionPopulationMillions(multiCodes)).toFixed(0)} W/cap`
+                : `${(latestPointOf(multiEmberCountry).gw * 1000).toLocaleString()} MW`
+            }
+          />
         )}
 
         {/* Ported onto the shared `RankedRow` 2026-09-19, per Andrew's own

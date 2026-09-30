@@ -32,24 +32,31 @@ export function populationActual(code: string): number | null {
 }
 
 /**
- * Sum of every country's own populationMillions - used for the "Global" row's
- * population stat tile (see lib/globalSolar.ts / Sidebar.tsx's GLOBAL_CODE
- * handling). Each entry is that country's own latest World Bank year, not
- * all the same year, so this is a "most recent figure available per
- * country, added together" total rather than a true single-year census -
- * `worldPopulationYearRange()` reports the spread for the tile's tooltip.
+ * Sum of population across a set of countries - used for the "Global" row's
+ * own population stat tile (all codes) and, generalized 2026-09-30, the
+ * continent filter's own regional aggregate row (just the filtered codes) -
+ * see lib/aggregateSolar.ts's own doc comment for why "Global" moved onto
+ * this same general mechanism instead of staying its own special case.
+ * Each entry is that country's own latest World Bank year, not all the
+ * same year, so this is a "most recent figure available per country, added
+ * together" total rather than a true single-year census -
+ * `regionPopulationYearRange()` reports the spread for the tile's tooltip.
+ * Omit `codes` for every country (the old `worldPopulationMillions`'s own
+ * behaviour).
  */
-export function worldPopulationMillions(): number {
-  return Object.values(POPULATION).reduce((sum, p) => sum + p.populationMillions, 0);
+export function regionPopulationMillions(codes?: string[]): number {
+  const entries = codes ? codes.map((c) => POPULATION[c]).filter((p): p is PopulationEntry => Boolean(p)) : Object.values(POPULATION);
+  return entries.reduce((sum, p) => sum + p.populationMillions, 0);
 }
 
-/** [oldest, newest] year among every country's own population figure - see worldPopulationMillions. */
-export function worldPopulationYearRange(): [number, number] {
-  const years = Object.values(POPULATION).map((p) => p.year);
-  return [Math.min(...years), Math.max(...years)];
+/** [oldest, newest] year among the given countries' own population figures - see regionPopulationMillions. Omit `codes` for every country. */
+export function regionPopulationYearRange(codes?: string[]): [number, number] {
+  const entries = codes ? codes.map((c) => POPULATION[c]).filter((p): p is PopulationEntry => Boolean(p)) : Object.values(POPULATION);
+  const years = entries.map((p) => p.year);
+  return years.length ? [Math.min(...years), Math.max(...years)] : [0, 0];
 }
 
-/** worldPopulationMillions(), as a real head count rounded the same way populationActual() rounds a single country's. */
-export function worldPopulationActual(): number {
-  return roundPopulation(worldPopulationMillions() * 1_000_000);
+/** regionPopulationMillions(codes), as a real head count rounded the same way populationActual() rounds a single country's. Omit `codes` for every country. */
+export function regionPopulationActual(codes?: string[]): number {
+  return roundPopulation(regionPopulationMillions(codes) * 1_000_000);
 }

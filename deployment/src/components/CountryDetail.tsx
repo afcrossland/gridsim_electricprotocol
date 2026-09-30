@@ -8,13 +8,14 @@ import { monthAbbrev } from "../lib/formatMonth";
 interface Props {
   country: EmberCountry;
   /**
-   * False for the "Global" pseudo-country (see lib/globalSolar.ts) - its
-   * number is Claude's own computed forward-fill sum of every country's
-   * Ember figure, not something Ember itself publishes, so crediting Ember
-   * directly on it would misattribute a derived number as their own (see
-   * scripts/build_global_solar.py's docstring on the CC BY 4.0 requirement
-   * to flag a derived figure as such). Defaults to true - every real
-   * country's own number genuinely is Ember's.
+   * False for the "Global" pseudo-country (see lib/globalSolar.ts) and any
+   * continent-filtered "region" one (Sidebar.tsx's own regional aggregate
+   * row) - both are a computed forward-fill sum of every matching
+   * country's own Ember figure (lib/aggregateSolar.ts), not something
+   * Ember itself publishes, so crediting Ember directly on either would
+   * misattribute a derived number as their own (per Ember's CC BY 4.0
+   * licence's own requirement to flag a derived figure as such). Defaults
+   * to true - every real country's own number genuinely is Ember's.
    */
   attributeToEmber?: boolean;
 }

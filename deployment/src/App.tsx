@@ -104,7 +104,7 @@ export default function App({ mode, setMode }: Props) {
     />
   );
   const list = (
-    <Sidebar metric={metric} selectedCountry={selectedCountry} onSelect={setSelectedCountry} isMobile={isMobile} />
+    <Sidebar metric={metric} selectedCountry={selectedCountry} onSelect={setSelectedCountry} isMobile={isMobile} member={member} />
   );
 
   return (
