@@ -70,7 +70,7 @@ function stackedAreaPath(topPoints: Point[], bottomPoints: Point[]): string {
  * bands. Per Andrew's own instruction 2026-09-18 ("instead of a bar chart,
  * can we do as a stacked area but with same transparency as the bar,
  * smooth the chart... referring to charts on dispatch, keep bars
- * elsewhere") - used only by DispatchPanel.tsx's three views (monthly,
+ * elsewhere") - used only by GenerationDemandPanel.tsx's three views (monthly,
  * yearly-daily, hourly drill-down); every other chart in this app (the
  * Generation & demand tab's own grouped-bar and multi-line charts) is
  * untouched.

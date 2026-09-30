@@ -4,7 +4,7 @@ export interface DispatchResult {
   selfConsumedKWh: number;
   exportedKWh: number;
   importedKWh: number;
-  /** Hour-by-hour breakdown of the same dispatch, for the Dispatch tab's own charts - see DispatchPanel.tsx. */
+  /** Hour-by-hour breakdown of the same dispatch, for the Generation & demand tab's own dispatch charts - see GenerationDemandPanel.tsx. */
   hourly: {
     /** Solar consumed directly, same hour it's generated. */
     solarToDemand: HourlyProfile;

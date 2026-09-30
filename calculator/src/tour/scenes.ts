@@ -10,10 +10,10 @@ import type { TabKey } from "../App";
  * throughout - this app had no tour before.
  *
  * `onSelectDemo`/`onSetTab` let a scene actually pick the demo location
- * and switch tabs, so the Design/Dispatch scenes spotlight real, live
- * content rather than describing it over a static screenshot - same idea
- * as deployment's own tour selecting a demo country on its own final
- * scene.
+ * and switch tabs, so the Design/Generation & demand scenes spotlight
+ * real, live content rather than describing it over a static screenshot -
+ * same idea as deployment's own tour selecting a demo country on its own
+ * final scene.
  */
 export function buildScenes(onSelectDemo: () => void, onSetTab: (tab: TabKey) => void): Scene[] {
   return [
@@ -70,12 +70,12 @@ export function buildScenes(onSelectDemo: () => void, onSetTab: (tab: TabKey) =>
       layout: "story",
       onEnter: () => {
         onSelectDemo();
-        onSetTab("dispatch");
+        onSetTab("generation");
       },
       spotlight: {
-        selector: '[data-tour="dispatch-sankey"]',
+        selector: '[data-tour="generation-demand-chart"]',
         tag: "See where the energy goes",
-        caption: "This diagram shows solar and grid power flowing in, through the battery, and out to your home or back to the grid.",
+        caption: "The system's own hour-by-hour solar output next to the home's demand - members also get a full dispatch and battery breakdown below this.",
         arrow: "up",
       },
     },

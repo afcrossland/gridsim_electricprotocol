@@ -15,7 +15,6 @@ import type { PaletteMode } from "@mui/material/styles";
 import LockIcon from "@mui/icons-material/Lock";
 
 import CountryLeagueTable from "./components/CountryLeagueTable";
-import DispatchPanel from "./components/DispatchPanel";
 import FlagImg from "../../shared/components/FlagImg";
 import GenerationDemandPanel from "./components/GenerationDemandPanel";
 import HelpPage from "./components/HelpPage";
@@ -40,7 +39,7 @@ import TourOverlay from "../../shared/tour/TourOverlay";
 import { useTourState } from "../../shared/tour/useTourState";
 
 const TOUR_SEEN_KEY = "calculator-tour-seen";
-/** Real, real-generation-data location the tour's own Design/Dispatch scenes select - see `tour/scenes.ts`'s own doc comment. */
+/** Real, real-generation-data location the tour's own Design/Generation & demand scenes select - see `tour/scenes.ts`'s own doc comment. */
 const DEMO_LOCATION: Location = { lat: 51.5019, lon: -0.1187, displayName: "United Kingdom", countryCode: "gb", mapCode: "GB" };
 
 const METRICS: Metric[] = ["selfSufficiency", "generation"];
@@ -65,7 +64,7 @@ interface Props {
   setMode: (mode: PaletteMode) => void;
 }
 
-export type TabKey = "results" | "refine" | "generation" | "dispatch";
+export type TabKey = "results" | "refine" | "generation";
 
 // EV charging stays fixed/hidden per Andrew's own instruction 2026-09-16
 // ("hide the EV and tariff boxes"). Tariffs came back 2026-09-17 ("on
@@ -393,7 +392,6 @@ export default function App({ mode, setMode }: Props) {
           >
             <Tab value="refine" label="Design" />
             <Tab value="generation" label="Generation &amp; demand" />
-            <Tab value="dispatch" label="Dispatch" />
             <Tab value="results" label="Economics" />
           </Tabs>
 
@@ -435,10 +433,13 @@ export default function App({ mode, setMode }: Props) {
             )}
 
             {!loading && tab === "generation" && results && (
-              <GenerationDemandPanel generationProfile={results.generationProfile} demandProfile={results.demandProfile} />
+              <GenerationDemandPanel
+                generationProfile={results.generationProfile}
+                demandProfile={results.demandProfile}
+                dispatch={results.dispatchHourly}
+                member={member}
+              />
             )}
-
-            {!loading && tab === "dispatch" && results && <DispatchPanel dispatch={results.dispatchHourly} />}
           </Box>
         </>
       )}

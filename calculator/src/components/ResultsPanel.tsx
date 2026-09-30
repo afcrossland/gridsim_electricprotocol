@@ -16,9 +16,10 @@ import type { PanelArray, SavingsResults, Tariffs } from "../lib/types";
  * now"), then the payback table, which they drive. The from-solar/from-grid
  * tiles that used to open this tab moved to the Dispatch tab 2026-09-17
  * ("would be better on the dispatch tab"), alongside the new Sankey
- * diagram - see DispatchPanel.tsx. Fills the sidebar's own full width (no
- * `maxWidth` cap) now that the sidebar is 2/3 of the screen rather than a
- * narrow fixed column.
+ * diagram; the Dispatch tab itself was later folded into "Generation &
+ * demand" and removed 2026-09-30 - see GenerationDemandPanel.tsx. Fills
+ * the sidebar's own full width (no `maxWidth` cap) now that the sidebar is
+ * 2/3 of the screen rather than a narrow fixed column.
  *
  * The sliders' own unit switches to the visitor's local currency (USD,
  * CAD, AUD, NZD, EUR or GBP, USD everywhere else) per Andrew's own
@@ -109,7 +110,10 @@ export default function ResultsPanel({
         <Typography variant="overline" sx={{ display: "block", color: "text.secondary", mb: 1 }}>
           Saving by year
         </Typography>
-        <YearlySavingsTable rows={results.yearlySavings} unit={unit} />
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Cumulative cashflow uses the typical install cost estimate above.
+        </Typography>
+        <YearlySavingsTable rows={results.yearlySavings} unit={unit} installCost={results.paybackRows[1].installCost} />
       </Box>
     </Box>
   );

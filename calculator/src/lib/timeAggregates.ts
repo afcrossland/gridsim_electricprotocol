@@ -41,6 +41,11 @@ export function monthOfDay(dayOfYear: number): number {
   return month;
 }
 
+/** Number of days in a month (0-11), for sizing a drilled-into-one-month chart. */
+export function daysInMonth(month: number): number {
+  return (month === 11 ? 365 : MONTH_START_DAY[month + 1]) - MONTH_START_DAY[month];
+}
+
 /** "15 Mar" style label for a day-of-year (0-364). */
 export function dayLabel(dayOfYear: number): string {
   const month = monthOfDay(dayOfYear);

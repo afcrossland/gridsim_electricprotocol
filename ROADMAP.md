@@ -277,6 +277,44 @@ lost - not yet started.
   the MCS tables directly) and compare annual generation, self-consumption
   %, and payback - flagging anywhere the generic model diverges enough to
   matter. Not started.
+
+  **First data point, 2026-09-30**: hand-checked one case directly against
+  the official MGD003 lookup tables (`MGD003-LookupTables-FINAL.xlsx`,
+  "In half the day" occupancy, 4,000-4,499 kWh annual demand band, 10 kWh
+  usable battery) at three generation levels for a 5 kWp system. MGD003
+  predicts self-sufficiency of ~81.8% at 5,000 kWh/year generation and
+  ~87.2% at 5,699 kWh/year. The generic model's own prediction for a
+  comparable UK case came out at 77% - on the low side of that band, a
+  ~5-10 point gap. Not enough to say the generic model is wrong (only one
+  case checked, and the demand/occupancy archetype wasn't matched exactly
+  to the generic model's own PC1 demand shape), but worth keeping in mind
+  as a lead for the fuller comparison above.
+- **TODO: move the Solar Homes Calculator's irradiance data to a database.**
+  Flagged 2026-09-30. `calculator/src/data/country-irradiance.json` (~10.7MB,
+  built offline by `scripts/build_country_irradiance.py` from PVGIS's own
+  `seriescalc` API - see the "Known gaps" entry above for the full history
+  of fixes to this dataset) currently ships as a static JSON file in the
+  repo, code-split via dynamic `import()` so it's not in the initial
+  bundle. Moving it to a real database would let it be queried/updated
+  without a full rebuild-and-redeploy cycle (the same motivation as the
+  self-sufficiency snapshot's own staleness problem, same section above),
+  and would open the door to storing more than one point per country (the
+  single-biggest-city-point approximation flagged there). Not started - no
+  database exists anywhere in this app today, so this would be a new piece
+  of infrastructure, not a swap of one data source for another.
+- **TODO: add battery cycling at night to the cashflow/savings model.**
+  Flagged 2026-09-30. `calculator/src/lib/batteryDispatch.ts`'s dispatch
+  loop only ever charges the battery from surplus solar (see its own doc
+  comment); it never charges from the grid overnight to discharge against
+  a more expensive daytime import rate or to firm up self-consumption -
+  a real time-of-use arbitrage strategy the day/night import tariff
+  sliders (`ResultsPanel.tsx`, `payback.ts`'s `NIGHT_HOURS`) already imply
+  is possible but the dispatch model doesn't act on. Adding it would change
+  `simulateDispatch` itself (a new grid-to-battery charge path, gated by
+  some rule for when it's worth cycling) and would need its own cost/wear
+  assumption before it could safely add avoided-cost savings to the
+  Economics tab's payback/cashflow figures - not just a display change.
+  Not started.
 - **Download a location's own timeseries as an .xlsx.** Generation, demand,
   battery charge, battery discharge and battery state of charge (the same
   five/six series the Generation/Demand/Dispatch tabs already compute) as

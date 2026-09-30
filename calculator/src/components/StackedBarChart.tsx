@@ -9,7 +9,7 @@ export interface StackedSeries {
   /** Non-negative magnitudes, one per bucket - `sign` decides which side of the zero axis they stack on. */
   values: number[];
   sign: 1 | -1;
-  /** Per-series fill-opacity override (StackedAreaChart.tsx only, ignored by this bar chart) - e.g. a lower value to visually set a series apart from the rest of the stack, see DispatchPanel.tsx's own "Solar export" override on the daily view. */
+  /** Per-series fill-opacity override (StackedAreaChart.tsx only, ignored by this bar chart) - e.g. a lower value to visually set a series apart from the rest of the stack, see GenerationDemandPanel.tsx's own "Solar export" override on the daily view. */
   opacity?: number;
 }
 
@@ -37,7 +37,7 @@ const PAD = { top: 12, right: 12, bottom: 20, left: 34 };
  * kWh-per-pixel scale so a bar's height always means the same thing on
  * either side. Used for all three of the Dispatch tab's own views (monthly,
  * yearly-daily, and the hourly drill-down) by varying `bucketCount` and the
- * label callbacks - see DispatchPanel.tsx. `onRangeSelect` (only wired up
+ * label callbacks - see GenerationDemandPanel.tsx. `onRangeSelect` (only wired up
  * for the yearly-daily view) supports both a click and a click-drag, per
  * Andrew's own instruction 2026-09-16 ("drag to select some days to zoom in
  * on") - a click is just a zero-distance drag.

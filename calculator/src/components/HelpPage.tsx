@@ -25,11 +25,7 @@ const TOPICS: Topic[] = [
   },
   {
     heading: "Generation & demand",
-    body: "The system's own hour-by-hour solar output, plotted alongside the home's own demand shape (both monthly totals and a day-by-day view you can zoom into). This is the real profile the rest of the calculation runs against, not an illustration.",
-  },
-  {
-    heading: "Dispatch",
-    body: "How solar, the battery and the grid connection cover demand hour by hour, plus a Sankey diagram showing the year's own energy flow: solar and grid power in on the left, through the battery in the middle, out to the home or back to the grid on the right.",
+    body: "The system's own hour-by-hour solar output, plotted alongside the home's own demand shape (both monthly totals and a day-by-day view you can zoom into) - the real profile the rest of the calculation runs against, not an illustration. Below that, a Sankey diagram shows the year's own energy flow (solar and grid power in on the left, through the battery in the middle, out to the home or back to the grid on the right), then the same flows broken down hour by hour, plus the battery's own state of charge over time.",
   },
   {
     heading: "Economics",
