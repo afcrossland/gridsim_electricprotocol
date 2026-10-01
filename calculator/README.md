@@ -93,28 +93,30 @@ dropped that rule 2026-09-18.
 **Picking a location** (map click, search, or a league-table row) opens the
 sidebar's detail view: a back arrow + flag + name header, three headline
 tiles (Total generation, Self sufficiency, Payback range - the last one
-reads "Coming soon", a deliberate placeholder, not a bug), then four tabs
+reads "Coming soon", a deliberate placeholder, not a bug), then three tabs
 (Design first, per Andrew's own instruction 2026-09-18 - "when click on
-country, default to design tab"):
+country, default to design tab"). The former fourth tab, Dispatch, was
+folded into Generation & demand 2026-09-30 ("move all of dispatch to
+generation and demand and remove dispatch"):
 
 | Tab | Content |
 |---|---|
 | **Design** | Four sliders - panel count (0-50, default 10, step 1), panel size (400-750Wp, default 500, step 10Wp), battery (0-40kWh, default 10, step 2.5kWh), annual demand (500-20,000kWh, default 4,000, step 250kWh) - each its own icon-labelled card. No EV charging controls (still exists in the model at a fixed default, just not user-editable); no submit button - changing a slider on either this tab or Economics auto-recalculates (debounced 300ms) via `App.tsx`'s own effect. |
-| **Generation & demand** | The 8760-hour generation profile (`generationProfile`) plotted together with the real demand profile the dispatch simulation itself ran against (`demandProfile`, both in `SavingsResults`) - not an illustrative shape, the same system's own demand - as a monthly-total grouped bar chart (`DualMonthlyBarChart.tsx`) above a year-long daily line chart (`MultiLineChart.tsx`, GSC yellow for generation, GSC teal for demand). Click a day, or drag across several, to zoom into their hourly values - and keep dragging within that zoomed view to narrow further, recursively, down to a single day. Originally two separate tabs (Generation, Demand), merged 2026-09-17 so the two are directly comparable on shared axes rather than viewed apart. |
-| **Dispatch** | A "From solar"/"From grid" tile pair and an annual-energy-flow Sankey diagram (`SankeyDiagram.tsx`, hand-built SVG - Solar+Grid import on the left, Battery in the middle, Demand+Grid export+Losses on the right) up top, then how solar, the battery and the grid cover demand hour by hour: a repeated colour-key legend above each chart (not just once at the top, per Andrew's own instruction 2026-09-18 - "do we need more legends?"), "Monthly total" as a signed stacked-bar chart (`StackedBarChart.tsx`), then "Daily dispatch across the year" (and its hourly drill-down) as a smoothed stacked-area chart instead (`StackedAreaChart.tsx`, per Andrew's own instruction 2026-09-18 - "can we do as a stacked area... keep bars elsewhere"). Solar-to-demand/battery-discharge/solar-to-battery/grid stack upward from one shared zero axis; solar export stacks *above* the axis too on "Monthly total" and the daily view (not below, at reduced opacity - `DispatchPanel.tsx`'s own `withExportAboveAxis`), but stays below the axis at full opacity on the hourly drill-down. A separate battery state-of-charge (%) chart sits below all of that. |
-| **Economics** | Panel/battery spec, three tariff sliders (import price day, import price night, export sale value) shown in the visitor's own local currency symbol (`lib/currency.ts` - USD/CAD/AUD/NZD/EUR/GBP by country, USD elsewhere; a display-symbol swap only, not real conversion), then a cost/IRR/payback table (`PaybackTable.tsx` - low/typical/high install-cost estimates: $2,000 fixed + $0.40/Wp of panel + $400/kWh of battery, each with its own pre-tax unlevered IRR and payback year count) and a separate year-by-year saving table (`YearlySavingsTable.tsx` - import saving, which grows with inflation, vs. export revenue, which doesn't, for 25 years, each figure prefixed with the currency symbol). |
+| **Generation & demand** | Three headline tiles (Used in home, Imported from grid, Exported - the full annual energy balance, replacing Dispatch's old "From solar"/"From grid" pair), then one click-to-drill chart per metric pair instead of always-both "Monthly total"/"Daily across the year" charts (merged 2026-09-30, `GenerationDemandPanel.tsx`): both the generation/demand pair and, member-only below it, the dispatch flows (solar-to-demand, battery charge/discharge, grid import, solar export) start as a monthly bar chart (`GroupedBarChart.tsx` for generation/demand - GSC yellow/teal; `StackedBarChart.tsx` for dispatch, solar export stacked *above* the axis at reduced opacity rather than below - `withExportAboveAxis`) where clicking a month jumps straight to that month's full hourly view, no intermediate daily level (a daily-bar level was tried for dispatch and then dropped the same day, "skip the day by day review when we click month and go straight to a line"). The two pairs' hourly chart types differ: generation/demand is a plain line chart (`MultiLineChart.tsx` - two independent magnitudes, nothing to stack); dispatch is a stacked area chart (`StackedAreaChart.tsx`, its five flows genuinely sum to a meaningful total), with solar export at a noticeably higher transparency than the monthly view's default ("a relatively high transparence" - tall, frequent hourly export peaks would otherwise visually dominate the stack underneath). An annual-energy-flow Sankey diagram (`SankeyDiagram.tsx`, hand-built SVG) and a battery state-of-charge (%) chart sit below the dispatch chart, also member-only. |
+| **Economics** | Panel/battery spec, three tariff sliders (import price day, import price night, export sale value) shown in the visitor's own local currency symbol (`lib/currency.ts` - USD/CAD/AUD/NZD/EUR/GBP by country, USD elsewhere; a display-symbol swap only, not real conversion), then a cost/IRR/payback table (`PaybackTable.tsx` - low/typical/high install-cost estimates: $2,000 fixed + $0.40/Wp of panel + $400/kWh of battery, each with its own pre-tax unlevered IRR and payback year count) and a separate year-by-year saving table (`YearlySavingsTable.tsx` - import saving, which grows with inflation, vs. export revenue, which doesn't, for 25 years, plus a cumulative-cashflow column seeded with a year 0 at minus the typical install cost, red while negative and green once positive - added 2026-09-30). |
 
-`GenerationTimeseries.tsx` (now only the Dispatch tab's own state-of-charge
-chart), `MultiLineChart.tsx` (the Generation & demand tab's own multi-series
-line chart), `StackedBarChart.tsx` ("Monthly total") and `StackedAreaChart.tsx`
-("Daily dispatch across the year" and its hourly drill-down) all implement
-the same click-or-drag-and-keep-zooming interaction independently, since
-they're different mark types (single line vs. multi-line vs. signed stacked
-bars vs. smoothed stacked areas). Every chart's own y-axis uses
-`lib/chartFormat.ts`'s `niceTicks()` (round tick steps, a ceiling *at or
-above* the real data max so nothing clips) and `formatAxisValue()` (plain
-numbers with thousands separators - never abbreviated as "1.2k", per
-Andrew's own instruction 2026-09-18).
+`GenerationTimeseries.tsx` (now only the battery state-of-charge chart),
+`MultiLineChart.tsx` (every hourly drill-down, plus the generation/demand
+pair's own monthly-to-hourly jump), `GroupedBarChart.tsx` (the generation/
+demand pair's monthly view) and `StackedBarChart.tsx` (the dispatch pair's
+monthly and daily-of-month views) all implement the same
+click-or-drag-and-keep-zooming interaction independently, since they're
+different mark types (single line vs. multi-line vs. grouped bars vs.
+signed stacked bars). Every chart's own y-axis uses `lib/chartFormat.ts`'s
+`niceTicks()` (round tick steps, a ceiling *at or above* the real data max
+so nothing clips) and `formatAxisValue()` (plain numbers with thousands
+separators - never abbreviated as "1.2k", per Andrew's own instruction
+2026-09-18).
 
 ## How the calculation works
 

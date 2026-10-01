@@ -9,7 +9,7 @@ export interface StackedSeries {
   /** Non-negative magnitudes, one per bucket - `sign` decides which side of the zero axis they stack on. */
   values: number[];
   sign: 1 | -1;
-  /** Per-series fill-opacity override (StackedAreaChart.tsx only, ignored by this bar chart) - e.g. a lower value to visually set a series apart from the rest of the stack, see GenerationDemandPanel.tsx's own "Solar export" override on the daily view. */
+  /** Per-series fill-opacity override - e.g. a lower value to visually set a series apart from the rest of the stack, see GenerationDemandPanel.tsx's own "Solar export" override. */
   opacity?: number;
 }
 

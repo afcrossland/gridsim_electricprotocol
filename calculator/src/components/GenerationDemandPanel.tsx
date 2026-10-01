@@ -15,11 +15,9 @@ import {
   MONTH_NAMES,
   MONTH_START_DAY,
   daysInMonth,
-  dailyTotals,
   dayLabel,
   dayRangeLabel,
   hoursForRange,
-  monthOfDay,
   monthlyTotals,
 } from "../lib/timeAggregates";
 import type { DispatchHourly, HourlyProfile } from "../lib/types";
@@ -39,26 +37,25 @@ const DEMAND_COLOR_DARK = "#008194";
 type FlowKey = Exclude<keyof DispatchHourly, "batteryLevelPct">;
 
 /**
- * Drill state for the dispatch chart pair - `null` is the top-level monthly
- * view, `"month"` is that month's own daily view (reached by clicking a
- * month's bars), `"hour"` is an hourly view for a day or range of days
- * within that month (reached by clicking or dragging on the daily view).
- * Replaces the former always-both "Monthly total" + "Daily across the
- * year" pair of charts with one click-to-drill chart, per Andrew's own
- * instruction 2026-09-30 ("combine Monthly total and daily... click on a
- * month and it loads up the view for that month") - chosen over a
- * monthly/daily toggle since it extends the drag-to-zoom-into-hourly
- * interaction this tab already had, rather than introducing a second UI
- * pattern.
- *
- * The generation/demand chart pair uses a narrower `GenDrillState` instead
- * - no "month" level - per Andrew's own follow-up instruction the same day
- * ("the first chart can go straight from monthly to the line chart
- * hourly"): clicking a month there jumps straight to that month's full
- * hourly line chart, skipping the daily-bar level dispatch still has.
+ * Drill state for both chart pairs on this tab - `null` is the top-level
+ * monthly view, `"hour"` is a month's full hourly view (reached by clicking
+ * a month's bars, no intermediate daily level). Replaces the former
+ * always-both "Monthly total" + "Daily across the year" pair of charts
+ * with one click-to-drill chart, per Andrew's own instruction 2026-09-30
+ * ("combine Monthly total and daily... click on a month and it loads up
+ * the view for that month"), then simplified to skip an intermediate daily
+ * level entirely - a month's bars jump straight to its hourly view - per a
+ * same-day follow-up instruction ("skip the day by day review when we
+ * click month and go straight to a line") that applied the generation/
+ * demand pair's own shortcut to the dispatch pair too, once a stacked-bar
+ * daily level had briefly existed there for comparison. The hourly chart
+ * type itself still differs per pair: generation/demand uses a plain line
+ * chart (`MultiLineChart`, two independent magnitudes - nothing to stack);
+ * dispatch went line chart -> stacked area chart the same day ("it should
+ * be a stacked area") since its five flows genuinely sum to a meaningful
+ * total, unlike generation vs demand.
  */
-type DispatchDrillState = { level: "month"; month: number } | { level: "hour"; start: number; end: number } | null;
-type GenDrillState = { level: "hour"; start: number; end: number } | null;
+type DrillState = { level: "hour"; start: number; end: number } | null;
 
 /** Tick/tooltip label helpers for the hourly drill-down view - identical shape needed by both chart pairs, so pulled out rather than duplicated. */
 function hourTickLabel(start: number, end: number) {
@@ -78,15 +75,6 @@ function hourTooltipLabel(start: number, end: number) {
     return dayCount <= 1 ? hh : `${dayLabel(start + Math.floor(i / 24))} ${hh}`;
   };
 }
-/** Tick label for the middle "one month, daily" view - day-of-month numbers, thinned out so a 28-31 day chart doesn't crowd. */
-function monthDayTickLabel(month: number) {
-  const total = daysInMonth(month);
-  return (i: number) => {
-    const dom = i + 1;
-    return dom === 1 || dom === total || dom % 5 === 0 ? String(dom) : null;
-  };
-}
-
 function Legend({ series }: { series: { label: string; color: string }[] }) {
   return (
     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
@@ -122,18 +110,23 @@ function buildDispatchSeries(bucketed: Record<FlowKey, number[]>, colors: Return
 }
 
 /**
- * On every view of the dispatch chart (monthly, one-month-daily and
- * hourly), per Andrew's own instruction 2026-09-18 ("show export above as
- * +ve and with a transparency on it", "same on monthly total", then "on
- * Daily dispatch across the year, exports should be +ve and the same
- * transparent red use elsewhere" - the drill-down had been missed the
- * first time round): solar export stacks on top, positive, at reduced
- * opacity rather than below the axis at full opacity - a deliberate
- * exception everywhere this shows up, not a change to the underlying
- * sign/color convention `buildDispatchSeries` itself still returns.
+ * On every view of the dispatch chart (monthly and hourly), per Andrew's
+ * own instruction 2026-09-18 ("show export above as +ve and with a
+ * transparency on it", "same on monthly total", then "on Daily dispatch
+ * across the year, exports should be +ve and the same transparent red use
+ * elsewhere" - the drill-down had been missed the first time round): solar
+ * export stacks on top, positive, at reduced opacity rather than below the
+ * axis at full opacity - a deliberate exception everywhere this shows up,
+ * not a change to the underlying sign/color convention `buildDispatchSeries`
+ * itself still returns. The hourly view uses a noticeably higher
+ * transparency than the monthly view's default (`exportOpacity`, per
+ * Andrew's own instruction 2026-09-30, "a relatively high transparence") -
+ * at hourly resolution the export peaks are tall and frequent, so a more
+ * transparent fill keeps the stack underneath (what the home actually
+ * used) legible rather than visually dominating it.
  */
-function withExportAboveAxis(series: StackedSeries[]): StackedSeries[] {
-  return series.map((s) => (s.label === "Solar export" ? { ...s, sign: 1, opacity: 0.4 } : s));
+function withExportAboveAxis(series: StackedSeries[], exportOpacity = 0.4): StackedSeries[] {
+  return series.map((s) => (s.label === "Solar export" ? { ...s, sign: 1, opacity: exportOpacity } : s));
 }
 
 function bucketAllDispatch(dispatch: DispatchHourly, bucket: (p: HourlyProfile) => number[]): Record<FlowKey, number[]> {
@@ -172,16 +165,10 @@ function bucketAllDispatch(dispatch: DispatchHourly, bucket: (p: HourlyProfile) 
  * Both chart pairs (generation/demand, dispatch) were further merged from
  * two always-visible charts ("Monthly total" + "Daily across the year")
  * into one click-to-drill chart per Andrew's own instruction the same day
- * - see `DispatchDrillState`'s own doc comment for why a drill-down was
- * chosen over a monthly/daily toggle. Dispatch's drilled-into-one-month
- * "daily" level moved from a line chart to a stacked-bar chart
- * (StackedBarChart) per Andrew's own follow-up instruction the same day
- * ("the line chart doesn't work so well for daily... the daily as stacked
- * col makes most sense") - a line connecting ~28-31 jagged daily totals
- * read as noisy where discrete columns read cleanly. Generation/demand
- * instead skips that daily level entirely (`GenDrillState`'s own doc
- * comment) - a month's bars drill straight into its full hourly line
- * chart, per a further instruction the same day.
+ * - see `DrillState`'s own doc comment for the full history (a daily-bar
+ * level was tried for dispatch, then dropped in favour of jumping straight
+ * from a month's bars to its full hourly line chart, matching generation/
+ * demand's own shortcut).
  */
 export default function GenerationDemandPanel({
   generationProfile,
@@ -199,8 +186,8 @@ export default function GenerationDemandPanel({
   const demColor = theme.palette.mode === "dark" ? DEMAND_COLOR_DARK : DEMAND_COLOR_LIGHT;
   const dispatchColors = getDispatchColors(theme.palette.mode);
 
-  const [genZoom, setGenZoom] = useState<GenDrillState>(null);
-  const [dispatchZoom, setDispatchZoom] = useState<DispatchDrillState>(null);
+  const [genZoom, setGenZoom] = useState<DrillState>(null);
+  const [dispatchZoom, setDispatchZoom] = useState<DrillState>(null);
 
   const monthlySeries = [
     { label: "Generation", color: genColor, values: monthlyTotals(generationProfile) },
@@ -284,17 +271,17 @@ export default function GenerationDemandPanel({
                 </Typography>
                 <Legend series={monthlyDispatchSeries} />
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Click a month to see its own daily breakdown.
+                  Click a month to see its own hourly breakdown.
                 </Typography>
                 <StackedBarChart
                   series={withExportAboveAxis(monthlyDispatchSeries)}
                   bucketCount={12}
                   tickLabel={(i) => MONTH_NAMES[i]}
                   tooltipLabel={(i) => MONTH_NAMES[i]}
-                  onRangeSelect={(start) => setDispatchZoom({ level: "month", month: start })}
+                  onRangeSelect={(start) => setDispatchZoom({ level: "hour", start: MONTH_START_DAY[start], end: MONTH_START_DAY[start] + daysInMonth(start) - 1 })}
                 />
               </>
-            ) : dispatchZoom.level === "month" ? (
+            ) : (
               <>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
                   <Tooltip title="Back to year">
@@ -302,40 +289,14 @@ export default function GenerationDemandPanel({
                       <ArrowBackIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
-                  <Typography variant="overline" sx={{ display: "block", color: "text.secondary" }}>{MONTH_NAMES[dispatchZoom.month]} dispatch - daily</Typography>
-                </Box>
-                <Legend series={monthlyDispatchSeries} />
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Click or drag to zoom into a day or range of days.
-                </Typography>
-                <StackedBarChart
-                  series={withExportAboveAxis(
-                    buildDispatchSeries(
-                      bucketAllDispatch(dispatch, (p) => monthDaySlice(dailyTotals(p), dispatchZoom.month)),
-                      dispatchColors,
-                    ),
-                  )}
-                  bucketCount={daysInMonth(dispatchZoom.month)}
-                  tickLabel={monthDayTickLabel(dispatchZoom.month)}
-                  tooltipLabel={(i) => dayLabel(MONTH_START_DAY[dispatchZoom.month] + i)}
-                  onRangeSelect={(a, b) => {
-                    const start = MONTH_START_DAY[dispatchZoom.month] + a;
-                    const end = MONTH_START_DAY[dispatchZoom.month] + b;
-                    setDispatchZoom({ level: "hour", start, end });
-                  }}
-                />
-              </>
-            ) : (
-              <>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
-                  <Tooltip title="Back to month">
-                    <IconButton size="small" onClick={() => setDispatchZoom({ level: "month", month: monthOfDay(dispatchZoom.start) })}>
-                      <ArrowBackIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
                   <Typography variant="overline" sx={{ display: "block", color: "text.secondary" }}>{dayRangeLabel(dispatchZoom.start, dispatchZoom.end)} - hourly</Typography>
                 </Box>
                 <Legend series={monthlyDispatchSeries} />
+                {dispatchZoom.end - dispatchZoom.start + 1 > 1 && (
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    Click or drag to zoom into a day or range of days.
+                  </Typography>
+                )}
                 <StackedAreaChart
                   key={`${dispatchZoom.start}-${dispatchZoom.end}`}
                   series={withExportAboveAxis(
@@ -343,10 +304,21 @@ export default function GenerationDemandPanel({
                       bucketAllDispatch(dispatch, (p) => hoursForRange(p, dispatchZoom.start, dispatchZoom.end)),
                       dispatchColors,
                     ),
+                    0.2,
                   )}
                   bucketCount={(dispatchZoom.end - dispatchZoom.start + 1) * 24}
                   tickLabel={hourTickLabel(dispatchZoom.start, dispatchZoom.end)}
                   tooltipLabel={hourTooltipLabel(dispatchZoom.start, dispatchZoom.end)}
+                  onRangeSelect={
+                    dispatchZoom.end - dispatchZoom.start + 1 > 1
+                      ? (a, b) =>
+                          setDispatchZoom({
+                            level: "hour",
+                            start: dispatchZoom.start + Math.floor(a / 24),
+                            end: dispatchZoom.start + Math.floor(b / 24),
+                          })
+                      : undefined
+                  }
                 />
               </>
             )}
@@ -379,9 +351,4 @@ export default function GenerationDemandPanel({
       )}
     </Box>
   );
-}
-
-function monthDaySlice(dailyValues: number[], month: number): number[] {
-  const start = MONTH_START_DAY[month];
-  return dailyValues.slice(start, start + daysInMonth(month));
 }
