@@ -67,6 +67,8 @@
     "notApplicable": "N/D",
     "finishEditing": "Terminer la modification",
     "editAnswers": "Modifier les réponses de cette juridiction",
+    "openInFgs": "Simulateur du Réseau Électrique du Futur",
+    "openInFgsTooltip": "Voir le réseau électrique de ce pays dans le Simulateur du Réseau Électrique du Futur",
     "done": "Terminé",
     "edit": "Modifier",
     "tabSummary": "Résumé",

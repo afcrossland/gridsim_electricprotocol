@@ -67,6 +67,8 @@
     "notApplicable": "N/A",
     "finishEditing": "Finish editing",
     "editAnswers": "Edit this jurisdiction's answers",
+    "openInFgs": "Future Grid Simulator",
+    "openInFgsTooltip": "See this country's grid in the Future Grid Simulator",
     "done": "Done",
     "edit": "Edit",
     "tabSummary": "Summary",

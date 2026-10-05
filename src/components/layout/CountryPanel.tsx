@@ -16,6 +16,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useTranslation } from "react-i18next";
 
@@ -35,6 +36,7 @@ import SubmitSuggestionDialog from "./SubmitSuggestionDialog";
 import FlagImg from "../ui/FlagImg";
 import StatTile from "../ui/StatTile";
 import DetailHeader from "../../../shared/components/DetailHeader";
+import { fgsCodeFor, fgsUrlFor } from "../../../shared/lib/fgsLink";
 
 export { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab };
 
@@ -314,6 +316,26 @@ export default function CountryPanel({
                 />
               </Box>
             </>
+          )}
+
+          {/* Opens the same country in the Future Grid Simulator, a separate
+              site. Only shown where FGS has a matching region - a homepage
+              link on every country would be noise. */}
+          {!isMobile && fgsCodeFor(code) && (
+            <Tooltip title={t("countryPanel.openInFgsTooltip")}>
+              <Button
+                size="small"
+                variant="outlined"
+                component="a"
+                href={fgsUrlFor(code)}
+                target="_blank"
+                rel="noopener noreferrer"
+                endIcon={<OpenInNewIcon fontSize="small" />}
+                sx={{ flexShrink: 0 }}
+              >
+                {t("countryPanel.openInFgs")}
+              </Button>
+            </Tooltip>
           )}
 
           <Tooltip title={editMode ? t("countryPanel.finishEditing") : t("countryPanel.editAnswers")}>

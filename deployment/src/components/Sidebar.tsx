@@ -19,6 +19,7 @@ import { emberCountry, latestPointOf } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
 import { monthAbbrev } from "../lib/formatMonth";
 import { GLOBAL_CODE, GLOBAL_SOLAR, globalLatestSolarMW } from "../lib/globalSolar";
+import { fgsUrlFor } from "../../../shared/lib/fgsLink";
 import { jurisdictionName, continentOf } from "../lib/jurisdictions";
 import { codesForMetric, valueForMetric, type Metric } from "../lib/metrics";
 import { POPULATION, populationActual, regionPopulationActual, regionPopulationMillions, regionPopulationYearRange } from "../lib/population";
@@ -447,9 +448,9 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
               context around it, so these link straight out to both other
               tools instead of leaving that as a dead end. Policy Explorer
               actually opens on this country (?country=<code>, added to
-              that app 2026-09-10); Future Grid Simulator only links to its
-              homepage for now - it's an external site with no documented
-              per-country URL of its own to deep-link into. Neither makes
+              that app 2026-09-10); Future Grid Simulator opens on this
+              country too where it has a matching region (?country=<code>,
+              see shared/lib/fgsLink.ts), else just its homepage. Neither makes
               sense for the pinned "Global" row or the continent filter's
               own "Region" row - there's no single country code to
               deep-link either tool into - so both this and the GSC-members
@@ -463,7 +464,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
                   accent="#008194"
                 />
                 <CrossLinkTile
-                  href="https://futuregridsimulator.globalsolarcouncil.org/"
+                  href={fgsUrlFor(selectedCountry)}
                   label={t("sidebar.futureGridSimulator")}
                   accent="#C98600"
                 />
