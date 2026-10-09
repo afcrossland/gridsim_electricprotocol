@@ -1,7 +1,7 @@
 import { Box, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import PublicIcon from "@mui/icons-material/Public";
 
 interface Props {
   onZoomIn: () => void;
@@ -32,6 +32,13 @@ const buttonSx = {
  * and the top offset (deployment's own moves down on mobile, to clear its
  * own full-width legend banner) ever differed, which is why this takes
  * plain callbacks/a number rather than a map ref.
+ *
+ * The reset button's own icon is a globe, not the four-corner expand
+ * arrows (`ZoomOutMapIcon`) it used before - per Andrew's own instruction
+ * 2026-10-09 ("the four arrow icon that overlays the map below the zoom
+ * in/out buttons... replace with an icon of the earth"): what it actually
+ * does is return to the whole-world view, which a globe names directly
+ * rather than the generic "expand/fit" gesture the arrows read as.
  */
 export default function MapZoomControls({ onZoomIn, onZoomOut, onReset, topOffset = 16, labels }: Props) {
   return (
@@ -43,7 +50,7 @@ export default function MapZoomControls({ onZoomIn, onZoomOut, onReset, topOffse
         <RemoveIcon fontSize="small" />
       </IconButton>
       <IconButton size="small" onClick={onReset} aria-label={labels?.reset ?? "Reset map view"} sx={buttonSx}>
-        <ZoomOutMapIcon fontSize="small" />
+        <PublicIcon fontSize="small" />
       </IconButton>
     </Box>
   );
