@@ -22,19 +22,9 @@
     "spotlightCaption": "Reduce la lista por continente, país o banda de puntuación, y cambia el criterio de orden."
   },
   {
-    "id": 5,
-    "spotlightTag": "Resumen",
-    "spotlightCaption": "Puntuación y cobertura de datos, desglosadas por sección."
-  },
-  {
-    "id": 6,
-    "spotlightTag": "Logros de política",
-    "spotlightCaption": "Los cambios que más elevarían la puntuación de esta jurisdicción, clasificados por puntos ponderados."
-  },
-  {
     "id": 7,
     "spotlightTag": "Panorama de política",
-    "spotlightCaption": "Cada pregunta, su rúbrica, y la evidencia detrás de cada respuesta - editable por cualquiera."
+    "spotlightCaption": "Puntuación y cobertura de datos por área de política - haz clic en una casilla para ver sus propios ejemplos a seguir, preguntas, rúbrica y la evidencia detrás de cada respuesta, editable por cualquiera."
   },
   {
     "id": 11,
@@ -43,13 +33,8 @@
   },
   {
     "id": 12,
-    "spotlightTag": "Enviar para revisión",
-    "spotlightCaption": "Agrupa todo lo que has cambiado en esta sesión en una sola sugerencia, con tu nombre y organización - un administrador la revisa antes de aceptarla o revertirla."
-  },
-  {
-    "id": 8,
-    "spotlightTag": "Comparar",
-    "spotlightCaption": "Abre dos jurisdicciones una al lado de la otra, con una pestaña y sección compartidas."
+    "spotlightTag": "Proponer una edición",
+    "spotlightCaption": "Propón una edición para empezar a registrar tus propias respuestas - el mismo botón se convierte en Enviar evidencia revisada en cuanto cambies algo, agrupándolo en una sola sugerencia con tu nombre y organización para que un administrador la revise."
   },
   {
     "id": 9,

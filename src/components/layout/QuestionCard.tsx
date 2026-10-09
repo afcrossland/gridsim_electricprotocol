@@ -8,6 +8,7 @@ import {
   Menu,
   MenuItem,
   Paper,
+  Popover,
   Stack,
   TextField,
   Tooltip,
@@ -57,7 +58,16 @@ interface Props {
    * country's, see the component's own doc comment for why.
    */
   exemplars?: ExemplarEntry[];
-  /** Navigates to a different country - wired to CountryPanel's own onSelectCountry, lets a reader jump straight to whichever exemplar is shown. Omitted when nothing should be clickable (CompareView's legacy usage). */
+  /**
+   * Navigates to a different country - wired to CountryPanel's own
+   * onSelectCountry. No longer the default click action on an exemplar
+   * (2026-10-09, "when we click on that country, dont swap to that
+   * country view, have a pop-up with the evidence for it") - clicking now
+   * opens that exemplar's evidence in place; this is only reached from the
+   * popup's own "view country profile" link, an explicit opt-in rather
+   * than the click itself. Omitted when nothing should be clickable
+   * (CompareView's legacy usage) - the link just doesn't render then.
+   */
   onSelectCountry?: (code: string) => void;
   /** Gates every write action (rubric tiles, evidence fields, clear response) behind CountryPanel's Edit toggle - off by default, a read-only view of whatever's already answered. */
   editMode?: boolean;
@@ -90,6 +100,21 @@ function selectedTierColors(mode: "light" | "dark") {
 
 /** How many of a tier box's own qualifying exemplars show inline before the rest fold into a "+N more" dropdown - per Andrew's own instruction 2026-10-09 ("top 3 exemplars shown and a dropdown list for more"). */
 const EXEMPLAR_DISPLAY_LIMIT = 3;
+
+/**
+ * An exemplar is only worth surfacing if there's something to actually show
+ * in its evidence popup - per Andrew's own instruction 2026-10-09 ("only
+ * show exemplars if there is a complete set of evidence to that qn
+ * answer"). A bare score with no citation, or a citation missing the
+ * fields that identify it (what it is, where it's from), isn't evidence a
+ * reader can act on - `note` (the free-text justification) is left out of
+ * the check since a real citation can legitimately have nothing more to
+ * add there.
+ */
+function hasCompleteEvidence(response: Response | undefined): response is Response {
+  if (!response || response.evidence.length === 0) return false;
+  return response.evidence.every((e) => e.title.trim() !== "" && e.source.trim() !== "");
+}
 
 /**
  * One question as a compact card.
@@ -146,18 +171,25 @@ export default function QuestionCard({
   // rubric grid, and looks its own tier's overflow exemplars back up by
   // score when open.
   const [moreAnchor, setMoreAnchor] = useState<{ el: HTMLElement; tierScore: number } | null>(null);
+  // Which exemplar's evidence popup is open, if any - replaces the old
+  // navigate-away click (2026-10-09, see `onSelectCountry`'s own doc
+  // comment above for why); one piece of state for the whole card, same
+  // reasoning as `moreAnchor`.
+  const [evidencePopup, setEvidencePopup] = useState<{ el: HTMLElement; exemplar: ExemplarEntry } | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Only an exemplar who actually answered this question, and scored the
-  // same or higher doing so, is worth showing here - per Andrew's own
-  // instruction 2026-10-09 ("only show exemplars that have the same or
-  // higher score"). An own country with no answer yet (response undefined)
-  // treats any exemplar answer as qualifying, since there's nothing to be
-  // "higher than" - showing it is still useful context for filling the
-  // question in.
+  // Only an exemplar who actually answered this question, scored the same
+  // or higher doing so, AND backed that answer with a complete citation is
+  // worth showing here - per Andrew's own instructions 2026-10-09 ("only
+  // show exemplars that have the same or higher score", then "only show
+  // exemplars if there is a complete set of evidence to that qn answer").
+  // An own country with no answer yet (response undefined) treats any
+  // exemplar answer as qualifying on the score test, since there's nothing
+  // to be "higher than" - showing it is still useful context for filling
+  // the question in; the evidence test still applies regardless.
   const qualifyingExemplars = exemplars.filter(
-    (ex) => ex.response && (!response || ex.response.score >= response.score),
+    (ex) => hasCompleteEvidence(ex.response) && (!response || ex.response.score >= response.score),
   );
 
   const { border: selectedBorder, tint: selectedTint } = selectedTierColors(theme.palette.mode);
@@ -306,73 +338,96 @@ export default function QuestionCard({
                 </Box>
               )}
 
-              {/* Flag + name rows, in normal flow below the tier label (not
+              {/* Flag + name run, in normal flow below the tier label (not
                   absolutely positioned like the Compare cluster above) -
                   teal text (matching the rest of the app's "leading"
                   accent) rather than compareColorFor's per-jurisdiction
-                  colours, since every exemplar row here means the same
-                  thing regardless of which country it is. Clickable
-                  (unlike the Compare cluster, which has nowhere to
-                  navigate to) - this is the "click to explore" Q3
-                  affordance. */}
+                  colours, since every exemplar here means the same thing
+                  regardless of which country it is. Clickable (unlike the
+                  Compare cluster, which has nowhere to navigate to) - this
+                  is the "click to explore" Q3 affordance.
+
+                  A labelled, single-line, comma-separated run rather than
+                  one flag+name per row (2026-10-09, "they need a header
+                  before saying what they are... do not wrap these,
+                  separate with a comma so the formatting is nicer") - a
+                  header makes the flag row legible on its own rather than
+                  reading as an unexplained second flag cluster next to the
+                  Compare one, and a single nowrapping line reads as one
+                  list rather than a stack of unrelated rows. */}
               {tierExemplars.length > 0 && (
                 <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  {tierExemplars.slice(0, EXEMPLAR_DISPLAY_LIMIT).map((exemplar) => {
-                    const evidenceTitles = exemplar.response?.evidence
-                      ?.map((e) => e.title)
-                      .filter(Boolean)
-                      .join(", ");
-                    const tooltip = evidenceTitles || undefined;
-                    const row = (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "text.secondary",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                      fontSize: "0.625rem",
+                    }}
+                  >
+                    {t("questionCard.exemplars")}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", flexWrap: "nowrap", overflow: "hidden", gap: "4px" }}>
+                    {tierExemplars.slice(0, EXEMPLAR_DISPLAY_LIMIT).map((exemplar, i, visible) => {
+                      const evidenceTitles = exemplar.response?.evidence
+                        ?.map((e) => e.title)
+                        .filter(Boolean)
+                        .join(", ");
+                      const tooltip = evidenceTitles || undefined;
+                      const isLastOverall =
+                        tierExemplars.length <= EXEMPLAR_DISPLAY_LIMIT && i === visible.length - 1;
+                      const row = (
+                        <ButtonBase
+                          key={exemplar.code}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEvidencePopup({ el: e.currentTarget, exemplar });
+                          }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            flexShrink: 0,
+                            borderRadius: "4px",
+                            px: "2px",
+                          }}
+                        >
+                          <FlagImg code={exemplar.code} size={14} />
+                          <Typography
+                            variant="caption"
+                            noWrap
+                            sx={{ color: SECTION_STANDING_COLORS.leading, fontWeight: 600 }}
+                          >
+                            {exemplar.name}
+                            {isLastOverall ? "" : ","}
+                          </Typography>
+                        </ButtonBase>
+                      );
+                      return tooltip ? (
+                        <Tooltip key={exemplar.code} title={tooltip}>
+                          {row}
+                        </Tooltip>
+                      ) : (
+                        row
+                      );
+                    })}
+
+                    {tierExemplars.length > EXEMPLAR_DISPLAY_LIMIT && (
                       <ButtonBase
-                        key={exemplar.code}
-                        disabled={!onSelectCountry}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onSelectCountry?.(exemplar.code);
+                          setMoreAnchor({ el: e.currentTarget, tierScore: tier.score });
                         }}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          width: "100%",
-                          justifyContent: "flex-start",
-                          borderRadius: "4px",
-                          px: "4px",
-                        }}
+                        sx={{ display: "flex", flexShrink: 0, borderRadius: "4px", px: "2px" }}
                       >
-                        <FlagImg code={exemplar.code} size={14} />
-                        <Typography
-                          variant="caption"
-                          noWrap
-                          sx={{ color: SECTION_STANDING_COLORS.leading, fontWeight: 600 }}
-                        >
-                          {exemplar.name}
+                        <Typography variant="caption" color="primary" noWrap sx={{ fontWeight: 600 }}>
+                          {t("questionCard.moreExemplars", { count: tierExemplars.length - EXEMPLAR_DISPLAY_LIMIT })}
                         </Typography>
                       </ButtonBase>
-                    );
-                    return tooltip ? (
-                      <Tooltip key={exemplar.code} title={tooltip}>
-                        {row}
-                      </Tooltip>
-                    ) : (
-                      row
-                    );
-                  })}
-
-                  {tierExemplars.length > EXEMPLAR_DISPLAY_LIMIT && (
-                    <ButtonBase
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMoreAnchor({ el: e.currentTarget, tierScore: tier.score });
-                      }}
-                      sx={{ display: "flex", justifyContent: "flex-start", px: "4px", borderRadius: "4px" }}
-                    >
-                      <Typography variant="caption" color="primary" sx={{ fontWeight: 600 }}>
-                        {t("questionCard.moreExemplars", { count: tierExemplars.length - EXEMPLAR_DISPLAY_LIMIT })}
-                      </Typography>
-                    </ButtonBase>
-                  )}
+                    )}
+                  </Box>
                 </Box>
               )}
             </Box>
@@ -390,11 +445,10 @@ export default function QuestionCard({
           .map((exemplar) => (
             <MenuItem
               key={exemplar.code}
-              onClick={() => {
+              onClick={(e) => {
                 setMoreAnchor(null);
-                onSelectCountry?.(exemplar.code);
+                setEvidencePopup({ el: e.currentTarget, exemplar });
               }}
-              disabled={!onSelectCountry}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <FlagImg code={exemplar.code} size={16} />
@@ -403,6 +457,65 @@ export default function QuestionCard({
             </MenuItem>
           ))}
       </Menu>
+
+      {/* Evidence popup, opened by clicking an exemplar (replaces the old
+          navigate-straight-to-that-country click, 2026-10-09 - see
+          `onSelectCountry`'s own doc comment on the Props interface) -
+          shows the exemplar's own tier and citations for this exact
+          question, with an explicit "view profile" link for the (now
+          secondary) navigate case. */}
+      <Popover
+        anchorEl={evidencePopup?.el ?? null}
+        open={Boolean(evidencePopup)}
+        onClose={() => setEvidencePopup(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        {evidencePopup && (
+          <Box sx={{ p: 2, maxWidth: 320 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+              <FlagImg code={evidencePopup.exemplar.code} size={18} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                {evidencePopup.exemplar.name}
+              </Typography>
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
+              {question.rubric.find((tier) => tier.score === evidencePopup.exemplar.response?.score)?.label}
+            </Typography>
+            <Stack spacing={1.25}>
+              {evidencePopup.exemplar.response?.evidence.map((e, i) => (
+                <Box key={i}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {e.title}
+                  </Typography>
+                  {e.source && (
+                    <Typography variant="caption" sx={{ display: "block", color: "primary.main", wordBreak: "break-word" }}>
+                      {e.source}
+                    </Typography>
+                  )}
+                  {e.note && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                      {e.note}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </Stack>
+            {onSelectCountry && (
+              <Button
+                size="small"
+                sx={{ mt: 1.5 }}
+                onClick={() => {
+                  onSelectCountry(evidencePopup.exemplar.code);
+                  setEvidencePopup(null);
+                }}
+              >
+                {t("questionCard.viewProfile")}
+              </Button>
+            )}
+          </Box>
+        )}
+      </Popover>
 
       {response && (
         <>

@@ -1,7 +1,7 @@
 export type SceneLayout = "hero" | "story" | "cta";
 
 export interface SpotlightTarget {
-  /** CSS selector for the live-app element to highlight, e.g. '[data-tour="compare-button"]'. */
+  /** CSS selector for the live-app element to highlight, e.g. '[data-tour="submit-suggestion"]'. */
   selector: string;
   caption: string;
   tag?: string;
@@ -12,6 +12,16 @@ export interface SpotlightTarget {
 export interface AppTourState {
   /** null clears the selection (the interactive-select scene); undefined leaves it alone. */
   selectedCountry?: string | null;
+  /**
+   * Forces CountryPanel's accordion open on a specific section (by id, from
+   * protocol.seed.json) - null closes it back to the full tile grid,
+   * undefined leaves it alone. Needed since the accordion redesign
+   * (2026-10-09): a question's own rubric box only renders once its
+   * section has actually been clicked open, so any scene that spotlights
+   * something inside a section (the rubric itself) has to open one first
+   * or there is nothing for the spotlight to find.
+   */
+  activeSectionId?: string | null;
 }
 
 export type SceneMedia =
@@ -111,10 +121,14 @@ export const SCENES: Scene[] = [
     layout: "story",
     media: {
       kind: "app",
+      // Closed explicitly (not just left at its initial default) so
+      // scrolling back up to this scene after scene 11 opened a section
+      // returns to the full tile grid the caption is actually describing.
+      appState: { activeSectionId: null },
       spotlight: {
         selector: '[data-tour="country-tabs"]',
         tag: "Policy Landscape",
-        caption: "Score and data completeness per policy area - click one to see its own exemplars, questions, rubric, and the evidence behind each answer, editable by anyone.",
+        caption: "Score and data completeness per policy area - click a tile to see its own exemplars, questions, rubric, and the evidence behind each answer, editable by anyone.",
         arrow: "up",
       },
     },
@@ -126,6 +140,11 @@ export const SCENES: Scene[] = [
     layout: "story",
     media: {
       kind: "app",
+      // Opens a real section so the rubric box this scene spotlights
+      // actually exists - see AppTourState's own doc comment for why this
+      // became necessary once the accordion redesign made the rubric
+      // conditional on a tile click.
+      appState: { activeSectionId: "self-consumption" },
       spotlight: {
         selector: '[data-tour="question-rubric"]',
         tag: "Edit an answer",
@@ -143,24 +162,9 @@ export const SCENES: Scene[] = [
       kind: "app",
       spotlight: {
         selector: '[data-tour="submit-suggestion"]',
-        tag: "Submit for review",
-        caption: "Bundle everything you've changed this session into one suggestion, with your name and organisation - an admin reviews it before it's accepted or reverted.",
+        tag: "Suggest an edit",
+        caption: "Suggest an edit to start recording your own answers - the same button becomes Submit revised evidence once you've changed something, bundling it into one suggestion with your name and organisation for an admin to review.",
         arrow: "left",
-      },
-    },
-  },
-  {
-    id: 8,
-    heading: "",
-    body: "",
-    layout: "story",
-    media: {
-      kind: "app",
-      spotlight: {
-        selector: '[data-tour="compare-button"]',
-        tag: "Compare",
-        caption: "Open two jurisdictions side by side, with a shared tab and section selection.",
-        arrow: "right",
       },
     },
   },

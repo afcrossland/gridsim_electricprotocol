@@ -22,19 +22,9 @@
     "spotlightCaption": "Réduisez la liste par continent, pays ou bande de score, et changez le critère de tri."
   },
   {
-    "id": 5,
-    "spotlightTag": "Résumé",
-    "spotlightCaption": "Score et exhaustivité des données, détaillés par section."
-  },
-  {
-    "id": 6,
-    "spotlightTag": "Avancées politiques",
-    "spotlightCaption": "Les changements qui feraient le plus progresser le score de cette juridiction, classés par points pondérés."
-  },
-  {
     "id": 7,
     "spotlightTag": "Paysage politique",
-    "spotlightCaption": "Chaque question, sa grille de notation, et les preuves derrière chaque réponse - modifiable par tous."
+    "spotlightCaption": "Score et exhaustivité des données par domaine politique - cliquez sur une case pour voir ses propres exemples à suivre, ses questions, sa grille de notation et les preuves derrière chaque réponse, modifiable par tous."
   },
   {
     "id": 11,
@@ -43,13 +33,8 @@
   },
   {
     "id": 12,
-    "spotlightTag": "Soumettre pour relecture",
-    "spotlightCaption": "Regroupez tout ce que vous avez modifié durant cette session en une seule suggestion, avec votre nom et votre organisation - un administrateur la relit avant de l'accepter ou de l'annuler."
-  },
-  {
-    "id": 8,
-    "spotlightTag": "Comparer",
-    "spotlightCaption": "Ouvrez deux juridictions côte à côte, avec un onglet et une section partagés."
+    "spotlightTag": "Proposer une modification",
+    "spotlightCaption": "Proposez une modification pour commencer à enregistrer vos propres réponses - le même bouton devient Soumettre une preuve révisée dès que vous avez changé quelque chose, regroupant cela en une seule suggestion avec votre nom et votre organisation pour qu'un administrateur la relise."
   },
   {
     "id": 9,

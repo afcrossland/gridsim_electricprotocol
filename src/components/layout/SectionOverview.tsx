@@ -1,4 +1,5 @@
 import { Box, ButtonBase, Typography, useTheme } from "@mui/material";
+import { lighten } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 
 import { scoreBandLabel, scoreTextColor } from "../../lib/scoring";
@@ -62,10 +63,29 @@ interface Props {
  * stayed pale grey in dark mode too rather than following the theme's own
  * dark divider - fixed 2026-10-09 ("the colour of the tiles and sidebar
  * more generally does not work in light or dark mode").
+ *
+ * Tiles moved off `action.hover` onto `background.paper` with a real
+ * shadow the same day ("the 9 tiles are very difficult to distinguish
+ * from the background") - `action.hover` is a near-transparent 4%-opacity
+ * tint, so against the page's own off-white background the unselected
+ * tiles read as almost the same colour with a faint grey outline. A solid
+ * paper surface (white in light mode) plus a low shadow gives them an
+ * actual edge regardless of mode, the same lift `Paper`/`Card` already use
+ * elsewhere in the app. Grown larger at the same time (wider grid minimum,
+ * more padding, a bigger score label) and the border thickened to 2px for
+ * the same reason.
  */
 export default function SectionOverview({ entries, selectedId, onSelect, compact = false }: Props) {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
+  // A touch lighter than plain `background.paper` in dark mode only (per
+  // Andrew's own instruction 2026-10-09, "tweak the colour in dark mode. A
+  // bit lighter") - dark mode's own paper tone (#20272A) sits close enough
+  // to the page's own default (#171D1E) that the tiles, while no longer
+  // invisible, still read as a little flat next to light mode's crisp
+  // white-on-off-white. Light mode is untouched - `lighten` by 0 there
+  // would be a no-op anyway, but the ternary keeps it explicit.
+  const tileBg = theme.palette.mode === "dark" ? lighten(theme.palette.background.paper, 0.12) : "background.paper";
 
   if (compact) {
     return (
@@ -83,10 +103,11 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
                 px: "12px",
                 py: "6px",
                 borderRadius: "999px",
-                border: "1.5px solid",
+                border: "2px solid",
                 borderColor: selected ? "primary.main" : "divider",
-                bgcolor: selected ? "action.selected" : "action.hover",
-                "&:hover": { bgcolor: "action.selected" },
+                bgcolor: tileBg,
+                boxShadow: 1,
+                "&:hover": { bgcolor: "action.hover" },
                 transition: "background-color 120ms ease, border-color 120ms ease",
               }}
             >
@@ -114,8 +135,8 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-        gap: "12px",
+        gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+        gap: "14px",
       }}
     >
       {entries.map(({ section, score }) => {
@@ -128,15 +149,16 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
-              gap: "6px",
+              gap: "8px",
               textAlign: "left",
-              p: "14px",
-              borderRadius: "10px",
-              border: "1.5px solid",
+              p: "18px",
+              borderRadius: "12px",
+              border: "2px solid",
               borderColor: selected ? "primary.main" : "divider",
-              bgcolor: selected ? "action.selected" : "action.hover",
-              "&:hover": { bgcolor: "action.selected" },
-              transition: "background-color 120ms ease, border-color 120ms ease",
+              bgcolor: tileBg,
+              boxShadow: 1,
+              "&:hover": { bgcolor: "action.hover", boxShadow: 2 },
+              transition: "background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease",
             }}
           >
             <Typography
@@ -155,7 +177,7 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
 
             <Typography
               sx={{
-                fontSize: "1.375rem",
+                fontSize: "1.5rem",
                 fontWeight: 700,
                 lineHeight: 1,
                 color: score.ranked ? scoreTextColor(score.score, theme.palette.mode) : "text.disabled",

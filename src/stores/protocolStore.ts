@@ -89,6 +89,18 @@ interface ProtocolState {
    * acceptable simplification rather than a bug.
    */
   editBaselines: Record<string, Response[]>;
+  /**
+   * Which section's accordion panel the tour forces open in CountryPanel,
+   * overriding its own uncontrolled tile-click state while a scene needs a
+   * specific section's questions on screen (the rubric-editing and
+   * submit-for-review scenes) - same "drive the live app from a scene"
+   * idea as `selectedCountry`, added 2026-10-09 once the accordion
+   * redesign meant a question's own rubric box no longer rendered at all
+   * until a tile had actually been clicked, leaving the tour's own
+   * spotlight with nothing to find. Not persisted, same as
+   * `selectedCountry` - a navigation aid, not user data.
+   */
+  tourSectionId: string | null;
 
   setThreshold: (threshold: number) => void;
   setMapMetric: (mapMetric: "score" | "completeness") => void;
@@ -98,6 +110,7 @@ interface ProtocolState {
   setMode: (mode: "light" | "dark") => void;
   setLanguage: (language: string) => void;
   selectCountry: (code: string | null) => void;
+  setTourSectionId: (id: string | null) => void;
   setComparing: (comparing: boolean) => void;
   /** No-ops past MAX_COMPARE_COUNTRIES or on a duplicate code. */
   addCompareCountry: (code: string) => void;
@@ -288,6 +301,7 @@ function initialState() {
     questions: protocol.questions.map((q) => ({ ...q })),
     responses: seedResponses(),
     selectedCountry: null,
+    tourSectionId: null,
     comparing: false,
     compareCountries: [],
     scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS,
@@ -331,7 +345,8 @@ export const useProtocolStore = create<ProtocolState>()(
       // always means "look at this one", which is not compatible with
       // whatever compare state was left over from a previous detail view.
       selectCountry: (code) =>
-        set({ selectedCountry: code, comparing: false, compareCountries: [] }),
+        set({ selectedCountry: code, comparing: false, compareCountries: [], tourSectionId: null }),
+      setTourSectionId: (tourSectionId) => set({ tourSectionId }),
       setComparing: (comparing) => set({ comparing }),
       addCompareCountry: (code) =>
         set((state) =>

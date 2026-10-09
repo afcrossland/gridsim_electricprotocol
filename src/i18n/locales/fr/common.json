@@ -123,7 +123,9 @@
     "notes": "Notes",
     "removeEvidence": "Supprimer cette preuve",
     "addEvidence": "Ajouter une preuve",
-    "moreExemplars": "+{{count}} de plus"
+    "moreExemplars": "+{{count}} de plus",
+    "exemplars": "Exemples à suivre",
+    "viewProfile": "Voir le profil du pays"
   },
   "adminConsole": {
     "title": "Console d'administration",

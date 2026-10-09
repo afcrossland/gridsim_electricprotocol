@@ -31,6 +31,8 @@ export default function App() {
   const welcomeSeen = useProtocolStore((s) => s.welcomeSeen);
   const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
   const tourSeen = useProtocolStore((s) => s.tourSeen);
+  const tourSectionId = useProtocolStore((s) => s.tourSectionId);
+  const setTourSectionId = useProtocolStore((s) => s.setTourSectionId);
   const setTourSeen = useProtocolStore((s) => s.setTourSeen);
   // The tour's opening scene is a clean, full-bleed globe - the sidebar list
   // would otherwise show straight through the overlay's mostly-transparent
@@ -211,6 +213,13 @@ export default function App() {
         inlineCompare
         allScores={scores}
         onSelectCountry={handleSelectCountry}
+        // Only controlled while the tour is actually running - see
+        // protocolStore.ts's own doc comment on `tourSectionId` for why a
+        // scene needs to force a section open, and setTourSectionId's
+        // reset-to-null on every selectCountry call for why this reverts
+        // to CountryPanel's own uncontrolled tile-click state cleanly once
+        // the tour ends or a different country is picked.
+        {...(!tourSeen ? { sectionId: tourSectionId ?? "", onSectionChange: setTourSectionId } : {})}
       />
     ) : (
       <Scoreboard
@@ -306,17 +315,24 @@ export default function App() {
           />
         </Box>
       ) : !isMobile && selectedCountry && selectedScore ? (
-        // A selected country takes the whole content area - redesigned
-        // 2026-10-09 per Andrew's own instruction ("the sidebar needs to
-        // full screen here") so Policy Landscape's exemplar callout and the
-        // Overview tab's section tiles have real room, rather than being
-        // squeezed into the 2/3-width split the scoreboard used. The map
-        // stays one click away via the back arrow (onBack, in `list` above)
-        // rather than staying visible alongside - answering questions about
-        // one country needs the space more than browsing the map
-        // concurrently is worth, the same trade the old 2/3 split already
-        // made at a smaller scale.
-        <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
+        // A selected country took the whole content area for a while
+        // (2026-10-09, "the sidebar needs to full screen here") so Policy
+        // Landscape's exemplar callout and the section tiles had real
+        // room, rather than being squeezed into the 2/3-width split the
+        // scoreboard used - then walked back the same day once the tile/
+        // exemplar redesign gave the content enough internal structure
+        // that the full-width bleed read as sparse rather than spacious.
+        // First attempt capped the panel to 75% width alone (map still
+        // hidden); the actual ask was the map back too, at the same 75/25
+        // split the scoreboard uses but mirrored - map on the left, panel
+        // on the right at 75%, not the other way round ("75% from the
+        // right") - so the detail view reads as a continuation of the
+        // scoreboard's own map+list layout rather than a separate mode.
+        <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
+          <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>{map}</Box>
+          <Divider orientation="vertical" flexItem />
+          <Box sx={{ width: "75%", height: "100%", overflow: "hidden" }}>{list}</Box>
+        </Box>
       ) : isMobile ? (
         selectedCountry && selectedScore ? (
           <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>

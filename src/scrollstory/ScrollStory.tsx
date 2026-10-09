@@ -113,6 +113,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, o
   const media = scene.media;
 
   const selectCountry = useProtocolStore((s) => s.selectCountry);
+  const setTourSectionId = useProtocolStore((s) => s.setTourSectionId);
 
   const pausedRef = useRef(paused);
   useEffect(() => {
@@ -186,7 +187,10 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, o
       // visitor to pick one first.
       selectCountry(DEFAULT_TOUR_COUNTRY);
     }
-  }, [activeScene, selectCountry]);
+    if (m.appState?.activeSectionId !== undefined) {
+      setTourSectionId(m.appState.activeSectionId);
+    }
+  }, [activeScene, selectCountry, setTourSectionId]);
 
   const spotlight = media.kind === "app" ? media.spotlight : undefined;
 

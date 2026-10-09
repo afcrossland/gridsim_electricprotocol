@@ -123,7 +123,9 @@
     "notes": "Notes",
     "removeEvidence": "Remove this evidence",
     "addEvidence": "Add evidence",
-    "moreExemplars": "+{{count}} more"
+    "moreExemplars": "+{{count}} more",
+    "exemplars": "Exemplars",
+    "viewProfile": "View country profile"
   },
   "adminConsole": {
     "title": "Admin console",

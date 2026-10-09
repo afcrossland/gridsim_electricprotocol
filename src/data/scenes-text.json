@@ -22,19 +22,9 @@
     "spotlightCaption": "Narrow the list by continent, country or score band, and change what it's sorted by."
   },
   {
-    "id": 5,
-    "spotlightTag": "Summary",
-    "spotlightCaption": "Score and data completeness, broken down by section."
-  },
-  {
-    "id": 6,
-    "spotlightTag": "Policy Wins",
-    "spotlightCaption": "The changes that would raise this jurisdiction's score the most, ranked by weighted points."
-  },
-  {
     "id": 7,
     "spotlightTag": "Policy Landscape",
-    "spotlightCaption": "Every question, its rubric, and the evidence behind each answer - editable by anyone."
+    "spotlightCaption": "Score and data completeness per policy area - click a tile to see its own exemplars, questions, rubric, and the evidence behind each answer, editable by anyone."
   },
   {
     "id": 11,
@@ -43,13 +33,8 @@
   },
   {
     "id": 12,
-    "spotlightTag": "Submit for review",
-    "spotlightCaption": "Bundle everything you've changed this session into one suggestion, with your name and organisation - an admin reviews it before it's accepted or reverted."
-  },
-  {
-    "id": 8,
-    "spotlightTag": "Compare",
-    "spotlightCaption": "Open two jurisdictions side by side, with a shared tab and section selection."
+    "spotlightTag": "Suggest an edit",
+    "spotlightCaption": "Suggest an edit to start recording your own answers - the same button becomes Submit revised evidence once you've changed something, bundling it into one suggestion with your name and organisation for an admin to review."
   },
   {
     "id": 9,
