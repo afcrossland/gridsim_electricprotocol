@@ -62,35 +62,20 @@
   },
   "countryPanel": {
     "backToScoreboard": "Retour au classement",
+    "backToOverview": "Retour à la vue d'ensemble",
     "score": "Score",
     "dataCompleteness": "Exhaustivité des données",
     "notApplicable": "N/D",
-    "finishEditing": "Terminer la modification",
-    "editAnswers": "Modifier les réponses de cette juridiction",
-    "done": "Terminé",
-    "edit": "Modifier",
-    "tabSummary": "Résumé",
-    "tabPolicyWins": "Avancées politiques",
-    "tabPolicyLandscape": "Paysage politique",
+    "edit": "Proposer une modification",
+    "exitEditMode": "Quitter le mode édition",
     "buildingReport": "Génération du rapport...",
-    "downloadReport": "Télécharger le rapport",
-    "windroseIntro": "Comment {{name}} se positionne dans chaque domaine, et dans quelle mesure c'est étayé par des preuves. Un repère en pointillés signifie simplement qu'il n'y a pas encore assez de données, pas un score nul.",
-    "impactIntro": "Les avancées politiques les plus importantes, d'après le score et les preuves fournies."
+    "downloadReport": "Télécharger le résumé des politiques",
+    "overviewIntro": "Comment {{name}} se positionne dans chaque domaine politique, et comment cela se compare au reste du groupe."
   },
   "impactList": {
     "empty": "Rien à afficher pour l'instant - chaque question répondue est déjà notée au maximum, ou aucune n'a encore de réponse. Utilisez Paysage politique pour en ajouter.",
     "impactfullness": "Impact : {{label}}",
     "currently": "Actuellement :"
-  },
-  "windrose": {
-    "thisJurisdiction": "Cette juridiction",
-    "notEnoughData": "données insuffisantes",
-    "ariaCompare": "{{noun}} par section, comparé entre {{count}} juridictions",
-    "aria": "{{noun}} par section",
-    "tooltipValue": "{{label}} - {{section}} : {{value}} %",
-    "tooltipNotEnoughData": "{{label}} - {{section}} : {{notEnoughData}}",
-    "tooltipValueSingle": "{{section}} : {{value}} %",
-    "tooltipNotEnoughDataSingle": "{{section}} : {{notEnoughData}}"
   },
   "comparePicker": {
     "beingCompared": "{{count}}/{{maxCount}} en comparaison",
@@ -102,8 +87,7 @@
   "sectionRail": {
     "changeFirst": "Modifiez d'abord une réponse ou sa preuve",
     "submit": "Soumettre les preuves révisées",
-    "submitCount": "Soumettre les preuves révisées ({{count}})",
-    "sections": "Sections"
+    "submitCount": "Soumettre les preuves révisées ({{count}})"
   },
   "suggestionDialog": {
     "title": "Soumettre des preuves révisées",
@@ -128,6 +112,7 @@
     "close": "Fermer"
   },
   "questionCard": {
+    "notKnown": "Inconnu",
     "evidence": "Preuves",
     "clearResponse": "Effacer cette réponse",
     "noEvidence": "Aucune preuve ajoutée pour l'instant.",
@@ -137,7 +122,8 @@
     "sourcePlaceholder": "Lien, texte de loi ou référence du document",
     "notes": "Notes",
     "removeEvidence": "Supprimer cette preuve",
-    "addEvidence": "Ajouter une preuve"
+    "addEvidence": "Ajouter une preuve",
+    "moreExemplars": "+{{count}} de plus"
   },
   "adminConsole": {
     "title": "Console d'administration",

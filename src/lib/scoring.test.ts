@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import seed from "../data/protocol.seed.json";
-import { rankImpact, scoreCountry, scoreSections } from "./scoring";
-import type { Protocol, Response } from "./types";
+import { rankImpact, scoreCountry, scoreSections, sectionLeaderboard, sectionStanding } from "./scoring";
+import type { Protocol, Question, Response, Section } from "./types";
 
 const protocol = seed as unknown as Protocol;
 const { questions, sections } = protocol;
@@ -180,5 +180,65 @@ describe("rankImpact", () => {
     expect(questions.length - answeredIds.size).toBe(4);
     expect(items.every((i) => answeredIds.has(i.question.id))).toBe(true);
     expect(items.every((i) => typeof i.currentScore === "number")).toBe(true);
+  });
+});
+
+describe("sectionLeaderboard / sectionStanding", () => {
+  // Fully synthetic fixtures (one section, one question) rather than the
+  // real seed's own section 0 - full control over exactly how many
+  // candidates land where in the ranking, with no dependency on that
+  // section's actual rubric shape or current real-world answers.
+  const fakeSection: Section = { id: "s1", title: "Test section", order: 0 };
+  const fakeQuestion: Question = {
+    id: "q1",
+    sectionId: "s1",
+    subsection: null,
+    order: 0,
+    text: "Test question",
+    weight: 1,
+    rubric: [
+      { score: 0, label: "low", points: 0 },
+      { score: 1, label: "mid", points: 2 },
+      { score: 2, label: "high", points: 4 },
+    ],
+  };
+  const fakeQuestions = [fakeQuestion];
+
+  function answer(code: string, score: number): Response {
+    return { questionId: "q1", countryCode: code, score, evidence: [], updatedAt: "" };
+  }
+
+  it("ranks the leaderboard best score first and excludes unranked candidates", () => {
+    const responses = [answer("TOP", 2), answer("MID", 1), answer("BOTTOM", 0)];
+    const board = sectionLeaderboard(protocol, fakeSection, fakeQuestions, responses, [
+      "TOP",
+      "MID",
+      "BOTTOM",
+      "UNANSWERED",
+    ]);
+    expect(board.map((s) => s.code)).toEqual(["TOP", "MID", "BOTTOM"]);
+    expect(board.every((s) => s.ranked)).toBe(true);
+  });
+
+  it("withholds a standing below MIN_FIELD_SIZE other ranked candidates, even when clearly ahead", () => {
+    const responses = [answer("SELF", 2), answer("OTHER", 0)];
+    const board = sectionLeaderboard(protocol, fakeSection, fakeQuestions, responses, ["SELF", "OTHER"]);
+    const self = board.find((s) => s.code === "SELF")!;
+    expect(sectionStanding(self, board)).toBe("insufficient");
+  });
+
+  it("marks the top quartile leading and the bottom quartile behind, excluding self from the field", () => {
+    const codes = ["A", "B", "C", "D", "E"];
+    const responses = [answer("A", 0), answer("B", 0), answer("C", 1), answer("D", 2), answer("E", 2)];
+    const board = sectionLeaderboard(protocol, fakeSection, fakeQuestions, responses, codes);
+
+    const leader = board.find((s) => s.code === "E")!;
+    const laggard = board.find((s) => s.code === "A")!;
+    expect(sectionStanding(leader, board)).toBe("leading");
+    expect(sectionStanding(laggard, board)).toBe("behind");
+
+    // A middling candidate (beats some, loses to others) reads as typical.
+    const middle = board.find((s) => s.code === "C")!;
+    expect(sectionStanding(middle, board)).toBe("typical");
   });
 });

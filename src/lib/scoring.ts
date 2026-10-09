@@ -142,6 +142,86 @@ export function scoreSections(
 }
 
 /**
+ * Every one of `codes` scored against just this one section, ranked
+ * best-first - the data an "exemplar" or "who leads this section" view
+ * needs (see CountryPanel.tsx's Overview tab and its Policy Landscape
+ * exemplar callout). `name` is left as `code` rather than threaded through
+ * from a jurisdiction-name lookup - callers already have `allScores` (or
+ * equivalent) in scope to resolve a display name/flag, and this function's
+ * own job is just the ranking, not display concerns.
+ *
+ * Scoped to a caller-supplied `codes` list rather than discovering
+ * candidates itself, so it stays a pure function of whatever the caller
+ * already knows exists (the same `allScores`/`scores` array App.tsx already
+ * assembles) rather than a second, possibly-inconsistent notion of "every
+ * jurisdiction."
+ */
+export function sectionLeaderboard(
+  protocol: Protocol,
+  section: Section,
+  questions: Question[],
+  responses: Response[],
+  codes: string[],
+  threshold?: number,
+): CountryScore[] {
+  const sectionQuestions = questions.filter((q) => q.sectionId === section.id);
+  return codes
+    .map((code) => scoreCountry(protocol, sectionQuestions, responses, code, code, threshold))
+    .filter((s) => s.ranked)
+    .sort((a, b) => b.score - a.score);
+}
+
+/**
+ * Where a country's own section score sits relative to the field - the
+ * "are we leading" half of Q2 that `scoreBand()`'s absolute Very
+ * ineffective..Very effective band can't answer on its own (a country can
+ * be "Effective" in absolute terms while still trailing a strong field, or
+ * "Ineffective" while still leading a field that's broadly worse). Needs at
+ * least MIN_FIELD_SIZE *other* ranked countries in `leaderboard` to say
+ * anything meaningful - returns "insufficient" below that rather than a
+ * falsely confident band off one or two data points.
+ */
+const MIN_FIELD_SIZE = 4;
+
+export type SectionStanding = "leading" | "typical" | "behind" | "insufficient";
+
+export function sectionStanding(ownScore: CountryScore, leaderboard: CountryScore[]): SectionStanding {
+  const field = leaderboard.filter((s) => s.code !== ownScore.code);
+  if (!ownScore.ranked || field.length < MIN_FIELD_SIZE) return "insufficient";
+  const betterCount = field.filter((s) => s.score > ownScore.score).length;
+  const percentile = 1 - betterCount / field.length; // 1 = best in the field
+  if (percentile >= 0.75) return "leading";
+  if (percentile <= 0.25) return "behind";
+  return "typical";
+}
+
+/** Same hues as SCORE_BANDS' own ends (teal for strong, amber for weak) - a relative standing and an absolute band are different judgements, but reusing the same two hues keeps "good" reading as the same colour everywhere in the app. */
+export const SECTION_STANDING_COLORS: Record<SectionStanding, string> = {
+  leading: "#00ABBB",
+  typical: "#6B7280",
+  behind: "#FBB114",
+  insufficient: "#9CA3AF",
+};
+
+const SECTION_STANDING_LABELS: Record<SectionStanding, string> = {
+  leading: "Leading",
+  typical: "Typical",
+  behind: "Behind the field",
+  insufficient: "Not enough data to compare",
+};
+
+const SECTION_STANDING_LABEL_TRANSLATIONS: Record<SectionStanding, Record<string, string>> = {
+  leading: { es: "A la cabeza", fr: "En tête" },
+  typical: { es: "Típico", fr: "Typique" },
+  behind: { es: "Por detrás del grupo", fr: "En retard sur le groupe" },
+  insufficient: { es: "Datos insuficientes para comparar", fr: "Données insuffisantes pour comparer" },
+};
+
+export function sectionStandingLabel(standing: SectionStanding, language = "en"): string {
+  return SECTION_STANDING_LABEL_TRANSLATIONS[standing]?.[language] ?? SECTION_STANDING_LABELS[standing];
+}
+
+/**
  * Highest-impact changes for a country: every *answered* question that is not
  * already at full marks, ranked by the weighted points it would gain from
  * being taken to the top of its rubric.
@@ -394,16 +474,26 @@ export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
 
 /**
  * A band's own `color` is calibrated to be a map fill and a swatch, not
- * body text - "Moderate"'s pale cream (#F5E6C8) is close to unreadable on
- * a white/paper background. Everywhere a score's colour is used as literal
- * text (score labels, the PDF report), use this instead of `scoreBand(...)
- * .color` directly - same hue, darkened enough to read as text; every
- * other band's colour is legible as-is. Added 2026-09-11, the same day the
- * cream stop itself was adopted from Deployment Explorer's ramp.
+ * body text - "Could do better"'s pale cream (#F5E6C8) is close to
+ * unreadable on a white/paper background. Everywhere a score's colour is
+ * used as literal text (score labels, the PDF report), use this instead of
+ * `scoreBand(...).color` directly - same hue, darkened enough to read as
+ * text on a light surface; every other band's colour is legible as-is.
+ * Added 2026-09-11, the same day the cream stop itself was adopted from
+ * Deployment Explorer's ramp.
+ *
+ * `mode` defaults to "light" (the PDF report is always a printable light
+ * page, regardless of the app's own theme, so its call sites never pass
+ * this) - live UI call sites pass `theme.palette.mode` instead, since the
+ * light-mode darkened cream (#8A6D23) read as too close to the dark-mode
+ * paper background to tell apart (flagged 2026-10-09, "the moderate font
+ * colour is hard to read in dark mode") and needs a lighter tint there
+ * instead of a darker one.
  */
-export function scoreTextColor(score: number): string {
+export function scoreTextColor(score: number, mode: "light" | "dark" = "light"): string {
   const band = scoreBand(score);
-  return band.label === "Moderate" ? "#8A6D23" : band.color;
+  if (band.label !== "Moderate") return band.color;
+  return mode === "dark" ? "#E8C97A" : "#8A6D23";
 }
 
 /**
@@ -419,7 +509,14 @@ export function scoreTextColor(score: number): string {
 const BAND_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
   "Very ineffective": { es: "Muy ineficaz", fr: "Très inefficace" },
   Ineffective: { es: "Ineficaz", fr: "Inefficace" },
-  Moderate: { es: "Moderado", fr: "Modéré" },
+  // English override, not a translation - renamed from "Moderate" per
+  // Andrew's own instruction 2026-10-09, a softer framing for a jurisdiction
+  // sitting in the middle of the band ("could be better" names the
+  // opportunity, where "Moderate" just described the number). es/fr keep
+  // their existing neutral "Moderate" translations rather than following
+  // suit - a tone shift like this is a copy decision for that language's
+  // own reviewer, not something to carry over by default.
+  Moderate: { en: "Could do better", es: "Moderado", fr: "Modéré" },
   Effective: { es: "Eficaz", fr: "Efficace" },
   "Very effective": { es: "Muy eficaz", fr: "Très efficace" },
   // Not a real band - scoreboardFilters.ts's NOT_ENOUGH_DATA_BAND, included

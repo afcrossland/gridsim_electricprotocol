@@ -32,8 +32,6 @@ export default function App() {
   const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
   const tourSeen = useProtocolStore((s) => s.tourSeen);
   const setTourSeen = useProtocolStore((s) => s.setTourSeen);
-  const countryPanelTab = useProtocolStore((s) => s.countryPanelTab);
-  const setCountryPanelTab = useProtocolStore((s) => s.setCountryPanelTab);
   // The tour's opening scene is a clean, full-bleed globe - the sidebar list
   // would otherwise show straight through the overlay's mostly-transparent
   // middle. Only tracked while the tour is up; irrelevant once dismissed.
@@ -210,10 +208,9 @@ export default function App() {
         code={selectedCountry}
         score={selectedScore}
         onBack={() => handleSelectCountry(null)}
-        tab={countryPanelTab}
-        onTabChange={setCountryPanelTab}
         inlineCompare
         allScores={scores}
+        onSelectCountry={handleSelectCountry}
       />
     ) : (
       <Scoreboard
@@ -308,6 +305,18 @@ export default function App() {
             onRemoveCompare={() => clearCompareCountries()}
           />
         </Box>
+      ) : !isMobile && selectedCountry && selectedScore ? (
+        // A selected country takes the whole content area - redesigned
+        // 2026-10-09 per Andrew's own instruction ("the sidebar needs to
+        // full screen here") so Policy Landscape's exemplar callout and the
+        // Overview tab's section tiles have real room, rather than being
+        // squeezed into the 2/3-width split the scoreboard used. The map
+        // stays one click away via the back arrow (onBack, in `list` above)
+        // rather than staying visible alongside - answering questions about
+        // one country needs the space more than browsing the map
+        // concurrently is worth, the same trade the old 2/3 split already
+        // made at a smaller scale.
+        <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
       ) : isMobile ? (
         selectedCountry && selectedScore ? (
           <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
@@ -379,12 +388,14 @@ export default function App() {
           </Box>
         )
       ) : (
+        // No country selected - browsing the map and scoreboard side by
+        // side, same as before. A selected country no longer renders here
+        // at all (see the full-screen branch above), so this is purely the
+        // "picking a jurisdiction" layout now.
         <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          {/* The map gives up two thirds of the width once a country is open:
-              answering questions needs the room, browsing the map does not. */}
           <Box
             sx={{
-              flex: sidebarCollapsed ? 1 : selectedCountry ? 1 : 2,
+              flex: sidebarCollapsed ? 1 : 2,
               position: "relative",
               minWidth: 0,
             }}
@@ -402,8 +413,8 @@ export default function App() {
               clip the tab. */}
           <Box
             sx={{
-              flex: sidebarCollapsed ? "0 0 0px" : selectedCountry ? 2 : "0 0 auto",
-              width: sidebarCollapsed ? 0 : selectedCountry ? "auto" : PANEL_WIDTH,
+              flex: sidebarCollapsed ? "0 0 0px" : "0 0 auto",
+              width: sidebarCollapsed ? 0 : PANEL_WIDTH,
               minWidth: 0,
               position: "relative",
               overflow: "visible",
@@ -481,8 +492,12 @@ export default function App() {
           toggle={
             // What the map paints - moved here from the legend card so the
             // legend only ever displays the current choice, rather than also
-            // being where it's made.
-            !mobileListActive && (
+            // being where it's made. Hidden once a country's full-screen
+            // detail view is open - per Andrew's own instruction 2026-10-09
+            // ("score/completeness footer not needed... when sidebar
+            // expanded") - the map isn't on screen to paint, so the choice
+            // has nothing to act on.
+            !mobileListActive && !(selectedCountry && selectedScore) && (
               <ToggleButtonGroup size="small" exclusive value={mapMetric} onChange={(_, next) => next && setMapMetric(next)}>
                 <ToggleButton value="score" sx={{ py: 0.25, px: 2, fontSize: "0.7rem" }}>
                   {t("footer.score")}

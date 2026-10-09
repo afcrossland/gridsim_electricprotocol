@@ -12,14 +12,13 @@ export interface SpotlightTarget {
 export interface AppTourState {
   /** null clears the selection (the interactive-select scene); undefined leaves it alone. */
   selectedCountry?: string | null;
-  countryPanelTab?: "impact" | "sections" | "windrose";
 }
 
 export type SceneMedia =
   | { kind: "map" }
   | {
       kind: "app";
-      appState: AppTourState;
+      appState?: AppTourState;
       spotlight?: SpotlightTarget;
     };
 
@@ -106,49 +105,16 @@ export const SCENES: Scene[] = [
     },
   },
   {
-    id: 5,
-    heading: "",
-    body: "",
-    layout: "story",
-    media: {
-      kind: "app",
-      appState: { countryPanelTab: "windrose" },
-      spotlight: {
-        selector: '[data-tour="country-tabs"]',
-        tag: "Summary",
-        caption: "Score and data completeness, broken down by section.",
-        arrow: "up",
-      },
-    },
-  },
-  {
-    id: 6,
-    heading: "",
-    body: "",
-    layout: "story",
-    media: {
-      kind: "app",
-      appState: { countryPanelTab: "impact" },
-      spotlight: {
-        selector: '[data-tour="country-tabs"]',
-        tag: "Policy Wins",
-        caption: "The changes that would raise this jurisdiction's score the most, ranked by weighted points.",
-        arrow: "up",
-      },
-    },
-  },
-  {
     id: 7,
     heading: "",
     body: "",
     layout: "story",
     media: {
       kind: "app",
-      appState: { countryPanelTab: "sections" },
       spotlight: {
         selector: '[data-tour="country-tabs"]',
         tag: "Policy Landscape",
-        caption: "Every question, its rubric, and the evidence behind each answer - editable by anyone.",
+        caption: "Score and data completeness per policy area - click one to see its own exemplars, questions, rubric, and the evidence behind each answer, editable by anyone.",
         arrow: "up",
       },
     },
@@ -160,7 +126,6 @@ export const SCENES: Scene[] = [
     layout: "story",
     media: {
       kind: "app",
-      appState: { countryPanelTab: "sections" },
       spotlight: {
         selector: '[data-tour="question-rubric"]',
         tag: "Edit an answer",
@@ -176,7 +141,6 @@ export const SCENES: Scene[] = [
     layout: "story",
     media: {
       kind: "app",
-      appState: { countryPanelTab: "sections" },
       spotlight: {
         selector: '[data-tour="submit-suggestion"]',
         tag: "Submit for review",
@@ -192,7 +156,6 @@ export const SCENES: Scene[] = [
     layout: "story",
     media: {
       kind: "app",
-      appState: { countryPanelTab: "windrose" },
       spotlight: {
         selector: '[data-tour="compare-button"]',
         tag: "Compare",
@@ -208,7 +171,6 @@ export const SCENES: Scene[] = [
     layout: "story",
     media: {
       kind: "app",
-      appState: { countryPanelTab: "windrose" },
       spotlight: {
         selector: '[data-tour="nav-links"]',
         tag: "Read more",

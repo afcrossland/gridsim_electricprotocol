@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Autocomplete, Box, Paper, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Paper, TextField, Typography, useTheme } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
 
@@ -41,6 +41,7 @@ interface Props {
  */
 export default function JurisdictionSearch({ scores, selected, onSelect, disablePortal = true }: Props) {
   const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const scoreByCode = useMemo(() => new Map(scores.map((s) => [s.code, s])), [scores]);
 
   const options = useMemo<Option[]>(
@@ -126,7 +127,7 @@ export default function JurisdictionSearch({ scores, selected, onSelect, disable
                   sx={{
                     fontWeight: 600,
                     color: option.score.ranked
-                      ? scoreTextColor(option.score.score)
+                      ? scoreTextColor(option.score.score, theme.palette.mode)
                       : "text.disabled",
                   }}
                 >

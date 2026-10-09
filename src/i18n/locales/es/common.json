@@ -62,35 +62,20 @@
   },
   "countryPanel": {
     "backToScoreboard": "Volver al ranking",
+    "backToOverview": "Volver a la vista general",
     "score": "Puntuación",
     "dataCompleteness": "Cobertura de datos",
     "notApplicable": "N/D",
-    "finishEditing": "Terminar edición",
-    "editAnswers": "Editar las respuestas de esta jurisdicción",
-    "done": "Listo",
-    "edit": "Editar",
-    "tabSummary": "Resumen",
-    "tabPolicyWins": "Logros de política",
-    "tabPolicyLandscape": "Panorama de política",
+    "edit": "Proponer una edición",
+    "exitEditMode": "Salir del modo de edición",
     "buildingReport": "Generando informe...",
-    "downloadReport": "Descargar informe",
-    "windroseIntro": "Cómo puntúa {{name}} en cada área, y cuánto de ello está respaldado por evidencia. Un marcador discontinuo solo significa que todavía no hay datos suficientes, no una puntuación de cero.",
-    "impactIntro": "Los mayores logros de política según la puntuación y la evidencia aportada."
+    "downloadReport": "Descargar resumen de política",
+    "overviewIntro": "Cómo puntúa {{name}} en cada área de política, y cómo se compara con el resto del grupo."
   },
   "impactList": {
     "empty": "Nada que mostrar todavía - cada pregunta respondida ya tiene la puntuación máxima, o ninguna se ha respondido. Usa Panorama de política para añadir algunas.",
     "impactfullness": "Relevancia: {{label}}",
     "currently": "Actualmente:"
-  },
-  "windrose": {
-    "thisJurisdiction": "Esta jurisdicción",
-    "notEnoughData": "datos insuficientes",
-    "ariaCompare": "{{noun}} por sección, comparado entre {{count}} jurisdicciones",
-    "aria": "{{noun}} por sección",
-    "tooltipValue": "{{label}} - {{section}}: {{value}}%",
-    "tooltipNotEnoughData": "{{label}} - {{section}}: {{notEnoughData}}",
-    "tooltipValueSingle": "{{section}}: {{value}}%",
-    "tooltipNotEnoughDataSingle": "{{section}}: {{notEnoughData}}"
   },
   "comparePicker": {
     "beingCompared": "{{count}}/{{maxCount}} en comparación",
@@ -102,8 +87,7 @@
   "sectionRail": {
     "changeFirst": "Cambia primero una respuesta o su evidencia",
     "submit": "Enviar evidencia revisada",
-    "submitCount": "Enviar evidencia revisada ({{count}})",
-    "sections": "Secciones"
+    "submitCount": "Enviar evidencia revisada ({{count}})"
   },
   "suggestionDialog": {
     "title": "Enviar evidencia revisada",
@@ -128,6 +112,7 @@
     "close": "Cerrar"
   },
   "questionCard": {
+    "notKnown": "No se sabe",
     "evidence": "Evidencia",
     "clearResponse": "Borrar esta respuesta",
     "noEvidence": "Aún no se ha añadido evidencia.",
@@ -137,7 +122,8 @@
     "sourcePlaceholder": "Enlace, estatuto o referencia del documento",
     "notes": "Notas",
     "removeEvidence": "Eliminar esta evidencia",
-    "addEvidence": "Añadir evidencia"
+    "addEvidence": "Añadir evidencia",
+    "moreExemplars": "+{{count}} más"
   },
   "adminConsole": {
     "title": "Consola de administración",

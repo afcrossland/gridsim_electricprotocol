@@ -113,7 +113,6 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, o
   const media = scene.media;
 
   const selectCountry = useProtocolStore((s) => s.selectCountry);
-  const setCountryPanelTab = useProtocolStore((s) => s.setCountryPanelTab);
 
   const pausedRef = useRef(paused);
   useEffect(() => {
@@ -179,7 +178,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, o
       selectCountry(null);
       return;
     }
-    if (m.appState.selectedCountry !== undefined) {
+    if (m.appState?.selectedCountry !== undefined) {
       selectCountry(m.appState.selectedCountry);
     } else if (!useProtocolStore.getState().selectedCountry) {
       // The first walkthrough scene reached without a selection yet jumps
@@ -187,8 +186,7 @@ export default function ScrollStory({ onDismiss, onSceneChange, onOpenCharter, o
       // visitor to pick one first.
       selectCountry(DEFAULT_TOUR_COUNTRY);
     }
-    if (m.appState.countryPanelTab) setCountryPanelTab(m.appState.countryPanelTab);
-  }, [activeScene, selectCountry, setCountryPanelTab]);
+  }, [activeScene, selectCountry]);
 
   const spotlight = media.kind === "app" ? media.spotlight : undefined;
 

@@ -9,15 +9,7 @@ import { resolveTargets } from "../lib/jurisdictions";
 import { DEFAULT_SCOREBOARD_FILTERS, type ScoreboardFilters } from "../lib/scoreboardFilters";
 import { diffResponses, type Suggestion } from "../lib/suggestions";
 import { getStoredMode, setStoredMode } from "../../shared/lib/darkMode";
-import {
-  WINDROSE,
-  type CountryPanelTab,
-  type EvidenceItem,
-  type Protocol,
-  type Question,
-  type Response,
-  type Section,
-} from "../lib/types";
+import { type EvidenceItem, type Protocol, type Question, type Response, type Section } from "../lib/types";
 
 const protocol = seed as unknown as Protocol;
 
@@ -60,14 +52,6 @@ interface ProtocolState {
    * Capped at MAX_COMPARE_COUNTRIES. Not persisted.
    */
   compareCountries: string[];
-  /**
-   * Which tab the main (non-compare) CountryPanel shows. Lifted out of that
-   * component's own state - same as `page`, a view preference, not
-   * persisted - so the onboarding tour can drive it from outside, reusing
-   * the controlled-prop mechanism CountryPanel already exposes for
-   * CompareView.
-   */
-  countryPanelTab: CountryPanelTab;
   /** Scoreboard's continent/country/score filters. Not persisted - a view preference, reset on reload like `page`. */
   scoreboardFilters: ScoreboardFilters;
   /**
@@ -119,7 +103,6 @@ interface ProtocolState {
   addCompareCountry: (code: string) => void;
   removeCompareCountry: (code: string) => void;
   clearCompareCountries: () => void;
-  setCountryPanelTab: (tab: CountryPanelTab) => void;
   setScoreboardFilters: (patch: Partial<ScoreboardFilters>) => void;
   resetScoreboardFilters: () => void;
   setScoreboardSortDirection: (direction: "asc" | "desc") => void;
@@ -307,7 +290,6 @@ function initialState() {
     selectedCountry: null,
     comparing: false,
     compareCountries: [],
-    countryPanelTab: WINDROSE as CountryPanelTab,
     scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS,
     scoreboardSortDirection: "desc" as const,
     questionOverrides: {},
@@ -360,7 +342,6 @@ export const useProtocolStore = create<ProtocolState>()(
       removeCompareCountry: (code) =>
         set((state) => ({ compareCountries: state.compareCountries.filter((c) => c !== code) })),
       clearCompareCountries: () => set({ compareCountries: [] }),
-      setCountryPanelTab: (countryPanelTab) => set({ countryPanelTab }),
       setScoreboardFilters: (patch) =>
         set((state) => ({ scoreboardFilters: { ...state.scoreboardFilters, ...patch } })),
       resetScoreboardFilters: () => set({ scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS }),

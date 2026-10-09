@@ -1,18 +1,6 @@
-import { useEffect, useMemo, useState, type ReactNode, type Ref, type UIEvent } from "react";
-import {
-  Box,
-  Button,
-  Collapse,
-  Divider,
-  Stack,
-  Tab,
-  Tabs,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type Ref, type UIEvent } from "react";
+import { Box, Button, Collapse, Divider, Stack, Tooltip, Typography, useMediaQuery, useTheme } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
@@ -20,23 +8,46 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useTranslation } from "react-i18next";
 
 import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors";
-import { rankImpact, scoreLabel, scoreSections, scoreTextColor } from "../../lib/scoring";
+import { rankImpact, scoreLabel, scoreSections, scoreTextColor, sectionLeaderboard } from "../../lib/scoring";
 import { diffResponses } from "../../lib/suggestions";
-import { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab, type CountryScore } from "../../lib/types";
+import type { CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
 import { generateCountryReportPdf, fmtReportDate, fmtTimestamp } from "../../utils/exportCountryReportPdf";
 import CountryReportDocument from "../report/CountryReportDocument";
 import ComparePicker from "./ComparePicker";
-import ImpactList from "./ImpactList";
 import QuestionCard from "./QuestionCard";
-import SectionWindrose from "./SectionWindrose";
-import SectionRail, { type RailSection } from "./SectionRail";
+import SectionOverview from "./SectionOverview";
 import SubmitSuggestionDialog from "./SubmitSuggestionDialog";
 import FlagImg from "../ui/FlagImg";
 import StatTile from "../ui/StatTile";
 import DetailHeader from "../../../shared/components/DetailHeader";
 
-export { IMPACT, SECTIONS, WINDROSE, type CountryPanelTab };
+/**
+ * How many other jurisdictions count as a section's own exemplar pool - per
+ * Andrew's own instruction 2026-10-09 ("make it the exemplars"), plural
+ * rather than just the single strongest comparator. Which of them actually
+ * show up against any one question, and in what order, is filtered
+ * further, per question - see QuestionCard.tsx's own `exemplars` prop.
+ * Raised from 3 to 8 the same day ("top 3 exemplars shown and a dropdown
+ * list for more") - a wider candidate pool is what makes "more" a real
+ * thing to drop down to on a well-evidenced question, rather than the
+ * dropdown always being empty because the pool itself topped out at 3.
+ */
+const EXEMPLAR_COUNT = 8;
+
+/**
+ * Hides the inline Compare row (the picker button plus the per-tile flag
+ * clusters it feeds) - per Andrew's own instruction 2026-10-09 ("the
+ * compare button is not very useful. Hide for now"). Picking arbitrary
+ * jurisdictions to overlay turned out less useful than the exemplars
+ * already surfaced per-question; the actually-wanted version is a "compare
+ * to peers" feature - jurisdictions that answered similarly to this one,
+ * not just any pick from the full list - which needs its own matching
+ * logic (TODO, not built yet) rather than a flag flip. Flagged off here
+ * rather than deleted so the existing picker UI and tile-cluster rendering
+ * stay ready to revive once that's designed.
+ */
+const COMPARE_ENABLED = false;
 
 interface Props {
   code: string;
@@ -48,16 +59,6 @@ interface Props {
   /** For syncing scroll position with another panel (the compare view) - both optional, unused outside that case. */
   contentRef?: Ref<HTMLDivElement>;
   onContentScroll?: (e: UIEvent<HTMLDivElement>) => void;
-  /**
-   * Controls the active tab from outside - the compare view shares one tab
-   * between both panels rather than letting each track its own, so the pair
-   * always shows the same thing side by side. Uncontrolled (manages its own
-   * state) when omitted, the normal single-panel case.
-   */
-  tab?: CountryPanelTab;
-  onTabChange?: (tab: CountryPanelTab) => void;
-  /** Hides the tab bar itself - the compare view's second panel shares the first panel's tab bar as the one control for both, so its own would just be a redundant, disconnected-looking duplicate. */
-  hideTabs?: boolean;
   /**
    * Controls which section the rail shows, the same controlled/uncontrolled
    * pattern as `tab` and for the same reason - the compare view shares one
@@ -77,8 +78,24 @@ interface Props {
    * fighting over the same `compareCountries` state if it ever is.
    */
   inlineCompare?: boolean;
-  /** Every jurisdiction's score, needed only to power the inline compare picker (JurisdictionSearch) - unused when inlineCompare is off. */
+  /**
+   * Every jurisdiction's score - powers the inline compare picker
+   * (JurisdictionSearch) when inlineCompare is on, and also the candidate
+   * list for each section's own exemplar pool (see `sectionLeaderboard` in
+   * scoring.ts) regardless of inlineCompare. Omitted entirely only by
+   * CompareView's own legacy two-panel usage, which degrades to no
+   * exemplars shown (the leaderboard has only this one country to rank)
+   * rather than crashing.
+   */
   allScores?: CountryScore[];
+  /**
+   * Navigates the whole app to a different country - wired to App.tsx's
+   * own `handleSelectCountry`, used by a question's own exemplar column
+   * (Q3: jump straight to whoever answered this specific question better).
+   * Omitted by CompareView's legacy usage, which has no equivalent
+   * "replace the primary country" action.
+   */
+  onSelectCountry?: (code: string) => void;
 }
 
 export default function CountryPanel({
@@ -88,13 +105,11 @@ export default function CountryPanel({
   headerAction,
   contentRef,
   onContentScroll,
-  tab: controlledTab,
-  onTabChange,
-  hideTabs,
   sectionId: controlledSectionId,
   onSectionChange,
   inlineCompare,
   allScores,
+  onSelectCountry,
 }: Props) {
   const { t, i18n } = useTranslation();
   const sections = useProtocolStore((s) => s.sections);
@@ -111,14 +126,41 @@ export default function CountryPanel({
   // becomes a horizontal scrolling strip above the questions instead.
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Which section the rail is showing, independent of which top-level tab is
-  // active, so switching to Highest impact and back does not lose the place.
-  const [uncontrolledSectionId, setUncontrolledSectionId] = useState<string>(sections[0]?.id ?? "");
+  // Which section's accordion panel is open. Starts at "" (none open)
+  // rather than defaulting to the first section - per Andrew's own
+  // instruction 2026-10-09, the full tile grid should be what a visitor
+  // sees first, with the narrow/expanded state only kicking in once
+  // they've actually picked one (see `handleSelectSection` below and
+  // SectionOverview.tsx's own `compact` prop).
+  const [uncontrolledSectionId, setUncontrolledSectionId] = useState<string>("");
   const activeSectionId = controlledSectionId ?? uncontrolledSectionId;
   const setActiveSectionId = onSectionChange ?? setUncontrolledSectionId;
-  const [uncontrolledTab, setUncontrolledTab] = useState<CountryPanelTab>(WINDROSE);
-  const tab = controlledTab ?? uncontrolledTab;
-  const setTab = onTabChange ?? setUncontrolledTab;
+
+  // The scrollable content area's own node - kept as a plain ref alongside
+  // (not instead of) the external `contentRef` prop (CompareView's own
+  // scroll-mirroring), since picking a section needs to scroll this
+  // specific panel to the top regardless of whether a caller is also
+  // watching it. See `handleSelectSection` below.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const setScrollNode = (node: HTMLDivElement | null) => {
+    scrollRef.current = node;
+    if (typeof contentRef === "function") contentRef(node);
+    else if (contentRef) (contentRef as { current: HTMLDivElement | null }).current = node;
+  };
+  // Picking a section (from the full grid or the compact strip) scrolls
+  // back to the top of the panel - per Andrew's own instruction 2026-10-09
+  // ("when we click a tile, make them narrow and go to the top to make it
+  // obvious"): shrinking the tiles alone doesn't read as a state change if
+  // the visitor is already scrolled past them into a long question list, so
+  // the scroll and the resize reinforce each other. Clicking the
+  // already-open section again closes it, back to the full tile grid -
+  // fixes a real bug flagged the same day ("we cannot return to the
+  // summary view of each country after we click the tiles"): once a
+  // section was open there had been no way back to the overview at all.
+  const handleSelectSection = (id: string) => {
+    setActiveSectionId(id === activeSectionId ? "" : id);
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const [submitOpen, setSubmitOpen] = useState(false);
   const [buildingReport, setBuildingReport] = useState(false);
 
@@ -130,20 +172,19 @@ export default function CountryPanel({
   const [editMode, setEditMode] = useState(false);
   useEffect(() => setEditMode(false), [code]);
 
-  // Collapses the stat tiles and the Compare/Download row once the content
-  // below is scrolled, on Policy Wins and Policy Landscape specifically -
-  // those are the two tabs with a real scrolling list, so shrinking the
-  // header there buys back the most visible content. Reset on tab/country
-  // change so reopening a section starts from the expanded header.
+  // Collapses the stat tiles and the Compare row once the content below is
+  // scrolled, so shrinking the header buys back the most visible content.
+  // Reset on country change so reopening a different country starts from
+  // the expanded header.
   const [contentScrolled, setContentScrolled] = useState(false);
-  useEffect(() => setContentScrolled(false), [tab, code]);
-  const headerShrunk = isMobile && contentScrolled && (tab === IMPACT || tab === SECTIONS);
+  useEffect(() => setContentScrolled(false), [code]);
+  const headerShrunk = isMobile && contentScrolled;
   const handleContentScroll = (e: UIEvent<HTMLDivElement>) => {
     onContentScroll?.(e);
     setContentScrolled(e.currentTarget.scrollTop > 8);
   };
 
-  const compareCodes = inlineCompare ? compareCountries : [];
+  const compareCodes = COMPARE_ENABLED && inlineCompare ? compareCountries : [];
   // Colour assignment order = pick order, stable regardless of removals
   // elsewhere in the list - see compareColorFor's own doc comment.
   const compareEntries = useMemo(
@@ -203,9 +244,64 @@ export default function CountryPanel({
     [sections, questions, responses, code],
   );
 
-  // One SectionWindrose "series" per comparator - computed once here and fed
-  // to both the Score and Data completeness tiles, rather than each tile
-  // recomputing scoreSections for every comparator itself.
+  // The candidate pool for "who leads this section" - every jurisdiction
+  // the app already knows a score for (allScores is App.tsx's own `scores`
+  // array, built fresh on every load from every country with any data at
+  // all). Falls back to just this country alone when allScores is omitted
+  // (CompareView's legacy usage) - the leaderboard then has only this one
+  // country to rank, so every section's own exemplar list comes out empty
+  // rather than crashing.
+  const allCodes = useMemo(() => allScores?.map((s) => s.code) ?? [code], [allScores, code]);
+
+  // Each section's own exemplar pool - the data behind both the tile grid
+  // (SectionOverview.tsx) and the per-question exemplar columns below
+  // (QuestionCard.tsx's own `exemplars` prop). Computed once here, for
+  // every section at once, rather than separately per tab. No longer
+  // carries a relative "leading/typical/behind" standing - dropped
+  // 2026-10-09 per Andrew's own instruction once exemplars moved to a
+  // per-question basis, since a section-wide standing badge sitting next
+  // to a per-question exemplar column stopped making sense (a tile could
+  // read "leading" while every individual question inside it shows someone
+  // else out front, or vice versa).
+  const sectionOverview = useMemo(
+    () =>
+      sectionScores.map(({ section, score: own }) => {
+        const leaderboard = sectionLeaderboard(protocol, section, questions, responses, allCodes);
+        // Top EXEMPLAR_COUNT other jurisdictions by overall section score,
+        // best first - this is just the candidate pool a question's own
+        // exemplar column draws from; which of them actually show up
+        // against any one question is decided per question, not here (see
+        // QuestionCard.tsx's own `exemplars` prop - "exemplars should be by
+        // question not category", per Andrew's own instruction 2026-10-09).
+        // Names resolved against allScores here so this stays presentational
+        // data all the way down.
+        const exemplars = leaderboard
+          .filter((s) => s.code !== code)
+          .slice(0, EXEMPLAR_COUNT)
+          .map((s) => ({ code: s.code, name: allScores?.find((a) => a.code === s.code)?.name ?? s.code, score: s.score }));
+        return { section, score: own, exemplars };
+      }),
+    [sectionScores, questions, responses, allCodes, allScores, code],
+  );
+
+  // Per-exemplar, their answer to every question in the active section -
+  // only computed for the (up to EXEMPLAR_COUNT) jurisdictions actually
+  // relevant to whichever section is open, not every jurisdiction's answer
+  // to everything. Feeds QuestionCard.tsx's own `exemplars` prop, which
+  // decides per question (not here) whether a given exemplar's answer is
+  // actually worth showing.
+  const exemplarResponsesByCode = useMemo(() => {
+    const overview = sectionOverview.find((e) => e.section.id === activeSectionId);
+    const exemplarCodes = overview?.exemplars.map((ex) => ex.code) ?? [];
+    return new Map(
+      exemplarCodes.map((c) => [c, new Map(responses.filter((r) => r.countryCode === c).map((r) => [r.questionId, r]))]),
+    );
+  }, [sectionOverview, activeSectionId, responses]);
+
+  // Per-comparator section scores, feeding the PDF report's own windrose
+  // (CountryReportDocument.tsx has a self-contained port of that chart,
+  // independent of the live UI, which dropped its own windrose 2026-10-09
+  // in favour of SectionOverview.tsx's tiles).
   const compareWindroseSeries = useMemo(
     () =>
       compareEntries.map((entry) => ({
@@ -214,19 +310,6 @@ export default function CountryPanel({
         sections: scoreSections(protocol, sections, questions, responses, entry.code),
       })),
     [compareEntries, sections, questions, responses],
-  );
-
-  const railSections: RailSection[] = useMemo(
-    () =>
-      sections.map((section) => {
-        const inSection = questions.filter((q) => q.sectionId === section.id);
-        return {
-          ...section,
-          total: inSection.length,
-          answered: inSection.filter((q) => byQuestion.has(q.id)).length,
-        };
-      }),
-    [sections, questions, byQuestion],
   );
 
   // Jumps from a "Submit revised evidence" tile straight to the question it's
@@ -238,7 +321,6 @@ export default function CountryPanel({
     const question = questions.find((q) => q.id === questionId);
     if (!question) return;
     setSubmitOpen(false);
-    setTab(SECTIONS);
     setActiveSectionId(question.sectionId);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -268,7 +350,7 @@ export default function CountryPanel({
     }
   };
 
-  const activeSection = railSections.find((s) => s.id === activeSectionId) ?? null;
+  const activeSection = sections.find((s) => s.id === activeSectionId) ?? null;
   const sectionQuestions = useMemo(
     () =>
       activeSection
@@ -299,7 +381,7 @@ export default function CountryPanel({
                 <StatTile
                   size="small"
                   icon={<TrendingUpIcon fontSize="small" />}
-                  color={score.ranked ? scoreTextColor(score.score) : theme.palette.text.disabled}
+                  color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
                   label={t("countryPanel.score")}
                   value={score.ranked ? scoreLabel(score.score, i18n.language) : t("countryPanel.notApplicable")}
                 />
@@ -316,17 +398,16 @@ export default function CountryPanel({
             </>
           )}
 
-          <Tooltip title={editMode ? t("countryPanel.finishEditing") : t("countryPanel.editAnswers")}>
-            <Button
-              size="small"
-              variant={editMode ? "contained" : "outlined"}
-              startIcon={editMode ? <CheckIcon fontSize="small" /> : <EditOutlinedIcon fontSize="small" />}
-              onClick={() => setEditMode((v) => !v)}
-              sx={{ flexShrink: 0 }}
-            >
-              {editMode ? t("countryPanel.done") : t("countryPanel.edit")}
-            </Button>
-          </Tooltip>
+          <Button
+            size="small"
+            variant="contained"
+            startIcon={<DownloadIcon fontSize="small" />}
+            disabled={buildingReport}
+            onClick={handleDownloadReport}
+            sx={{ flexShrink: 0 }}
+          >
+            {buildingReport ? t("countryPanel.buildingReport") : t("countryPanel.downloadReport")}
+          </Button>
 
           {headerAction}
         </DetailHeader>
@@ -337,7 +418,7 @@ export default function CountryPanel({
               <StatTile
                 size="small"
                 icon={<TrendingUpIcon fontSize="small" />}
-                color={score.ranked ? scoreTextColor(score.score) : theme.palette.text.disabled}
+                color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
                 label={t("countryPanel.score")}
                 value={score.ranked ? scoreLabel(score.score, i18n.language) : t("countryPanel.notApplicable")}
               />
@@ -355,56 +436,43 @@ export default function CountryPanel({
 
       {/* Matches the sibling gridsim-frontend project's own sidebar - a grey
           rule under the country name, separating the header from whatever
-          comes next (there, the KPI cards; here, the tab bar). */}
-      <Divider sx={{ borderColor: "#E5E7EB" }} />
+          comes next (there, the KPI cards; here, the tab bar). No sx
+          override any more - it was a literal copy of the theme's own
+          light-mode divider token, which just hardcoded over dark mode's
+          own value and left this one rule glowing pale grey against a dark
+          surface (2026-10-09, "the colour of the tiles and sidebar more
+          generally does not work in light or dark mode"); the default
+          MuiDivider style in mui-theme.tsx is already mode-aware. */}
+      <Divider />
 
-      {/* The single most useful thing to do with a country's page is see what
-          would raise its score, so that gets a real tab rather than a rail
-          item competing with 9 section names for attention.
-          `hideTabs` hides this visually (visibility, not display/omission) -
-          the compare view's second panel needs the same height reserved
-          here as the first panel's real tab bar, or its header ends up
-          shorter and everything below stops lining up between the two,
-          including what the scroll-position mirror is actually syncing to. */}
-      <Box sx={{ px: 2, pt: 1 }}>
-        <Tabs
-          value={tab}
-          onChange={(_, v) => setTab(v)}
-          data-tour="country-tabs"
-          variant={isMobile ? "fullWidth" : "scrollable"}
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          sx={{ minWidth: 0, visibility: hideTabs ? "hidden" : "visible" }}
-        >
-          <Tab value={WINDROSE} label={t("countryPanel.tabSummary")} />
-          <Tab value={IMPACT} label={t("countryPanel.tabPolicyWins")} />
-          <Tab value={SECTIONS} label={t("countryPanel.tabPolicyLandscape")} />
-        </Tabs>
-      </Box>
-
-      {/* Its own row below the tabs, not squeezed onto the same line - the
-          download button sharing a row with the tabs rendered on top of
-          them once the tabs had room to be scrollable/wrap on a narrow
-          screen; up to MAX_COMPARE_COUNTRIES compare chips (a jurisdiction
-          name like "New South Wales" is not short) plus the add button
-          don't reliably fit alongside three tabs either. Compare and
-          Download sit together here instead. */}
-      <Collapse in={!headerShrunk}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: isMobile ? "center" : "flex-start",
-            alignItems: "center",
-            gap: 1,
-            px: 2,
-            py: 1.5,
-            flexWrap: "wrap",
-            bgcolor: "action.hover",
-            borderTop: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          {inlineCompare && (
+      {/* Compare's own row, directly under the header rule now - the tab bar
+          that used to separate them (Policy Landscape / Policy Wins) is
+          gone (2026-10-09, see this component's own doc comment): Policy
+          Wins was a cross-section gap list, and once every question's own
+          rubric box started showing exemplars who'd already solved that
+          exact gap (Q3), a separate ranked-gaps view stopped pulling its
+          weight next to it, per Andrew's own instruction ("because of this
+          we dont need the policy wins and we therefore dont need the
+          tabs"). `rankImpact`'s own output (`impact`) still feeds the PDF
+          report below, which keeps its own ranked list for a
+          leave-behind summary - only the live interactive tab was
+          redundant, not the underlying computation. */}
+      {COMPARE_ENABLED && inlineCompare && (
+        <Collapse in={!headerShrunk}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-start",
+              alignItems: "center",
+              gap: 1,
+              px: 2,
+              py: 1.5,
+              flexWrap: "wrap",
+              bgcolor: "action.hover",
+              borderTop: "1px solid",
+              borderColor: "divider",
+            }}
+          >
             <ComparePicker
               primaryCode={code}
               allScores={allScores ?? []}
@@ -413,95 +481,102 @@ export default function CountryPanel({
               onAdd={addCompareCountry}
               onRemove={removeCompareCountry}
             />
-          )}
-          <Button
-            size="small"
-            variant="contained"
-            startIcon={<DownloadIcon fontSize="small" />}
-            disabled={buildingReport}
-            onClick={handleDownloadReport}
-            sx={{ flexShrink: 0 }}
-          >
-            {buildingReport ? t("countryPanel.buildingReport") : t("countryPanel.downloadReport")}
-          </Button>
-        </Box>
-      </Collapse>
+          </Box>
+        </Collapse>
+      )}
       <Divider />
 
-      <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
-        {tab === SECTIONS && (
-          <SectionRail
-            sections={railSections}
-            selected={activeSectionId}
-            onSelect={setActiveSectionId}
-            horizontal={isMobile}
-            pendingCount={pendingChanges.length}
-            onSubmit={() => setSubmitOpen(true)}
-          />
-        )}
-
+      <Box sx={{ flex: 1, overflow: "hidden" }}>
         <Box
-          ref={contentRef}
+          ref={setScrollNode}
           onScroll={handleContentScroll}
-          sx={{ flex: 1, overflowY: "auto", p: isMobile ? 1.5 : 3, minWidth: 0 }}
+          sx={{ height: "100%", overflowY: "auto", p: isMobile ? 1.5 : 3, minWidth: 0 }}
         >
-          {tab === WINDROSE ? (
-            <>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                {t("countryPanel.windroseIntro", { name: score.name })}
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                <Box
-                  sx={{
-                    flex: "1 1 320px",
-                    textAlign: "center",
-                    bgcolor: "action.hover",
-                    border: "0.5px solid #E5E7EB",
-                    borderRadius: "8px",
-                    p: 2,
-                  }}
-                >
-                  <Typography variant="overline" sx={{ display: "block", color: "primary.dark" }}>
-                    {t("countryPanel.score")}
-                  </Typography>
-                  <SectionWindrose
-                    sections={sectionScores}
-                    metric="score"
-                    compareSeries={compareWindroseSeries}
-                    primaryLabel={score.name}
-                  />
-                </Box>
-                <Box
-                  sx={{
-                    flex: "1 1 320px",
-                    textAlign: "center",
-                    bgcolor: "action.hover",
-                    border: "0.5px solid #E5E7EB",
-                    borderRadius: "8px",
-                    p: 2,
-                  }}
-                >
-                  <Typography variant="overline" sx={{ display: "block", color: "primary.dark" }}>
-                    {t("countryPanel.dataCompleteness")}
-                  </Typography>
-                  <SectionWindrose
-                    sections={sectionScores}
-                    metric="completeness"
-                    compareSeries={compareWindroseSeries}
-                    primaryLabel={score.name}
-                  />
-                </Box>
-              </Box>
-            </>
-          ) : tab === IMPACT ? (
-            <>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                {t("countryPanel.impactIntro")}
-              </Typography>
-              <ImpactList items={impact} limit={20} />
-            </>
-          ) : activeSection ? (
-            <Stack spacing={2}>
+          {/* Overview tiles + the Submit control that used to live pinned
+              atop the now-removed SectionRail - combined into one row here
+              since there's no rail column to anchor it to any more
+              (2026-10-09, see SectionOverview.tsx's own doc comment for
+              the full merge). Carries the tour's own "country-tabs"
+              spotlight target too, now that the actual tab bar is gone -
+              this intro row is the first thing this view shows, so it's
+              the natural new anchor. */}
+          <Box
+            data-tour="country-tabs"
+            sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, mb: 2, flexWrap: "wrap" }}
+          >
+            <Typography variant="body2" sx={{ flex: "1 1 280px", minWidth: 0 }}>
+              {t("countryPanel.overviewIntro", { name: score.name })}
+            </Typography>
+            {/* "Suggest an edit" and "Submit revised evidence" joined into
+                one button that follows the actual flow - per Andrew's own
+                instruction 2026-10-09 ("move suggest an edit next to
+                submit revised evidence box. Consider if these can be
+                joined") and his own follow-up choice of a single button
+                plus a separate way to leave edit mode without submitting
+                ("single button but add a new 'exit edit mode' button").
+                Off: starts editing. Editing: submits whatever's pending
+                (disabled with a tooltip hint until there's something to
+                submit) - "Exit edit mode" is the one remaining separate
+                control, for leaving edit mode without submitting. */}
+            <Box data-tour="submit-suggestion" sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+              {editMode && (
+                <Button size="small" onClick={() => setEditMode(false)}>
+                  {t("countryPanel.exitEditMode")}
+                </Button>
+              )}
+              <Tooltip title={editMode && pendingChanges.length === 0 ? t("sectionRail.changeFirst") : ""}>
+                <span>
+                  <Button
+                    size="small"
+                    variant={editMode ? "contained" : "outlined"}
+                    startIcon={editMode ? undefined : <EditOutlinedIcon fontSize="small" />}
+                    disabled={editMode && pendingChanges.length === 0}
+                    onClick={() => (editMode ? setSubmitOpen(true) : setEditMode(true))}
+                  >
+                    {editMode
+                      ? pendingChanges.length > 0
+                        ? t("sectionRail.submitCount", { count: pendingChanges.length })
+                        : t("sectionRail.submit")
+                      : t("countryPanel.edit")}
+                  </Button>
+                </span>
+              </Tooltip>
+            </Box>
+          </Box>
+
+          {/* Explicit way back to the full tile grid, not just the implicit
+              "click the open tile again" toggle in handleSelectSection -
+              added 2026-10-09 after that implicit path alone turned out
+              not to be discoverable ("we cannot return to the summary
+              view... after we click the tiles"). */}
+          {activeSectionId && (
+            <Button
+              size="small"
+              startIcon={<ArrowBackIcon fontSize="small" />}
+              onClick={() => handleSelectSection(activeSectionId)}
+              sx={{ mb: 1.5 }}
+            >
+              {t("countryPanel.backToOverview")}
+            </Button>
+          )}
+
+          <SectionOverview
+            entries={sectionOverview}
+            selectedId={activeSectionId}
+            onSelect={handleSelectSection}
+            compact={Boolean(activeSectionId)}
+          />
+
+          {/* The expanded panel for whichever tile is active - that
+              section's own questions, each now carrying its own exemplar
+              column rather than one callout for the whole section (Q3:
+              "who are the exemplars, how do we borrow their practice" -
+              moved to per-question, per Andrew's own instruction
+              2026-10-09, "exemplars should be by question not category" -
+              see QuestionCard.tsx's own `exemplars` prop for the filtering
+              logic). */}
+          {activeSection && (
+            <Stack spacing={2} sx={{ mt: 3 }}>
               {sectionQuestions.map((q) => (
                 <QuestionCard
                   key={q.id}
@@ -515,10 +590,16 @@ export default function CountryPanel({
                     name: entry.score?.name,
                     response: compareByQuestionByCode.get(entry.code)?.get(q.id),
                   }))}
+                  exemplars={(sectionOverview.find((e) => e.section.id === activeSection.id)?.exemplars ?? []).map((ex) => ({
+                    code: ex.code,
+                    name: ex.name,
+                    response: exemplarResponsesByCode.get(ex.code)?.get(q.id),
+                  }))}
+                  onSelectCountry={onSelectCountry}
                 />
               ))}
             </Stack>
-          ) : null}
+          )}
         </Box>
       </Box>
 

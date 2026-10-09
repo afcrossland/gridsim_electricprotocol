@@ -5,7 +5,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import type { CountryScore } from "../../lib/types";
 import { useProtocolStore } from "../../stores/protocolStore";
 import JurisdictionSearch from "../map/JurisdictionSearch";
-import CountryPanel, { WINDROSE, type CountryPanelTab } from "./CountryPanel";
+import CountryPanel from "./CountryPanel";
 
 interface Props {
   scores: CountryScore[];
@@ -38,12 +38,12 @@ interface Props {
  * view entirely, back to the scoreboard. Conflating the two used to mean
  * there was no way to just collapse the comparison without losing the pick.
  *
- * Both panels share one tab and one section selection, driven from whichever
- * panel's own controls are clicked - both cover the same question set
- * regardless of which country each shows, so "section 4" or "the Windrose
- * tab" means the same thing on either side. A shared tab is also what makes
- * the scroll-position mirror above actually mean something; two panels on
- * different tabs have no shared notion of "the same place" to scroll to.
+ * Both panels share one section selection, driven from whichever panel's
+ * own controls are clicked - both cover the same question set regardless
+ * of which country each shows, so "section 4" means the same thing on
+ * either side. A shared section is also what makes the scroll-position
+ * mirror above actually mean something; two panels on different sections
+ * have no shared notion of "the same place" to scroll to.
  */
 export default function CompareView({
   scores,
@@ -59,7 +59,6 @@ export default function CompareView({
   const leftRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
   const syncing = useRef(false);
-  const [tab, setTab] = useState<CountryPanelTab>(WINDROSE);
   const [sectionId, setSectionId] = useState<string>(sections[0]?.id ?? "");
 
   const mirror = (source: React.RefObject<HTMLDivElement | null>, target: React.RefObject<HTMLDivElement | null>) => () => {
@@ -81,8 +80,6 @@ export default function CompareView({
           onBack={onBackToScoreboard}
           contentRef={leftRef}
           onContentScroll={mirror(leftRef, rightRef)}
-          tab={tab}
-          onTabChange={setTab}
           sectionId={sectionId}
           onSectionChange={setSectionId}
           headerAction={
@@ -102,11 +99,8 @@ export default function CompareView({
             score={compareScore}
             contentRef={rightRef}
             onContentScroll={mirror(rightRef, leftRef)}
-            tab={tab}
-            onTabChange={setTab}
             sectionId={sectionId}
             onSectionChange={setSectionId}
-            hideTabs
             headerAction={
               <Button size="small" startIcon={<CloseIcon fontSize="small" />} onClick={onRemoveCompare}>
                 Remove from comparison

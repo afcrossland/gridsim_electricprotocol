@@ -62,35 +62,20 @@
   },
   "countryPanel": {
     "backToScoreboard": "Back to scoreboard",
+    "backToOverview": "Back to overview",
     "score": "Score",
     "dataCompleteness": "Data completeness",
     "notApplicable": "N/A",
-    "finishEditing": "Finish editing",
-    "editAnswers": "Edit this jurisdiction's answers",
-    "done": "Done",
-    "edit": "Edit",
-    "tabSummary": "Summary",
-    "tabPolicyWins": "Policy Wins",
-    "tabPolicyLandscape": "Policy Landscape",
+    "edit": "Suggest an edit",
+    "exitEditMode": "Exit edit mode",
     "buildingReport": "Building report...",
-    "downloadReport": "Download report",
-    "windroseIntro": "How {{name}} scores in each area, and how much of it is backed by evidence. A dashed marker just means there isn't enough data yet - not a score of zero.",
-    "impactIntro": "Biggest policy wins based on policy score and evidence provided."
+    "downloadReport": "Download Policy Summary Report",
+    "overviewIntro": "How {{name}} scores in each policy area, and how that compares to the rest of the field."
   },
   "impactList": {
     "empty": "Nothing to show yet - every answered question is already at full marks, or none have been answered. Use Policy Landscape to add some.",
     "impactfullness": "Impactfullness: {{label}}",
     "currently": "Currently:"
-  },
-  "windrose": {
-    "thisJurisdiction": "This jurisdiction",
-    "notEnoughData": "not enough data",
-    "ariaCompare": "{{noun}} by section, compared across {{count}} jurisdictions",
-    "aria": "{{noun}} by section",
-    "tooltipValue": "{{label}} - {{section}}: {{value}}%",
-    "tooltipNotEnoughData": "{{label}} - {{section}}: {{notEnoughData}}",
-    "tooltipValueSingle": "{{section}}: {{value}}%",
-    "tooltipNotEnoughDataSingle": "{{section}}: {{notEnoughData}}"
   },
   "comparePicker": {
     "beingCompared": "{{count}}/{{maxCount}} being compared",
@@ -102,8 +87,7 @@
   "sectionRail": {
     "changeFirst": "Change an answer or its evidence first",
     "submit": "Submit revised evidence",
-    "submitCount": "Submit revised evidence ({{count}})",
-    "sections": "Sections"
+    "submitCount": "Submit revised evidence ({{count}})"
   },
   "suggestionDialog": {
     "title": "Submit revised evidence",
@@ -128,6 +112,7 @@
     "close": "Close"
   },
   "questionCard": {
+    "notKnown": "Not known",
     "evidence": "Evidence",
     "clearResponse": "Clear this response",
     "noEvidence": "No evidence added yet.",
@@ -137,7 +122,8 @@
     "sourcePlaceholder": "Link, statute or document reference",
     "notes": "Notes",
     "removeEvidence": "Remove this evidence",
-    "addEvidence": "Add evidence"
+    "addEvidence": "Add evidence",
+    "moreExemplars": "+{{count}} more"
   },
   "adminConsole": {
     "title": "Admin console",
