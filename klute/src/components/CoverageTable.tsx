@@ -9,7 +9,9 @@ import Button from "@mui/material/Button";
 import { daysSince, downloadCsv, monthRange, rowsToCsv } from "../lib/coverage";
 import type { CoverageRow } from "../lib/coverage";
 
-const CELL = 9;
+const MONTH_CELL = 9;
+// Yearly grids get wide cells so each year can carry its own label.
+const YEAR_CELL = 38;
 const LABEL_COL = 230;
 const STATS_COL = 170;
 const TEAL = "#01ADBF";
@@ -29,6 +31,7 @@ interface Props {
 // Which dates exist, and which don't, per row: one cell per month (or year), tinted by how much
 // of it has data, red where a row has a hole inside its own date range.
 export default function CoverageTable({ rows, kind, csvName, onSelect, onRefresh }: Props) {
+  const cell = kind === "years" ? YEAR_CELL : MONTH_CELL;
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("name");
   const [onlyGaps, setOnlyGaps] = useState(false);
@@ -68,13 +71,14 @@ export default function CoverageTable({ rows, kind, csvName, onSelect, onRefresh
   }, [columns, kind]);
 
   const withData = rows.filter((r) => r.first);
-  const stats = [
+  const stats: string[][] = [
     ["Rows", String(rows.length)],
     ["Earliest", withData.map((r) => r.first).sort()[0] ?? "-"],
     ["Latest", withData.map((r) => r.last).sort().slice(-1)[0] ?? "-"],
     ["Average completeness", `${Math.round((withData.reduce((s, r) => s + r.completeness, 0) / (withData.length || 1)) * 100)}%`],
     ["With gaps", String(rows.filter((r) => r.gaps > 0).length)],
-    ["Ended >90 days ago", String(withData.filter((r) => daysSince(r.last) > 90).length)],
+    // "Ended >90 days ago" only means something for month-level data; yearly rows always end on a year.
+    ...(kind === "months" ? [["Ended >90 days ago", String(withData.filter((r) => daysSince(r.last) > 90).length)]] : []),
   ];
 
   return (
@@ -126,7 +130,7 @@ export default function CoverageTable({ rows, kind, csvName, onSelect, onRefresh
         <Typography variant="body2">Nothing matches the filter.</Typography>
       ) : (
         <Box sx={{ overflow: "auto", maxHeight: "65vh", border: 1, borderColor: "divider", borderRadius: 1 }}>
-          <Box sx={{ display: "grid", gridTemplateColumns: `${LABEL_COL}px ${STATS_COL}px repeat(${columns.length}, ${CELL}px)`, width: "max-content", fontSize: 12 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: `${LABEL_COL}px ${STATS_COL}px repeat(${columns.length}, ${cell}px)`, width: "max-content", fontSize: 12 }}>
             <Head left={0}>Name</Head>
             <Head left={LABEL_COL}>Range · complete · gaps</Head>
             {headers.map((h, i) => (
@@ -135,7 +139,7 @@ export default function CoverageTable({ rows, kind, csvName, onSelect, onRefresh
               </Head>
             ))}
             {visible.map((r) => (
-              <Line key={r.key} row={r} columns={columns} onSelect={onSelect} />
+              <Line key={r.key} row={r} columns={columns} cell={cell} onSelect={onSelect} />
             ))}
           </Box>
         </Box>
@@ -168,7 +172,7 @@ function Head({ children, span, left }: { children: React.ReactNode; span?: numb
   );
 }
 
-function Line({ row, columns, onSelect }: { row: CoverageRow; columns: string[]; onSelect?: (row: CoverageRow) => void }) {
+function Line({ row, columns, cell, onSelect }: { row: CoverageRow; columns: string[]; cell: number; onSelect?: (row: CoverageRow) => void }) {
   return (
     <>
       <Box
@@ -186,7 +190,7 @@ function Line({ row, columns, onSelect }: { row: CoverageRow; columns: string[];
         const inSpan = fill !== undefined;
         const bg = !inSpan ? undefined : fill === 0 ? GAP_RED : `rgba(1, 173, 191, ${0.25 + 0.75 * fill})`;
         const title = !inSpan ? `${row.key} ${c}: outside this row's range` : fill === 0 ? `${row.key} ${c}: no data` : `${row.key} ${c}: ${Math.round(fill * 100)}% has data`;
-        return <Box key={c} title={title} sx={{ height: CELL + 4, alignSelf: "center", width: CELL - 1, mx: "0.5px", borderRadius: "1px", bgcolor: bg ?? "action.hover", opacity: inSpan ? 1 : 0.5 }} />;
+        return <Box key={c} title={title} sx={{ height: 13, alignSelf: "center", width: cell - 1, mx: "0.5px", borderRadius: "1px", bgcolor: bg ?? "action.hover", opacity: inSpan ? 1 : 0.5 }} />;
       })}
     </>
   );
