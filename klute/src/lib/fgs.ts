@@ -41,3 +41,37 @@ export const fetchMetrics = async (region: string, start: string, end: string) =
   const d = await get<{ results?: FgsMetrics } & FgsMetrics>("historic/metrics", { region_code: region, start_ts: start, end_ts: end });
   return d.results ?? d;
 };
+
+export interface CapacityRow {
+  year: number;
+  source: string;
+  asset_type: string;
+  mw: number;
+}
+
+export const fetchInstalledCapacity = (region: string) =>
+  get<{ region_code: string; rows: CapacityRow[] }>("coverage/data/installed-capacity", { region_code: region }, true);
+
+export interface WeatherSeriesMeta {
+  source: string;
+  variable: string;
+  first: string;
+  last: string;
+}
+
+export const fetchWeatherMeta = () => get<WeatherSeriesMeta[]>("coverage/data/weather/meta", {}, true);
+
+export type WeatherAgg = "hour" | "day" | "month";
+
+export interface WeatherField {
+  source: string;
+  variable: string;
+  agg: WeatherAgg;
+  /** [lon, lat, value] per grid point */
+  points: [number, number, number][];
+  min: number | null;
+  max: number | null;
+}
+
+export const fetchWeatherField = (source: string, variable: string, ts: string, agg: WeatherAgg) =>
+  get<WeatherField>("coverage/data/weather", { source, variable, ts, agg }, true);

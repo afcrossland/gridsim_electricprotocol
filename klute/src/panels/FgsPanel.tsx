@@ -11,18 +11,20 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import { LineChart } from "@mui/x-charts/LineChart";
+import CapacityChart from "../components/CapacityChart";
 import CoverageTable from "../components/CoverageTable";
+import WeatherMap from "../components/WeatherMap";
 import { monthRow, yearRow } from "../lib/coverage";
 import type { CoverageRow } from "../lib/coverage";
-import { AuthError, FGS_API, fetchCoverage, fetchGeneration, fetchMetrics } from "../lib/fgs";
-import type { FgsCoverage, FgsDataset, FgsMetrics, GenerationRow } from "../lib/fgs";
+import { AuthError, FGS_API, fetchCoverage, fetchGeneration, fetchInstalledCapacity, fetchMetrics } from "../lib/fgs";
+import type { CapacityRow, FgsCoverage, FgsDataset, FgsMetrics, GenerationRow } from "../lib/fgs";
 import { jurisdictionName } from "../../../src/lib/jurisdictions";
 
 const DATASETS: { id: FgsDataset; label: string; note: string }[] = [
   { id: "generation", label: "Generation", note: "Generation by fuel, as ingested (before cleaning)." },
   { id: "demand", label: "Demand", note: "Demand series, as ingested (before cleaning)." },
   { id: "installed-capacity", label: "Installed capacity", note: "Yearly nameplate capacity by technology." },
-  { id: "weather", label: "Weather / irradiance", note: "Gridded solar inputs, sampled at one grid point per source and variable." },
+  { id: "weather", label: "Weather / irradiance", note: "Gridded weather and irradiance inputs. The map shows the field itself; the grid below shows date coverage, sampled at one grid point per source and variable." },
 ];
 
 // Top-level fuels only: the API also returns each fuel's sub-types and parents (coal and
@@ -93,6 +95,7 @@ export default function FgsPanel() {
           <Typography variant="body2">Loading from the simulator. The first load after a data change can take up to a minute.</Typography>
         </Box>
       )}
+      {dataset === "weather" && <WeatherMap />}
       {data && (
         <CoverageTable
           key={dataset}
@@ -138,7 +141,19 @@ function RegionDrawer({ row, onClose }: { row: CoverageRow; onClose: () => void 
   const [to, setTo] = useState(fullYear ? fullYear[1] : iso(end));
   const [rowsData, setRowsData] = useState<GenerationRow[] | null>(null);
   const [metrics, setMetrics] = useState<FgsMetrics | null>(null);
+  const [capacity, setCapacity] = useState<CapacityRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    setCapacity(null);
+    fetchInstalledCapacity(row.key)
+      .then((d) => live && setCapacity(d.rows))
+      .catch(() => live && setCapacity([]));
+    return () => {
+      live = false;
+    };
+  }, [row.key]);
 
   useEffect(() => {
     let live = true;
@@ -238,6 +253,8 @@ function RegionDrawer({ row, onClose }: { row: CoverageRow; onClose: () => void 
           <LineChart height={380} xAxis={[{ scaleType: "time", data: series.x }]} series={series.lines} />
         </>
       )}
+      <Typography sx={{ fontWeight: 600, mt: 4, mb: 1 }}>Installed capacity</Typography>
+      {capacity ? <CapacityChart rows={capacity} /> : <CircularProgress size={22} />}
     </Drawer>
   );
 }
