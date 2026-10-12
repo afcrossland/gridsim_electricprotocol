@@ -120,10 +120,22 @@ function endOfData(last: string): number {
   return Math.min(Date.UTC(y, m, 0), Date.now());
 }
 
+/** The latest calendar year in which every month has data, as [from, to] dates; null if none. */
+function lastFullYear(row: CoverageRow): [string, string] | null {
+  const years = [...new Set(Object.keys(row.cells).map((k) => k.slice(0, 4)))].sort().reverse();
+  for (const y of years) {
+    const months = Array.from({ length: 12 }, (_, i) => row.cells[`${y}-${String(i + 1).padStart(2, "0")}`]);
+    if (months.every((fill) => fill !== undefined && fill > 0)) return [`${y}-01-01`, `${y}-12-31`];
+  }
+  return null;
+}
+
 function RegionDrawer({ row, onClose }: { row: CoverageRow; onClose: () => void }) {
   const end = endOfData(row.last || iso(Date.now()).slice(0, 7));
-  const [from, setFrom] = useState(iso(end - 30 * DAY));
-  const [to, setTo] = useState(iso(end));
+  // Opens on the latest full calendar year; regions without one open on their last 30 days.
+  const fullYear = lastFullYear(row);
+  const [from, setFrom] = useState(fullYear ? fullYear[0] : iso(end - 30 * DAY));
+  const [to, setTo] = useState(fullYear ? fullYear[1] : iso(end));
   const [rowsData, setRowsData] = useState<GenerationRow[] | null>(null);
   const [metrics, setMetrics] = useState<FgsMetrics | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -178,6 +190,11 @@ function RegionDrawer({ row, onClose }: { row: CoverageRow; onClose: () => void 
     setTo(iso(end));
     setFrom(iso(end - days * DAY));
   };
+  const useFullYear = () => {
+    if (!fullYear) return;
+    setFrom(fullYear[0]);
+    setTo(fullYear[1]);
+  };
 
   return (
     <Drawer anchor="right" open onClose={onClose} slotProps={{ paper: { sx: { width: { xs: "100%", md: 860 }, p: 3 } } }}>
@@ -196,9 +213,14 @@ function RegionDrawer({ row, onClose }: { row: CoverageRow; onClose: () => void 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, alignItems: "center", mb: 2 }}>
         <TextField size="small" type="date" label="From" value={from} onChange={(e) => e.target.value && setFrom(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
         <TextField size="small" type="date" label="To" value={to} onChange={(e) => e.target.value && setTo(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
-        {[7, 30, 90, 365].map((d) => (
+        {fullYear && (
+          <Button size="small" onClick={useFullYear}>
+            Last full year ({fullYear[0].slice(0, 4)})
+          </Button>
+        )}
+        {[7, 30, 90].map((d) => (
           <Button key={d} size="small" onClick={() => preset(d)}>
-            Last {d === 365 ? "year" : `${d} days`}
+            Last {d} days
           </Button>
         ))}
       </Box>
