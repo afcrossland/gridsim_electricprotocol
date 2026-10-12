@@ -39,6 +39,8 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
   const [query, setQuery] = useState("");
   const [onlyIncomplete, setOnlyIncomplete] = useState(false);
   const [onlyPartial, setOnlyPartial] = useState(false);
+  const [onlyMultiGrid, setOnlyMultiGrid] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [missing, setMissing] = useState<LayerId | "any">("any");
   const [selected, setSelected] = useState<string | null>(null);
   const rowRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -67,9 +69,10 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
       .filter((c) => !q || c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q))
       .filter((c) => !onlyIncomplete || c.missing.length > 0)
       .filter((c) => !onlyPartial || c.partial.length > 0)
+      .filter((c) => !onlyMultiGrid || c.grids.length > 1)
       .filter((c) => missing === "any" || c.missing.includes(missing))
       .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-  }, [countries, query, onlyIncomplete, onlyPartial, missing]);
+  }, [countries, query, onlyIncomplete, onlyPartial, onlyMultiGrid, missing]);
 
   const select = (code: string) => {
     setSelected(code);
@@ -77,6 +80,7 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
     setQuery("");
     setOnlyIncomplete(false);
     setOnlyPartial(false);
+    setOnlyMultiGrid(false);
     setMissing("any");
     setTimeout(() => rowRefs.current[code]?.scrollIntoView({ block: "center", behavior: "smooth" }), 50);
   };
@@ -127,7 +131,7 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
         onSelect={select}
         describe={(code) => {
           const c = byCode.get(code);
-          return c ? `${c.name}: ${Math.round(c.score * 100)}% complete${c.missing.length ? ` · missing ${c.missing.map((m) => LAYERS.find((l) => l.id === m)!.label).join(", ")}` : ""}` : code;
+          return c ? `${c.name}${c.grids.length > 1 ? ` (${c.grids.length} grids)` : ""}: ${Math.round(c.score * 100)}% complete${c.missing.length ? ` · missing ${c.missing.map((m) => LAYERS.find((l) => l.id === m)!.label).join(", ")}` : ""}` : code;
         }}
       />
 
@@ -144,6 +148,7 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
           ))}
         </TextField>
         <FormControlLabel control={<Switch checked={onlyIncomplete} onChange={(e) => setOnlyIncomplete(e.target.checked)} />} label="Only with missing layers" />
+        <FormControlLabel control={<Switch checked={onlyMultiGrid} onChange={(e) => setOnlyMultiGrid(e.target.checked)} />} label="Only with several grids" />
         <FormControlLabel control={<Switch checked={onlyPartial} onChange={(e) => setOnlyPartial(e.target.checked)} />} label="Only with partial layers" />
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           Showing {shown.length} of {countries.length}
@@ -168,6 +173,7 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
             <tr>
               <Th>Country</Th>
               <Th>Layers</Th>
+              <Th title="Separate grids (simulator regions) inside the country">Grids</Th>
               {LAYERS.map((l) => (
                 <Th key={l.id} title={l.explorer}>
                   {l.label}
@@ -177,40 +183,81 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
           </thead>
           <tbody>
             {shown.map((c) => (
-              <Box
-                component="tr"
+              <GridRows
                 key={c.code}
-                ref={(el: HTMLElement | null) => {
-                  rowRefs.current[c.code] = el;
-                }}
-                onClick={() => setSelected(c.code)}
-                sx={{ cursor: "pointer", bgcolor: c.code === selected ? "action.selected" : undefined, "&:hover": { bgcolor: "action.hover" } }}
-              >
-                <Td>
-                  <strong>{c.code}</strong> {c.name}
-                </Td>
-                <Td>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Box sx={{ width: 60, height: 6, borderRadius: 1, bgcolor: "action.hover", overflow: "hidden" }}>
-                      <Box sx={{ width: `${c.score * 100}%`, height: "100%", bgcolor: TEAL }} />
-                    </Box>
-                    {Math.round(c.score * 100)}%
-                  </Box>
-                </Td>
-                {LAYERS.map((l) => {
-                  const s = c.layers[l.id];
-                  return (
-                    <Td key={l.id} title={s.detail} bg={s.unknown ? undefined : !s.has ? RED : layerValue(s) < COMPLETE_FROM ? AMBER : undefined}>
-                      {s.unknown ? <span style={{ opacity: 0.4 }}>n/c</span> : s.has ? (s.pct !== undefined ? `${Math.round(s.pct * 100)}%` : "✓") : "-"}
-                    </Td>
-                  );
-                })}
-              </Box>
+                c={c}
+                selected={c.code === selected}
+                open={expanded.has(c.code)}
+                onSelect={() => setSelected(c.code)}
+                onToggle={() => setExpanded((cur) => { const n = new Set(cur); if (n.has(c.code)) n.delete(c.code); else n.add(c.code); return n; })}
+                setRef={(el) => { rowRefs.current[c.code] = el; }}
+              />
             ))}
           </tbody>
         </Box>
       </Box>
     </Box>
+  );
+}
+
+function GridRows({ c, selected, open, onSelect, onToggle, setRef }: { c: CountryStatus; selected: boolean; open: boolean; onSelect: () => void; onToggle: () => void; setRef: (el: HTMLElement | null) => void }) {
+  const several = c.grids.length > 1;
+  return (
+    <>
+      <Box component="tr" ref={setRef} onClick={onSelect} sx={{ cursor: "pointer", bgcolor: selected ? "action.selected" : undefined, "&:hover": { bgcolor: "action.hover" } }}>
+        <Td>
+          <strong>{c.code}</strong> {c.name}
+        </Td>
+        <Td>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ width: 60, height: 6, borderRadius: 1, bgcolor: "action.hover", overflow: "hidden" }}>
+              <Box sx={{ width: `${c.score * 100}%`, height: "100%", bgcolor: TEAL }} />
+            </Box>
+            {Math.round(c.score * 100)}%
+          </Box>
+        </Td>
+        <Td>
+          {several ? (
+            <Button size="small" sx={{ minWidth: 0, p: 0, textTransform: "none" }} onClick={(e) => { e.stopPropagation(); onToggle(); }}>
+              {open ? "▾" : "▸"} {c.grids.length} grids
+            </Button>
+          ) : c.grids.length === 1 ? (
+            "1"
+          ) : (
+            <span style={{ opacity: 0.4 }}>-</span>
+          )}
+        </Td>
+        {LAYERS.map((l) => {
+          const s = c.layers[l.id];
+          return (
+            <Td key={l.id} title={s.detail} bg={s.unknown ? undefined : !s.has ? RED : layerValue(s) < COMPLETE_FROM ? AMBER : undefined}>
+              {s.unknown ? <span style={{ opacity: 0.4 }}>n/c</span> : s.has ? (s.pct !== undefined ? `${Math.round(s.pct * 100)}%` : "✓") : "-"}
+            </Td>
+          );
+        })}
+      </Box>
+      {open &&
+        c.grids.map((g) => (
+          <Box component="tr" key={g.code} sx={{ bgcolor: "action.hover" }}>
+            <Td>
+              <span style={{ paddingLeft: 18 }}>
+                {g.code} <span style={{ opacity: 0.7 }}>{g.name !== g.code ? g.name : ""}</span>
+              </span>
+            </Td>
+            <Td />
+            <Td />
+            {LAYERS.map((l) => {
+              const s = l.id === "fgsGen" ? g.layers.fgsGen : l.id === "fgsDem" ? g.layers.fgsDem : l.id === "fgsCap" ? g.layers.fgsCap : undefined;
+              if (!["fgsGen", "fgsDem", "fgsCap"].includes(l.id)) return <Td key={l.id} />;
+              return (
+                <Td key={l.id} title={s?.detail} bg={!s ? RED : undefined}>
+                  {s ? `${Math.round((s.pct ?? 1) * 100)}%` : "-"}
+                </Td>
+              );
+            })}
+          </Box>
+        ))}
+    </>
   );
 }
 
@@ -225,6 +272,11 @@ function Detail({ c, onClose, onOpenExplorer }: { c: CountryStatus; onClose: () 
           Close
         </Button>
       </Box>
+      {c.grids.length > 1 && (
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          <strong>{c.grids.length} separate grids:</strong> {c.grids.map((g) => (g.name !== g.code ? `${g.name} (${g.code})` : g.code)).join(", ")}. The layers below take each country&apos;s best grid.
+        </Typography>
+      )}
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 0.5 }}>
         {LAYERS.map((l) => {
           const s = c.layers[l.id];
@@ -266,7 +318,7 @@ function Th({ children, title }: { children: React.ReactNode; title?: string }) 
   );
 }
 
-function Td({ children, title, bg }: { children: React.ReactNode; title?: string; bg?: string }) {
+function Td({ children, title, bg }: { children?: React.ReactNode; title?: string; bg?: string }) {
   return (
     <Box component="td" title={title} sx={{ p: 1, borderBottom: 1, borderColor: "divider", whiteSpace: "nowrap", bgcolor: bg }}>
       {children}

@@ -6,6 +6,7 @@ import irradiance from "../../../calculator/src/data/country-irradiance.json";
 import selfSufficiency from "../../../calculator/src/data/country-self-sufficiency.json";
 import { seedResponses } from "../../../src/stores/protocolStore";
 import { scoreCountry } from "../../../src/lib/scoring";
+import { jurisdictionName } from "../../../src/lib/jurisdictions";
 import type { Protocol, Question } from "../../../src/lib/types";
 import { monthRow, yearRow } from "./coverage";
 import type { FgsCoverage } from "./fgs";
@@ -47,6 +48,13 @@ export function layerValue(l: LayerState): number {
   return l.has ? (l.pct ?? 1) : 0;
 }
 
+/** One grid (simulator region) inside a country, with its own layers. */
+export interface GridStatus {
+  code: string;
+  name: string;
+  layers: Partial<Record<"fgsGen" | "fgsDem" | "fgsCap", LayerState>>;
+}
+
 export interface CountryStatus {
   code: string;
   name: string;
@@ -55,6 +63,8 @@ export interface CountryStatus {
   score: number;
   /** layers with no data at all */
   missing: LayerId[];
+  /** every simulator grid (region) that rolls up to this country; more than one means several grids */
+  grids: GridStatus[];
   /** layers present but under COMPLETE_FROM complete */
   partial: LayerId[];
 }
@@ -95,6 +105,30 @@ function fgsLayer(cov: FgsCoverage | undefined, regionCountries: Record<string, 
   const best = rows.reduce((a, b) => (b.completeness > a.completeness ? b : a));
   const regionNote = rows.length > 1 ? `${rows.length} regions, best ` : "";
   return { has: true, pct: best.completeness, detail: `${regionNote}${span(best.first, best.last, best.completeness)}` };
+}
+
+function regionLayer(cov: FgsCoverage | undefined, regionCode: string): LayerState | undefined {
+  const r = cov?.regions.find((x) => x.region_code === regionCode);
+  if (!cov || !r) return undefined;
+  const row = cov.kind === "years" ? yearRow(regionCode, regionCode, r.years ?? []) : monthRow(regionCode, regionCode, r.months ?? {});
+  return { has: true, pct: row.completeness, detail: span(row.first, row.last, row.completeness) };
+}
+
+function gridsFor(fgs: FgsInput, country: string): GridStatus[] {
+  const inCountry = (code: string) => (fgs.regionCountries?.[code] ?? code) === country;
+  const codes = new Set<string>();
+  for (const cov of [fgs.generation, fgs.demand, fgs.capacity]) for (const r of cov?.regions ?? []) if (inCountry(r.region_code)) codes.add(r.region_code);
+  // A country's own code is the aggregate over its sub-grids (it can carry capacity the sub-grids lack),
+  // not a grid of its own: leave it out when sub-grids exist.
+  const subGrids = [...codes].filter((c) => c !== country);
+  const gridCodes = subGrids.length ? subGrids : [...codes];
+  return gridCodes
+    .sort()
+    .map((code) => ({
+      code,
+      name: jurisdictionName(code),
+      layers: { fgsGen: regionLayer(fgs.generation, code), fgsDem: regionLayer(fgs.demand, code), fgsCap: regionLayer(fgs.capacity, code) },
+    }));
 }
 
 export function buildCountryStatus(fgs: FgsInput): CountryStatus[] {
@@ -144,6 +178,7 @@ export function buildCountryStatus(fgs: FgsInput): CountryStatus[] {
         layers,
         score: checkable.length ? checkable.reduce((sum, l) => sum + layerValue(layers[l.id]), 0) / checkable.length : 0,
         missing: checkable.filter((l) => !layers[l.id].has).map((l) => l.id),
+        grids: gridsFor(fgs, code),
         partial: checkable.filter((l) => layers[l.id].has && layerValue(layers[l.id]) < COMPLETE_FROM).map((l) => l.id),
       };
     })
