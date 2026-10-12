@@ -54,8 +54,10 @@ export default function App({ mode, setMode }: Props) {
   if (checking) return null;
   if (!unlocked) return <Gate onUnlock={() => setUnlocked(true)} />;
 
+  // shared/index.css locks html/body to the viewport (the other apps are full-screen maps), so
+  // this page scrolls inside its own container instead of the document.
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", color: "text.primary" }}>
+    <Box sx={{ height: "100vh", overflowY: "auto", bgcolor: "background.default", color: "text.primary" }}>
       <Box component="header" sx={{ display: "flex", alignItems: "center", gap: 2, px: 3, py: 1.5, borderBottom: 1, borderColor: "divider" }}>
         <Typography variant="h6" component="h1" sx={{ fontWeight: 600 }}>
           Data explorer
