@@ -9,7 +9,7 @@ import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import CountryMap from "../components/CountryMap";
-import { LAYERS, buildCountryStatus } from "../lib/countryStatus";
+import { COMPLETE_FROM, LAYERS, buildCountryStatus, layerValue } from "../lib/countryStatus";
 import type { CountryStatus, LayerId } from "../lib/countryStatus";
 import { downloadCsv } from "../lib/coverage";
 import { fetchCoverage, fetchRegionCountries } from "../lib/fgs";
@@ -17,6 +17,7 @@ import type { FgsCoverage } from "../lib/fgs";
 
 const TEAL = "#01ADBF";
 const RED = "rgba(229,72,77,0.2)";
+const AMBER = "rgba(245,158,11,0.22)";
 
 interface Props {
   onOpenExplorer: (tab: "fgs" | "policy" | "deployment" | "calculator") => void;
@@ -37,6 +38,7 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
   const [fgsError, setFgsError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [onlyIncomplete, setOnlyIncomplete] = useState(false);
+  const [onlyPartial, setOnlyPartial] = useState(false);
   const [missing, setMissing] = useState<LayerId | "any">("any");
   const [selected, setSelected] = useState<string | null>(null);
   const rowRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -64,15 +66,17 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
     return countries
       .filter((c) => !q || c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q))
       .filter((c) => !onlyIncomplete || c.missing.length > 0)
+      .filter((c) => !onlyPartial || c.partial.length > 0)
       .filter((c) => missing === "any" || c.missing.includes(missing))
       .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-  }, [countries, query, onlyIncomplete, missing]);
+  }, [countries, query, onlyIncomplete, onlyPartial, missing]);
 
   const select = (code: string) => {
     setSelected(code);
     // make sure the row is in the table, then bring it into view
     setQuery("");
     setOnlyIncomplete(false);
+    setOnlyPartial(false);
     setMissing("any");
     setTimeout(() => rowRefs.current[code]?.scrollIntoView({ block: "center", behavior: "smooth" }), 50);
   };
@@ -86,15 +90,21 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
     );
   }
 
-  const complete = countries.filter((c) => c.missing.length === 0 && c.score > 0).length;
-  const layerCounts = LAYERS.map((l) => ({ l, n: countries.filter((c) => c.layers[l.id].has).length }));
+  const present = countries.filter((c) => c.missing.length === 0 && c.score > 0).length;
+  const complete = countries.filter((c) => c.missing.length === 0 && c.partial.length === 0 && c.score > 0).length;
+  const average = countries.length ? countries.reduce((sum, c) => sum + c.score, 0) / countries.length : 0;
+  const layerCounts = LAYERS.map((l) => ({
+    l,
+    n: countries.filter((c) => c.layers[l.id].has).length,
+    full: countries.filter((c) => c.layers[l.id].has && layerValue(c.layers[l.id]) >= COMPLETE_FROM).length,
+  }));
   const sel = selected ? byCode.get(selected) : undefined;
 
   return (
     <Box>
       <Typography variant="body2" sx={{ color: "text.secondary", my: 2 }}>
-        {countries.length} countries against {LAYERS.length} data layers across the four explorers. The map fills each country by the share of layers it has; click a country (or a row)
-        for the detail.
+        {countries.length} countries against {LAYERS.length} data layers across the four explorers. A layer counts by how complete it is, so a half-filled one is worth half: the map and the
+        Layers bar show that average. Red cells are missing layers and amber cells are partial (under {Math.round(COMPLETE_FROM * 100)}%). Click a country (or a row) for the detail.
       </Typography>
       {fgsError && (
         <Alert severity="warning" sx={{ mb: 2 }}>
@@ -103,9 +113,11 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
       )}
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 4, mb: 2 }}>
-        <Stat label="Complete in every layer" value={`${complete} of ${countries.length}`} />
-        {layerCounts.map(({ l, n }) => (
-          <Stat key={l.id} label={l.label} value={String(n)} />
+        <Stat label="Present in every layer" value={`${present} of ${countries.length}`} />
+        <Stat label={`Complete (every layer ≥${Math.round(COMPLETE_FROM * 100)}%)`} value={`${complete} of ${countries.length}`} />
+        <Stat label="Average completeness" value={`${Math.round(average * 100)}%`} />
+        {layerCounts.map(({ l, n, full }) => (
+          <Stat key={l.id} label={l.label} value={`${n}${full < n ? ` (${full} full)` : ""}`} />
         ))}
       </Box>
 
@@ -115,7 +127,7 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
         onSelect={select}
         describe={(code) => {
           const c = byCode.get(code);
-          return c ? `${c.name}: ${Math.round(c.score * 100)}% of layers${c.missing.length ? ` · missing ${c.missing.map((m) => LAYERS.find((l) => l.id === m)!.label).join(", ")}` : ""}` : code;
+          return c ? `${c.name}: ${Math.round(c.score * 100)}% complete${c.missing.length ? ` · missing ${c.missing.map((m) => LAYERS.find((l) => l.id === m)!.label).join(", ")}` : ""}` : code;
         }}
       />
 
@@ -131,7 +143,8 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
             </MenuItem>
           ))}
         </TextField>
-        <FormControlLabel control={<Switch checked={onlyIncomplete} onChange={(e) => setOnlyIncomplete(e.target.checked)} />} label="Only incomplete" />
+        <FormControlLabel control={<Switch checked={onlyIncomplete} onChange={(e) => setOnlyIncomplete(e.target.checked)} />} label="Only with missing layers" />
+        <FormControlLabel control={<Switch checked={onlyPartial} onChange={(e) => setOnlyPartial(e.target.checked)} />} label="Only with partial layers" />
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           Showing {shown.length} of {countries.length}
         </Typography>
@@ -187,7 +200,7 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
                 {LAYERS.map((l) => {
                   const s = c.layers[l.id];
                   return (
-                    <Td key={l.id} title={s.detail} bg={s.unknown ? undefined : s.has ? undefined : RED}>
+                    <Td key={l.id} title={s.detail} bg={s.unknown ? undefined : !s.has ? RED : layerValue(s) < COMPLETE_FROM ? AMBER : undefined}>
                       {s.unknown ? <span style={{ opacity: 0.4 }}>n/c</span> : s.has ? (s.pct !== undefined ? `${Math.round(s.pct * 100)}%` : "✓") : "-"}
                     </Td>
                   );
@@ -206,7 +219,7 @@ function Detail({ c, onClose, onOpenExplorer }: { c: CountryStatus; onClose: () 
     <Box sx={{ border: 1, borderColor: "divider", borderRadius: 1, p: 2, mt: 2 }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
         <Typography sx={{ fontWeight: 700, flex: 1 }}>
-          {c.name} <span style={{ opacity: 0.6, fontWeight: 400 }}>{c.code} · {Math.round(c.score * 100)}% of layers</span>
+          {c.name} <span style={{ opacity: 0.6, fontWeight: 400 }}>{c.code} · {Math.round(c.score * 100)}% complete overall</span>
         </Typography>
         <Button size="small" onClick={onClose}>
           Close
@@ -217,7 +230,7 @@ function Detail({ c, onClose, onOpenExplorer }: { c: CountryStatus; onClose: () 
           const s = c.layers[l.id];
           return (
             <Box key={l.id} sx={{ display: "flex", gap: 1, alignItems: "baseline" }}>
-              <span style={{ width: 16, color: s.unknown ? "#9CA3AF" : s.has ? TEAL : "#E5484D" }}>{s.unknown ? "?" : s.has ? "✓" : "✗"}</span>
+              <span style={{ width: 16, color: s.unknown ? "#9CA3AF" : !s.has ? "#E5484D" : layerValue(s) < COMPLETE_FROM ? "#F59E0B" : TEAL }}>{s.unknown ? "?" : !s.has ? "✗" : layerValue(s) < COMPLETE_FROM ? "◐" : "✓"}</span>
               <Typography variant="body2">
                 <strong>{l.label}</strong> <span style={{ opacity: 0.6 }}>({l.explorer})</span>: {s.detail}{" "}
                 <Button size="small" sx={{ minWidth: 0, p: 0, ml: 0.5 }} onClick={() => onOpenExplorer(EXPLORER_TAB[l.explorer])}>

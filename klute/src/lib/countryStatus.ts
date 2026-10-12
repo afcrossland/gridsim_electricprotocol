@@ -39,13 +39,24 @@ export interface LayerState {
   unknown?: boolean;
 }
 
+/** A layer counts as complete from this share up (data layers with a completeness figure only). */
+export const COMPLETE_FROM = 0.9;
+
+/** How much of a layer a country has: 0 missing, otherwise its completeness (1 for yes/no layers). */
+export function layerValue(l: LayerState): number {
+  return l.has ? (l.pct ?? 1) : 0;
+}
+
 export interface CountryStatus {
   code: string;
   name: string;
   layers: Record<LayerId, LayerState>;
-  /** share of checkable layers that are present, 0..1 */
+  /** mean completeness over checkable layers, 0..1 (a half-filled layer counts as half) */
   score: number;
+  /** layers with no data at all */
   missing: LayerId[];
+  /** layers present but under COMPLETE_FROM complete */
+  partial: LayerId[];
 }
 
 interface Jur {
@@ -104,6 +115,8 @@ export function buildCountryStatus(fgs: FgsInput): CountryStatus[] {
   const genData = generation.countries as unknown as Record<string, { series: { year: number }[] }>;
   const irr = irradiance as unknown as Record<string, unknown>;
   const self = selfSufficiency as unknown as Record<string, unknown>;
+  // Share of the years between a series' first and last that it actually has.
+  const yearsPct = (list?: { year: number }[]) => (list?.length ? yearRow("", "", list.map((p) => p.year)).completeness : undefined);
   const years = (list?: { year: number }[]) => (list?.length ? `${Math.min(...list.map((p) => p.year))} → ${Math.max(...list.map((p) => p.year))}` : "");
 
   return jurs
@@ -119,19 +132,19 @@ export function buildCountryStatus(fgs: FgsInput): CountryStatus[] {
         fgsDem: fgsLayer(fgs.demand, fgs.regionCountries, code),
         fgsCap: fgsLayer(fgs.capacity, fgs.regionCountries, code),
         policy: pol ? { has: true, pct: pol.completeness, detail: `${pol.answered}/${questions.length} answered · ${Math.round(pol.completeness * 100)}% complete${pol.via}` } : { has: false, detail: "no answers" },
-        depCap: solYears ? { has: true, detail: solYears } : { has: false, detail: "no Ember capacity series" },
-        depShare: gen?.series?.length ? { has: true, detail: years(gen.series) } : { has: false, detail: "no Ember generation series" },
+        depCap: solYears ? { has: true, pct: yearsPct(sol?.annualSeries ?? sol?.series), detail: `${solYears}${(yearsPct(sol?.annualSeries ?? sol?.series) ?? 1) < 1 ? ` · ${Math.round((yearsPct(sol?.annualSeries ?? sol?.series) ?? 1) * 100)}% of years` : ""}` } : { has: false, detail: "no Ember capacity series" },
+        depShare: gen?.series?.length ? { has: true, pct: yearsPct(gen.series), detail: `${years(gen.series)}${(yearsPct(gen.series) ?? 1) < 1 ? ` · ${Math.round((yearsPct(gen.series) ?? 1) * 100)}% of years` : ""}` } : { has: false, detail: "no Ember generation series" },
         calcIrr: irr[code] ? { has: true, detail: "profile available" } : { has: false, detail: "no irradiance profile" },
         calcSelf: self[code] ? { has: true, detail: "table available" } : { has: false, detail: "no self-sufficiency table" },
       };
       const checkable = LAYERS.filter((l) => !layers[l.id].unknown);
-      const present = checkable.filter((l) => layers[l.id].has).length;
       return {
         code,
         name: j.name,
         layers,
-        score: checkable.length ? present / checkable.length : 0,
+        score: checkable.length ? checkable.reduce((sum, l) => sum + layerValue(layers[l.id]), 0) / checkable.length : 0,
         missing: checkable.filter((l) => !layers[l.id].has).map((l) => l.id),
+        partial: checkable.filter((l) => layers[l.id].has && layerValue(layers[l.id]) < COMPLETE_FROM).map((l) => l.id),
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name));

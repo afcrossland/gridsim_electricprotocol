@@ -114,7 +114,7 @@ export default function CountryMap({ scores, selected, onSelect, describe }: Pro
       <Box sx={{ position: "absolute", left: 10, bottom: 8, display: "flex", alignItems: "center", gap: 1, fontSize: 11 }}>
         <span>none</span>
         <Box sx={{ width: 120, height: 8, borderRadius: 1, background: `linear-gradient(to right, ${RAMP.join(",")})` }} />
-        <span>all layers</span>
+        <span>fully complete</span>
       </Box>
     </Box>
   );
