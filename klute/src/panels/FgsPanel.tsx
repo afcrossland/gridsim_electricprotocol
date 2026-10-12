@@ -13,6 +13,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import { LineChart } from "@mui/x-charts/LineChart";
 import CapacityChart from "../components/CapacityChart";
 import CoverageTable from "../components/CoverageTable";
+import FreshnessPanel from "../components/FreshnessPanel";
+import QualityPanel from "../components/QualityPanel";
+import QualitySummary from "../components/QualitySummary";
 import WeatherMap from "../components/WeatherMap";
 import { monthRow, yearRow } from "../lib/coverage";
 import type { CoverageRow } from "../lib/coverage";
@@ -52,7 +55,7 @@ const toRows = (res: FgsCoverage): CoverageRow[] =>
 // The Future Grid Simulator's data. Coverage comes from the simulator backend (password
 // protected); click a region to see its generation the way the simulator's Explore tab does.
 export default function FgsPanel() {
-  const [dataset, setDataset] = useState<FgsDataset>("generation");
+  const [dataset, setDataset] = useState<FgsDataset | "quality" | "freshness">("generation");
   const [cache, setCache] = useState<Partial<Record<FgsDataset, FgsCoverage>>>({});
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<CoverageRow | null>(null);
@@ -63,14 +66,20 @@ export default function FgsPanel() {
       .then((res) => setCache((c) => ({ ...c, [id]: res })))
       .catch((e: unknown) => setError(e instanceof AuthError ? e.message : `Could not reach the simulator at ${FGS_API}. ${(e as Error).message}`));
   };
+  const isCoverage = dataset !== "quality" && dataset !== "freshness";
+  // The quality table opens regions in the drawer, which takes its date range from generation coverage.
+  const needed: FgsDataset | null = isCoverage ? dataset : dataset === "quality" ? "generation" : null;
   useEffect(() => {
-    if (!cache[dataset]) load(dataset);
+    if (needed && !cache[needed]) load(needed);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataset]);
+  }, [needed]);
 
-  const data = cache[dataset];
+  const data = isCoverage ? cache[dataset] : undefined;
   const rows = useMemo(() => (data ? toRows(data) : []), [data]);
-  const meta = DATASETS.find((d) => d.id === dataset)!;
+  const meta = DATASETS.find((d) => d.id === dataset);
+  // The quality table names regions only; the drawer wants the generation coverage row for its range.
+  const rowFor = (code: string): CoverageRow =>
+    toRows(cache.generation ?? { dataset: "generation", kind: "months", regions: [] }).find((r) => r.key === code) ?? monthRow(code, jurisdictionName(code), {});
 
   return (
     <Box>
@@ -80,16 +89,22 @@ export default function FgsPanel() {
             {d.label}
           </ToggleButton>
         ))}
+        <ToggleButton value="quality">Data quality</ToggleButton>
+        <ToggleButton value="freshness">Freshness</ToggleButton>
       </ToggleButtonGroup>
-      <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        {meta.note} Red cells are gaps inside a region&apos;s own date range.
-      </Typography>
-      {error && (
+      {dataset === "quality" && <QualitySummary onSelect={(code) => setSelected(rowFor(code))} />}
+      {dataset === "freshness" && <FreshnessPanel />}
+      {isCoverage && meta && (
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          {meta.note} Red cells are gaps inside a region&apos;s own date range.
+        </Typography>
+      )}
+      {isCoverage && error && (
         <Alert severity="error" sx={{ mt: 2 }}>
           {error}
         </Alert>
       )}
-      {!data && !error && (
+      {isCoverage && !data && !error && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 4 }}>
           <CircularProgress size={22} />
           <Typography variant="body2">Loading from the simulator. The first load after a data change can take up to a minute.</Typography>
@@ -104,6 +119,7 @@ export default function FgsPanel() {
           csvName={`fgs-${dataset}-coverage`}
           onSelect={dataset === "weather" ? undefined : setSelected}
           onRefresh={() => {
+            if (!isCoverage) return;
             setCache((c) => ({ ...c, [dataset]: undefined }));
             load(dataset, true);
           }}
@@ -253,6 +269,19 @@ function RegionDrawer({ row, onClose }: { row: CoverageRow; onClose: () => void 
           <LineChart height={380} xAxis={[{ scaleType: "time", data: series.x }]} series={series.lines} />
         </>
       )}
+      <Typography sx={{ fontWeight: 600, mt: 4, mb: 1 }}>Data quality by day</Typography>
+      <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
+        Each cell is a day. Click a flagged day or range to chart it above.
+      </Typography>
+      <QualityPanel
+        region={row.key}
+        onPick={(f) => {
+          // a little context either side so the problem is not the whole chart
+          const pad = 3 * DAY;
+          setFrom(iso(Date.parse(f.from) - pad));
+          setTo(iso(Math.min(Date.parse(f.to) + pad, end)));
+        }}
+      />
       <Typography sx={{ fontWeight: 600, mt: 4, mb: 1 }}>Installed capacity</Typography>
       {capacity ? <CapacityChart rows={capacity} /> : <CircularProgress size={22} />}
     </Drawer>

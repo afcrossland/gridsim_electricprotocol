@@ -17,11 +17,13 @@ import PolicyPanel from "./panels/PolicyPanel";
 import DeploymentPanel from "./panels/DeploymentPanel";
 import CalculatorPanel from "./panels/CalculatorPanel";
 import FgsPanel from "./panels/FgsPanel";
+import OverviewPanel from "./panels/OverviewPanel";
 
 const TEAL = "#01ADBF";
 const base = import.meta.env.BASE_URL;
 
 const TABS = [
+  { id: "overview", label: "Overview" },
   { id: "fgs", label: "Future Grid Simulator" },
   { id: "policy", label: "Policy Explorer" },
   { id: "deployment", label: "Deployment Explorer" },
@@ -39,7 +41,7 @@ interface Props {
 export default function App({ mode, setMode }: Props) {
   const [unlocked, setUnlocked] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [tab, setTab] = useState<TabId>("fgs");
+  const [tab, setTab] = useState<TabId>("overview");
 
   useEffect(() => {
     document.title = "Data explorer";
@@ -88,6 +90,7 @@ export default function App({ mode, setMode }: Props) {
             <Tab key={t.id} value={t.id} label={t.label} />
           ))}
         </Tabs>
+        {tab === "overview" && <OverviewPanel onOpenExplorer={setTab} />}
         {tab === "fgs" && <FgsPanel />}
         {tab === "policy" && <PolicyPanel />}
         {tab === "deployment" && <DeploymentPanel />}

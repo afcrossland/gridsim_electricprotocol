@@ -75,3 +75,53 @@ export interface WeatherField {
 
 export const fetchWeatherField = (source: string, variable: string, ts: string, agg: WeatherAgg) =>
   get<WeatherField>("coverage/data/weather", { source, variable, ts, agg }, true);
+
+export type FindingKind = "missing" | "zero" | "negative" | "low" | "partial" | "spike" | "dip" | "flat";
+
+export interface Finding {
+  kind: FindingKind;
+  severity: "high" | "medium" | "low";
+  from: string;
+  to: string;
+  days: number;
+  detail: string;
+}
+
+export interface QualitySeries {
+  source: string;
+  days: { d: string; n: number; mean: number }[];
+  findings: Finding[];
+}
+
+export const fetchQualityRegion = (dataset: "generation" | "demand", region: string) =>
+  get<{ sources: QualitySeries[] }>("coverage/data/quality/region", { dataset, region_code: region }, true);
+
+export interface QualitySummaryRow {
+  region_code: string;
+  source: string;
+  days: number;
+  first: string;
+  last: string;
+  flagged_days: number;
+  ranges: number;
+  by_kind: Partial<Record<FindingKind, number>>;
+  worst: "high" | "medium" | "low" | null;
+}
+
+export const fetchQualitySummary = (dataset: "generation" | "demand") =>
+  get<{ series: QualitySummaryRow[] }>("coverage/data/quality/summary", { dataset }, true);
+
+export interface FreshnessRow {
+  dataset: "generation" | "demand";
+  source: string;
+  region_code: string;
+  last_ts: string;
+  age_days: number;
+  source_latest: string;
+  behind_source_days: number;
+  last_cleaned: string | null;
+}
+
+export const fetchFreshness = () => get<{ now: string; rows: FreshnessRow[] }>("coverage/data/freshness", {}, true);
+
+export const fetchRegionCountries = () => get<Record<string, string>>("coverage/data/region-countries", {}, true);
