@@ -34,6 +34,14 @@ The built site has four HTML entries, not one - see `vite.config.ts`'s
   index.html` mounts its own `calculator/src/main.tsx`, a third separate
   source tree. See `calculator/README.md`.
 
+- **`/klute/`** - the password-protected Data explorer (added 2026-10-12): what data
+  sits behind each explorer and where it has gaps. One tab per explorer - Future Grid
+  Simulator (coverage heatmaps for generation, demand, installed capacity and weather,
+  plus a per-region generation chart), Policy Explorer (answers and evidence per
+  jurisdiction), Deployment Explorer (Ember series per country) and Solar Homes
+  Calculator (irradiance and self-sufficiency tables). It has its own `klute/src/` tree
+  and is not linked from the splash page. See "The /klute data explorer" below.
+
 All four entries share the same `base` (see Deployment below), so asset
 URLs resolve correctly under either the GitHub Pages subpath or a custom
 domain regardless of which entry references them. All three apps (policy,
@@ -97,6 +105,27 @@ revoking it never affects anything else.
 repository name, because a GitHub Pages project site is served from a subpath.
 Pointing a custom domain at the site later means setting `VITE_BASE=/` rather
 than changing any code.
+
+## The /klute data explorer
+
+`klute/` is a fifth entry: `klute/index.html` mounts `klute/src/main.tsx`. It reads the
+other explorers' own data files directly (policy answers via `seedResponses()`, the Ember
+JSON in `deployment/src/data/`, the calculator tables), so those tabs need no backend. The
+Future Grid Simulator tab calls the simulator's API (`VITE_FGS_API_BASE_URL`, default
+`http://localhost:8000`): `/coverage/*` for the date-coverage grids and `/historic/*` for the
+region chart.
+
+**The password is a deterrent here, not security.** This site is static, so the gate
+(`klute/src/lib/gate.ts`) compares a SHA-256 of what you type with `VITE_KLUTE_PASSWORD_HASH`,
+baked in at build time. The data files for the policy, deployment and calculator tabs are
+ordinary bundle assets that anyone can fetch. What the password does protect is the
+simulator tab: the same password is sent as `X-Klute-Password` and the backend (env
+`KLUTE_PASSWORD`, fails closed when unset) checks it on every `/coverage` request.
+
+To set it up: pick a password, put it in the backend's `KLUTE_PASSWORD`, and set repository
+secret `KLUTE_PASSWORD_HASH` to `printf '%s' "<password>" | sha256sum` plus repository
+variable `FGS_API_BASE_URL` to the simulator's API URL. For local use run
+`VITE_KLUTE_PASSWORD_HASH=<hash> npm run dev` and open `/klute/`.
 
 ## How data gets updated
 

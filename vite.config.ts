@@ -43,6 +43,7 @@ export default defineConfig(({ mode }) => {
           policy: fileURLToPath(new URL("./policy/index.html", import.meta.url)),
           deployment: fileURLToPath(new URL("./deployment/index.html", import.meta.url)),
           calculator: fileURLToPath(new URL("./calculator/index.html", import.meta.url)),
+          klute: fileURLToPath(new URL("./klute/index.html", import.meta.url)),
         },
       },
     },
