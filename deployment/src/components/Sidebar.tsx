@@ -37,6 +37,9 @@ interface Props {
   compareCountries: string[];
   onAddCompare: (code: string) => void;
   onRemoveCompare: (code: string) => void;
+  /** The continent filter - lifted to App.tsx (2026-10-14) so `DeploymentMap` can zoom to fit it too; same reasoning as `compareCountries`. */
+  continents: string[];
+  onContinentsChange: (next: string[]) => void;
 }
 
 /**
@@ -283,9 +286,10 @@ export default function Sidebar({
   compareCountries,
   onAddCompare,
   onRemoveCompare,
+  continents,
+  onContinentsChange,
 }: Props) {
   const { t, i18n } = useTranslation();
-  const [continents, setContinents] = useState<string[]>([]);
   const [desc, setDesc] = useState(true);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const filtersActive = continents.length > 0;
@@ -579,7 +583,7 @@ export default function Sidebar({
           active={filtersActive}
           expanded={filtersExpanded}
           onToggleExpanded={() => setFiltersExpanded((v) => !v)}
-          onClear={() => setContinents([])}
+          onClear={() => onContinentsChange([])}
           sortDesc={desc}
           onToggleSort={() => setDesc((v) => !v)}
           labels={{
@@ -592,7 +596,7 @@ export default function Sidebar({
         >
           <ContinentFilter
             value={continents}
-            onChange={setContinents}
+            onChange={onContinentsChange}
             label={t("sidebar.continent")}
             allLabel={t("sidebar.allContinents")}
             // Selected values stay the raw English CONTINENTS strings
@@ -601,6 +605,12 @@ export default function Sidebar({
             // falls back to the raw key, but every value here always has
             // one (see the `continents` block in common.json).
             translate={(c) => t(`continents.${c}`)}
+            // Single continent at a time - the map zooms to fit whatever's
+            // selected (DeploymentMap.tsx), and that only reads as "zoom in
+            // here" for one continent, not a scattered union of several.
+            // Per Andrew's own instruction 2026-10-14 ("this means we can
+            // only filter to one item at a time").
+            multiple={false}
           />
         </FilterBar>
       </Box>

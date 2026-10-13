@@ -13,7 +13,7 @@ import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
 import { GSC_RAMP, COLOR_NO_DATA, logNormalize } from "../../../shared/lib/mapColor";
 import { loadMapStyle } from "../../../shared/lib/mapStyle";
-import { canonicalCode, jurisdictionName, resolveTargets } from "../lib/jurisdictions";
+import { canonicalCode, continentOf, jurisdictionName, resolveTargets } from "../lib/jurisdictions";
 import { codesForMetric, domainForMetric, valueForMap, type Metric } from "../lib/metrics";
 
 const INITIAL_VIEW = { longitude: 10, latitude: 20, zoom: 1.4 };
@@ -96,11 +96,13 @@ interface Props {
   metric: Metric;
   selectedCountry: string | null;
   onCountryClick: (code: string | null) => void;
+  /** The sidebar's own continent filter (single continent at a time - see `ContinentFilter`'s own `multiple` prop) - frames the map on whichever one is picked, same spirit as framing a selected country below. */
+  continents: string[];
   /** Suppresses the legend and the total-capacity tile even with nothing selected - the tour's opening scene wants an unobstructed view of the choropleth colours themselves, same reasoning as Policy Explorer's own PolicyMap.tsx `hideLegend` prop. */
   hideLegend?: boolean;
 }
 
-export default function DeploymentMap({ metric, selectedCountry, onCountryClick, hideLegend }: Props) {
+export default function DeploymentMap({ metric, selectedCountry, onCountryClick, continents, hideLegend }: Props) {
   const { t, i18n } = useTranslation();
   const mapRef = useRef<MapRef>(null);
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
@@ -180,18 +182,38 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
     }
   }, [metric, sourceReady, worldData]);
 
-  // Frame the selected country, or zoom back out to the whole world once a
-  // selection is cleared - same behaviour as the policy tool's own map.
+  // Frame the selected country; otherwise the continent filter, if one's
+  // active; otherwise zoom back out to the whole world. A country always
+  // wins over the continent filter - picking one implies looking right at
+  // it, not at the wider region around it - though in practice the two
+  // never compete: the continent filter only renders in the ranking-list
+  // view, which is itself only shown when nothing's selected (see
+  // Sidebar.tsx). Continent framing added 2026-10-14 per Andrew's own
+  // instruction ("when we click filter, it zooms in on the continent").
   useEffect(() => {
     const map = mapRef.current?.getMap();
     if (!map || !worldData) return;
-    if (!selectedCountry) {
-      map.fitBounds(WORLD_BOUNDS, { padding: 24, duration: 600 });
+    if (selectedCountry) {
+      const bounds = boundsOf(worldData, resolveTargets(selectedCountry));
+      if (bounds) map.fitBounds(bounds, { padding: 80, duration: 600, maxZoom: 5 });
       return;
     }
-    const bounds = boundsOf(worldData, resolveTargets(selectedCountry));
-    if (bounds) map.fitBounds(bounds, { padding: 80, duration: 600, maxZoom: 5 });
-  }, [selectedCountry, worldData]);
+    if (continents.length > 0) {
+      // Same "capacity" universe Sidebar.tsx's own regional aggregate row
+      // draws from, regardless of the active metric - a continent's own
+      // shape doesn't change depending on which map metric is showing.
+      const codes = codesForMetric("capacity").filter((code) => {
+        const continent = continentOf(code);
+        return continent !== null && continents.includes(continent);
+      });
+      const bounds = boundsOf(worldData, codes.flatMap((code) => resolveTargets(code)));
+      if (bounds) {
+        map.fitBounds(bounds, { padding: 40, duration: 600 });
+        return;
+      }
+    }
+    map.fitBounds(WORLD_BOUNDS, { padding: 24, duration: 600 });
+  }, [selectedCountry, continents, worldData]);
 
   const handleMouseMove = (event: MapLayerMouseEvent) => {
     const feature = event.features?.[0];

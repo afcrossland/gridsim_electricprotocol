@@ -65,6 +65,16 @@ export default function App({ mode, setMode }: Props) {
   const removeCompareCountry = (code: string) => {
     setCompareCountries((codes) => codes.filter((c) => c !== code));
   };
+  // The continent filter - lifted up from Sidebar.tsx's own local state
+  // (2026-10-14) so the map can see it too: picking a continent now zooms
+  // the map to fit it, per Andrew's own instruction ("when we click
+  // filter, it zooms in on the continent"). Single-continent-at-a-time
+  // (`ContinentFilter`'s own `multiple={false}` below) rather than the
+  // multi-select every other app keeps - zooming to fit the union of
+  // several scattered continents doesn't read as "zoom in here" the way
+  // one does, per Andrew's own follow-up ("this means we can only filter
+  // to one item at a time").
+  const [continents, setContinents] = useState<string[]>([]);
   // Same "page" concept as ep_policymap's own App.tsx, just local state
   // here rather than a store field - this app has nothing else that needs
   // to read or restore it.
@@ -126,6 +136,7 @@ export default function App({ mode, setMode }: Props) {
       metric={metric}
       selectedCountry={selectedCountry}
       onCountryClick={handleSelectCountry}
+      continents={continents}
       hideLegend={heroScene}
     />
   );
@@ -139,6 +150,8 @@ export default function App({ mode, setMode }: Props) {
       compareCountries={compareCountries}
       onAddCompare={addCompareCountry}
       onRemoveCompare={removeCompareCountry}
+      continents={continents}
+      onContinentsChange={setContinents}
     />
   );
   const comparing = !isMobile && compareCountries.length > 0;

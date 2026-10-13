@@ -14,6 +14,15 @@ interface Props {
   /** Translates a continent's own English name (`CONTINENTS`' values) for display - omit for an app with no i18n (plain English). */
   translate?: (continent: string) => string;
   sx?: SxProps<Theme>;
+  /**
+   * Restricts the picker to one continent at a time instead of several -
+   * deployment's own map zooms to fit whatever's selected (2026-10-14),
+   * and fitting the union of several scattered continents doesn't read
+   * as "zoom in here" the way one continent does. Defaults to `true`
+   * (every app's own original multi-select, unchanged) - only deployment
+   * opts into `false`.
+   */
+  multiple?: boolean;
 }
 
 /**
@@ -24,7 +33,35 @@ interface Props {
  * before this shared version was written 2026-09-28, as part of giving
  * calculator the same filter box its siblings already had.
  */
-export default function ContinentFilter({ value, onChange, label = "Continent", allLabel = "All continents", translate = (c) => c, sx }: Props) {
+export default function ContinentFilter({
+  value,
+  onChange,
+  label = "Continent",
+  allLabel = "All continents",
+  translate = (c) => c,
+  sx,
+  multiple = true,
+}: Props) {
+  if (!multiple) {
+    return (
+      <TextField
+        select
+        size="small"
+        label={label}
+        value={value[0] ?? ""}
+        onChange={(e) => onChange(e.target.value ? [e.target.value] : [])}
+        sx={sx ?? { minWidth: 220, width: "100%" }}
+      >
+        <MenuItem value="">{allLabel}</MenuItem>
+        {CONTINENTS.map((c) => (
+          <MenuItem key={c} value={c}>
+            {translate(c)}
+          </MenuItem>
+        ))}
+      </TextField>
+    );
+  }
+
   return (
     <TextField
       select
