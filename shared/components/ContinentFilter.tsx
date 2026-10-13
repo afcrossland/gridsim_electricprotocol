@@ -1,9 +1,39 @@
-import { Checkbox, MenuItem, TextField } from "@mui/material";
+import type { ReactNode } from "react";
+import { Checkbox, ListSubheader, MenuItem, TextField } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 
 import { CONTINENTS } from "../lib/continents";
+
+/**
+ * Interleaves a non-selectable `ListSubheader` before each run of options
+ * that share a group (per `groupLabel`), or just maps `renderItem` over
+ * `options` unchanged when no `groupLabel` was given - the one piece of
+ * logic both the single- and multi-select branches below need.
+ */
+function withGroups(
+  options: readonly string[],
+  groupLabel: ((option: string) => string) | undefined,
+  renderItem: (option: string) => ReactNode,
+): ReactNode[] {
+  if (!groupLabel) return options.map(renderItem);
+  const nodes: ReactNode[] = [];
+  let lastGroup: string | null = null;
+  for (const option of options) {
+    const group = groupLabel(option);
+    if (group !== lastGroup) {
+      nodes.push(
+        <ListSubheader key={`group-${group}`} sx={{ fontWeight: 700 }}>
+          {group}
+        </ListSubheader>,
+      );
+      lastGroup = group;
+    }
+    nodes.push(renderItem(option));
+  }
+  return nodes;
+}
 
 interface Props {
   value: string[];
@@ -31,6 +61,18 @@ interface Props {
    * flat string list it's showing, so this is the only change that took.
    */
   options?: readonly string[];
+  /**
+   * Groups `options` under a non-selectable subheader wherever this
+   * returns a new value - deployment's own 22-item sub-region list groups
+   * by continent this way (2026-10-14, "add break headers with the
+   * continent names... easier to use"), since a flat 22-item list is a
+   * lot to scan without the six-continent structure it's really built
+   * from. Omitted (no grouping) by every other caller - a six-item
+   * continent list needs no further grouping above it. Assumes `options`
+   * is already sorted so every item in a group is contiguous, same
+   * assumption `SUBREGIONS`' own declaration order relies on.
+   */
+  groupLabel?: (option: string) => string;
 }
 
 /**
@@ -51,6 +93,7 @@ export default function ContinentFilter({
   sx,
   multiple = true,
   options = CONTINENTS,
+  groupLabel,
 }: Props) {
   if (!multiple) {
     return (
@@ -63,7 +106,7 @@ export default function ContinentFilter({
         sx={sx ?? { minWidth: 220, width: "100%" }}
       >
         <MenuItem value="">{allLabel}</MenuItem>
-        {options.map((c) => (
+        {withGroups(options, groupLabel, (c) => (
           <MenuItem key={c} value={c}>
             {translate(c)}
           </MenuItem>
@@ -91,7 +134,7 @@ export default function ContinentFilter({
       }}
       sx={sx ?? { minWidth: 220, width: "100%" }}
     >
-      {options.map((c) => (
+      {withGroups(options, groupLabel, (c) => (
         <MenuItem key={c} value={c}>
           <Checkbox
             icon={<CheckBoxOutlineBlankIcon fontSize="small" />}

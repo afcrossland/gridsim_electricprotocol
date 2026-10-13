@@ -11,6 +11,7 @@ import CountryDetail from "./CountryDetail";
 import GenerationDetail from "./GenerationDetail";
 import LockedMetricsSection from "./LockedMetricsSection";
 import ContinentFilter from "../../../shared/components/ContinentFilter";
+import { continentOfRegion } from "../../../shared/lib/continents";
 import DetailHeader from "../../../shared/components/DetailHeader";
 import FilterBar from "../../../shared/components/FilterBar";
 import FlagImg from "../../../shared/components/FlagImg";
@@ -627,6 +628,16 @@ export default function Sidebar({
             // Per Andrew's own instruction 2026-10-14 ("this means we can
             // only filter to one item at a time").
             multiple={false}
+            // Breaks the 22-item list into its own six continent groups -
+            // per Andrew's own instruction 2026-10-14 ("add break headers
+            // with the continent names... easier to use"). SUBREGIONS is
+            // already declared continent-by-continent (see its own doc
+            // comment), so this only needs to name which continent each
+            // sub-region belongs to, not re-sort anything.
+            groupLabel={(subregion) => {
+              const continent = continentOfRegion(subregion);
+              return continent ? t(`continents.${continent}`) : "";
+            }}
           />
         </FilterBar>
       </Box>

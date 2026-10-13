@@ -107,6 +107,14 @@
     "Micronesia": "Micronesia",
     "Polynesia": "Polynesia"
   },
+  "continents": {
+    "Africa": "Africa",
+    "Asia": "Asia",
+    "Europe": "Europe",
+    "North America": "North America",
+    "South America": "South America",
+    "Oceania": "Oceania"
+  },
   "map": {
     "noData": "No data",
     "share": "{{value}}% of generation",
