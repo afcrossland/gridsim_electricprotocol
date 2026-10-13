@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { Autocomplete, Box, Checkbox, Stack, TextField, Tooltip, Typography, useTheme } from "@mui/material";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import { Box, IconButton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PublicIcon from "@mui/icons-material/Public";
 import { useTranslation } from "react-i18next";
 
+import ComparePanel from "./ComparePanel";
+import ComparePicker from "./ComparePicker";
 import CountryDetail from "./CountryDetail";
 import GenerationDetail from "./GenerationDetail";
 import LockedMetricsSection from "./LockedMetricsSection";
@@ -15,6 +16,7 @@ import FilterBar from "../../../shared/components/FilterBar";
 import FlagImg from "../../../shared/components/FlagImg";
 import RankedRow from "../../../shared/components/RankedRow";
 import { aggregateEmberCountries } from "../lib/aggregateSolar";
+import { compareColorFor, MAX_COMPARE_COUNTRIES, PRIMARY_SERIES_COLOR } from "../lib/compareColors";
 import { emberCountry, latestPointOf } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
 import { monthAbbrev } from "../lib/formatMonth";
@@ -29,8 +31,12 @@ interface Props {
   onSelect: (code: string | null) => void;
   /** Hides the "Solar Deployment Explorer" heading below - only on mobile, where it sits directly under TopNavbar's own copy of the same title and reads as an immediate duplicate. On desktop the sidebar is beside the map, not under the header, so the heading still earns its place there. */
   isMobile?: boolean;
-  /** Shows the member-only "Compare countries" multi-select in the filter panel - see its own doc comment below. */
+  /** Shows the member-only "+" Compare entry point next to the selected country's own header - see the detail-view branch below. */
   member: boolean;
+  /** Countries added to the compare row alongside `selectedCountry` (the primary/first column) - lifted to App.tsx, same reasoning as `selectedCountry` itself. */
+  compareCountries: string[];
+  onAddCompare: (code: string) => void;
+  onRemoveCompare: (code: string) => void;
 }
 
 /**
@@ -42,7 +48,7 @@ interface Props {
  * `--aqua-dark`/`--citrus-dark`), a rounded-pill CTA button in that same
  * colour. Opens in a new tab since it leaves this app entirely.
  */
-function CrossLinkTile({ href, label, accent }: { href: string; label: string; accent: string }) {
+export function CrossLinkTile({ href, label, accent }: { href: string; label: string; accent: string }) {
   const { t } = useTranslation();
   return (
     <Box
@@ -56,11 +62,26 @@ function CrossLinkTile({ href, label, accent }: { href: string; label: string; a
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
         textAlign: "center",
         gap: 1,
       }}
     >
-      <Typography sx={{ fontWeight: 800, fontSize: "0.8125rem", color: accent, lineHeight: 1.25 }}>
+      {/* Reserves two lines' worth of height unconditionally, same reasoning
+          as `StatTile`'s own `minHeight` just below - defensive here since
+          this label's text is the same in every panel, but keeps the row
+          height from depending on any one panel's own text-wrap outcome. */}
+      <Typography
+        sx={{
+          fontWeight: 800,
+          fontSize: "0.8125rem",
+          color: accent,
+          lineHeight: 1.25,
+          minHeight: "2.5em",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
         {label}
       </Typography>
       <Box
@@ -98,8 +119,20 @@ function CrossLinkTile({ href, label, accent }: { href: string; label: string; a
  * padding) but no accent colour or CTA button, since there's nothing to
  * click through to - just a label/value pair, optionally with a tooltip for
  * the source/year (population's World Bank year).
+ *
+ * The value's own `minHeight` reserves room for two lines regardless of
+ * whether this particular value actually wraps - per Andrew's own
+ * instruction 2026-10-14 ("there are occasions where the charts do not
+ * align. force top align"): in Compare mode's narrow tiles, a real
+ * per-capita figure ("1758 W per capita") wraps to two lines while a
+ * short "No data" stays on one, so a country with no data got a shorter
+ * stat-tile row than its neighbours and everything below it - the header,
+ * cross-links, both charts - started that much higher. Reserving the
+ * taller case's height unconditionally, rather than depending on whatever
+ * a given value happens to need, is what makes every panel's own row the
+ * same height regardless of content.
  */
-function StatTile({ label, value, tooltip }: { label: string; value: string; tooltip?: string }) {
+export function StatTile({ label, value, tooltip }: { label: string; value: string; tooltip?: string }) {
   const content = (
     <Box
       sx={{
@@ -109,6 +142,9 @@ function StatTile({ label, value, tooltip }: { label: string; value: string; too
         borderColor: "divider",
         bgcolor: "background.paper",
         p: 1.5,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
         textAlign: "center",
       }}
     >
@@ -120,11 +156,26 @@ function StatTile({ label, value, tooltip }: { label: string; value: string; too
           color: "text.secondary",
           textTransform: "uppercase",
           mb: 0.5,
+          minHeight: "2.4em",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {label}
       </Typography>
-      <Typography sx={{ fontWeight: 800, fontSize: "1rem", color: "text.primary", lineHeight: 1.2 }}>
+      <Typography
+        sx={{
+          fontWeight: 800,
+          fontSize: "1rem",
+          color: "text.primary",
+          lineHeight: 1.2,
+          minHeight: "2.4em",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         {value}
       </Typography>
     </Box>
@@ -176,9 +227,6 @@ const PANEL_SX = {
 /** Pseudo-jurisdiction code for the continent filter's own pinned aggregate row - see `GLOBAL_CODE`'s own doc comment for the same reasoning, just scoped to whatever the filter currently matches instead of every country. */
 const REGION_CODE = "REGION";
 
-/** Pseudo-jurisdiction code for the member-only "Compare countries" multi-select's own pinned aggregate row - see `GLOBAL_CODE`'s own doc comment for the same reasoning, just scoped to a hand-picked set of countries instead of a continent. */
-const MULTI_CODE = "SELECTION";
-
 /**
  * The pinned "Global" row and the continent filter's own "Region" row share
  * this exact tile - a soft aqua tint (not selected/hover-driven, unlike the
@@ -226,25 +274,21 @@ function PinnedAggregateRow({ onClick, label, value }: { onClick: () => void; la
  * per-country detail view yet to justify splitting them) - a country's own
  * row is what drives both browsing and selecting one on the map.
  */
-export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, member }: Props) {
+export default function Sidebar({
+  metric,
+  selectedCountry,
+  onSelect,
+  isMobile,
+  member,
+  compareCountries,
+  onAddCompare,
+  onRemoveCompare,
+}: Props) {
   const { t, i18n } = useTranslation();
   const [continents, setContinents] = useState<string[]>([]);
-  // Member-only "Compare countries" multi-select (added 2026-09-30, per
-  // Andrew's own instruction "we should also be able to select multiple
-  // countries... a member-only country multi-select, sitting right next to
-  // the existing continent dropdown") - any hand-picked set of countries
-  // gets the exact same pinned-aggregate-row treatment as the continent
-  // filter's own "Region" row (`aggregateEmberCountries`,
-  // `regionPopulationActual`), just fed a chosen code list instead of a
-  // continent-filtered one. Kept deliberately distinct from the footer's
-  // own single-country "Search countries" box (a *different* action - jump
-  // straight to one country's own page, not build an aggregate of several)
-  // rather than merged into it, so the two don't read as duplicates of each
-  // other.
-  const [multiCodes, setMultiCodes] = useState<string[]>([]);
   const [desc, setDesc] = useState(true);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
-  const filtersActive = continents.length > 0 || multiCodes.length > 0;
+  const filtersActive = continents.length > 0;
 
   const rows = useMemo(() => {
     return codesForMetric(metric)
@@ -261,7 +305,6 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
 
   const isGlobalSelected = selectedCountry === GLOBAL_CODE;
   const isRegionSelected = selectedCountry === REGION_CODE;
-  const isMultiSelected = selectedCountry === MULTI_CODE;
 
   // The continent filter's own aggregate - every EMBER_SOLAR code the
   // filter currently matches (independent of `rows` above, which is
@@ -281,70 +324,39 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
     [regionCodes, regionLabel],
   );
 
-  // The "Compare countries" multi-select's own aggregate - same mechanism
-  // as the region one above, just fed `multiCodes` (hand-picked, member
-  // only) instead of a continent-filtered list. `multiCountryOptions` is
-  // the same "every EMBER_SOLAR code, alphabetical" universe policy's own
-  // ScoreboardFilters.tsx country Autocomplete uses for the same control.
-  const multiCountryOptions = useMemo(
-    () =>
-      codesForMetric("capacity")
-        .map((code) => ({ code, name: jurisdictionName(code, i18n.language) }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    [i18n.language],
-  );
-  const selectedMultiOptions = multiCountryOptions.filter((o) => multiCodes.includes(o.code));
-  const multiLabel =
-    multiCodes.length === 0
-      ? ""
-      : multiCodes.length <= 2
-        ? multiCodes.map((c) => jurisdictionName(c, i18n.language)).join(", ")
-        : t("sidebar.countriesSelected", { count: multiCodes.length });
-  const multiEmberCountry = useMemo(
-    () => (multiCodes.length > 0 ? aggregateEmberCountries(multiCodes, multiLabel) : null),
-    [multiCodes, multiLabel],
-  );
-
   // A country with a real Ember history for either dataset swaps the whole
   // sidebar over to its timeseries (capacity section, then generation-mix
   // section below it if that data exists too - both shown together
   // regardless of which metric is active on the map, per Andrew's
   // instruction 2026-09-09). A country with neither just stays highlighted
-  // in the ranking list below. The pinned "Global" row (GLOBAL_CODE), the
-  // continent filter's own "Region" row (REGION_CODE) and the "Compare
-  // countries" multi-select's own row (MULTI_CODE, added 2026-09-30) are
-  // all structured as their own EmberCountry (lib/globalSolar.ts,
-  // lib/aggregateSolar.ts) precisely so any of them can slot into
+  // in the ranking list below. The pinned "Global" row (GLOBAL_CODE) and
+  // the continent filter's own "Region" row (REGION_CODE) are both
+  // structured as their own EmberCountry (lib/globalSolar.ts,
+  // lib/aggregateSolar.ts) precisely so either can slot into
   // `selectedEmberCountry` here and render through this same CountryDetail
-  // path unchanged - none has generation-mix data of its own, so
-  // selectedGenerationCountry always stays undefined for all three.
-  const isAggregateSelected = isGlobalSelected || isRegionSelected || isMultiSelected;
+  // path unchanged - neither has generation-mix data of its own, so
+  // selectedGenerationCountry always stays undefined for both.
+  const isAggregateSelected = isGlobalSelected || isRegionSelected;
   const selectedEmberCountry = isGlobalSelected
     ? GLOBAL_SOLAR
     : isRegionSelected
       ? (regionEmberCountry ?? undefined)
-      : isMultiSelected
-        ? (multiEmberCountry ?? undefined)
-        : selectedCountry
-          ? emberCountry(selectedCountry)
-          : undefined;
+      : selectedCountry
+        ? emberCountry(selectedCountry)
+        : undefined;
   const selectedGenerationCountry =
     selectedCountry && !isAggregateSelected ? generationCountry(selectedCountry) : undefined;
   const selectedPopulation = selectedCountry && !isAggregateSelected ? POPULATION[selectedCountry] : undefined;
   const [aggregatePopMinYear, aggregatePopMaxYear] = isRegionSelected
     ? regionPopulationYearRange(regionCodes)
-    : isMultiSelected
-      ? regionPopulationYearRange(multiCodes)
-      : regionPopulationYearRange();
+    : regionPopulationYearRange();
   const selectedPopulationValue = isGlobalSelected
     ? regionPopulationActual()
     : isRegionSelected
       ? regionPopulationActual(regionCodes)
-      : isMultiSelected
-        ? regionPopulationActual(multiCodes)
-        : selectedCountry
-          ? populationActual(selectedCountry)
-          : null;
+      : selectedCountry
+        ? populationActual(selectedCountry)
+        : null;
   const selectedPopulationTooltip = isAggregateSelected
     ? t("sidebar.worldBankYearRange", { from: aggregatePopMinYear, to: aggregatePopMaxYear })
     : selectedPopulation
@@ -354,11 +366,9 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
     ? globalLatestSolarMW() / regionPopulationMillions()
     : isRegionSelected && regionEmberCountry
       ? (latestPointOf(regionEmberCountry).gw * 1000) / regionPopulationMillions(regionCodes)
-      : isMultiSelected && multiEmberCountry
-        ? (latestPointOf(multiEmberCountry).gw * 1000) / regionPopulationMillions(multiCodes)
-        : selectedCountry
-          ? valueForMetric(selectedCountry, "capacityPerCapita")
-          : null;
+      : selectedCountry
+        ? valueForMetric(selectedCountry, "capacityPerCapita")
+        : null;
   // Same latest-point logic CountryDetail.tsx's own headline number and
   // "as of" caption use, read off the same selectedEmberCountry object so
   // this tile and that headline can never disagree - see lib/emberSolar.ts's
@@ -381,29 +391,85 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
     : undefined;
 
   if (selectedCountry && (selectedEmberCountry || selectedGenerationCountry)) {
+    // Compare mode's own row of panels replaces the single-country body
+    // below once at least one comparator has been added. The outer
+    // `DetailHeader` (flag + name + back arrow) is dropped for that case
+    // rather than kept above the row - per Andrew's own instruction
+    // 2026-10-13 ("the block that contains the country name and x is not
+    // the same as the original one"): keeping both meant the primary
+    // country's name appeared twice, in two differently-padded header
+    // blocks that didn't line up with each other or with the comparator
+    // panels' own headers below them. A bare back arrow replaces it
+    // instead, so every panel's own header (same padding as the old
+    // `DetailHeader`, including the primary's) is the only place a name
+    // appears, and all of them - headers and the charts below them -
+    // start at the same height. The "+" entry point itself still moves
+    // from the header's own trailing slot (nothing compared yet) to the
+    // end of the panel row (something already is) - see ComparePicker's
+    // own doc comment for why it stays an add-only control either place.
+    const canCompare = member && !isAggregateSelected;
+    const comparing = canCompare && compareCountries.length > 0;
     return (
       <Box data-tour="country-detail" sx={PANEL_SX}>
-        <DetailHeader
-          onBack={() => onSelect(null)}
-          backTooltip={t("sidebar.backToRanking")}
-          flag={
-            isAggregateSelected ? (
-              <PublicIcon sx={{ fontSize: 22, color: "primary.main" }} />
-            ) : (
-              <FlagImg code={selectedCountry} size={22} />
-            )
-          }
-          name={
-            isGlobalSelected
-              ? t("sidebar.global")
-              : isRegionSelected
-                ? regionLabel
-                : isMultiSelected
-                  ? multiLabel
+        {comparing ? (
+          <Box sx={{ display: "flex", alignItems: "center", p: 1, borderBottom: "1px solid", borderColor: "divider" }}>
+            <Tooltip title={t("sidebar.backToRanking")}>
+              <IconButton size="small" onClick={() => onSelect(null)}>
+                <ArrowBackIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        ) : (
+          <DetailHeader
+            onBack={() => onSelect(null)}
+            backTooltip={t("sidebar.backToRanking")}
+            flag={
+              isAggregateSelected ? (
+                <PublicIcon sx={{ fontSize: 22, color: "primary.main" }} />
+              ) : (
+                <FlagImg code={selectedCountry} size={22} />
+              )
+            }
+            name={
+              isGlobalSelected
+                ? t("sidebar.global")
+                : isRegionSelected
+                  ? regionLabel
                   : jurisdictionName(selectedCountry, i18n.language)
-          }
-          sx={{ borderBottom: "1px solid", borderColor: "divider" }}
-        />
+            }
+            sx={{ borderBottom: "1px solid", borderColor: "divider" }}
+          >
+            {canCompare && (
+              <ComparePicker
+                excludeCodes={[selectedCountry]}
+                maxCount={MAX_COMPARE_COUNTRIES}
+                atMax={compareCountries.length >= MAX_COMPARE_COUNTRIES}
+                onAdd={onAddCompare}
+              />
+            )}
+          </DetailHeader>
+        )}
+
+        {comparing ? (
+          <Box sx={{ flex: 1, overflow: "hidden", display: "flex" }}>
+            <Box sx={{ flex: 1, overflowX: "auto", display: "flex", alignItems: "flex-start" }}>
+              <ComparePanel code={selectedCountry} color={PRIMARY_SERIES_COLOR} />
+              {compareCountries.map((code, i) => (
+                <ComparePanel key={code} code={code} color={compareColorFor(i)} onRemove={() => onRemoveCompare(code)} />
+              ))}
+              {compareCountries.length < MAX_COMPARE_COUNTRIES && (
+                <Box sx={{ p: 2, display: "flex", alignItems: "center", flexShrink: 0 }}>
+                  <ComparePicker
+                    excludeCodes={[selectedCountry, ...compareCountries]}
+                    maxCount={MAX_COMPARE_COUNTRIES}
+                    atMax={compareCountries.length >= MAX_COMPARE_COUNTRIES}
+                    onAdd={onAddCompare}
+                  />
+                </Box>
+              )}
+            </Box>
+          </Box>
+        ) : (
         <Box sx={{ p: 2, overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Population, the "capacityPerCapita" metric the map itself can
               show, and the latest installed-capacity figure, as a row of
@@ -480,6 +546,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
 
           <LockedMetricsSection countryCode={selectedCountry} />
         </Box>
+        )}
       </Box>
     );
   }
@@ -512,10 +579,7 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
           active={filtersActive}
           expanded={filtersExpanded}
           onToggleExpanded={() => setFiltersExpanded((v) => !v)}
-          onClear={() => {
-            setContinents([]);
-            setMultiCodes([]);
-          }}
+          onClear={() => setContinents([])}
           sortDesc={desc}
           onToggleSort={() => setDesc((v) => !v)}
           labels={{
@@ -538,44 +602,6 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
             // one (see the `continents` block in common.json).
             translate={(c) => t(`continents.${c}`)}
           />
-
-          {/* Member-only "Compare countries" - see this component's own
-              state comment above for why this lives here rather than
-              merged into the footer's own single-country search. Hidden
-              entirely for a non-member rather than shown locked/blurred -
-              a filter-panel control is minor enough that a persistent
-              "Members only" teaser here would just be clutter for the
-              majority of visitors, unlike the map's own Global Simulator
-              view. */}
-          {member && (
-            <Autocomplete
-              multiple
-              disableCloseOnSelect
-              size="small"
-              options={multiCountryOptions}
-              value={selectedMultiOptions}
-              getOptionLabel={(o) => o.name}
-              isOptionEqualToValue={(a, b) => a.code === b.code}
-              onChange={(_, next) => setMultiCodes(next.map((o) => o.code))}
-              sx={{ mt: 1.5, width: "100%" }}
-              renderOption={(props, option, { selected }) => {
-                const { key, ...optionProps } = props;
-                return (
-                  <li key={key} {...optionProps}>
-                    <Checkbox
-                      icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                      checkedIcon={<CheckBoxIcon fontSize="small" />}
-                      checked={selected}
-                      size="small"
-                      sx={{ mr: 1 }}
-                    />
-                    {option.name}
-                  </li>
-                );
-              }}
-              renderInput={(params) => <TextField {...params} label={t("sidebar.compareCountries")} />}
-            />
-          )}
         </FilterBar>
       </Box>
 
@@ -618,23 +644,6 @@ export default function Sidebar({ metric, selectedCountry, onSelect, isMobile, m
               metric === "capacityPerCapita"
                 ? `${((latestPointOf(regionEmberCountry).gw * 1000) / regionPopulationMillions(regionCodes)).toFixed(0)} W/cap`
                 : `${(latestPointOf(regionEmberCountry).gw * 1000).toLocaleString()} MW`
-            }
-          />
-        )}
-
-        {/* The "Compare countries" multi-select's own aggregate row - same
-            tile again, built from a hand-picked set of countries instead of
-            a continent. Member-only (the control that populates
-            `multiCodes` is itself hidden for a non-member, so this simply
-            never has anything to show for one). Added 2026-09-30. */}
-        {metric !== "share" && member && multiCodes.length > 0 && multiEmberCountry && (
-          <PinnedAggregateRow
-            onClick={() => onSelect(MULTI_CODE)}
-            label={multiLabel}
-            value={
-              metric === "capacityPerCapita"
-                ? `${((latestPointOf(multiEmberCountry).gw * 1000) / regionPopulationMillions(multiCodes)).toFixed(0)} W/cap`
-                : `${(latestPointOf(multiEmberCountry).gw * 1000).toLocaleString()} MW`
             }
           />
         )}

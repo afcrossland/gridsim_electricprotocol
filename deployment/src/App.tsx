@@ -11,6 +11,7 @@ import LanguageSwitcher from "./components/LanguageSwitcher";
 import Sidebar from "./components/Sidebar";
 import TopNavbar from "./components/TopNavbar";
 import { getScenes } from "./i18n/scenes";
+import { MAX_COMPARE_COUNTRIES } from "./lib/compareColors";
 import { type Metric } from "./lib/metrics";
 import FooterComposition from "../../shared/components/FooterComposition";
 import LoginModal from "../../shared/components/LoginModal";
@@ -39,6 +40,31 @@ export default function App({ mode, setMode }: Props) {
   // first view.
   const [metric, setMetric] = useState<Metric>("capacityPerCapita");
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  // Compare mode's own added countries, alongside `selectedCountry` (the
+  // primary/first column) - plain lifted `useState`, same pattern as every
+  // other view-only field in this file, not a store (this app has none).
+  // Added 2026-10-13 per Andrew's own instruction ("click a country, then
+  // press a plus to add countries to the right hand side of the sidebar"),
+  // replacing the old member-only aggregate multi-select outright.
+  const [compareCountries, setCompareCountries] = useState<string[]>([]);
+  // Picking a different primary country invalidates whatever was being
+  // compared against the old one - mirrors ep_policymap's own `selectCountry`
+  // store action (`src/stores/protocolStore.ts`), which clears
+  // `compareCountries` the same way on reselect. Every call site that used
+  // to pass `setSelectedCountry` directly (the map, both search boxes, the
+  // tour) now goes through this instead.
+  const handleSelectCountry = (code: string | null) => {
+    setSelectedCountry(code);
+    setCompareCountries([]);
+  };
+  const addCompareCountry = (code: string) => {
+    setCompareCountries((codes) =>
+      codes.includes(code) || codes.length >= MAX_COMPARE_COUNTRIES ? codes : [...codes, code],
+    );
+  };
+  const removeCompareCountry = (code: string) => {
+    setCompareCountries((codes) => codes.filter((c) => c !== code));
+  };
   // Same "page" concept as ep_policymap's own App.tsx, just local state
   // here rather than a store field - this app has nothing else that needs
   // to read or restore it.
@@ -81,7 +107,7 @@ export default function App({ mode, setMode }: Props) {
   // a particular ranking on the sidebar").
   const dismissTourToStart = () => {
     dismissTour();
-    setSelectedCountry(null);
+    handleSelectCountry(null);
     setMetric("capacityPerCapita");
   };
 
@@ -99,13 +125,23 @@ export default function App({ mode, setMode }: Props) {
     <DeploymentMap
       metric={metric}
       selectedCountry={selectedCountry}
-      onCountryClick={setSelectedCountry}
+      onCountryClick={handleSelectCountry}
       hideLegend={heroScene}
     />
   );
   const list = (
-    <Sidebar metric={metric} selectedCountry={selectedCountry} onSelect={setSelectedCountry} isMobile={isMobile} member={member} />
+    <Sidebar
+      metric={metric}
+      selectedCountry={selectedCountry}
+      onSelect={handleSelectCountry}
+      isMobile={isMobile}
+      member={member}
+      compareCountries={compareCountries}
+      onAddCompare={addCompareCountry}
+      onRemoveCompare={removeCompareCountry}
+    />
   );
+  const comparing = !isMobile && compareCountries.length > 0;
 
   return (
     <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
@@ -143,7 +179,7 @@ export default function App({ mode, setMode }: Props) {
                     bgcolor: "background.paper",
                   }}
                 >
-                  <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />
+                  <CountrySearch selected={selectedCountry} onSelect={handleSelectCountry} />
                   <ToggleButtonGroup
                     size="small"
                     exclusive
@@ -166,6 +202,15 @@ export default function App({ mode, setMode }: Props) {
                 )}
               </Box>
             )
+          ) : comparing ? (
+            // Compare mode gives the map up entirely, same trade
+            // ep_policymap's own full-screen country view makes at a
+            // smaller scale - up to 5 side-by-side panels need the width
+            // far more than the map needs to stay visible next to them.
+            // Added 2026-10-13 alongside the compare feature itself; falls
+            // back to the normal split below the moment the comparator
+            // list empties back to zero.
+            <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
           ) : (
             // Same map + sidebar layout as ep_policymap's own desktop
             // App.tsx - the map is a flex sibling of the sidebar, not an
@@ -204,7 +249,7 @@ export default function App({ mode, setMode }: Props) {
                   and common") - EmberBadge is this app's own `extra` slot,
                   the one thing policy/calculator have none of. */}
               <FooterComposition
-                search={!isMobile && <CountrySearch selected={selectedCountry} onSelect={setSelectedCountry} />}
+                search={!isMobile && <CountrySearch selected={selectedCountry} onSelect={handleSelectCountry} />}
                 toggle={
                   // Hidden once a country is selected, per Andrew's own
                   // instruction 2026-09-18 ("when we click on a country the
@@ -260,7 +305,7 @@ export default function App({ mode, setMode }: Props) {
 
           {tourOpen && (
             <TourOverlay
-              scenes={getScenes(i18n.language, setSelectedCountry)}
+              scenes={getScenes(i18n.language, handleSelectCountry)}
               onDismiss={dismissTourToStart}
               onSceneChange={setTourSceneId}
               onReadDocs={openDocsFromTour}

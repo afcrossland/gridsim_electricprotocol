@@ -18,6 +18,8 @@ interface Props {
    * to true - every real country's own number genuinely is Ember's.
    */
   attributeToEmber?: boolean;
+  /** Overrides the chart's own default teal - Compare mode's own `ComparePanel` passes its panel's identity colour here so a reader can match a line back to its header at a glance; the single-country view never passes this, so it stays the same teal it's always been. */
+  color?: string;
 }
 
 /**
@@ -31,7 +33,7 @@ interface Props {
  * x-axis (same convention as GenerationDetail's own chart) and its
  * headline reads "as of YYYY", not a specific month it doesn't have.
  */
-export default function CountryDetail({ country, attributeToEmber = true }: Props) {
+export default function CountryDetail({ country, attributeToEmber = true, color }: Props) {
   const { t, i18n } = useTranslation();
 
   if (country.granularity === "monthly") {
@@ -58,7 +60,7 @@ export default function CountryDetail({ country, attributeToEmber = true }: Prop
           })}
         </Typography>
 
-        <TimeseriesChart points={points} formatValue={(v) => `${v.toLocaleString()} GW`} />
+        <TimeseriesChart points={points} formatValue={(v) => `${v.toLocaleString()} GW`} color={color} />
       </Box>
     );
   }
@@ -79,7 +81,7 @@ export default function CountryDetail({ country, attributeToEmber = true }: Prop
         {t(attributeToEmber ? "detail.asOfYearEmber" : "detail.asOfYear", { year: latest.year })}
       </Typography>
 
-      <TimeseriesChart points={points} formatValue={(v) => `${v.toLocaleString()} GW`} />
+      <TimeseriesChart points={points} formatValue={(v) => `${v.toLocaleString()} GW`} color={color} />
     </Box>
   );
 }

@@ -6,6 +6,8 @@ import type { GenerationCountry } from "../lib/emberGeneration";
 
 interface Props {
   country: GenerationCountry;
+  /** Overrides the chart's own default teal - see `CountryDetail`'s own doc comment on this same prop. */
+  color?: string;
 }
 
 /** 2dp under 10 TWh (where a decimal actually matters), whole numbers above it. */
@@ -21,7 +23,7 @@ function formatTWh(value: number): string {
  * country, per Andrew's instruction 2026-09-09, rather than the two being
  * alternative full-panel views switched by the active map metric.
  */
-export default function GenerationDetail({ country }: Props) {
+export default function GenerationDetail({ country, color }: Props) {
   const { t } = useTranslation();
   const { series } = country;
   const latest = series[series.length - 1];
@@ -43,7 +45,7 @@ export default function GenerationDetail({ country }: Props) {
         })}
       </Typography>
 
-      <TimeseriesChart points={points} formatValue={(v) => `${v.toFixed(1)}%`} />
+      <TimeseriesChart points={points} formatValue={(v) => `${v.toFixed(1)}%`} color={color} />
     </Box>
   );
 }

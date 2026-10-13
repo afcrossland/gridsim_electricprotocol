@@ -65,9 +65,8 @@
     "worldBankYearRange": "Banco Mundial, {{from}}-{{to}}",
     "global": "Global",
     "region": "Región seleccionada",
-    "compareCountries": "Comparar países",
-    "countriesSelected": "{{count}} países seleccionados",
     "populationLabel": "Población",
+    "noData": "Sin datos",
     "perCapitaLabel": "Solar per Cápita",
     "latestCapacityLabel": "Última Capacidad Instalada",
     "open": "Abrir",
@@ -75,6 +74,14 @@
     "connectWithGscMembers": "Conéctate con los miembros del GSC",
     "policyExplorer": "Explorador de Políticas Solares",
     "futureGridSimulator": "Simulador de la Red Eléctrica del Futuro"
+  },
+  "comparePicker": {
+    "addCountry": "Comparar",
+    "noMatches": "Ningún país coincide con esta búsqueda.",
+    "maxReached": "Puedes añadir hasta {{maxCount}} países más para comparar."
+  },
+  "comparePanel": {
+    "remove": "Quitar de la comparación"
   },
   "continents": {
     "Africa": "África",

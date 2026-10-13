@@ -65,9 +65,8 @@
     "worldBankYearRange": "World Bank, {{from}}-{{to}}",
     "global": "Global",
     "region": "Selected region",
-    "compareCountries": "Compare countries",
-    "countriesSelected": "{{count}} selected countries",
     "populationLabel": "Population",
+    "noData": "No data",
     "perCapitaLabel": "Solar per Capita",
     "latestCapacityLabel": "Latest Installed Capacity",
     "open": "Open",
@@ -75,6 +74,14 @@
     "connectWithGscMembers": "Connect with GSC Members",
     "policyExplorer": "Solar Policy Explorer",
     "futureGridSimulator": "Future Grid Simulator"
+  },
+  "comparePicker": {
+    "addCountry": "Compare",
+    "noMatches": "No jurisdictions match this search.",
+    "maxReached": "You can add up to {{maxCount}} more countries to compare."
+  },
+  "comparePanel": {
+    "remove": "Remove from comparison"
   },
   "continents": {
     "Africa": "Africa",
