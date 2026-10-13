@@ -230,7 +230,7 @@ function buildLiveData(persisted: {
  * The spreadsheet's GB and NZ answers carry no citation - they arrived as bare
  * scores - whereas everything in sourced-answers.json must cite something.
  */
-function seedResponses(): Response[] {
+export function seedResponses(): Response[] {
   const out: Response[] = [];
   const seedScore = new Map<string, number>(); // `${countryCode}|${questionId}` -> spreadsheet score
   for (const q of protocol.questions) {

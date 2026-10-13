@@ -22,6 +22,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
+    "@mui/x-charts": "^8.17.0",
     "html2canvas": "^1.4.1",
     "i18next": "^26.4.2",
     "jspdf": "^4.2.1",
