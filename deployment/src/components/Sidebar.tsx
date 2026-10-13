@@ -21,7 +21,7 @@ import { emberCountry, latestPointOf } from "../lib/emberSolar";
 import { generationCountry } from "../lib/emberGeneration";
 import { monthAbbrev } from "../lib/formatMonth";
 import { GLOBAL_CODE, GLOBAL_SOLAR, globalLatestSolarMW } from "../lib/globalSolar";
-import { jurisdictionName, continentOf } from "../lib/jurisdictions";
+import { jurisdictionName, subregionOf, SUBREGIONS } from "../lib/jurisdictions";
 import { codesForMetric, valueForMetric, type Metric } from "../lib/metrics";
 import { POPULATION, populationActual, regionPopulationActual, regionPopulationMillions, regionPopulationYearRange } from "../lib/population";
 
@@ -37,9 +37,20 @@ interface Props {
   compareCountries: string[];
   onAddCompare: (code: string) => void;
   onRemoveCompare: (code: string) => void;
-  /** The continent filter - lifted to App.tsx (2026-10-14) so `DeploymentMap` can zoom to fit it too; same reasoning as `compareCountries`. */
-  continents: string[];
-  onContinentsChange: (next: string[]) => void;
+  /**
+   * The UN geoscheme sub-region filter (Northern Africa, Caribbean, ... -
+   * see `shared/lib/continents.ts`'s own `SUBREGIONS`), lifted to App.tsx
+   * (2026-10-14) so `DeploymentMap` can zoom to fit it too; same reasoning
+   * as `compareCountries`. Replaced this app's own six-continent filter
+   * the same day, per Andrew's own instruction ("implement a filter not
+   * on continent but on United Nations geoscheme") - still built on the
+   * shared `ContinentFilter` component (policy's and calculator's own
+   * filters still use it for the coarser six-continent list; this app's
+   * own usage just passes the finer `SUBREGIONS` list via its `options`
+   * prop instead).
+   */
+  subregions: string[];
+  onSubregionsChange: (next: string[]) => void;
 }
 
 /**
@@ -227,11 +238,11 @@ const PANEL_SX = {
   height: "100%",
 } as const;
 
-/** Pseudo-jurisdiction code for the continent filter's own pinned aggregate row - see `GLOBAL_CODE`'s own doc comment for the same reasoning, just scoped to whatever the filter currently matches instead of every country. */
+/** Pseudo-jurisdiction code for the sub-region filter's own pinned aggregate row - see `GLOBAL_CODE`'s own doc comment for the same reasoning, just scoped to whatever the filter currently matches instead of every country. */
 const REGION_CODE = "REGION";
 
 /**
- * The pinned "Global" row and the continent filter's own "Region" row share
+ * The pinned "Global" row and the sub-region filter's own "Region" row share
  * this exact tile - a soft aqua tint (not selected/hover-driven, unlike the
  * ranking rows below) and an icon instead of a flag, since neither
  * represents one real jurisdiction. Extracted 2026-09-30 when the region
@@ -286,31 +297,31 @@ export default function Sidebar({
   compareCountries,
   onAddCompare,
   onRemoveCompare,
-  continents,
-  onContinentsChange,
+  subregions,
+  onSubregionsChange,
 }: Props) {
   const { t, i18n } = useTranslation();
   const [desc, setDesc] = useState(true);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
-  const filtersActive = continents.length > 0;
+  const filtersActive = subregions.length > 0;
 
   const rows = useMemo(() => {
     return codesForMetric(metric)
       .map((code) => ({
         code,
         name: jurisdictionName(code, i18n.language),
-        continent: continentOf(code),
+        subregion: subregionOf(code),
         value: valueForMetric(code, metric),
       }))
-      .filter((r) => continents.length === 0 || (r.continent && continents.includes(r.continent)))
+      .filter((r) => subregions.length === 0 || (r.subregion && subregions.includes(r.subregion)))
       .filter((r) => r.value !== null)
       .sort((a, b) => (desc ? b.value! - a.value! : a.value! - b.value!));
-  }, [metric, continents, desc, i18n.language]);
+  }, [metric, subregions, desc, i18n.language]);
 
   const isGlobalSelected = selectedCountry === GLOBAL_CODE;
   const isRegionSelected = selectedCountry === REGION_CODE;
 
-  // The continent filter's own aggregate - every EMBER_SOLAR code the
+  // The sub-region filter's own aggregate - every EMBER_SOLAR code the
   // filter currently matches (independent of `rows` above, which is
   // further filtered to whatever has a non-null value for the *current*
   // metric - the region aggregate always draws from the full capacity
@@ -319,10 +330,10 @@ export default function Sidebar({
   // `regionEmberCountry` below is `null` and the pinned row/detail branch
   // simply don't render.
   const regionCodes = useMemo(
-    () => (continents.length === 0 ? [] : codesForMetric("capacity").filter((code) => continents.includes(continentOf(code) ?? ""))),
-    [continents],
+    () => (subregions.length === 0 ? [] : codesForMetric("capacity").filter((code) => subregions.includes(subregionOf(code) ?? ""))),
+    [subregions],
   );
-  const regionLabel = continents.length === 1 ? t(`continents.${continents[0]}`) : t("sidebar.region");
+  const regionLabel = subregions.length === 1 ? t(`subregions.${subregions[0]}`) : t("sidebar.region");
   const regionEmberCountry = useMemo(
     () => (regionCodes.length > 0 ? aggregateEmberCountries(regionCodes, regionLabel) : null),
     [regionCodes, regionLabel],
@@ -334,7 +345,7 @@ export default function Sidebar({
   // regardless of which metric is active on the map, per Andrew's
   // instruction 2026-09-09). A country with neither just stays highlighted
   // in the ranking list below. The pinned "Global" row (GLOBAL_CODE) and
-  // the continent filter's own "Region" row (REGION_CODE) are both
+  // the sub-region filter's own "Region" row (REGION_CODE) are both
   // structured as their own EmberCountry (lib/globalSolar.ts,
   // lib/aggregateSolar.ts) precisely so either can slot into
   // `selectedEmberCountry` here and render through this same CountryDetail
@@ -520,7 +531,7 @@ export default function Sidebar({
               that app 2026-09-10); Future Grid Simulator only links to its
               homepage for now - it's an external site with no documented
               per-country URL of its own to deep-link into. Neither makes
-              sense for the pinned "Global" row or the continent filter's
+              sense for the pinned "Global" row or the sub-region filter's
               own "Region" row - there's no single country code to
               deep-link either tool into - so both this and the GSC-members
               tile below are skipped for both. */}
@@ -583,7 +594,7 @@ export default function Sidebar({
           active={filtersActive}
           expanded={filtersExpanded}
           onToggleExpanded={() => setFiltersExpanded((v) => !v)}
-          onClear={() => onContinentsChange([])}
+          onClear={() => onSubregionsChange([])}
           sortDesc={desc}
           onToggleSort={() => setDesc((v) => !v)}
           labels={{
@@ -595,19 +606,24 @@ export default function Sidebar({
           }}
         >
           <ContinentFilter
-            value={continents}
-            onChange={onContinentsChange}
-            label={t("sidebar.continent")}
-            allLabel={t("sidebar.allContinents")}
-            // Selected values stay the raw English CONTINENTS strings
-            // (continentOf()/matching logic depends on that), only the
+            value={subregions}
+            onChange={onSubregionsChange}
+            label={t("sidebar.regionFilterLabel")}
+            allLabel={t("sidebar.allRegions")}
+            // The UN geoscheme's own 22 sub-regions, not the six-continent
+            // list `ContinentFilter` otherwise defaults to - per Andrew's
+            // own instruction 2026-10-14 ("implement a filter not on
+            // continent but on United Nations geoscheme").
+            options={SUBREGIONS}
+            // Selected values stay the raw English SUBREGIONS strings
+            // (subregionOf()/matching logic depends on that), only the
             // rendered label is translated - t() with no matching key
             // falls back to the raw key, but every value here always has
-            // one (see the `continents` block in common.json).
-            translate={(c) => t(`continents.${c}`)}
-            // Single continent at a time - the map zooms to fit whatever's
+            // one (see the `subregions` block in common.json).
+            translate={(c) => t(`subregions.${c}`)}
+            // Single sub-region at a time - the map zooms to fit whatever's
             // selected (DeploymentMap.tsx), and that only reads as "zoom in
-            // here" for one continent, not a scattered union of several.
+            // here" for one region, not a scattered union of several.
             // Per Andrew's own instruction 2026-10-14 ("this means we can
             // only filter to one item at a time").
             multiple={false}
@@ -637,7 +653,7 @@ export default function Sidebar({
           />
         )}
 
-        {/* The continent filter's own aggregate row - same tile, same
+        {/* The sub-region filter's own aggregate row - same tile, same
             pinned position, one country's worth of it built live from
             whatever the filter currently matches (lib/aggregateSolar.ts)
             rather than every country. Added 2026-09-30 per Andrew's own
@@ -646,7 +662,7 @@ export default function Sidebar({
             the filtered region"). Same "share" skip as Global, plus its
             own: nothing to show while no filter is active, or if the
             filter matched no EMBER_SOLAR-covered country at all. */}
-        {metric !== "share" && continents.length > 0 && regionEmberCountry && (
+        {metric !== "share" && subregions.length > 0 && regionEmberCountry && (
           <PinnedAggregateRow
             onClick={() => onSelect(REGION_CODE)}
             label={regionLabel}

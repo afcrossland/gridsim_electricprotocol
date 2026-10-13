@@ -56,6 +56,18 @@ export function continentOfRegion(region: string | null | undefined): Continent 
 }
 
 /**
+ * The UN geoscheme's own 22 sub-regions (https://en.wikipedia.org/wiki/
+ * United_Nations_geoscheme) - `CONTINENT_BY_REGION`'s own keys, in the same
+ * grouped-by-continent order, exported directly rather than re-declared so
+ * the two can never drift apart. Deployment's own continent filter switched
+ * to this finer list 2026-10-14 per Andrew's own instruction ("implement a
+ * filter not on continent but on United Nations geoscheme") - the six-
+ * continent `CONTINENTS` list above stays as the default for policy's and
+ * calculator's own filters, which this doesn't change.
+ */
+export const SUBREGIONS = Object.keys(CONTINENT_BY_REGION);
+
+/**
  * A handful of overseas territories whose own jurisdiction record has no
  * `region` of its own and inherits its *parent* country's instead (see each
  * app's own `lib/jurisdictions.ts` - a subnational jurisdiction's `region`
@@ -86,4 +98,25 @@ const CONTINENT_OVERRIDE_BY_CODE: Record<string, Continent> = {
 /** Checked before the ordinary parent-walk continent lookup - see `CONTINENT_OVERRIDE_BY_CODE`'s own doc comment. */
 export function continentOverrideFor(code: string): Continent | null {
   return CONTINENT_OVERRIDE_BY_CODE[code] ?? null;
+}
+
+/**
+ * Same fix as `CONTINENT_OVERRIDE_BY_CODE`, one level finer - these six
+ * codes' own inherited `region` (their parent's, not their own) is wrong
+ * at the sub-region grain too, not just the continent one, so sub-region
+ * lookup needs its own override map rather than reusing the continent
+ * one's values (a continent name isn't a valid sub-region).
+ */
+const SUBREGION_OVERRIDE_BY_CODE: Record<string, string> = {
+  BQ: "Caribbean", // Bonaire, Sint Eustatius and Saba
+  "FR-GF": "South America", // French Guiana
+  "FR-GP": "Caribbean", // Guadeloupe
+  "FR-MQ": "Caribbean", // Martinique
+  "FR-RE": "Eastern Africa", // Réunion
+  "FR-YT": "Eastern Africa", // Mayotte
+};
+
+/** Checked before the ordinary parent-walk sub-region lookup - see `SUBREGION_OVERRIDE_BY_CODE`'s own doc comment. */
+export function subregionOverrideFor(code: string): string | null {
+  return SUBREGION_OVERRIDE_BY_CODE[code] ?? null;
 }

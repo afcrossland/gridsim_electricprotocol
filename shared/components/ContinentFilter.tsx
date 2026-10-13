@@ -23,15 +23,24 @@ interface Props {
    * opts into `false`.
    */
   multiple?: boolean;
+  /**
+   * The list to pick from - defaults to the six-continent `CONTINENTS`
+   * list every app originally used. Deployment's own filter (2026-10-14)
+   * passes the UN geoscheme's finer `SUBREGIONS` list instead (see
+   * `shared/lib/continents.ts`) - the component itself doesn't care which
+   * flat string list it's showing, so this is the only change that took.
+   */
+  options?: readonly string[];
 }
 
 /**
- * The continent multi-select every app's own filter panel used - confirmed
- * byte-identical in shape (a `TextField select multiple` with a checkbox
- * per `MenuItem`, closed-state text joining the selected continents or
- * falling back to `allLabel`) between policy's and deployment's own copies
- * before this shared version was written 2026-09-28, as part of giving
- * calculator the same filter box its siblings already had.
+ * The continent (or, per `options`, any other flat region list) select
+ * every app's own filter panel used - confirmed byte-identical in shape (a
+ * `TextField select multiple` with a checkbox per `MenuItem`, closed-state
+ * text joining the selections or falling back to `allLabel`) between
+ * policy's and deployment's own copies before this shared version was
+ * written 2026-09-28, as part of giving calculator the same filter box its
+ * siblings already had.
  */
 export default function ContinentFilter({
   value,
@@ -41,6 +50,7 @@ export default function ContinentFilter({
   translate = (c) => c,
   sx,
   multiple = true,
+  options = CONTINENTS,
 }: Props) {
   if (!multiple) {
     return (
@@ -53,7 +63,7 @@ export default function ContinentFilter({
         sx={sx ?? { minWidth: 220, width: "100%" }}
       >
         <MenuItem value="">{allLabel}</MenuItem>
-        {CONTINENTS.map((c) => (
+        {options.map((c) => (
           <MenuItem key={c} value={c}>
             {translate(c)}
           </MenuItem>
@@ -81,7 +91,7 @@ export default function ContinentFilter({
       }}
       sx={sx ?? { minWidth: 220, width: "100%" }}
     >
-      {CONTINENTS.map((c) => (
+      {options.map((c) => (
         <MenuItem key={c} value={c}>
           <Checkbox
             icon={<CheckBoxOutlineBlankIcon fontSize="small" />}

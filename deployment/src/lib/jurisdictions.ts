@@ -1,6 +1,6 @@
 import index from "../data/jurisdictions.json";
 import subdivisionNames from "../data/subdivision-names.json";
-import { CONTINENTS, continentOfRegion, continentOverrideFor } from "../../../shared/lib/continents";
+import { SUBREGIONS, subregionOverrideFor } from "../../../shared/lib/continents";
 
 export interface Jurisdiction {
   code: string;
@@ -127,12 +127,19 @@ export function canonicalCode(featureCode: string): string {
 
 // Moved to shared/lib/continents.ts 2026-09-28 - confirmed byte-identical
 // to ep_policymap's own copy before that, per this file's own history.
-export { CONTINENTS };
+export { SUBREGIONS };
 
-export function continentOf(code: string): string | null {
-  const override = continentOverrideFor(code);
+/**
+ * The jurisdiction's own UN geoscheme sub-region (Northern Africa,
+ * Caribbean, ...) rather than the coarser six-continent grouping -
+ * replaces this file's own `continentOf` 2026-10-14 per Andrew's own
+ * instruction ("implement a filter not on continent but on United Nations
+ * geoscheme"); `continentOf`/`CONTINENTS` had no other callers in this app,
+ * so both are removed outright rather than left unused alongside this.
+ */
+export function subregionOf(code: string): string | null {
+  const override = subregionOverrideFor(code);
   if (override) return override;
   const j = byCode.get(code);
-  if (!j) return null;
-  return continentOfRegion(j.region);
+  return j?.region ?? null;
 }

@@ -57,8 +57,8 @@
     "clear": "Borrar",
     "highToLow": "De mayor a menor",
     "lowToHigh": "De menor a mayor",
-    "continent": "Continente",
-    "allContinents": "Todos los continentes",
+    "regionFilterLabel": "Región",
+    "allRegions": "Todas las regiones",
     "noMatches": "Ninguna jurisdicción coincide con este filtro.",
     "backToRanking": "Volver a la clasificación",
     "worldBankYear": "Banco Mundial, {{year}}",
@@ -83,13 +83,29 @@
   "comparePanel": {
     "remove": "Quitar de la comparación"
   },
-  "continents": {
-    "Africa": "África",
-    "Asia": "Asia",
-    "Europe": "Europa",
-    "North America": "Norteamérica",
-    "South America": "Sudamérica",
-    "Oceania": "Oceanía"
+  "subregions": {
+    "Northern Africa": "África del Norte",
+    "Eastern Africa": "África Oriental",
+    "Middle Africa": "África Central",
+    "Southern Africa": "África Austral",
+    "Western Africa": "África Occidental",
+    "Central Asia": "Asia Central",
+    "Eastern Asia": "Asia Oriental",
+    "South-Eastern Asia": "Sudeste Asiático",
+    "Southern Asia": "Asia Meridional",
+    "Western Asia": "Asia Occidental",
+    "Eastern Europe": "Europa del Este",
+    "Northern Europe": "Europa del Norte",
+    "Southern Europe": "Europa del Sur",
+    "Western Europe": "Europa Occidental",
+    "Caribbean": "Caribe",
+    "Central America": "América Central",
+    "Northern America": "América del Norte",
+    "South America": "América del Sur",
+    "Australia and New Zealand": "Australia y Nueva Zelanda",
+    "Melanesia": "Melanesia",
+    "Micronesia": "Micronesia",
+    "Polynesia": "Polinesia"
   },
   "map": {
     "noData": "Sin datos",

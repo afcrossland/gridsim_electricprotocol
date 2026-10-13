@@ -13,7 +13,7 @@ import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
 import { GSC_RAMP, COLOR_NO_DATA, logNormalize } from "../../../shared/lib/mapColor";
 import { loadMapStyle } from "../../../shared/lib/mapStyle";
-import { canonicalCode, continentOf, jurisdictionName, resolveTargets } from "../lib/jurisdictions";
+import { canonicalCode, jurisdictionName, resolveTargets, subregionOf } from "../lib/jurisdictions";
 import { codesForMetric, domainForMetric, valueForMap, type Metric } from "../lib/metrics";
 
 const INITIAL_VIEW = { longitude: 10, latitude: 20, zoom: 1.4 };
@@ -23,17 +23,31 @@ const WORLD_BOUNDS: [[number, number], [number, number]] = [
 ];
 
 /**
- * Bounding box of a country's feature(s) - trimmed from
- * ep_policymap/src/components/map/PolicyMap.tsx's boundsOf. That version
- * also handles antimeridian-straddling territories (NZ's Chathams, Alaska,
- * Fiji, Russia); this app is a demo over ~40 placeholder countries, none of
- * which hit that case, so the simpler plain min/max is enough for now - see
- * the original if this ever needs the same antimeridian handling.
+ * Bounding box of a set of jurisdictions' own feature(s) - trimmed from
+ * ep_policymap/src/components/map/PolicyMap.tsx's own `boundsOf` (which
+ * takes a single code; this one a list, so a continent's own union of
+ * countries can be framed the same way as one country's union of states).
  *
- * Takes the already-`resolveTargets`-expanded code list, not a single code -
- * a subdivided country (Australia, the US, Canada) has no feature of its
- * own, only its states/provinces, so framing "AU" means framing the union of
- * every AU-* feature instead.
+ * Handles territories that straddle the antimeridian, ported from that
+ * same original 2026-10-14 after selecting the United States (Alaska's own
+ * Aleutian chain crosses 180°, stored as positive longitudes around 172°E
+ * for its western end) silently failed to zoom at all - a plain min/max
+ * spanned nearly the full 360° of longitude and framed almost the entire
+ * world instead of the country. This was wrongly assumed not to apply here
+ * when the function was first trimmed down ("this app is a demo over ~40
+ * placeholder countries, none of which hit that case") - the US was
+ * already one of them. Fiji, Russia and NZ's Chathams have the same shape
+ * of problem and are fixed by the same code.
+ *
+ * The fix measures the longitude span twice - once on [-180, 180] and once
+ * with negative longitudes shifted into [0, 360) - and keeps whichever is
+ * tighter. MapLibre accepts longitudes past 180 and wraps them, so the
+ * shifted box can be handed straight to `fitBounds`.
+ *
+ * Takes the already-`resolveTargets`-expanded code list, not raw codes - a
+ * subdivided country (Australia, the US, Canada) has no feature of its
+ * own, only its states/provinces, so framing "AU" means framing the union
+ * of every AU-* feature instead.
  */
 function boundsOf(data: FeatureCollection, codes: string[]): [[number, number], [number, number]] | null {
   const codeSet = new Set(codes);
@@ -59,9 +73,15 @@ function boundsOf(data: FeatureCollection, codes: string[]): [[number, number], 
   }
 
   if (lngs.length === 0) return null;
+
+  const plain = { min: Math.min(...lngs), max: Math.max(...lngs) };
+  const shiftedLngs = lngs.map((lng) => (lng < 0 ? lng + 360 : lng));
+  const shifted = { min: Math.min(...shiftedLngs), max: Math.max(...shiftedLngs) };
+  const best = shifted.max - shifted.min < plain.max - plain.min ? shifted : plain;
+
   return [
-    [Math.min(...lngs), minLat],
-    [Math.max(...lngs), maxLat],
+    [best.min, minLat],
+    [best.max, maxLat],
   ];
 }
 
@@ -96,13 +116,13 @@ interface Props {
   metric: Metric;
   selectedCountry: string | null;
   onCountryClick: (code: string | null) => void;
-  /** The sidebar's own continent filter (single continent at a time - see `ContinentFilter`'s own `multiple` prop) - frames the map on whichever one is picked, same spirit as framing a selected country below. */
-  continents: string[];
+  /** The sidebar's own UN geoscheme sub-region filter (single sub-region at a time - see `ContinentFilter`'s own `multiple` prop) - frames the map on whichever one is picked, same spirit as framing a selected country below. */
+  subregions: string[];
   /** Suppresses the legend and the total-capacity tile even with nothing selected - the tour's opening scene wants an unobstructed view of the choropleth colours themselves, same reasoning as Policy Explorer's own PolicyMap.tsx `hideLegend` prop. */
   hideLegend?: boolean;
 }
 
-export default function DeploymentMap({ metric, selectedCountry, onCountryClick, continents, hideLegend }: Props) {
+export default function DeploymentMap({ metric, selectedCountry, onCountryClick, subregions, hideLegend }: Props) {
   const { t, i18n } = useTranslation();
   const mapRef = useRef<MapRef>(null);
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
@@ -182,14 +202,17 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
     }
   }, [metric, sourceReady, worldData]);
 
-  // Frame the selected country; otherwise the continent filter, if one's
+  // Frame the selected country; otherwise the sub-region filter, if one's
   // active; otherwise zoom back out to the whole world. A country always
-  // wins over the continent filter - picking one implies looking right at
+  // wins over the sub-region filter - picking one implies looking right at
   // it, not at the wider region around it - though in practice the two
-  // never compete: the continent filter only renders in the ranking-list
+  // never compete: the sub-region filter only renders in the ranking-list
   // view, which is itself only shown when nothing's selected (see
-  // Sidebar.tsx). Continent framing added 2026-10-14 per Andrew's own
-  // instruction ("when we click filter, it zooms in on the continent").
+  // Sidebar.tsx). Region framing added 2026-10-14 per Andrew's own
+  // instruction ("when we click filter, it zooms in on the continent"),
+  // switched from the six-continent list to the UN geoscheme's own finer
+  // sub-regions the same day ("implement a filter not on continent but on
+  // United Nations geoscheme").
   useEffect(() => {
     const map = mapRef.current?.getMap();
     if (!map || !worldData) return;
@@ -198,13 +221,13 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
       if (bounds) map.fitBounds(bounds, { padding: 80, duration: 600, maxZoom: 5 });
       return;
     }
-    if (continents.length > 0) {
+    if (subregions.length > 0) {
       // Same "capacity" universe Sidebar.tsx's own regional aggregate row
-      // draws from, regardless of the active metric - a continent's own
+      // draws from, regardless of the active metric - a sub-region's own
       // shape doesn't change depending on which map metric is showing.
       const codes = codesForMetric("capacity").filter((code) => {
-        const continent = continentOf(code);
-        return continent !== null && continents.includes(continent);
+        const subregion = subregionOf(code);
+        return subregion !== null && subregions.includes(subregion);
       });
       const bounds = boundsOf(worldData, codes.flatMap((code) => resolveTargets(code)));
       if (bounds) {
@@ -213,7 +236,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
       }
     }
     map.fitBounds(WORLD_BOUNDS, { padding: 24, duration: 600 });
-  }, [selectedCountry, continents, worldData]);
+  }, [selectedCountry, subregions, worldData]);
 
   const handleMouseMove = (event: MapLayerMouseEvent) => {
     const feature = event.features?.[0];
