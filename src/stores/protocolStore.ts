@@ -705,19 +705,23 @@ export const useProtocolStore = create<ProtocolState>()(
       // `mode` (added after v10, also no bump) is likewise additive - an
       // existing visitor's blob simply lacks the key and starts on `light`,
       // same as initialState()'s default.
-      version: 10,
+      // v11 (2026-10-14): the policy dataset was replaced wholesale (new countries
+      // and answers from input/*Rev 8.xlsx). Answers a visitor had saved against
+      // the old dataset - including typed answers - are dropped by migrate().
+      version: 11,
 
       /**
        * Keep the user's answers and every admin edit (overrides, additions,
        * deletions); everything else comes fresh from `initialState()`.
        */
-      migrate: (persisted) => {
+      migrate: (persisted, fromVersion) => {
         const state = persisted as Partial<ProtocolState> | undefined;
+        const keepResponses = fromVersion >= 11;
         const { sections, questions } = buildLiveData(state ?? {});
         return {
           ...initialState(),
           threshold: protocol.completenessThreshold,
-          responses: (state?.responses ?? []).filter((r) => !r.seeded).map(migrateResponseShape),
+          responses: keepResponses ? (state?.responses ?? []).filter((r) => !r.seeded).map(migrateResponseShape) : [],
           questionOverrides: state?.questionOverrides ?? {},
           sectionOverrides: state?.sectionOverrides ?? {},
           customSections: state?.customSections ?? [],

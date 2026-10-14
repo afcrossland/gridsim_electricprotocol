@@ -160,6 +160,8 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   const { t, i18n } = useTranslation();
   const mapRef = useRef<MapRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const selectedRef = useRef(selectedCountry);
+  selectedRef.current = selectedCountry;
   const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
   const [sourceReady, setSourceReady] = useState(false);
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
@@ -334,9 +336,23 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     const map = mapRef.current?.getMap();
     if (!container || !map) return;
 
-    const observer = new ResizeObserver(() => map.resize());
+    // With nothing selected the globe is framed against the container's width,
+    // and the container is still mid-transition (the country panel is collapsing
+    // from its wide detail layout) when the clear-selection fit runs - so the
+    // world stayed framed for the narrow width and repeated across the wider
+    // map. Re-fit to the final size once it settles.
+    let settle: ReturnType<typeof setTimeout> | undefined;
+    const observer = new ResizeObserver(() => {
+      map.resize();
+      if (selectedRef.current) return;
+      clearTimeout(settle);
+      settle = setTimeout(() => map.fitBounds(WORLD_BOUNDS, { padding: 24, duration: 300 }), 150);
+    });
     observer.observe(container);
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(settle);
+      observer.disconnect();
+    };
   }, [worldData]);
 
   // Frame the selected jurisdiction, or return to the whole globe when the
