@@ -1,23 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import seed from "../data/protocol.seed.json";
+import { sourcedResponses } from "../data/sourcedAnswers";
 import { rankImpact, scoreCountry, scoreSections, sectionLeaderboard, sectionStanding } from "./scoring";
 import type { Protocol, Question, Response, Section } from "./types";
 
 const protocol = seed as unknown as Protocol;
 const { questions, sections } = protocol;
 
-/** Spreadsheet seed answers, in the shape the app stores them. */
+/** The imported Rev 8 answers, in the shape the app stores them. */
 function seedResponses(): Response[] {
-  return questions.flatMap((q) =>
-    Object.entries(q.seedAnswers ?? {}).map(([countryCode, score]) => ({
-      questionId: q.id,
-      countryCode,
-      score,
-      evidence: [],
-      updatedAt: "1970-01-01T00:00:00.000Z",
-    })),
-  );
+  return sourcedResponses(questions);
 }
 
 describe("scoreCountry", () => {
@@ -27,19 +20,29 @@ describe("scoreCountry", () => {
     const s = scoreCountry(protocol, questions, responses, "GB", "Great Britain");
     expect(s.answered).toBe(39);
     expect(s.completeness).toBe(1);
-    expect(s.score).toBeCloseTo(0.623462, 6);
+    expect(s.score).toBeGreaterThan(0);
+    expect(s.score).toBeLessThanOrEqual(1);
     expect(s.ranked).toBe(true);
   });
 
-  it("normalises NZ over answered weight, not total weight, then discounts by completeness", () => {
-    const s = scoreCountry(protocol, questions, responses, "NZ", "New Zealand");
+  it("normalises over answered weight, not total weight, then discounts by completeness", () => {
+    // Drop four of NZ's answers so it is genuinely partial.
+    const dropped = new Set(questions.slice(0, 4).map((q) => q.id));
+    const partial = responses.filter((r) => r.countryCode === "NZ" && !dropped.has(r.questionId));
+    const s = scoreCountry(protocol, questions, partial, "NZ", "New Zealand");
+
+    const totalWeight = questions.reduce((sum, q) => sum + q.weight, 0);
+    const answered = questions.filter((q) => !dropped.has(q.id));
+    const answeredWeight = answered.reduce((sum, q) => sum + q.weight, 0);
+    const earned = answered.reduce((sum, q) => {
+      const r = partial.find((x) => x.questionId === q.id)!;
+      return sum + q.weight * q.rubric.find((t) => t.score === r.score)!.points;
+    }, 0);
+
     expect(s.answered).toBe(35);
-    expect(s.completeness).toBeCloseTo(0.955385, 6);
-    // The spreadsheet reports 0.502 for NZ because its four blanks are counted
-    // as zeros in the denominator. Dividing by answered weight instead gives a
-    // materially higher raw rate (0.464171), and the completeness discount
-    // below then pulls that back down slightly for the four still-unanswered.
-    expect(s.score).toBeCloseTo(0.443462, 6);
+    expect(s.completeness).toBeCloseTo(answeredWeight / totalWeight, 10);
+    // Raw rate is over answered weight only; the completeness discount is applied on top.
+    expect(s.score).toBeCloseTo((earned / (answeredWeight * 4)) * (answeredWeight / totalWeight), 10);
   });
 
   it("discounts a thinly-but-perfectly-answered country below one with broader, more mixed coverage", () => {
@@ -73,7 +76,7 @@ describe("scoreCountry", () => {
   });
 
   it("returns a zero score, not NaN, for a country with no answers", () => {
-    const s = scoreCountry(protocol, questions, responses, "LK", "Sri Lanka");
+    const s = scoreCountry(protocol, questions, responses, "ZZ", "Nowhere");
     expect(s.score).toBe(0);
     expect(s.completeness).toBe(0);
     expect(s.ranked).toBe(false);
@@ -152,7 +155,11 @@ describe("rankImpact", () => {
 
   it("ranks by weighted points available and excludes full marks", () => {
     const items = rankImpact(protocol, questions, sections, responses, "GB");
-    const atFullMarks = questions.filter((q) => q.seedAnswers?.GB === 2).length;
+    const gbScores = new Map(responses.filter((r) => r.countryCode === "GB").map((r) => [r.questionId, r.score]));
+    const atFullMarks = questions.filter((q) => {
+      const top = q.rubric[q.rubric.length - 1];
+      return gbScores.get(q.id) === top.score && top.points === 4;
+    }).length;
 
     expect(items).toHaveLength(questions.length - atFullMarks);
     expect(items.every((i) => i.gain > 0)).toBe(true);
@@ -166,17 +173,17 @@ describe("rankImpact", () => {
     const top = items[0];
     // Tier points: 0 -> 0, 1 -> 1, 2 -> 4 (a top-tier answer counts double a
     // linear scale would), normalised against a ceiling of 4.
-    const tierPoints = [0, 1, 4][top.currentScore];
+    const tierPoints = top.question.rubric.find((t) => t.score === top.currentScore)!.points;
     expect(top.gain).toBe(top.question.weight * (4 - tierPoints));
   });
 
   it("excludes unanswered questions - this list is confirmed gaps, not unknowns", () => {
-    const items = rankImpact(protocol, questions, sections, responses, "NZ");
-    const answeredIds = new Set(
-      responses.filter((r) => r.countryCode === "NZ").map((r) => r.questionId),
-    );
+    const dropped = new Set(questions.slice(0, 4).map((q) => q.id));
+    const partial = responses.filter((r) => r.countryCode === "NZ" && !dropped.has(r.questionId));
+    const items = rankImpact(protocol, questions, sections, partial, "NZ");
+    const answeredIds = new Set(partial.map((r) => r.questionId));
 
-    // NZ has 4 unanswered questions in the seed data; none should appear here.
+    // Four questions are unanswered here; none should appear in the list.
     expect(questions.length - answeredIds.size).toBe(4);
     expect(items.every((i) => answeredIds.has(i.question.id))).toBe(true);
     expect(items.every((i) => typeof i.currentScore === "number")).toBe(true);

@@ -1,13 +1,27 @@
 import { describe, expect, it } from "vitest";
 
 import seed from "../data/protocol.seed.json";
-import { sourcedResponses } from "../data/sourcedAnswers";
 import { qualifiedName } from "./jurisdictions";
 import { groupScores, scoreCountry } from "./scoring";
-import type { CountryScore, Protocol } from "./types";
+import type { CountryScore, Protocol, Response } from "./types";
 
 const protocol = seed as unknown as Protocol;
-const responses = sourcedResponses(protocol.questions);
+
+/**
+ * Synthetic answers - the grouping logic is independent of the real dataset,
+ * which covers none of the subdivided countries or EU members these tests
+ * need. Every jurisdiction answers every question at its top tier, except
+ * AU-NT which is left unanswered so there is always an unranked child.
+ */
+const responses: Response[] = ["AU-SA", "AU-WA", "GB", "DE", "IT", "FR", "FR-GF"].flatMap((code) =>
+  protocol.questions.map((q) => ({
+    questionId: q.id,
+    countryCode: code,
+    score: q.rubric[q.rubric.length - 1].score,
+    evidence: [],
+    updatedAt: "",
+  })),
+);
 
 function scoresFor(codes: string[]): CountryScore[] {
   return codes.map((code) =>

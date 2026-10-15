@@ -48,9 +48,9 @@ describe("persistence", () => {
     const { responses } = useProtocolStore.getState();
     const codes = new Set(responses.map((r) => r.countryCode));
 
-    // One from each research tranche, so a dropped data file is caught here
-    // rather than by noticing a blank region on the map.
-    for (const code of ["GB", "NZ", "DE", "AU-SA", "US-CA", "US-NY", "IN", "LK"]) {
+    // Every country in the imported Rev 8 sheets, so a dropped data file is
+    // caught here rather than by noticing a blank region on the map.
+    for (const code of ["GB", "NZ", "IN", "LK", "PK", "BD", "CN", "ID"]) {
       expect(codes.has(code)).toBe(true);
     }
   });
