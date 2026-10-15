@@ -34,6 +34,7 @@ ISO = {
     "Bangladesh": ("BD", "Bangladesh"),
     "China": ("CN", "China"),
     "India": ("IN", "India"),
+    "Japan": ("JP", "Japan"),
     "Indonesia": ("ID", "Indonesia"),
     "NZ": ("NZ", "New Zealand"),
     "Pakistan": ("PK", "Pakistan"),
@@ -63,6 +64,33 @@ def add_middle_tiers(questions, sheets):
         if labels:
             label = max(set(labels), key=labels.count).rstrip(".")
             q["rubric"].insert(1, {"score": 1, "label": label, "points": 1})
+
+
+def read_rows(ws):
+    """Yield (area, text, answer, etitle, eurl, enotes, rating, category) per data row, reading
+    columns by header name - sheets differ in column order (Japan's has the category in C and
+    the full answer in H)."""
+    rows = ws.iter_rows(values_only=True)
+    header = [norm(str(c)) if c is not None else "" for c in next(rows)]
+
+    def col(*names):
+        for n in names:
+            if n in header:
+                return header.index(n)
+        raise KeyError(f"missing column {names} in {header}")
+
+    i = {
+        "area": col("question area"),
+        "text": col("question"),
+        "answer": col("answer", "full answer"),
+        "etitle": col("evidence title"),
+        "eurl": col("evidence url"),
+        "enotes": col("evidence notes"),
+        "rating": col("score 0 10"),
+        "category": col("answer category statement"),
+    }
+    for r in rows:
+        yield tuple(r[i[k]] if i[k] < len(r) else None for k in ("area", "text", "answer", "etitle", "eurl", "enotes", "rating", "category"))
 
 
 def pick_tier(q, category):
@@ -96,18 +124,18 @@ def main():
     countries = []
 
     sheets = []
-    for path in sorted(p for p in INPUT.glob("* Ouput Rev 8.xlsx") if not p.name.startswith("~$")):
-        label0 = path.name.replace(" Ouput Rev 8.xlsx", "")
+    for path in sorted(p for p in INPUT.glob("* Ouput Rev 8*.xlsx") if not p.name.startswith("~$")):
+        label0 = path.name.split(" Ouput Rev 8")[0]
         if label0 not in ISO:
             continue
-        for row in openpyxl.load_workbook(path, data_only=True)["Question Output"].iter_rows(min_row=2, values_only=True):
-            q0 = by_text.get(norm(row[1]))
+        for row in read_rows(openpyxl.load_workbook(path, data_only=True)["Question Output"]):
+            q0 = by_text.get(norm(row[1] or ""))
             if q0:
                 sheets.append((q0["id"], row[7]))
     add_middle_tiers(questions, sheets)
 
-    for path in sorted(p for p in INPUT.glob("* Ouput Rev 8.xlsx") if not p.name.startswith("~$")):
-        label = path.name.replace(" Ouput Rev 8.xlsx", "")
+    for path in sorted(p for p in INPUT.glob("* Ouput Rev 8*.xlsx") if not p.name.startswith("~$")):
+        label = path.name.split(" Ouput Rev 8")[0]
         if label not in ISO:
             if label != "BLANK":
                 report.append(f"{path.name}: no ISO mapping, skipped")
@@ -117,7 +145,7 @@ def main():
         ws = openpyxl.load_workbook(path, data_only=True)["Question Output"]
         src_ids, matched = {}, set()
 
-        for area, text, answer, etitle, eurl, enotes, rating, category in ws.iter_rows(min_row=2, values_only=True):
+        for area, text, answer, etitle, eurl, enotes, rating, category in read_rows(ws):
             if not text:
                 continue
             q = by_text.get(norm(text))
