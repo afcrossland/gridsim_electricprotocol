@@ -491,10 +491,25 @@ export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
  * instead of a darker one.
  */
 export function scoreTextColor(score: number, mode: "light" | "dark" = "light"): string {
-  const band = scoreBand(score);
-  if (band.label !== "Moderate") return band.color;
-  return mode === "dark" ? "#E8C97A" : "#8A6D23";
+  const stars = scoreStars(score);
+  if (stars === 1) return mode === "dark" ? "#E8C97A" : "#8A6D23"; // cream, darkened/lightened to read as text
+  return STAR_COLORS[stars];
 }
+
+/**
+ * Star-rating text colours (set 2026-10-15, per Andrew's own instruction):
+ * 1 star is the cream (see scoreTextColor above for its legible variants),
+ * 2 stars amber, 3 stars light amber, 4 stars light teal, 5 stars teal.
+ * Deliberately independent of SCORE_BANDS' own colours, which still drive the
+ * map fill and the answer ladder's amber-to-teal edge.
+ */
+const STAR_COLORS: Record<number, string> = {
+  1: "#F5E6C8",
+  2: "#FBB114",
+  3: "#F8CB6E",
+  4: "#7AC8C1",
+  5: "#00ABBB",
+};
 
 /**
  * `SCORE_BANDS`' own `label` (and `NOT_ENOUGH_DATA_BAND` in
@@ -525,8 +540,30 @@ const BAND_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
   "Not enough data": { es: "Datos insuficientes", fr: "Données insuffisantes" },
 };
 
-/** A raw band label (or NOT_ENOUGH_DATA_BAND) translated for display - see BAND_LABEL_TRANSLATIONS above. */
+/** Star rating (1-5) for a band: its position in SCORE_BANDS, "Very ineffective" = 1 through "Very effective" = 5. */
+export function bandStarCount(label: string): number | null {
+  const i = SCORE_BANDS.findIndex((b) => b.label === label);
+  return i === -1 ? null : i + 1;
+}
+
+/** "★★★☆☆" - filled stars for the rating, hollow for the remainder, always five characters. */
+export function starsText(count: number): string {
+  return "★".repeat(count) + "☆".repeat(5 - count);
+}
+
+export function scoreStars(score: number): number {
+  return bandStarCount(scoreBand(score).label)!;
+}
+
+/**
+ * A raw band label (or NOT_ENOUGH_DATA_BAND) as shown to a reader. The five
+ * real bands display as a 1-5 star rating (the band names themselves stay as
+ * filter keys / translation keys only); NOT_ENOUGH_DATA_BAND keeps its
+ * translated text - see BAND_LABEL_TRANSLATIONS above.
+ */
 export function bandLabelText(label: string, language = "en"): string {
+  const stars = bandStarCount(label);
+  if (stars !== null) return starsText(stars);
   return BAND_LABEL_TRANSLATIONS[label]?.[language] ?? label;
 }
 
@@ -534,7 +571,7 @@ export function scoreBandLabel(score: number, language = "en"): string {
   return bandLabelText(scoreBand(score).label, language);
 }
 
-/** "Good (75%)" - the band leads so a reader isn't left comparing two raw numbers, the percentage follows for anyone who wants the detail. */
+/** "★★★★☆ (75%)" - the star rating leads so a reader isn't left comparing two raw numbers, the percentage follows for anyone who wants the detail. */
 export function scoreLabel(score: number, language = "en"): string {
   return `${scoreBandLabel(score, language)} (${Math.round(score * 100)}%)`;
 }

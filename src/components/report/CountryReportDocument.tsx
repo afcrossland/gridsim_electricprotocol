@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import { capitalizeFirst } from "../../lib/text";
-import { impactColor, impactLabel, impactTextColor, scoreBand, scoreTextColor } from "../../lib/scoring";
+import { impactColor, impactLabel, impactTextColor, scoreStars, starsText, scoreTextColor } from "../../lib/scoring";
 import type { CountryScore, EvidenceItem, ImpactItem, Question, Response, Section } from "../../lib/types";
 
 // Design tokens - the GSC brand palette (shared/theme/mui-theme.tsx), plain hex rather
@@ -309,7 +309,6 @@ function flagUrl(code: string): string {
 
 function Page1({ data, page, total }: { data: CountryReportData; page: number; total: number }) {
   const { score } = data;
-  const band = score.ranked ? scoreBand(score.score) : null;
 
   return (
     <div className="report-page" style={PAGE}>
@@ -329,7 +328,7 @@ function Page1({ data, page, total }: { data: CountryReportData; page: number; t
       <SectionHeading mt={0}>Key metrics</SectionHeading>
       <p style={{ fontSize: 12.5, color: C.textSm, marginBottom: 20, marginTop: 4, flexShrink: 0 }}>
         {score.ranked
-          ? `${data.countryName} is rated "${band!.label}" - ${Math.round(score.score * 100)}% of the weighted score available, based on ${score.answered} of ${score.total} questions answered.`
+          ? `${data.countryName} is rated ${starsText(scoreStars(score.score))} - ${Math.round(score.score * 100)}% of the weighted score available, based on ${score.answered} of ${score.total} questions answered.`
           : `${data.countryName} does not yet have enough answered data to be scored - ${score.answered} of ${score.total} questions answered so far.`}
       </p>
 

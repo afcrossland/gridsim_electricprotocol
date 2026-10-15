@@ -28,13 +28,13 @@
   },
   {
     "id": 11,
-    "spotlightTag": "Edit an answer",
-    "spotlightCaption": "Click a rubric tier to record what's actually in place, then use Evidence to add the citation behind it - a law, a regulator decision, or a market operator's own data."
+    "spotlightTag": "See the evidence",
+    "spotlightCaption": "Each answer sits on a ladder from Weak to Strong, and the highlighted tile is where this jurisdiction sits - open Evidence to see the citation behind it, or click an exemplar to see theirs."
   },
   {
     "id": 12,
-    "spotlightTag": "Suggest an edit",
-    "spotlightCaption": "Suggest an edit to start recording your own answers - the same button becomes Submit revised evidence once you've changed something, bundling it into one suggestion with your name and organisation for an admin to review."
+    "spotlightTag": "Suggest a correction",
+    "spotlightCaption": "Spotted an error? Suggest a correction on any answer - pick the answer you think is right, add your evidence (a link or the name of a report) and your name, and an admin will review it."
   },
   {
     "id": 9,

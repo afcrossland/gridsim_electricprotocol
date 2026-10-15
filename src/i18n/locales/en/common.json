@@ -112,6 +112,9 @@
     "close": "Close"
   },
   "questionCard": {
+    "tierWeak": "Weak",
+    "tierPartial": "Developed",
+    "tierStrong": "Strong",
     "notKnown": "Not known",
     "evidence": "Evidence",
     "clearResponse": "Clear this response",
@@ -183,5 +186,49 @@
     "skipIntro": "Skip intro",
     "startExploring": "Start exploring",
     "readDocs": "Read documentation"
+  },
+  "correctionDialog": {
+    "link": "Suggest a correction",
+    "title": "Suggest a correction",
+    "which": "Which answer do you think is right?",
+    "current": "current",
+    "source": "Your evidence",
+    "sourceHint": "Link, or the name of a report or document - corrections need a source",
+    "sourceError": "Add your evidence to submit",
+    "reason": "What does this source show?",
+    "name": "Your name",
+    "organisation": "Organisation (optional)",
+    "submit": "Submit correction",
+    "done": "Thanks - your correction has been submitted for review.",
+    "sourcePlaceholder": "https://… or report name"
+  },
+  "proposeDialog": {
+    "link": "Propose a new policy question",
+    "title": "Propose a new policy question",
+    "intro": "New questions are reviewed before they are added - once accepted, a question counts toward every country's score.",
+    "section": "Section",
+    "question": "Question",
+    "strong": "Strong answer looks like",
+    "developed": "Developed answer looks like (optional)",
+    "weak": "Weak answer looks like",
+    "reason": "Why does this matter?",
+    "source": "Supporting evidence",
+    "sourceHint": "Link, or the name of a report or document",
+    "name": "Your name",
+    "organisation": "Organisation (optional)",
+    "submit": "Submit question",
+    "done": "Thanks - your question has been submitted for review.",
+    "prompt": "Are we missing something?"
+  },
+  "questionProposalsReview": {
+    "questionProposals": "Proposed questions",
+    "section": "Section",
+    "strong": "Strong",
+    "developed": "Developed",
+    "weak": "Weak",
+    "reason": "Why",
+    "source": "Evidence",
+    "weight": "Weight",
+    "acceptedAs": "Added to the question set"
   }
 }

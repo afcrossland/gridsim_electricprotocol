@@ -28,13 +28,13 @@
   },
   {
     "id": 11,
-    "spotlightTag": "Modifier une réponse",
-    "spotlightCaption": "Cliquez sur un niveau de la grille pour enregistrer ce qui est réellement en place, puis utilisez Preuves pour ajouter la citation qui l'étaye - une loi, une décision d'un régulateur, ou les données propres d'un opérateur de marché."
+    "spotlightTag": "Voir les preuves",
+    "spotlightCaption": "Chaque réponse se situe sur une échelle de Faible à Solide, et la case en surbrillance indique où se trouve cette juridiction : ouvrez Preuves pour voir la citation qui l'étaye, ou cliquez sur un exemple à suivre pour voir la sienne."
   },
   {
     "id": 12,
-    "spotlightTag": "Proposer une modification",
-    "spotlightCaption": "Proposez une modification pour commencer à enregistrer vos propres réponses - le même bouton devient Soumettre une preuve révisée dès que vous avez changé quelque chose, regroupant cela en une seule suggestion avec votre nom et votre organisation pour qu'un administrateur la relise."
+    "spotlightTag": "Suggérer une correction",
+    "spotlightCaption": "Une erreur ? Suggérez une correction sur n'importe quelle réponse : choisissez la bonne réponse, ajoutez votre preuve (un lien ou le nom d'un rapport) et votre nom, et un administrateur l'examinera."
   },
   {
     "id": 9,

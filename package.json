@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "import:xlsx": "python3 scripts/import_xlsx.py",
+    "import:outputs": "python3 scripts/import_output_sheets.py",
     "build:geometry": "python3 scripts/build_geometry.py",
     "build:indicators": "python3 scripts/build_indicator_answers.py",
     "export:consultant-review": "vitest run --config scripts/vitest.extract.config.ts && python3 scripts/export_consultant_review.py",

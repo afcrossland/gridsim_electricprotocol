@@ -65,28 +65,36 @@
   ],
   "countries": [
     {
-      "code": "NZ",
-      "name": "New Zealand"
+      "code": "BD",
+      "name": "Bangladesh"
     },
     {
-      "code": "GB",
-      "name": "Great Britain"
+      "code": "CN",
+      "name": "China"
     },
     {
       "code": "IN",
       "name": "India"
     },
     {
-      "code": "LK",
-      "name": "Sri Lanka"
+      "code": "ID",
+      "name": "Indonesia"
+    },
+    {
+      "code": "NZ",
+      "name": "New Zealand"
     },
     {
       "code": "PK",
       "name": "Pakistan"
     },
     {
-      "code": "MY",
-      "name": "Malaysia"
+      "code": "LK",
+      "name": "Sri Lanka"
+    },
+    {
+      "code": "GB",
+      "name": "Great Britain"
     }
   ],
   "questions": [
@@ -114,11 +122,7 @@
           "label": "Special loans or rebates available to reduce upfront cost and available to all customers",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q011",
@@ -144,11 +148,7 @@
           "label": "behind-the-meter technology affordable and accessible to all earners inc. through zero capital cost models",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q012",
@@ -174,11 +174,7 @@
           "label": "Cost of finance for behind-the-meter technology available at or below 5%",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q013",
@@ -204,11 +200,7 @@
           "label": "Best practices and standards in place for consumer protection and are enforced",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q014",
@@ -234,11 +226,7 @@
           "label": "Network operators face no barriers to operating, incentivising, contracting with or owning behind-the-meter technology",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 0
-      }
+      ]
     },
     {
       "id": "q016",
@@ -264,11 +252,7 @@
           "label": "Time of use pricing for electricity import available to all or almost all customers",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q017",
@@ -294,11 +278,7 @@
           "label": "Time of use pricing available for export to all customers and both solar and storage",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q018",
@@ -315,15 +295,16 @@
           "points": 0
         },
         {
+          "score": 1,
+          "label": "Bills broken down to show some but not all of the following: wholesale/energy costs, network costs, system operation, taxes",
+          "points": 1
+        },
+        {
           "score": 2,
           "label": "Bills broken down to show all of the following: wholesale/energy costs, network costs, system operation and taxes (where these are applicable)",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q019",
@@ -349,11 +330,7 @@
           "label": "Data is available in an electronic fomat online",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q020",
@@ -379,11 +356,7 @@
           "label": "No size barriers for behind-the-meter technology in more than  50% of the wholesale and ancillary markets which are open to behind-the-meter technology",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q021",
@@ -409,11 +382,7 @@
           "label": "All ancillary  and wholesale markets pricing is fully transparent, and pricing is available in real time",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q022",
@@ -439,11 +408,7 @@
           "label": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q024",
@@ -469,11 +434,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards as part of business as usual",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q025",
@@ -499,11 +460,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q026",
@@ -529,11 +486,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q027",
@@ -559,11 +512,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q028",
@@ -589,11 +538,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q029",
@@ -619,11 +564,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 0
-      }
+      ]
     },
     {
       "id": "q030",
@@ -649,10 +590,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q031",
@@ -678,10 +616,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q032",
@@ -707,10 +642,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q033",
@@ -736,11 +668,7 @@
           "label": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 0
-      }
+      ]
     },
     {
       "id": "q035",
@@ -766,11 +694,7 @@
           "label": "No fee is payable",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q036",
@@ -787,15 +711,16 @@
           "points": 0
         },
         {
+          "score": 1,
+          "label": "Some barriers to connecting and using behind-the-meter technology for self-consumption",
+          "points": 1
+        },
+        {
           "score": 2,
           "label": "No barriers to connecting and using behind-the-meter technology for self-consumption",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q038",
@@ -821,11 +746,7 @@
           "label": "Fit and inform, or no permitting in place",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q039",
@@ -851,11 +772,7 @@
           "label": "solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q041",
@@ -881,11 +798,7 @@
           "label": "Fit and inform, or no permitting in place (size restrictions permitted only for export to the grid)",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q042",
@@ -911,11 +824,7 @@
           "label": "There is a full location specific database of available capacity for customers to connect behind-the-meter technology",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 1,
-        "GB": 1
-      }
+      ]
     },
     {
       "id": "q043",
@@ -941,11 +850,7 @@
           "label": "Data available for import and export at all connection points/all customers",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q045",
@@ -971,11 +876,7 @@
           "label": "Digital registration process in place which is at least regionalised",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q047",
@@ -1001,11 +902,7 @@
           "label": "System operator can dispatch with more than 70% of total electricity generation from behind the meter at any one time",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 0
-      }
+      ]
     },
     {
       "id": "q048",
@@ -1031,11 +928,7 @@
           "label": "National and universally adopted rules which also confirm to international norms",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 0
-      }
+      ]
     },
     {
       "id": "q049",
@@ -1061,11 +954,7 @@
           "label": "National and universally adopted rules which also confirm to international norms",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 0,
-        "GB": 0
-      }
+      ]
     },
     {
       "id": "q051",
@@ -1082,15 +971,16 @@
           "points": 0
         },
         {
+          "score": 1,
+          "label": "Some local / voluntary best practices and standards in place but not reviewed regularly or aligned with international best practice",
+          "points": 1
+        },
+        {
           "score": 2,
           "label": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q052",
@@ -1107,15 +997,16 @@
           "points": 0
         },
         {
+          "score": 1,
+          "label": "Some local / voluntary best practices and standards in place but not reviewed regularly or aligned with international best practice",
+          "points": 1
+        },
+        {
           "score": 2,
           "label": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q054",
@@ -1141,11 +1032,7 @@
           "label": "Tariffs on imported behind-the-meter technology <10%",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q055",
@@ -1162,14 +1049,16 @@
           "points": 0
         },
         {
+          "score": 1,
+          "label": "Tax incentives or subsidies are available for behind-the-meter technology but are less than those provided to utility scale technology or other energy technology",
+          "points": 1
+        },
+        {
           "score": 2,
           "label": "any tax incentives or subsidies for behind-the-meter technology at least match those provided to utility scale technology or other energy technology",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "GB": 0
-      }
+      ]
     },
     {
       "id": "q057",
@@ -1186,15 +1075,16 @@
           "points": 0
         },
         {
+          "score": 1,
+          "label": "Some in house Equipment supplier / Industry body qualifications offered for behind-the-meter technology installation and maintenance",
+          "points": 1
+        },
+        {
           "score": 2,
           "label": "National qualification certificate(s) for behind-the-meter technology installation and maintenance",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     },
     {
       "id": "q058",
@@ -1220,11 +1110,7 @@
           "label": "Courses offered throughout country and on a regular basis",
           "points": 4
         }
-      ],
-      "seedAnswers": {
-        "NZ": 2,
-        "GB": 2
-      }
+      ]
     }
   ]
 }
