@@ -7,7 +7,7 @@ import i18n, { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "../i18n";
 import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
 import { resolveTargets } from "../lib/jurisdictions";
 import { DEFAULT_SCOREBOARD_FILTERS, type ScoreboardFilters } from "../lib/scoreboardFilters";
-import { diffResponses, type Suggestion } from "../lib/suggestions";
+import { diffResponses, type QuestionProposal, type Suggestion } from "../lib/suggestions";
 import { getStoredMode, setStoredMode } from "../../shared/lib/darkMode";
 import { type EvidenceItem, type Protocol, type Question, type Response, type Section } from "../lib/types";
 
@@ -79,6 +79,7 @@ interface ProtocolState {
   removedQuestionIds: string[];
   /** Every suggested change submitted so far, pending/accepted/rejected - persisted, same reasoning as responses: something a person actually did. */
   suggestions: Suggestion[];
+  questionProposals: QuestionProposal[];
   /**
    * A country's responses exactly as they were the first time its page was
    * opened this session - session-only, not persisted (same treatment as
@@ -145,6 +146,24 @@ interface ProtocolState {
     submitterName: string;
     submitterOrganisation: string;
   }) => void;
+  /**
+   * Files a single-question correction as a pending Suggestion without touching the live
+   * responses - the proposed answer (and its evidence) only applies if a reviewer accepts it.
+   */
+  submitCorrection: (input: {
+    countryCode: string;
+    countryName: string;
+    questionId: string;
+    proposedScore: number;
+    source: string;
+    reason: string;
+    submitterName: string;
+    submitterOrganisation: string;
+  }) => void;
+  /** Files a proposal for a new question as pending. Nothing is added to the question set until it is accepted. */
+  submitQuestionProposal: (input: Omit<QuestionProposal, "id" | "submittedAt" | "status" | "questionId">) => void;
+  /** Accepting adds the question (three rubric tiers, the given weight) so it counts toward scores straight away; rejecting a previously-accepted proposal removes it again. */
+  reviewQuestionProposal: (id: string, decision: "accepted" | "rejected", weight?: number) => void;
   /** On "rejected", also restores every response the suggestion touched back to its pre-suggestion value. */
   reviewSuggestion: (id: string, decision: "accepted" | "rejected") => void;
 
@@ -313,6 +332,7 @@ function initialState() {
     removedSectionIds: [],
     removedQuestionIds: [],
     suggestions: [],
+    questionProposals: [],
     editBaselines: {},
   };
 }
@@ -487,6 +507,89 @@ export const useProtocolStore = create<ProtocolState>()(
             editBaselines: { ...state.editBaselines, [countryCode]: current },
           };
         }),
+
+      submitCorrection: ({
+        countryCode,
+        countryName,
+        questionId,
+        proposedScore,
+        source,
+        reason,
+        submitterName,
+        submitterOrganisation,
+      }) =>
+        set((state) => {
+          const baseline = state.responses.filter((r) => r.countryCode === countryCode);
+          const existing = baseline.find((r) => r.questionId === questionId);
+          const evidence = [
+            ...(existing?.evidence ?? []),
+            { title: "Submitted correction", source: source.trim(), note: reason.trim() },
+          ];
+          const revised: Response = {
+            questionId,
+            countryCode,
+            score: proposedScore,
+            evidence,
+            updatedAt: new Date().toISOString(),
+          };
+          const proposed = [...baseline.filter((r) => r.questionId !== questionId), revised];
+          const changes = diffResponses(baseline, proposed, state.questions);
+          if (changes.length === 0) return state;
+
+          const suggestion: Suggestion = {
+            id: `sg-${Date.now().toString(36)}`,
+            countryCode,
+            countryName,
+            submitterName,
+            submitterOrganisation,
+            submittedAt: new Date().toISOString(),
+            status: "pending",
+            changes,
+            baseline,
+            proposed,
+          };
+          return { suggestions: [...state.suggestions, suggestion] };
+        }),
+
+      submitQuestionProposal: (input) =>
+        set((state) => ({
+          questionProposals: [
+            ...state.questionProposals,
+            {
+              ...input,
+              id: `qp-${Date.now().toString(36)}`,
+              submittedAt: new Date().toISOString(),
+              status: "pending",
+            },
+          ],
+        })),
+
+      reviewQuestionProposal: (id, decision, weight = 1) => {
+        const proposal = get().questionProposals.find((p) => p.id === id);
+        if (!proposal) return;
+        let questionId = proposal.questionId;
+        if (decision === "accepted" && !questionId) {
+          questionId = get().addQuestion(proposal.sectionId);
+          get().updateQuestion(questionId, {
+            text: proposal.text,
+            weight,
+            // Some questions only have two answers - the middle tier is optional.
+            rubric: [
+              { score: 0, label: proposal.weakLabel, points: 0 },
+              ...(proposal.developedLabel.trim() ? [{ score: 1, label: proposal.developedLabel, points: 1 }] : []),
+              { score: 2, label: proposal.strongLabel, points: 4 },
+            ],
+          });
+        } else if (decision === "rejected" && questionId) {
+          get().deleteQuestion(questionId);
+          questionId = undefined;
+        }
+        set((state) => ({
+          questionProposals: state.questionProposals.map((p) =>
+            p.id === id ? { ...p, status: decision, questionId } : p,
+          ),
+        }));
+      },
 
       reviewSuggestion: (id, decision) =>
         set((state) => {
@@ -769,6 +872,7 @@ export const useProtocolStore = create<ProtocolState>()(
         removedSectionIds: state.removedSectionIds,
         removedQuestionIds: state.removedQuestionIds,
         suggestions: state.suggestions,
+        questionProposals: state.questionProposals,
       }),
 
       /**

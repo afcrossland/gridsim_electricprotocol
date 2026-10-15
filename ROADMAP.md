@@ -215,6 +215,18 @@ comment(s) together.
 Requests Andrew has flagged for later, recorded here so they don't get
 lost - not yet started.
 
+- **TODO: deliver submitted corrections to the team (backend).** Flagged
+  2026-10-15. A correction submitted through "Suggest an edit" is still only
+  saved in the submitter's own browser (see "Suggestions only ever show up in
+  the browser that submitted them" above), so nobody on the team receives it.
+  Deliberately deferred - the page is still a mockup - and closed properly by
+  Phase 6. Until then no interim delivery (email / GitHub issue / form
+  service) is wired up either.
+- **TODO: wire login to the edit screen.** Flagged 2026-10-15. The suggestion
+  dialog asks for a free-text name (required) and organisation; once login
+  exists, "who sent it" should come from the signed-in account instead of
+  being typed, and edit mode should require being signed in. Depends on
+  Phase 2 (auth).
 - **TODO: add a categorical badge to the map hover tooltip.** Flagged
   2026-09-29, when the tooltip's design was lifted from the sibling
   gridsim-frontend project's own map hover card (`shared/components/

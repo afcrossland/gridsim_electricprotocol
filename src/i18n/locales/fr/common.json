@@ -112,6 +112,9 @@
     "close": "Fermer"
   },
   "questionCard": {
+    "tierWeak": "Faible",
+    "tierPartial": "Développé",
+    "tierStrong": "Solide",
     "notKnown": "Inconnu",
     "evidence": "Preuves",
     "clearResponse": "Effacer cette réponse",
@@ -183,5 +186,49 @@
     "skipIntro": "Passer l'introduction",
     "startExploring": "Commencer à explorer",
     "readDocs": "Lire la documentation"
+  },
+  "correctionDialog": {
+    "link": "Suggérer une correction",
+    "title": "Suggérer une correction",
+    "which": "Quelle réponse vous semble la bonne ?",
+    "current": "actuelle",
+    "source": "Votre preuve",
+    "sourceHint": "Lien, ou nom d'un rapport ou document : les corrections nécessitent une source",
+    "sourceError": "Ajoutez votre preuve pour envoyer",
+    "reason": "Que montre cette source ?",
+    "name": "Votre nom",
+    "organisation": "Organisation (facultatif)",
+    "submit": "Envoyer la correction",
+    "done": "Merci : votre correction a été envoyée pour examen.",
+    "sourcePlaceholder": "https://… ou nom du rapport"
+  },
+  "proposeDialog": {
+    "link": "Proposer une nouvelle question de politique",
+    "title": "Proposer une nouvelle question de politique",
+    "intro": "Les nouvelles questions sont examinées avant d'être ajoutées : une fois acceptée, une question compte dans le score de tous les pays.",
+    "section": "Section",
+    "question": "Question",
+    "strong": "Une réponse solide ressemble à",
+    "developed": "Une réponse développée ressemble à (facultatif)",
+    "weak": "Une réponse faible ressemble à",
+    "reason": "Pourquoi est-ce important ?",
+    "source": "Preuve à l'appui",
+    "sourceHint": "Lien, ou nom d'un rapport ou document",
+    "name": "Votre nom",
+    "organisation": "Organisation (facultatif)",
+    "submit": "Envoyer la question",
+    "done": "Merci : votre question a été envoyée pour examen.",
+    "prompt": "Manque-t-il quelque chose ?"
+  },
+  "questionProposalsReview": {
+    "questionProposals": "Questions proposées",
+    "section": "Section",
+    "strong": "Solide",
+    "developed": "Développé",
+    "weak": "Faible",
+    "reason": "Pourquoi",
+    "source": "Preuve",
+    "weight": "Poids",
+    "acceptedAs": "Ajoutée à l'ensemble de questions"
   }
 }

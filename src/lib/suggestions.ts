@@ -96,3 +96,25 @@ export function diffResponses(
 
   return changes;
 }
+
+/** A visitor's proposal for a brand-new policy question - lives alongside Suggestion (answer corrections) but is reviewed separately since accepting one adds a question to the set. */
+export interface QuestionProposal {
+  id: string;
+  sectionId: string;
+  sectionTitle: string;
+  text: string;
+  /** What the strongest, middle and weakest answers look like - become the question's three rubric tiers. */
+  strongLabel: string;
+  developedLabel: string;
+  weakLabel: string;
+  /** Why this question matters. */
+  reason: string;
+  /** Link, or the name of a report, supporting the question. */
+  source: string;
+  submitterName: string;
+  submitterOrganisation: string;
+  submittedAt: string;
+  status: "pending" | "accepted" | "rejected";
+  /** Set once accepted - the question this proposal became. */
+  questionId?: string;
+}

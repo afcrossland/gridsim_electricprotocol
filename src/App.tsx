@@ -14,6 +14,7 @@ import PolicyMap from "./components/map/PolicyMap";
 import JurisdictionSearch from "./components/map/JurisdictionSearch";
 import ScrollStory from "./scrollstory/ScrollStory";
 import FooterComposition from "../shared/components/FooterComposition";
+import SidebarShell from "../shared/components/SidebarShell";
 import { sourcedCountries } from "./data/sourcedAnswers";
 import { qualifiedName, resolveTargets } from "./lib/jurisdictions";
 import { scoreCountry } from "./lib/scoring";
@@ -330,12 +331,11 @@ export default function App() {
         // scoreboard's own map+list layout rather than a separate mode.
         <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
           <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>{map}</Box>
-          <Divider orientation="vertical" flexItem />
-          <Box sx={{ width: "75%", height: "100%", overflow: "hidden" }}>{list}</Box>
+          <SidebarShell width="75%">{list}</SidebarShell>
         </Box>
       ) : isMobile ? (
         selectedCountry && selectedScore ? (
-          <Box sx={{ flex: 1, overflow: "hidden" }}>{list}</Box>
+          <Box sx={{ flex: 1, overflow: "hidden", bgcolor: "background.paper" }}>{list}</Box>
         ) : (
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
             {/* Scoreboard's own "Policy Explorer" heading stays suppressed
@@ -419,8 +419,6 @@ export default function App() {
             {map}
           </Box>
 
-          {!sidebarCollapsed && <Divider orientation="vertical" flexItem />}
-
           {/* overflow:visible so the collapse tab (absolutely positioned,
               poking out to the left) stays visible even once this panel's
               own width animates down to 0 - same two-layer trick as the
@@ -467,17 +465,8 @@ export default function App() {
               </Box>
             </Box>
 
-            <Box
-              sx={{
-                width: "100%",
-                height: "100%",
-                bgcolor: "background.paper",
-                display: sidebarCollapsed ? "none" : "flex",
-                flexDirection: "column",
-                overflow: "hidden",
-              }}
-            >
-              {list}
+            <Box sx={{ width: "100%", height: "100%", display: sidebarCollapsed ? "none" : "flex" }}>
+              <SidebarShell width="100%">{list}</SidebarShell>
             </Box>
           </Box>
         </Box>

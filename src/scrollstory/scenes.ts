@@ -161,9 +161,9 @@ export const SCENES: Scene[] = [
     media: {
       kind: "app",
       spotlight: {
-        selector: '[data-tour="submit-suggestion"]',
-        tag: "Suggest an edit",
-        caption: "Suggest an edit to start recording your own answers - the same button becomes Submit revised evidence once you've changed something, bundling it into one suggestion with your name and organisation for an admin to review.",
+        selector: '[data-tour="suggest-correction"]',
+        tag: "Suggest a correction",
+        caption: "Spotted an error? Suggest a correction on any answer - pick the answer you think is right, add your evidence (a link or the name of a report) and your name, and an admin will review it.",
         arrow: "left",
       },
     },

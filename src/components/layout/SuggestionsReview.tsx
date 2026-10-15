@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Box, Button, Chip, Collapse, IconButton, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, Chip, Collapse, IconButton, Paper, Stack, TextField, Typography } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useTranslation } from "react-i18next";
 
-import type { Suggestion } from "../../lib/suggestions";
+import type { QuestionProposal, Suggestion } from "../../lib/suggestions";
 import { useProtocolStore } from "../../stores/protocolStore";
 import FlagImg from "../ui/FlagImg";
 
@@ -43,12 +43,17 @@ export default function SuggestionsReview() {
   const suggestions = useProtocolStore((s) => s.suggestions);
   const reviewSuggestion = useProtocolStore((s) => s.reviewSuggestion);
 
-  const sorted = [...suggestions].sort((a, b) => {
+  const questionProposals = useProtocolStore((s) => s.questionProposals);
+  const reviewQuestionProposal = useProtocolStore((s) => s.reviewQuestionProposal);
+
+  const byStatusThenNewest = <T extends { status: string; submittedAt: string }>(a: T, b: T) => {
     if (a.status !== b.status) return a.status === "pending" ? -1 : b.status === "pending" ? 1 : 0;
     return b.submittedAt.localeCompare(a.submittedAt);
-  });
+  };
+  const sorted = [...suggestions].sort(byStatusThenNewest);
+  const sortedProposals = [...questionProposals].sort(byStatusThenNewest);
 
-  if (sorted.length === 0) {
+  if (sorted.length === 0 && sortedProposals.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary">
         {t("suggestionsReview.empty")}
@@ -58,10 +63,92 @@ export default function SuggestionsReview() {
 
   return (
     <Stack spacing={1.5}>
+      {sortedProposals.length > 0 && (
+        <Typography variant="subtitle2">{t("questionProposalsReview.questionProposals")}</Typography>
+      )}
+      {sortedProposals.map((p) => (
+        <QuestionProposalRow key={p.id} proposal={p} onReview={reviewQuestionProposal} />
+      ))}
+      {sortedProposals.length > 0 && sorted.length > 0 && <Box sx={{ pt: 1 }} />}
       {sorted.map((s) => (
         <SuggestionRow key={s.id} suggestion={s} onReview={reviewSuggestion} />
       ))}
     </Stack>
+  );
+}
+
+function QuestionProposalRow({
+  proposal,
+  onReview,
+}: {
+  proposal: QuestionProposal;
+  onReview: (id: string, decision: "accepted" | "rejected", weight?: number) => void;
+}) {
+  const { t } = useTranslation();
+  const [weight, setWeight] = useState("1");
+  const detail = (label: string, value: string) => (
+    <Typography variant="body2">
+      <Box component="span" sx={{ fontWeight: 600 }}>
+        {label}:
+      </Box>{" "}
+      {value}
+    </Typography>
+  );
+
+  return (
+    <Paper variant="outlined" sx={{ p: 2, borderLeft: "4px solid", borderLeftColor: STATUS_BORDER[proposal.status] }}>
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="subtitle1">{proposal.text}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            <Box component="span" sx={{ fontWeight: 600 }}>{t("suggestionsReview.from")}</Box> {proposal.submitterName}
+            {proposal.submitterOrganisation ? ` · ${proposal.submitterOrganisation}` : ""}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {new Date(proposal.submittedAt).toLocaleString()}
+          </Typography>
+        </Box>
+        <Chip size="small" label={t(STATUS_LABEL_KEY[proposal.status])} color={STATUS_COLOR[proposal.status]} sx={{ fontWeight: 700 }} />
+      </Box>
+
+      <Stack spacing={0.5} sx={{ mt: 1.5 }}>
+        {detail(t("questionProposalsReview.section"), proposal.sectionTitle)}
+        {detail(t("questionProposalsReview.strong"), proposal.strongLabel)}
+        {proposal.developedLabel && detail(t("questionProposalsReview.developed"), proposal.developedLabel)}
+        {detail(t("questionProposalsReview.weak"), proposal.weakLabel)}
+        {detail(t("questionProposalsReview.reason"), proposal.reason)}
+        {detail(t("questionProposalsReview.source"), proposal.source)}
+        {proposal.status === "accepted" && (
+          <Typography variant="caption" color="success.main">
+            {t("questionProposalsReview.acceptedAs")}
+          </Typography>
+        )}
+      </Stack>
+
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}>
+        {proposal.status !== "accepted" && (
+          <>
+            <TextField
+              size="small"
+              type="number"
+              label={t("questionProposalsReview.weight")}
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              slotProps={{ htmlInput: { min: 0, max: 5, step: 0.1 } }}
+              sx={{ width: 100 }}
+            />
+            <Button size="small" variant="contained" color="success" onClick={() => onReview(proposal.id, "accepted", Number(weight) || 1)}>
+              {t("suggestionsReview.accept")}
+            </Button>
+          </>
+        )}
+        {proposal.status !== "rejected" && (
+          <Button size="small" variant="outlined" color="error" onClick={() => onReview(proposal.id, "rejected")}>
+            {t("suggestionsReview.reject")}
+          </Button>
+        )}
+      </Box>
+    </Paper>
   );
 }
 

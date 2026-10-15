@@ -112,6 +112,9 @@
     "close": "Cerrar"
   },
   "questionCard": {
+    "tierWeak": "Débil",
+    "tierPartial": "Desarrollado",
+    "tierStrong": "Sólido",
     "notKnown": "No se sabe",
     "evidence": "Evidencia",
     "clearResponse": "Borrar esta respuesta",
@@ -183,5 +186,49 @@
     "skipIntro": "Saltar introducción",
     "startExploring": "Empieza a explorar",
     "readDocs": "Leer la documentación"
+  },
+  "correctionDialog": {
+    "link": "Sugerir una corrección",
+    "title": "Sugerir una corrección",
+    "which": "¿Qué respuesta cree que es la correcta?",
+    "current": "actual",
+    "source": "Su evidencia",
+    "sourceHint": "Enlace, o nombre de un informe o documento: las correcciones necesitan una fuente",
+    "sourceError": "Añada su evidencia para enviar",
+    "reason": "¿Qué demuestra esta fuente?",
+    "name": "Su nombre",
+    "organisation": "Organización (opcional)",
+    "submit": "Enviar corrección",
+    "done": "Gracias: su corrección se ha enviado para su revisión.",
+    "sourcePlaceholder": "https://… o nombre del informe"
+  },
+  "proposeDialog": {
+    "link": "Proponer una nueva pregunta de política",
+    "title": "Proponer una nueva pregunta de política",
+    "intro": "Las preguntas nuevas se revisan antes de añadirse: una vez aceptada, una pregunta cuenta para la puntuación de todos los países.",
+    "section": "Sección",
+    "question": "Pregunta",
+    "strong": "Una respuesta sólida sería",
+    "developed": "Una respuesta desarrollada sería (opcional)",
+    "weak": "Una respuesta débil sería",
+    "reason": "¿Por qué es importante?",
+    "source": "Evidencia de apoyo",
+    "sourceHint": "Enlace, o nombre de un informe o documento",
+    "name": "Su nombre",
+    "organisation": "Organización (opcional)",
+    "submit": "Enviar pregunta",
+    "done": "Gracias: su pregunta se ha enviado para su revisión.",
+    "prompt": "¿Nos falta algo?"
+  },
+  "questionProposalsReview": {
+    "questionProposals": "Preguntas propuestas",
+    "section": "Sección",
+    "strong": "Sólido",
+    "developed": "Desarrollado",
+    "weak": "Débil",
+    "reason": "Por qué",
+    "source": "Evidencia",
+    "weight": "Peso",
+    "acceptedAs": "Añadida al conjunto de preguntas"
   }
 }

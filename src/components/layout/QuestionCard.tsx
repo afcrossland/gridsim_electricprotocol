@@ -1,4 +1,6 @@
 import { useState } from "react";
+import CorrectionDialog from "./CorrectionDialog";
+import Linkified from "./Linkified";
 import {
   Box,
   Button,
@@ -18,12 +20,13 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTranslation } from "react-i18next";
 
 import type { Question, Response } from "../../lib/types";
-import { SECTION_STANDING_COLORS } from "../../lib/scoring";
+import { SCORE_BANDS, SECTION_STANDING_COLORS } from "../../lib/scoring";
 import { qualifiedName } from "../../lib/jurisdictions";
 import { capitalizeFirst } from "../../lib/text";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -101,6 +104,9 @@ function selectedTierColors(mode: "light" | "dark") {
 /** How many of a tier box's own qualifying exemplars show inline before the rest fold into a "+N more" dropdown - per Andrew's own instruction 2026-10-09 ("top 3 exemplars shown and a dropdown list for more"). */
 const EXEMPLAR_DISPLAY_LIMIT = 3;
 
+/** Width of the Strong/Developed/Weak label column on each answer tile - the exemplars block is indented by this (plus the 10px gap) so it lines up under the answer text. */
+const TIER_LABEL_WIDTH = 92;
+
 /**
  * An exemplar is only worth surfacing if there's something to actually show
  * in its evidence popup - per Andrew's own instruction 2026-10-09 ("only
@@ -176,6 +182,7 @@ export default function QuestionCard({
   // comment above for why); one piece of state for the whole card, same
   // reasoning as `moreAnchor`.
   const [evidencePopup, setEvidencePopup] = useState<{ el: HTMLElement; exemplar: ExemplarEntry } | null>(null);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -192,6 +199,7 @@ export default function QuestionCard({
     (ex) => hasCompleteEvidence(ex.response) && (!response || ex.response.score >= response.score),
   );
 
+  const rubricAscending = [...question.rubric].sort((a, b) => a.score - b.score);
   const { border: selectedBorder, tint: selectedTint } = selectedTierColors(theme.palette.mode);
 
   return (
@@ -200,6 +208,8 @@ export default function QuestionCard({
       variant="outlined"
       sx={{
         p: isMobile ? 1.5 : 2,
+        // Same 12px rounded card as Deployment/Calculator's detail-view cards.
+        borderRadius: "12px",
         borderColor: "divider",
         borderLeftWidth: 3,
         borderLeftStyle: response ? "solid" : "dashed",
@@ -216,17 +226,7 @@ export default function QuestionCard({
         <Typography variant="body1" sx={{ fontWeight: 700 }}>{question.text}</Typography>
       </Box>
 
-      <Box
-        data-tour="question-rubric"
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            md: `repeat(${question.rubric.length + 1}, 1fr)`,
-          },
-          gap: 1,
-        }}
-      >
+      <Box data-tour="question-rubric" sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {/* Explicit fourth state, to the left of the real rubric tiers -
             per Andrew's own instruction 2026-10-09 ("all questions not
             answered need to be on the left with a box 'not known'"). An
@@ -238,7 +238,9 @@ export default function QuestionCard({
         <Box
           onClick={editMode && response ? () => deleteResponse(code, question.id) : undefined}
           sx={{
-            p: 1.25,
+            order: 99,
+            px: 1.25,
+            py: 0.75,
             borderRadius: 1.5,
             cursor: editMode && response ? "pointer" : "default",
             border: "2px dashed",
@@ -262,7 +264,11 @@ export default function QuestionCard({
           </Typography>
         </Box>
 
-        {question.rubric.map((tier) => {
+        {[...question.rubric].sort((a, b) => b.score - a.score).map((tier) => {
+          const tierIndex = rubricAscending.findIndex((t) => t.score === tier.score);
+          const tierRank = rubricAscending.length > 1 ? tierIndex / (rubricAscending.length - 1) : 1;
+          const tierColor = SCORE_BANDS[Math.round(tierRank * (SCORE_BANDS.length - 1))].color;
+          const tierName = tierRank === 1 ? t("questionCard.tierStrong") : tierRank === 0 ? t("questionCard.tierWeak") : t("questionCard.tierPartial");
           const selected = response?.score === tier.score;
           // Every comparator who picked this exact tier, clustered along the
           // tile's bottom edge rather than one badge each - up to
@@ -292,7 +298,9 @@ export default function QuestionCard({
                 borderRadius: 1.5,
                 cursor: editMode ? "pointer" : "default",
                 border: "2px solid",
+                borderLeftWidth: 8,
                 borderColor: selected ? selectedBorder : "divider",
+                borderLeftColor: tierColor,
                 bgcolor: selected ? selectedTint : "transparent",
                 ...(editMode && { "&:hover": { borderColor: selected ? selectedBorder : "primary.light" } }),
                 display: "flex",
@@ -300,15 +308,31 @@ export default function QuestionCard({
                 gap: 0.75,
               }}
             >
-              <Typography
-                variant="body2"
-                sx={{
-                  color: selected ? "text.primary" : undefined,
-                  fontWeight: selected ? 600 : 400,
-                }}
-              >
-                {capitalizeFirst(tier.label)}
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.25 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    flexShrink: 0,
+                    width: TIER_LABEL_WIDTH,
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    fontSize: "0.65rem",
+                    color: tierRank === 0 ? "#B07A00" : tierRank === 1 ? "#008593" : "text.secondary",
+                  }}
+                >
+                  {tierName}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: selected ? "text.primary" : undefined,
+                    fontWeight: selected ? 600 : 400,
+                  }}
+                >
+                  {capitalizeFirst(tier.label)}
+                </Typography>
+              </Box>
 
               {tierComparators.length > 0 && (
                 <Box sx={{ position: "absolute", left: 8, bottom: 6, display: "flex", gap: "3px" }}>
@@ -356,7 +380,7 @@ export default function QuestionCard({
                   Compare one, and a single nowrapping line reads as one
                   list rather than a stack of unrelated rows. */}
               {tierExemplars.length > 0 && (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", ml: `calc(${TIER_LABEL_WIDTH}px + 10px)` }}>
                   <Typography
                     variant="caption"
                     sx={{
@@ -490,12 +514,12 @@ export default function QuestionCard({
                   </Typography>
                   {e.source && (
                     <Typography variant="caption" sx={{ display: "block", color: "primary.main", wordBreak: "break-word" }}>
-                      {e.source}
+                      <Linkified text={e.source} />
                     </Typography>
                   )}
                   {e.note && (
                     <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                      {e.note}
+                      <Linkified text={e.note} />
                     </Typography>
                   )}
                 </Box>
@@ -537,6 +561,11 @@ export default function QuestionCard({
             </Button>
 
             <Box sx={{ flex: 1 }} />
+            {!editMode && (
+              <Button data-tour="suggest-correction" size="small" variant="outlined" startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
+                {t("correctionDialog.link")}
+              </Button>
+            )}
             {editMode && (
               <Tooltip title={t("questionCard.clearResponse")}>
                 <IconButton size="small" onClick={() => deleteResponse(code, question.id)}>
@@ -582,6 +611,16 @@ export default function QuestionCard({
                         updateEvidence(code, question.id, i, { title: e.target.value })
                       }
                     />
+                    {!editMode && item.source ? (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                          {t("questionCard.source")}
+                        </Typography>
+                        <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
+                          <Linkified text={item.source} />
+                        </Typography>
+                      </Box>
+                    ) : (
                     <TextField
                       fullWidth
                       size="small"
@@ -593,6 +632,17 @@ export default function QuestionCard({
                         updateEvidence(code, question.id, i, { source: e.target.value })
                       }
                     />
+                    )}
+                    {!editMode && item.note ? (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                          {t("questionCard.notes")}
+                        </Typography>
+                        <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                          <Linkified text={item.note} />
+                        </Typography>
+                      </Box>
+                    ) : (
                     <TextField
                       fullWidth
                       multiline
@@ -605,6 +655,7 @@ export default function QuestionCard({
                         updateEvidence(code, question.id, i, { note: e.target.value })
                       }
                     />
+                    )}
                   </Stack>
                   {editMode && (
                     <Tooltip title={t("questionCard.removeEvidence")}>
@@ -630,6 +681,27 @@ export default function QuestionCard({
           </Collapse>
         </>
       )}
+
+      {/* Quiet per-answer entry point to the correction flow - the evidence
+          requirement is taught by the dialog's own required fields, not by
+          text here. With an answer it sits in the Evidence row above; with
+          none it gets a row of its own. Hidden in edit mode, where the full
+          edit workflow applies. */}
+      {!editMode && !response && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+          <Button data-tour="suggest-correction" size="small" variant="outlined" startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
+            {t("correctionDialog.link")}
+          </Button>
+        </Box>
+      )}
+      <CorrectionDialog
+        open={correctionOpen}
+        onClose={() => setCorrectionOpen(false)}
+        question={question}
+        response={response}
+        countryCode={code}
+        countryName={qualifiedName(code, i18n.language)}
+      />
     </Paper>
   );
 }

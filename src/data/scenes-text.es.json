@@ -28,13 +28,13 @@
   },
   {
     "id": 11,
-    "spotlightTag": "Editar una respuesta",
-    "spotlightCaption": "Haz clic en un nivel de la rúbrica para registrar lo que realmente está vigente, y luego usa Evidencia para añadir la cita que lo respalda - una ley, una decisión regulatoria, o los datos propios de un operador de mercado."
+    "spotlightTag": "Ver la evidencia",
+    "spotlightCaption": "Cada respuesta está en una escala de Débil a Sólido, y la casilla resaltada es donde se sitúa esta jurisdicción: abre Evidencia para ver la cita que la respalda, o haz clic en un ejemplo a seguir para ver la suya."
   },
   {
     "id": 12,
-    "spotlightTag": "Proponer una edición",
-    "spotlightCaption": "Propón una edición para empezar a registrar tus propias respuestas - el mismo botón se convierte en Enviar evidencia revisada en cuanto cambies algo, agrupándolo en una sola sugerencia con tu nombre y organización para que un administrador la revise."
+    "spotlightTag": "Sugerir una corrección",
+    "spotlightCaption": "¿Has visto un error? Sugiere una corrección en cualquier respuesta: elige la respuesta que creas correcta, añade tu evidencia (un enlace o el nombre de un informe) y tu nombre, y un administrador la revisará."
   },
   {
     "id": 9,

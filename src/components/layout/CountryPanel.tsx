@@ -1,23 +1,22 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type Ref, type UIEvent } from "react";
-import { Box, Button, Collapse, Divider, Stack, Tooltip, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Collapse, Divider, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useTranslation } from "react-i18next";
 
 import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors";
 import { rankImpact, scoreLabel, scoreSections, scoreTextColor, sectionLeaderboard } from "../../lib/scoring";
-import { diffResponses } from "../../lib/suggestions";
 import type { CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
 import { generateCountryReportPdf, fmtReportDate, fmtTimestamp } from "../../utils/exportCountryReportPdf";
 import CountryReportDocument from "../report/CountryReportDocument";
 import ComparePicker from "./ComparePicker";
+import ProposeQuestionDialog from "./ProposeQuestionDialog";
 import QuestionCard from "./QuestionCard";
 import SectionOverview from "./SectionOverview";
-import SubmitSuggestionDialog from "./SubmitSuggestionDialog";
 import FlagImg from "../ui/FlagImg";
 import StatTile from "../ui/StatTile";
 import DetailHeader from "../../../shared/components/DetailHeader";
@@ -98,6 +97,21 @@ interface Props {
   onSelectCountry?: (code: string) => void;
 }
 
+/** Two-line call to action: a short question on top, the button underneath. */
+function ProposePrompt({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 0.25, flexShrink: 0 }}>
+      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+        {t("proposeDialog.prompt")}
+      </Typography>
+      <Button size="small" variant="outlined" startIcon={<AddIcon fontSize="small" />} onClick={onClick}>
+        {t("proposeDialog.link")}
+      </Button>
+    </Box>
+  );
+}
+
 export default function CountryPanel({
   code,
   score,
@@ -118,8 +132,6 @@ export default function CountryPanel({
   const compareCountries = useProtocolStore((s) => s.compareCountries);
   const addCompareCountry = useProtocolStore((s) => s.addCompareCountry);
   const removeCompareCountry = useProtocolStore((s) => s.removeCompareCountry);
-  const editBaselines = useProtocolStore((s) => s.editBaselines);
-  const captureEditBaseline = useProtocolStore((s) => s.captureEditBaseline);
   const theme = useTheme();
   // The section rail is a left-hand column on desktop, but that leaves too
   // little width for the answer area on a phone in portrait - below `sm` it
@@ -161,16 +173,8 @@ export default function CountryPanel({
     setActiveSectionId(id === activeSectionId ? "" : id);
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const [submitOpen, setSubmitOpen] = useState(false);
   const [buildingReport, setBuildingReport] = useState(false);
-
-  // Read-only until "Edit" is clicked - rubric tiles, evidence fields and
-  // the clear-response control all gate on this (see QuestionCard's own
-  // `editMode` prop). Resets to read-only on every country switch, so
-  // browsing a new jurisdiction never silently inherits an edit session
-  // left open on the last one.
-  const [editMode, setEditMode] = useState(false);
-  useEffect(() => setEditMode(false), [code]);
+  const [proposeOpen, setProposeOpen] = useState(false);
 
   // Collapses the stat tiles and the Compare row once the content below is
   // scrolled, so shrinking the header buys back the most visible content.
@@ -196,26 +200,6 @@ export default function CountryPanel({
       })),
     [compareCodes, allScores],
   );
-
-  // First time this country's page is opened this session, snapshot its
-  // responses as the baseline "Submit revised evidence" diffs against -
-  // see captureEditBaseline's own doc comment for why this is a no-op on
-  // every subsequent render/re-selection of the same country.
-  useEffect(() => {
-    captureEditBaseline(code);
-  }, [code, captureEditBaseline]);
-
-  // Never let a bug in this diff take the whole page down with it - all it
-  // drives is the "Submit revised evidence" button's label/enabled state,
-  // so falling back to "nothing to report" is always a safe failure mode.
-  const pendingChanges = useMemo(() => {
-    try {
-      return diffResponses(editBaselines[code] ?? [], responses.filter((r) => r.countryCode === code), questions);
-    } catch (err) {
-      console.error("diffResponses failed", err);
-      return [];
-    }
-  }, [editBaselines, code, responses, questions]);
 
   const byQuestion = useMemo(
     () => new Map(responses.filter((r) => r.countryCode === code).map((r) => [r.questionId, r])),
@@ -311,25 +295,6 @@ export default function CountryPanel({
       })),
     [compareEntries, sections, questions, responses],
   );
-
-  // Jumps from a "Submit revised evidence" tile straight to the question it's
-  // about - closes the dialog, switches to the section that owns it, then
-  // scrolls once the section's questions have actually rendered (a single
-  // rAF landed before the section-switch's own re-render in testing, so this
-  // waits two).
-  const goToQuestion = (questionId: string) => {
-    const question = questions.find((q) => q.id === questionId);
-    if (!question) return;
-    setSubmitOpen(false);
-    setActiveSectionId(question.sectionId);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        document
-          .getElementById(`question-${questionId}`)
-          ?.scrollIntoView({ behavior: "smooth", block: "center" });
-      });
-    });
-  };
 
   // Mounts CountryReportDocument off-screen (see the render below), waits a
   // couple of frames for it to actually lay out, then rasterises it into a
@@ -507,41 +472,9 @@ export default function CountryPanel({
             <Typography variant="body2" sx={{ flex: "1 1 280px", minWidth: 0 }}>
               {t("countryPanel.overviewIntro", { name: score.name })}
             </Typography>
-            {/* "Suggest an edit" and "Submit revised evidence" joined into
-                one button that follows the actual flow - per Andrew's own
-                instruction 2026-10-09 ("move suggest an edit next to
-                submit revised evidence box. Consider if these can be
-                joined") and his own follow-up choice of a single button
-                plus a separate way to leave edit mode without submitting
-                ("single button but add a new 'exit edit mode' button").
-                Off: starts editing. Editing: submits whatever's pending
-                (disabled with a tooltip hint until there's something to
-                submit) - "Exit edit mode" is the one remaining separate
-                control, for leaving edit mode without submitting. */}
-            <Box data-tour="submit-suggestion" sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
-              {editMode && (
-                <Button size="small" onClick={() => setEditMode(false)}>
-                  {t("countryPanel.exitEditMode")}
-                </Button>
-              )}
-              <Tooltip title={editMode && pendingChanges.length === 0 ? t("sectionRail.changeFirst") : ""}>
-                <span>
-                  <Button
-                    size="small"
-                    variant={editMode ? "contained" : "outlined"}
-                    startIcon={editMode ? undefined : <EditOutlinedIcon fontSize="small" />}
-                    disabled={editMode && pendingChanges.length === 0}
-                    onClick={() => (editMode ? setSubmitOpen(true) : setEditMode(true))}
-                  >
-                    {editMode
-                      ? pendingChanges.length > 0
-                        ? t("sectionRail.submitCount", { count: pendingChanges.length })
-                        : t("sectionRail.submit")
-                      : t("countryPanel.edit")}
-                  </Button>
-                </span>
-              </Tooltip>
-            </Box>
+            {!activeSectionId && (
+              <ProposePrompt onClick={() => setProposeOpen(true)} />
+            )}
           </Box>
 
           {/* Explicit way back to the full tile grid, not just the implicit
@@ -550,14 +483,12 @@ export default function CountryPanel({
               not to be discoverable ("we cannot return to the summary
               view... after we click the tiles"). */}
           {activeSectionId && (
-            <Button
-              size="small"
-              startIcon={<ArrowBackIcon fontSize="small" />}
-              onClick={() => handleSelectSection(activeSectionId)}
-              sx={{ mb: 1.5 }}
-            >
-              {t("countryPanel.backToOverview")}
-            </Button>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
+              <Button size="small" startIcon={<ArrowBackIcon fontSize="small" />} onClick={() => handleSelectSection(activeSectionId)}>
+                {t("countryPanel.backToOverview")}
+              </Button>
+              <ProposePrompt onClick={() => setProposeOpen(true)} />
+            </Box>
           )}
 
           <SectionOverview
@@ -583,7 +514,6 @@ export default function CountryPanel({
                   question={q}
                   response={byQuestion.get(q.id)}
                   code={code}
-                  editMode={editMode}
                   compareEntries={compareEntries.map((entry) => ({
                     code: entry.code,
                     color: entry.color,
@@ -603,13 +533,7 @@ export default function CountryPanel({
         </Box>
       </Box>
 
-      <SubmitSuggestionDialog
-        open={submitOpen}
-        onClose={() => setSubmitOpen(false)}
-        countryCode={code}
-        countryName={score.name}
-        onNavigateToQuestion={goToQuestion}
-      />
+      <ProposeQuestionDialog open={proposeOpen} onClose={() => setProposeOpen(false)} defaultSectionId={activeSectionId || undefined} />
 
       {/* Mounted off-screen only while a download is in flight - handleDownloadReport
           waits two animation frames for this to actually paint before html2canvas

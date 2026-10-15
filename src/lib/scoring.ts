@@ -491,10 +491,25 @@ export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
  * instead of a darker one.
  */
 export function scoreTextColor(score: number, mode: "light" | "dark" = "light"): string {
-  const band = scoreBand(score);
-  if (band.label !== "Moderate") return band.color;
-  return mode === "dark" ? "#E8C97A" : "#8A6D23";
+  const stars = scoreStars(score);
+  if (stars === 1) return mode === "dark" ? "#E8C97A" : "#8A6D23"; // cream, darkened/lightened to read as text
+  return STAR_COLORS[stars];
 }
+
+/**
+ * Star-rating text colours (set 2026-10-15, per Andrew's own instruction):
+ * 1 star is the cream (see scoreTextColor above for its legible variants),
+ * 2 stars amber, 3 stars light amber, 4 stars light teal, 5 stars teal.
+ * Deliberately independent of SCORE_BANDS' own colours, which still drive the
+ * map fill and the answer ladder's amber-to-teal edge.
+ */
+const STAR_COLORS: Record<number, string> = {
+  1: "#F5E6C8",
+  2: "#FBB114",
+  3: "#F8CB6E",
+  4: "#7AC8C1",
+  5: "#00ABBB",
+};
 
 /**
  * `SCORE_BANDS`' own `label` (and `NOT_ENOUGH_DATA_BAND` in
