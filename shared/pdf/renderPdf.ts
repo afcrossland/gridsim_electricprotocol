@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
-import type { Block, ListItem, PdfAssets, ReportModel } from "./types";
+import { fmtInt, niceScale } from "./scale";
+import type { Block, ChartSeries, ListItem, PdfAssets, ReportModel } from "./types";
 
 /**
  * Writes a report as a PDF/UA-1 document with PDFKit - adapted from the TUC workplace calculator's report writer.
@@ -170,6 +171,23 @@ export async function renderReportPdf(model: ReportModel, assets: PdfAssets): Pr
 
   // ---- title block (cover) ----
   const title = (b: Extract<Block, { type: "title" }>) => {
+    const startY = y;
+    if (b.flag) {
+      const flag = b.flag;
+      // Drawn at the right edge, level with the title, as a Figure so it carries a description.
+      const dims = (doc as unknown as { openImage(src: Uint8Array): { width: number; height: number } }).openImage(flag.data);
+      const h = 11 * MM;
+      const w = (h * dims.width) / dims.height;
+      ensure(h);
+      root.add(
+        struct("Figure", { alt: flag.alt }, () => {
+          doc.image(flag.data as unknown as Buffer, PAGE_W - MARGIN - w, startY + 4 * MM, { width: w, height: h });
+        }),
+      );
+      artifact(() => {
+        doc.rect(PAGE_W - MARGIN - w, startY + 4 * MM, w, h).lineWidth(0.5).stroke(brand.line);
+      });
+    }
     paragraph(b.kicker, { size: 10.5, color: brand.heading, after: 1 * MM });
     paragraph(b.text, { font: FONT.head, size: 24, color: brand.primary, tag: "H1", after: 2 * MM });
     if (b.sub) paragraph(b.sub, { size: 10, color: brand.text, after: 4 * MM });
@@ -386,6 +404,260 @@ export async function renderReportPdf(model: ReportModel, assets: PdfAssets): Pr
     y += chartH + 3 * MM;
   };
 
+  // ---- charts (vector, inside a Figure that carries the alt text) ----
+  const MUTED = "#6B7280";
+  const EDGE = "#3B3838";
+
+  const texture = (x: number, top: number, w: number, h: number, kind: "hatch" | "dots") => {
+    doc.strokeColor(EDGE).fillColor(EDGE);
+    if (kind === "hatch") {
+      doc.lineWidth(0.9);
+      for (let k = -h; k < w; k += 5) doc.moveTo(x + k, top + h).lineTo(x + k + h, top);
+      doc.stroke();
+    } else {
+      for (let gx = 3; gx < w; gx += 6) for (let gy = 3; gy < h; gy += 6) doc.circle(x + gx, top + gy, 1.4).fill();
+    }
+  };
+
+  /** Fills a shape with a series colour (plus its texture, if any) and a thin outline. */
+  const paintShape = (
+    trace: () => void,
+    color: string,
+    box: { x: number; y: number; w: number; h: number },
+    pattern?: "hatch" | "dots",
+    light = false,
+  ) => {
+    doc.save();
+    trace();
+    if (light) doc.fillOpacity(0.55);
+    doc.fill(color);
+    doc.restore();
+    if (pattern) {
+      doc.save();
+      trace();
+      doc.clip();
+      texture(box.x, box.y, box.w, box.h, pattern);
+      doc.restore();
+    }
+    doc.save();
+    trace();
+    doc.lineWidth(0.5).stroke(EDGE);
+    doc.restore();
+  };
+
+  const axisText = (text: string, x: number, top: number, align: "left" | "right" | "center", w = 60) => {
+    doc.font(FONT.body).fontSize(8.5).fillColor(brand.text);
+    const bx = align === "right" ? x - w : align === "center" ? x - w / 2 : x;
+    doc.text(text, bx, top, { width: w, align, lineBreak: false });
+  };
+
+  const chartLegend = (items: { name: string; color: string; pattern?: "hatch" | "dots"; dashed?: boolean }[], top: number) => {
+    let x = MARGIN;
+    for (const it of items) {
+      if (it.dashed !== undefined) {
+        doc.moveTo(x, top + 5).lineTo(x + 12, top + 5).lineWidth(1.6).strokeColor(it.color);
+        if (it.dashed) doc.dash(3, { space: 2 });
+        doc.stroke().undash();
+        x += 16;
+      } else {
+        paintShape(() => doc.rect(x, top + 1, 9, 9), it.color, { x, y: top + 1, w: 9, h: 9 }, it.pattern);
+        x += 13;
+      }
+      doc.font(FONT.body).fontSize(8.5).fillColor(brand.text).text(it.name, x, top + 1, { lineBreak: false });
+      x += doc.widthOfString(it.name) + 14;
+    }
+  };
+
+  const chartTitle = (title: string, top: number) => {
+    doc.font(FONT.bold).fontSize(10).fillColor(brand.heading).text(title, MARGIN, top, { lineBreak: false });
+  };
+
+  /** Whole numbers when the ticks are 1 or more apart, otherwise as many decimals as the gap needs. */
+  const fmtTick = (v: number, step: number) =>
+    step >= 1 ? fmtInt(v) : v.toFixed(step < 0.1 ? 2 : 1).replace(/\.0+$/, "");
+
+  const yGrid = (x0: number, w: number, values: number[], yOf: (v: number) => number) => {
+    const step = values.length > 1 ? Math.abs(values[1] - values[0]) : 1;
+    for (const v of values) {
+      doc.moveTo(x0, yOf(v)).lineTo(x0 + w, yOf(v)).lineWidth(0.5).stroke(brand.line);
+      axisText(fmtTick(v, step), x0 - 5, yOf(v) - 5, "right");
+    }
+  };
+
+  /** Black or white, whichever reads better on this fill. */
+  const textOn = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16);
+    const lum = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+    return lum > 0.6 ? "#3B3838" : "#fff";
+  };
+
+  const columns = (b: Extract<Block, { type: "columns" }>) => {
+    const H = 165;
+    const L = 46;
+    const R = 6;
+    const T = 14;
+    const Bm = 18;
+    const total = 14 + H + 18;
+    ensure(total + 4 * MM);
+    const top = y;
+    root.add(
+      struct("Figure", { alt: b.alt }, () => {
+        chartTitle(b.title, top);
+        const cy = top + 14;
+        const x0 = MARGIN + L;
+        const w = BODY_W - L - R;
+        const maxV = Math.max(1, ...b.series.flatMap((s) => s.values));
+        const scale = niceScale(maxV * 1.02, 4);
+        const yOf = (v: number) => cy + T + (1 - v / scale.max) * (H - T - Bm);
+        axisText(b.unit, x0 - 5, cy, "right");
+        yGrid(x0, w, scale.values, yOf);
+        const slot = w / b.labels.length;
+        b.labels.forEach((label, m) => {
+          const bw = (slot * 0.8) / b.series.length;
+          b.series.forEach((s, k) => {
+            const bx = x0 + m * slot + slot * 0.1 + k * bw;
+            const by = yOf(s.values[m]);
+            paintShape(() => doc.rect(bx, by, bw, yOf(0) - by), s.color, { x: bx, y: by, w: bw, h: yOf(0) - by }, s.pattern);
+          });
+          axisText(slot < 30 ? label[0] : label, x0 + m * slot + slot / 2, cy + H - Bm + 4, "center", slot);
+        });
+        doc.moveTo(x0, yOf(0)).lineTo(x0 + w, yOf(0)).lineWidth(0.8).stroke(MUTED);
+        chartLegend(b.series, cy + H + 2);
+      }),
+    );
+    y += total + 3 * MM;
+  };
+
+  const bands = (b: Extract<Block, { type: "bands" }>) => {
+    const H = 165;
+    const L = 46;
+    const R = 6;
+    const T = 6;
+    const Bm = 20;
+    const total = 14 + H + 18;
+    ensure(total + 4 * MM);
+    const top = y;
+    const n = b.up[0].values.length;
+    root.add(
+      struct("Figure", { alt: b.alt }, () => {
+        chartTitle(b.title, top);
+        const cy = top + 14;
+        const x0 = MARGIN + L;
+        const w = BODY_W - L - R;
+        const stack = (list: ChartSeries[]) => {
+          const tops: number[][] = [];
+          let acc = Array(n).fill(0) as number[];
+          for (const s of list) {
+            acc = acc.map((v, i) => v + s.values[i]);
+            tops.push(acc);
+          }
+          return tops;
+        };
+        const upTops = stack(b.up);
+        const downTops = stack(b.down ?? []);
+        const upPeak = Math.max(0.01, ...(upTops.at(-1) ?? [0]));
+        const downPeak = Math.max(0, ...(downTops.at(-1) ?? [0]));
+        // One evenly spaced scale across both halves, so tick labels never crowd each other.
+        const scale = niceScale(upPeak * 1.05, 5, -downPeak * 1.05);
+        const xOf = (i: number) => x0 + (i / Math.max(1, n - 1)) * w;
+        const yOf = (v: number) => cy + T + ((scale.max - v) / (scale.max - scale.min)) * (H - T - Bm);
+        axisText(b.unit, x0 - 5, cy - 2, "right");
+        yGrid(x0, w, scale.values, yOf);
+        for (const tk of b.ticks) axisText(tk.label, xOf(tk.index), cy + H - Bm + 6, "center", 50);
+        const box = { x: x0, y: cy + T, w, h: H - T - Bm };
+        const band = (hi: number[], lo: number[], sign: 1 | -1) => () => {
+          doc.moveTo(xOf(0), yOf(sign * hi[0]));
+          for (let i = 1; i < n; i++) doc.lineTo(xOf(i), yOf(sign * hi[i]));
+          for (let i = n - 1; i >= 0; i--) doc.lineTo(xOf(i), yOf(sign * lo[i]));
+          doc.closePath();
+        };
+        const zero = Array(n).fill(0) as number[];
+        b.up.forEach((s, k) => paintShape(band(upTops[k], k === 0 ? zero : upTops[k - 1], 1), s.color, box, s.pattern));
+        (b.down ?? []).forEach((s, k) =>
+          paintShape(band(downTops[k], k === 0 ? zero : downTops[k - 1], -1), s.color, box, s.pattern),
+        );
+        doc.moveTo(x0, yOf(0)).lineTo(x0 + w, yOf(0)).lineWidth(0.8).stroke(MUTED);
+        chartLegend([...b.up, ...(b.down ?? [])], cy + H + 2);
+      }),
+    );
+    y += total + 3 * MM;
+  };
+
+  const lines = (b: Extract<Block, { type: "lines" }>) => {
+    const H = 165;
+    const L = 52;
+    const R = 8;
+    const T = 8;
+    const Bm = 20;
+    const total = 14 + H + 18;
+    ensure(total + 4 * MM);
+    const top = y;
+    const n = b.series[0].values.length;
+    root.add(
+      struct("Figure", { alt: b.alt }, () => {
+        chartTitle(b.title, top);
+        const cy = top + 14;
+        const x0 = MARGIN + L;
+        const w = BODY_W - L - R;
+        const all = b.series.flatMap((s) => s.values);
+        const scale = niceScale(Math.max(1, ...all) * 1.05, 4, Math.min(0, ...all) * 1.05);
+        const xOf = (i: number) => x0 + (i / Math.max(1, n - 1)) * w;
+        const yOf = (v: number) => cy + T + ((scale.max - v) / (scale.max - scale.min)) * (H - T - Bm);
+        axisText(b.unit, x0 - 5, cy - 2, "right", 70);
+        yGrid(x0, w, scale.values, yOf);
+        for (const tk of b.ticks) axisText(tk.label, xOf(tk.index), cy + H - Bm + 6, "center", 40);
+        if (scale.min < 0) doc.moveTo(x0, yOf(0)).lineTo(x0 + w, yOf(0)).lineWidth(0.9).stroke(MUTED);
+        for (const s of b.series) {
+          doc.save();
+          doc.moveTo(xOf(0), yOf(s.values[0]));
+          for (let i = 1; i < n; i++) doc.lineTo(xOf(i), yOf(s.values[i]));
+          doc.lineWidth(1.6).strokeColor(s.color);
+          if (s.dashed) doc.dash(4, { space: 3 });
+          doc.stroke();
+          doc.undash();
+          doc.restore();
+        }
+        chartLegend(b.series.map((s) => ({ name: s.name, color: s.color, dashed: !!s.dashed })), cy + H + 2);
+      }),
+    );
+    y += total + 3 * MM;
+  };
+
+  const split = (b: Extract<Block, { type: "split" }>) => {
+    const rowH = 21 * MM;
+    const total = 14 + b.rows.length * rowH;
+    ensure(total + 4 * MM);
+    const top = y;
+    root.add(
+      struct("Figure", { alt: b.alt }, () => {
+        chartTitle(b.title, top);
+        const x0 = MARGIN;
+        const w = BODY_W;
+        b.rows.forEach((r, i) => {
+          const ry = top + 16 + i * rowH;
+          doc.font(FONT.bold).fontSize(9).fillColor(brand.text).text(r.label, x0, ry, { lineBreak: false });
+          const sum = r.parts.reduce((a, p) => a + p.value, 0) || 1;
+          let x = x0;
+          const bh = 7 * MM;
+          const barTop = ry + 4 * MM;
+          for (const p of r.parts) {
+            const pw = (p.value / sum) * w;
+            if (pw <= 0.5) continue;
+            paintShape(() => doc.rect(x, barTop, pw, bh), p.color, { x, y: barTop, w: pw, h: bh }, p.pattern);
+            if (pw > 70) {
+              doc.font(FONT.bold).fontSize(8.5).fillColor(textOn(p.color));
+              doc.text(`${p.display ?? fmtInt(p.value)} ${b.unit}`, x + 3, barTop + bh / 2 - 5, { width: pw - 6, lineBreak: false });
+            }
+            x += pw;
+          }
+          // Each bar has its own legend, directly beneath it, naming only the parts of that bar.
+          chartLegend(r.parts, barTop + bh + 2 * MM);
+        });
+      }),
+    );
+    y += total + 3 * MM;
+  };
+
   // ---- the pages ----
   for (const page of model.pages) {
     newPage(!!page.cover);
@@ -420,6 +692,18 @@ export async function renderReportPdf(model: ReportModel, assets: PdfAssets): Pr
           break;
         case "bars":
           bars(b);
+          break;
+        case "columns":
+          columns(b);
+          break;
+        case "bands":
+          bands(b);
+          break;
+        case "lines":
+          lines(b);
+          break;
+        case "split":
+          split(b);
           break;
       }
     }

@@ -555,7 +555,28 @@ paragraph, metrics, table, list, bar chart).
 - **Policy Explorer: done.** `src/lib/report/policyReportModel.ts`; replaces the old picture-of-a-page (html2canvas +
   jsPDF) export, which is removed.
 - **TODO: Deployment Explorer report.** No report exists yet; needs a decision on what it contains.
-- **TODO: Homes (Solar Homes Calculator) report.** No report exists yet; needs a decision on what it contains.
+- **Homes (Solar Homes Calculator) report: first version done** (2026-10-16): `calculator/src/lib/report/homesReportModel.ts`,
+  opened from the "Download report" button on the Economics tab. One report, two parts: a first page answering "what do solar
+  and storage do for my home" and "what does it add up to for a country"; Part A (the home: where power comes from, a summer
+  and a winter day, monthly generation vs demand, 25-year cashflow, savings table); Part B (the same home scaled to 10,000 /
+  100,000 / 1 million homes); "About these figures".
+  - **Ranges and rounding (done 2026-10-16):** no figure is exact. Headline numbers are a range between a cautious case
+    (solar output 10% lower, energy prices 20% lower, installed cost 15% higher) and an optimistic case (the reverse),
+    rounded to two significant figures (money to the nearest 10 below 1,000; percentages to the nearest 5). Charts and
+    tables show the typical case. Code: `calculator/src/lib/report/ranges.ts`.
+  - **TODO: peak / evening demand reduction.** Removed from the report: it is not defendable unless the system is shown
+    to deliver it on the worst solar day of the year (the single worst hour is usually a dark winter evening the battery
+    cannot cover). Add back as a design check on the worst day, not an average. Wanted for the decision-maker view.
+  - **Fixed 2026-10-16: solar was in UTC.** The irradiance dataset's hourly profiles are UTC, so away from Greenwich solar
+    peaked at the wrong time of day (New Zealand's noon fell near midnight UTC) and battery / self-consumption results were
+    wrong with it. `toLocalSolarTime` (`calculator/src/lib/genericSource.ts`) now rotates each profile into local solar time
+    (UTC + longitude / 15 h). **TODO: use each country's real time zone and daylight saving** (demand follows the wall clock),
+    which needs a time-zone dataset; the solar-time approximation can be an hour or so out.
+  - **TODO: carbon.** Deliberately left out; needs country grid carbon intensity (Ember's open data is the likely source).
+  - **TODO: Policy / Deployment context** in Part B (country policy score and barriers, solar's share of generation) - to come.
+  - **TODO: real inputs.** The report states plainly that prices, install cost, solar output (a country-level placeholder,
+    no roof tilt/direction) and demand pattern are placeholders; the figures become credible as those are replaced.
+  - **TODO: the scaling to N homes assumes every home is the same** and says nothing about adoption speed.
 - **TODO: run the veraPDF PDF/UA check in CI** (the TUC project does; `policyReport.test.ts` writes its PDFs to
   `test-output/reports/` for it).
 - **Fonts: done.** Reports use the GSC's Eastman Grotesque (Bold headings, Demi-Bold emphasis, Regular body) from
@@ -583,3 +604,15 @@ in `src/data/jurisdictions.json`, so a new country needs no code change.
   parsed on the server and staged for approval. Until then GitHub is the upload route.
 - **TODO: write accepted corrections back into the spreadsheets** (or store them server-side) so a re-import does not
   overwrite them.
+
+## Solar & Storage Planner (members only)
+
+Added 2026-10-16. A sixth tile on the Electric Futures main page (`index.html`) for a members-only planner: the
+overarching optimisation layer that uses every tool - Deployment, Policy, Future Grid Simulator, Economics and the
+Homes calculator - to produce a solar and storage plan for any country. Today the tile is only a "Members only /
+Speak to us" placeholder; nothing sits behind it.
+
+- **TODO: make "Speak to us" a real link** (contact address or form) - none was given, so it is inert for now.
+- **TODO: design and build the planner itself.** Open questions: what it optimises (cost, emissions, security of
+  supply, policy readiness), which inputs it takes from each tool, what a "plan" contains, and how it is gated once
+  real login exists (today's member gate is a shared client-side password - see `shared/lib/membership.ts`).

@@ -187,6 +187,7 @@
   .tile.grid h2 { color: var(--citrus-dark); }
   .tile.policy h2 { color: var(--aqua-dark); }
   .tile.savings h2 { color: var(--moss-dark); }
+  .tile.planner h2 { color: var(--ink); }
   .tile.disabled h2 { color: #6B7280; }
 
   .tile p.body {
@@ -222,6 +223,8 @@
   .tile.grid .cta { background: var(--citrus-dark); }
   .tile.policy .cta { background: var(--aqua); }
   .tile.savings .cta { background: var(--moss-dark); }
+  /* The planner sits across every other tool, so its button blends the two brand hues. */
+  .tile.planner .cta { background: linear-gradient(90deg, var(--aqua-dark), var(--citrus-dark)); cursor: default; }
   a.cta:hover { filter: brightness(1.08); transform: translateX(2px); }
 
   .cta svg { width: 15px; height: 15px; flex-shrink: 0; }
@@ -237,6 +240,8 @@
   .tile.grid .secondary { color: var(--citrus-dark); }
   .tile.policy .secondary { color: var(--aqua-dark); }
   .tile.savings .secondary { color: var(--moss-dark); }
+  .tile.planner .secondary { color: var(--muted); cursor: default; }
+  .tile.planner .secondary:hover { text-decoration: none; }
   .secondary:hover { text-decoration: underline; }
 
   /* Not open yet - greyed out, static, no hover affordance or working link.
@@ -339,6 +344,19 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
         </a>
         <span class="secondary">Take the tour</span>
+      </div>
+    </div>
+
+    <div class="tile planner">
+      <span class="beta-badge">Members</span>
+      <h2>Solar &amp; Storage<br />Planner</h2>
+      <p class="body">Bring every tool together to build a solar and storage plan for any country. Members only - speak to us.</p>
+      <div class="actions">
+        <span class="cta">
+          Members only
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        </span>
+        <span class="secondary">Speak to us</span>
       </div>
     </div>
   </main>

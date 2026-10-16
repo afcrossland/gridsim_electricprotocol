@@ -4,7 +4,14 @@
  * and translated in one place. Shared by Policy, Deployment and Homes (ported from the TUC calculator's report).
  */
 export type Block =
-  | { type: "title"; kicker: string; text: string; sub?: string }
+  | {
+      type: "title";
+      kicker: string;
+      text: string;
+      sub?: string;
+      /** A picture (PNG or JPEG bytes) shown at the right of the title, e.g. a country flag. */
+      flag?: { data: Uint8Array; alt: string };
+    }
   | { type: "heading"; text: string }
   | { type: "para"; text: string; style?: "lead" | "small" }
   | { type: "metrics"; items: { label: string; value: string }[] }
@@ -20,6 +27,43 @@ export type Block =
       alignRight?: number[];
     }
   | { type: "list"; items: ListItem[] }
+  | {
+      /** Grouped columns - for example 12 months, one column per series in each. */
+      type: "columns";
+      title: string;
+      unit: string;
+      labels: string[];
+      series: ChartSeries[];
+      alt: string;
+    }
+  | {
+      /** Stacked areas over time: `up` stacks upwards from zero, `down` (optional) stacks below zero. */
+      type: "bands";
+      title: string;
+      unit: string;
+      /** Labelled positions along the x axis (index into the values). */
+      ticks: { index: number; label: string }[];
+      up: ChartSeries[];
+      down?: ChartSeries[];
+      alt: string;
+    }
+  | {
+      type: "lines";
+      title: string;
+      unit: string;
+      ticks: { index: number; label: string }[];
+      series: ChartSeries[];
+      alt: string;
+    }
+  | {
+      /** Stacked 100% bars, one per row - how a total divides between sources or uses. */
+      type: "split";
+      title: string;
+      rows: { label: string; parts: { name: string; value: number; color: string; pattern?: "hatch" | "dots"; /** Text for the value inside the bar, when it should not be the exact number. */ display?: string }[] }[];
+      /** Unit shown after each part's value, e.g. "kWh". */
+      unit: string;
+      alt: string;
+    }
   | {
       type: "bars";
       title: string;
@@ -43,6 +87,15 @@ export interface ListItem {
   text: string;
   /** Overrides `text`: each line can be emphasised (bold, in the brand colour), e.g. a score. */
   lines?: { text: string; emphasis?: boolean }[];
+}
+
+export interface ChartSeries {
+  name: string;
+  color: string;
+  values: number[];
+  /** A texture on top of the colour, so series stay distinguishable in greyscale. */
+  pattern?: "hatch" | "dots";
+  dashed?: boolean;
 }
 
 export interface ReportPage {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Box,
+  Button,
   CircularProgress,
   Divider,
   Tab,
@@ -13,6 +14,7 @@ import {
 } from "@mui/material";
 import type { PaletteMode } from "@mui/material/styles";
 import LockIcon from "@mui/icons-material/Lock";
+import DownloadIcon from "@mui/icons-material/Download";
 
 import CountryLeagueTable from "./components/CountryLeagueTable";
 import FlagImg from "../../shared/components/FlagImg";
@@ -31,6 +33,11 @@ import type { Metric } from "./lib/mapMetrics";
 import type { DemandInput, Location, PanelArray, SavingsResults, Tariffs } from "./lib/types";
 import { buildScenes } from "./tour/scenes";
 import DetailHeader from "../../shared/components/DetailHeader";
+import ReportOverlay from "../../shared/pdf/ReportOverlay";
+import { loadPdfAssets } from "../../shared/pdf/assets";
+import { buildPdfBlob } from "../../shared/pdf/buildPdf";
+import { fetchFlagPng } from "./lib/report/flag";
+import { buildHomesReportModel, homesReportDate, homesReportFileName } from "./lib/report/homesReportModel";
 import FooterComposition from "../../shared/components/FooterComposition";
 import LoginModal from "../../shared/components/LoginModal";
 import SidebarShell from "../../shared/components/SidebarShell";
@@ -180,6 +187,7 @@ export default function App({ mode, setMode }: Props) {
 
   const [results, setResults] = useState<SavingsResults | null>(null);
   const [loading, setLoading] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   async function runCalculation(loc: Location) {
     setLoading(true);
@@ -359,7 +367,48 @@ export default function App({ mode, setMode }: Props) {
             flag={<FlagImg code={location.countryCode} size={22} />}
             name={location.displayName}
             sx={{ borderBottom: results ? "none" : "1px solid", borderColor: "divider" }}
-          />
+          >
+            {/* Available as soon as a country opens (disabled only while the first calculation runs), not buried
+                in a tab - the report is a headline output, not a detail of the Economics tab. */}
+            <Button
+              size="small"
+              variant="contained"
+              startIcon={<DownloadIcon fontSize="small" />}
+              disabled={loading || !results}
+              onClick={() => setReportOpen(true)}
+              sx={{ flexShrink: 0 }}
+            >
+              Download report
+            </Button>
+          </DetailHeader>
+
+          {results && (
+            <ReportOverlay
+              open={reportOpen}
+              onClose={() => setReportOpen(false)}
+              build={async () => {
+                const [assets, flag] = await Promise.all([
+                  loadPdfAssets(`${import.meta.env.BASE_URL}favicon.png`, 1),
+                  fetchFlagPng(location.countryCode),
+                ]);
+                return buildPdfBlob(
+                  buildHomesReportModel({ location, arrays, batteryKWh, tariffs, results, generatedOn: homesReportDate(), flag }),
+                  assets,
+                );
+              }}
+              fileName={homesReportFileName(location)}
+              labels={{
+                preview: "Report preview",
+                making: "Making your report...",
+                ready: "Your report is ready. It is an accessible PDF: preview it here, then download it.",
+                failed: "The report could not be made. Please try again.",
+                openTab: "Open the report in a new tab",
+                pageOf: (n, total) => `Page ${n} of ${total}`,
+                download: "Download report",
+                close: "Close",
+              }}
+            />
+          )}
 
           {/* Three headline tiles, per Andrew's own instruction
               2026-09-16 - the same numbers the Economics tab breaks
@@ -407,7 +456,7 @@ export default function App({ mode, setMode }: Props) {
               </Box>
             )}
 
-            {!loading && tab === "results" && results && (
+            {!loading && tab === "results" && results && location && (
               <ResultsPanel
                 results={results}
                 arrays={arrays}
