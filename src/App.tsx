@@ -329,9 +329,11 @@ export default function App() {
         // on the right at 75%, not the other way round ("75% from the
         // right") - so the detail view reads as a continuation of the
         // scoreboard's own map+list layout rather than a separate mode.
+        // Narrowed from 75% to 50% on 2026-10-16 ("75% is too much") - the map
+        // and the panel now split the content area evenly.
         <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
           <Box sx={{ flex: 1, position: "relative", minWidth: 0 }}>{map}</Box>
-          <SidebarShell width="75%">{list}</SidebarShell>
+          <SidebarShell width="50%">{list}</SidebarShell>
         </Box>
       ) : isMobile ? (
         selectedCountry && selectedScore ? (

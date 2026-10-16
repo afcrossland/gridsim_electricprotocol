@@ -11,6 +11,11 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
 
+    // The report writer (shared/pdf/renderPdf.ts) is loaded on demand. Without this, the dev server only discovers
+    // pdfkit and pdfjs-dist when the first report is requested, re-optimises, and that first request fails ("Failed to fetch
+    // dynamically imported module"). Pre-bundling it up front avoids that.
+    optimizeDeps: { include: ["pdfkit", "pdfjs-dist"] },
+
     /**
      * GitHub Pages serves a project site from a subpath
      * (/gridsim_electricprotocol/), so assets need that prefix. The CI workflow

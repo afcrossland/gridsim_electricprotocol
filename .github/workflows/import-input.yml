@@ -1,0 +1,67 @@
+name: Import policy spreadsheets
+
+# Runs when a spreadsheet in input/ is added or changed on main (for example uploaded through the GitHub website).
+# It re-reads every sheet in input/, rewrites the policy data in src/data/, commits that, and publishes the site.
+# If a sheet cannot be read the run fails, commits nothing, and the report below says what to fix.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "input/*.xlsx"
+      - "scripts/import_output_sheets.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write # commit the regenerated data
+  actions: write # start the site deploy afterwards
+
+# One import at a time; a second upload waits for the first rather than racing it.
+concurrency:
+  group: import-input
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install openpyxl
+
+      - name: Import the spreadsheets
+        run: |
+          set -o pipefail
+          python3 scripts/import_output_sheets.py | tee import-report.txt
+
+      # Shown on the run's summary page whether the import worked or not, so the uploader can read it in plain text.
+      - name: Show the import report
+        if: always()
+        run: |
+          {
+            echo "## Spreadsheet import"
+            echo
+            echo '```'
+            cat import-report.txt 2>/dev/null || echo "The import did not run."
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the updated data and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- src/data; then
+            echo "The spreadsheets give the same data as before - nothing to publish."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data
+          git commit -m "Update policy data from the input spreadsheets"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          # A push made with the built-in token does not start other workflows, so start the site deploy directly.
+          gh workflow run deploy.yml --ref main

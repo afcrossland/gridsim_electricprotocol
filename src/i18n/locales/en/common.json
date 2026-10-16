@@ -9,7 +9,7 @@
   "footer": {
     "searchPlaceholder": "Search countries and states",
     "score": "Score",
-    "completeness": "Completeness"
+    "completeness": "Questions answered"
   },
   "theme": {
     "switchToDark": "Switch to dark mode",
@@ -64,7 +64,7 @@
     "backToScoreboard": "Back to scoreboard",
     "backToOverview": "Back to overview",
     "score": "Score",
-    "dataCompleteness": "Data completeness",
+    "dataCompleteness": "Questions answered",
     "notApplicable": "N/A",
     "edit": "Suggest an edit",
     "exitEditMode": "Exit edit mode",
@@ -132,7 +132,7 @@
   },
   "adminConsole": {
     "title": "Admin console",
-    "description": "Where the underlying question set lives: editing question text and impact, adding or removing topic groups and questions, adjusting each question's possible answers, and setting the data completeness threshold used across the app.",
+    "description": "Where the underlying question set lives: editing question text and impact, adding or removing topic groups and questions, adjusting each question's possible answers, and setting the questions-answered threshold used across the app.",
     "confirmDeleteSection_one": "Delete \"{{title}}\" and its {{count}} question? This also removes any answers already recorded against them.",
     "confirmDeleteSection_other": "Delete \"{{title}}\" and its {{count}} questions? This also removes any answers already recorded against them.",
     "settings": "Settings",
@@ -142,7 +142,7 @@
     "questionCount_other": "{{count}} questions",
     "deleteGroup": "Delete this group",
     "addGroup": "Add group",
-    "thresholdTitle": "Data completeness threshold",
+    "thresholdTitle": "Questions answered threshold",
     "thresholdBody": "How much of a jurisdiction's question weight needs an answer before it is coloured on the map and ranked on the scoreboard. Below this, a jurisdiction is shown grey and left out of the ranking.",
     "threshold": "Threshold",
     "default": "Default",
@@ -230,5 +230,15 @@
     "source": "Evidence",
     "weight": "Weight",
     "acceptedAs": "Added to the question set"
+  },
+  "report": {
+    "preview": "Report preview",
+    "making": "Making your report...",
+    "ready": "Your report is ready. It is an accessible PDF: preview it here, then download it.",
+    "failed": "The report could not be made. Please try again.",
+    "openTab": "Open the report in a new tab",
+    "download": "Download report",
+    "close": "Close",
+    "pageOf": "Page {{n}} of {{total}}"
   }
 }

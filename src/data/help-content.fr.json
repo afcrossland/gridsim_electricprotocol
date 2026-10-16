@@ -5,22 +5,30 @@
   },
   {
     "heading": "Les questions",
-    "body": "Les questions sont regroupées par thème. Chaque question a un score d'impact (son poids dans le total) et un petit ensemble de réponses possibles décrivant ce qui est réellement en place, de \"non en place\" à \"pleinement en place\"."
+    "body": "Les questions sont regroupées par thèmes. Chaque question a un score d'impact (son poids dans le total) et un petit ensemble de réponses possibles décrivant ce qui est réellement en place. Les réponses vont de faible à solide - certaines questions en ont deux, d'autres trois - et sont étiquetées Faible, Développée ou Solide, la meilleure en premier."
   },
   {
     "heading": "Score",
-    "body": "Le score d'une juridiction est la part pondérée de ce qui est en place, parmi les questions effectivement répondues - puis réduit selon la part du questionnaire réellement complétée. Une juridiction ne peut donc pas obtenir un score élevé en ne répondant qu'à quelques-unes de ses meilleures questions ; une couverture large et honnête l'emporte sur quelques réponses triées sur le volet. Les scores sont présentés selon l'une de cinq bandes, de Très inefficace à Très efficace, avec le pourcentage à côté pour qui veut le détail."
+    "body": "Le score d'une juridiction est la part pondérée de ce qui est en place, parmi les questions effectivement répondues - puis réduit selon la part du questionnaire réellement complétée. Une juridiction ne peut donc pas obtenir un score élevé en ne répondant qu'à quelques-unes de ses meilleures questions ; une couverture large et honnête l'emporte sur quelques réponses triées sur le volet. Les scores sont présentés sous forme d'une note de une à cinq étoiles, avec le pourcentage à côté pour ceux qui veulent le détail."
   },
   {
-    "heading": "Exhaustivité des données",
+    "heading": "Questions répondues",
     "body": "Une mesure distincte du score : la part de questions répondues, quel que soit leur résultat. Une juridiction avec trop peu de données affiche \"données insuffisantes\" plutôt qu'un score, afin qu'un manque de recherche ne soit jamais confondu avec une mauvaise politique."
   },
   {
     "heading": "Preuves",
-    "body": "Chaque réponse doit s'appuyer sur une source réelle - une loi, une décision d'un régulateur, ou les données propres d'un opérateur de marché. Les réponses indiquent aussi à quel point la preuve s'applique directement (une source nationale prime sur une référence européenne générale, elle-même prime sur un indicateur statistique générique) et le degré d'autorité de la source elle-même."
+    "body": "Chaque réponse nécessite une source réelle - une loi, une décision d'un régulateur, les propres données d'un opérateur de marché ou un rapport publié - affichée avec la réponse pour pouvoir la consulter. Les adresses web dans les preuves sont des liens qui s'ouvrent dans un nouvel onglet."
+  },
+  {
+    "heading": "Une erreur ?",
+    "body": "Utilisez « Suggérer une correction » sur n'importe quelle réponse : choisissez la bonne réponse, ajoutez votre preuve (un lien ou le nom d'un rapport), dites ce qu'elle montre et indiquez votre nom. Un relecteur la vérifie avant tout changement. S'il manque une question, utilisez « Proposer une nouvelle question de politique » sur la page d'un pays : une fois acceptée, elle compte dans le score de tous les pays."
+  },
+  {
+    "heading": "Rapports",
+    "body": "« Télécharger le rapport » sur la page d'un pays ouvre l'aperçu d'un PDF accessible que vous pouvez lire, rechercher et télécharger. Rien n'est envoyé : il est créé dans votre navigateur."
   },
   {
     "heading": "Juridictions",
-    "body": "La plupart des lignes sont des pays. Quelques-unes (les États-Unis, l'Australie, le Canada) sont présentées par leurs états ou provinces, la politique y variant trop pour être moyennée en un seul score national. L'Union européenne apparaît comme une ligne consolidée unique dans le classement, bien que chaque État membre conserve sa propre page de juridiction complète."
+    "body": "La plupart des lignes sont des pays. Lorsque la politique varie beaucoup au sein d'un pays (comme les États-Unis, l'Australie ou le Canada), elle est présentée par État ou province, car un seul score national masquerait trop de choses. L'Union européenne apparaît sur une ligne consolidée dans le classement, mais chaque État membre a toujours sa propre page de juridiction."
   }
 ]

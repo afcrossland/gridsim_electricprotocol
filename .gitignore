@@ -34,3 +34,4 @@ deployment/scripts/_population_download_cache.json
 
 # Andrew's Ember API key (EMBER_API_KEY) - see _ember_api.py.
 deployment/.env
+test-output

@@ -9,7 +9,7 @@
   "footer": {
     "searchPlaceholder": "Buscar países y estados",
     "score": "Puntuación",
-    "completeness": "Cobertura de datos"
+    "completeness": "Preguntas respondidas"
   },
   "theme": {
     "switchToDark": "Cambiar a modo oscuro",
@@ -64,7 +64,7 @@
     "backToScoreboard": "Volver al ranking",
     "backToOverview": "Volver a la vista general",
     "score": "Puntuación",
-    "dataCompleteness": "Cobertura de datos",
+    "dataCompleteness": "Preguntas respondidas",
     "notApplicable": "N/D",
     "edit": "Proponer una edición",
     "exitEditMode": "Salir del modo de edición",
@@ -132,7 +132,7 @@
   },
   "adminConsole": {
     "title": "Consola de administración",
-    "description": "Aquí vive el conjunto de preguntas subyacente: edita el texto e impacto de las preguntas, añade o elimina grupos temáticos y preguntas, ajusta las posibles respuestas de cada pregunta, y configura el umbral de cobertura de datos usado en toda la aplicación.",
+    "description": "Aquí vive el conjunto de preguntas subyacente: edita el texto e impacto de las preguntas, añade o elimina grupos temáticos y preguntas, ajusta las posibles respuestas de cada pregunta, y configura el umbral de preguntas respondidas usado en toda la aplicación.",
     "confirmDeleteSection_one": "¿Eliminar \"{{title}}\" y su {{count}} pregunta? Esto también elimina cualquier respuesta ya registrada para ellas.",
     "confirmDeleteSection_other": "¿Eliminar \"{{title}}\" y sus {{count}} preguntas? Esto también elimina cualquier respuesta ya registrada para ellas.",
     "settings": "Ajustes",
@@ -142,7 +142,7 @@
     "questionCount_other": "{{count}} preguntas",
     "deleteGroup": "Eliminar este grupo",
     "addGroup": "Añadir grupo",
-    "thresholdTitle": "Umbral de cobertura de datos",
+    "thresholdTitle": "Umbral de preguntas respondidas",
     "thresholdBody": "Cuánto peso de las preguntas de una jurisdicción necesita respuesta antes de que se coloree en el mapa y se clasifique en el ranking. Por debajo de esto, una jurisdicción se muestra en gris y queda fuera del ranking.",
     "threshold": "Umbral",
     "default": "Predeterminado",
@@ -230,5 +230,15 @@
     "source": "Evidencia",
     "weight": "Peso",
     "acceptedAs": "Añadida al conjunto de preguntas"
+  },
+  "report": {
+    "preview": "Vista previa del informe",
+    "making": "Preparando su informe...",
+    "ready": "Su informe está listo. Es un PDF accesible: véalo aquí y luego descárguelo.",
+    "failed": "No se pudo crear el informe. Inténtelo de nuevo.",
+    "openTab": "Abrir el informe en una pestaña nueva",
+    "download": "Descargar informe",
+    "close": "Cerrar",
+    "pageOf": "Página {{n}} de {{total}}"
   }
 }

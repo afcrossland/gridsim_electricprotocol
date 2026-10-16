@@ -9,7 +9,7 @@
   "footer": {
     "searchPlaceholder": "Rechercher des pays et des états",
     "score": "Score",
-    "completeness": "Exhaustivité des données"
+    "completeness": "Questions répondues"
   },
   "theme": {
     "switchToDark": "Passer en mode sombre",
@@ -64,7 +64,7 @@
     "backToScoreboard": "Retour au classement",
     "backToOverview": "Retour à la vue d'ensemble",
     "score": "Score",
-    "dataCompleteness": "Exhaustivité des données",
+    "dataCompleteness": "Questions répondues",
     "notApplicable": "N/D",
     "edit": "Proposer une modification",
     "exitEditMode": "Quitter le mode édition",
@@ -132,7 +132,7 @@
   },
   "adminConsole": {
     "title": "Console d'administration",
-    "description": "L'ensemble de questions vit ici : modifier le texte et l'impact des questions, ajouter ou supprimer des groupes thématiques et des questions, ajuster les réponses possibles de chaque question, et définir le seuil d'exhaustivité des données utilisé dans toute l'application.",
+    "description": "L'ensemble de questions vit ici : modifier le texte et l'impact des questions, ajouter ou supprimer des groupes thématiques et des questions, ajuster les réponses possibles de chaque question, et définir le seuil de questions répondues utilisé dans toute l'application.",
     "confirmDeleteSection_one": "Supprimer « {{title}} » et sa {{count}} question ? Cela supprime aussi toute réponse déjà enregistrée pour elles.",
     "confirmDeleteSection_other": "Supprimer « {{title}} » et ses {{count}} questions ? Cela supprime aussi toute réponse déjà enregistrée pour elles.",
     "settings": "Paramètres",
@@ -142,7 +142,7 @@
     "questionCount_other": "{{count}} questions",
     "deleteGroup": "Supprimer ce groupe",
     "addGroup": "Ajouter un groupe",
-    "thresholdTitle": "Seuil d'exhaustivité des données",
+    "thresholdTitle": "Seuil de questions répondues",
     "thresholdBody": "Quelle part du poids des questions d'une juridiction doit être répondue avant qu'elle soit colorée sur la carte et classée dans le tableau de bord. En dessous de ce seuil, une juridiction s'affiche en gris et est exclue du classement.",
     "threshold": "Seuil",
     "default": "Par défaut",
@@ -230,5 +230,15 @@
     "source": "Preuve",
     "weight": "Poids",
     "acceptedAs": "Ajoutée à l'ensemble de questions"
+  },
+  "report": {
+    "preview": "Aperçu du rapport",
+    "making": "Création de votre rapport...",
+    "ready": "Votre rapport est prêt. C'est un PDF accessible : consultez-le ici, puis téléchargez-le.",
+    "failed": "Le rapport n'a pas pu être créé. Veuillez réessayer.",
+    "openTab": "Ouvrir le rapport dans un nouvel onglet",
+    "download": "Télécharger le rapport",
+    "close": "Fermer",
+    "pageOf": "Page {{n}} sur {{total}}"
   }
 }

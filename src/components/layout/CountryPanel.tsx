@@ -11,8 +11,10 @@ import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors"
 import { rankImpact, scoreLabel, scoreSections, scoreTextColor, sectionLeaderboard } from "../../lib/scoring";
 import type { CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
-import { generateCountryReportPdf, fmtReportDate, fmtTimestamp } from "../../utils/exportCountryReportPdf";
-import CountryReportDocument from "../report/CountryReportDocument";
+import ReportOverlay from "../../../shared/pdf/ReportOverlay";
+import { loadPdfAssets } from "../../../shared/pdf/assets";
+import { buildPdfBlob } from "../../../shared/pdf/buildPdf";
+import { buildPolicyReportModel, policyReportDate, policyReportFileName } from "../../lib/report/policyReportModel";
 import ComparePicker from "./ComparePicker";
 import ProposeQuestionDialog from "./ProposeQuestionDialog";
 import QuestionCard from "./QuestionCard";
@@ -173,7 +175,7 @@ export default function CountryPanel({
     setActiveSectionId(id === activeSectionId ? "" : id);
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const [buildingReport, setBuildingReport] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [proposeOpen, setProposeOpen] = useState(false);
 
   // Collapses the stat tiles and the Compare row once the content below is
@@ -282,10 +284,9 @@ export default function CountryPanel({
     );
   }, [sectionOverview, activeSectionId, responses]);
 
-  // Per-comparator section scores, feeding the PDF report's own windrose
-  // (CountryReportDocument.tsx has a self-contained port of that chart,
-  // independent of the live UI, which dropped its own windrose 2026-10-09
-  // in favour of SectionOverview.tsx's tiles).
+  // Per-comparator section scores, feeding the PDF report's compare table
+  // (the live UI dropped its own windrose 2026-10-09 in favour of
+  // SectionOverview.tsx's tiles).
   const compareWindroseSeries = useMemo(
     () =>
       compareEntries.map((entry) => ({
@@ -296,23 +297,42 @@ export default function CountryPanel({
     [compareEntries, sections, questions, responses],
   );
 
-  // Mounts CountryReportDocument off-screen (see the render below), waits a
-  // couple of frames for it to actually lay out, then rasterises it into a
-  // PDF - same two-step shape as the sibling gridsim-frontend project's own
-  // report export (ResultsPanel.tsx's handleExportPdf there): render first,
-  // capture second, because html2canvas needs real painted pixels to read.
-  const handleDownloadReport = async () => {
-    setBuildingReport(true);
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
-    try {
-      await generateCountryReportPdf(
-        "country-report-root",
-        `Solar Policy Explorer - ${score.name} - ${fmtTimestamp()}.pdf`,
-      );
-    } finally {
-      setBuildingReport(false);
-    }
+  // The report is a real, tagged PDF made in the browser (shared/pdf) - the same one every Electric Protocol app
+  // uses. Built when the preview opens, from whatever this page is showing at that moment.
+  const buildReport = async () => {
+    const model = buildPolicyReportModel({
+      countryCode: code,
+      countryName: score.name,
+      generatedOn: policyReportDate(),
+      score,
+      sectionScores,
+      impact,
+      sections,
+      questions,
+      byQuestion,
+      exemplars: Object.fromEntries(
+        sectionOverview.map((e) => [
+          e.section.id,
+          e.exemplars.map((ex) => ({
+            code: ex.code,
+            name: ex.name,
+            byQuestion: new Map(responses.filter((r) => r.countryCode === ex.code).map((r) => [r.questionId, r])),
+          })),
+        ]),
+      ),
+      compareEntries: compareEntries
+        .filter((entry) => entry.score)
+        .map((entry) => ({
+          code: entry.code,
+          name: entry.score!.name,
+          color: entry.color,
+          score: entry.score!,
+          sections: compareWindroseSeries.find((s) => s.code === entry.code)?.sections ?? [],
+          byQuestion: compareByQuestionByCode.get(entry.code) ?? new Map(),
+        })),
+    });
+    const assets = await loadPdfAssets(`${import.meta.env.BASE_URL}favicon.png`, 1);
+    return buildPdfBlob(model, assets);
   };
 
   const activeSection = sections.find((s) => s.id === activeSectionId) ?? null;
@@ -367,11 +387,10 @@ export default function CountryPanel({
             size="small"
             variant="contained"
             startIcon={<DownloadIcon fontSize="small" />}
-            disabled={buildingReport}
-            onClick={handleDownloadReport}
+            onClick={() => setReportOpen(true)}
             sx={{ flexShrink: 0 }}
           >
-            {buildingReport ? t("countryPanel.buildingReport") : t("countryPanel.downloadReport")}
+            {t("countryPanel.downloadReport")}
           </Button>
 
           {headerAction}
@@ -535,37 +554,22 @@ export default function CountryPanel({
 
       <ProposeQuestionDialog open={proposeOpen} onClose={() => setProposeOpen(false)} defaultSectionId={activeSectionId || undefined} />
 
-      {/* Mounted off-screen only while a download is in flight - handleDownloadReport
-          waits two animation frames for this to actually paint before html2canvas
-          captures it. Matches the sibling gridsim-frontend project's own report
-          export (ResultsPanel.tsx there mounts ReportDocument the same way). */}
-      {buildingReport && (
-        <Box sx={{ position: "fixed", top: 0, left: "-99999px", pointerEvents: "none" }} aria-hidden="true">
-          <CountryReportDocument
-            data={{
-              countryCode: code,
-              countryName: score.name,
-              generatedOn: fmtReportDate(),
-              score,
-              sectionScores,
-              impact,
-              sections,
-              questions,
-              byQuestion,
-              compareEntries: compareEntries
-                .filter((entry) => entry.score)
-                .map((entry) => ({
-                  code: entry.code,
-                  name: entry.score!.name,
-                  color: entry.color,
-                  score: entry.score!,
-                  sections: compareWindroseSeries.find((s) => s.code === entry.code)?.sections ?? [],
-                  byQuestion: compareByQuestionByCode.get(entry.code) ?? new Map(),
-                })),
-            }}
-          />
-        </Box>
-      )}
+      <ReportOverlay
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        build={buildReport}
+        fileName={policyReportFileName(score.name)}
+        labels={{
+          preview: t("report.preview"),
+          making: t("report.making"),
+          ready: t("report.ready"),
+          failed: t("report.failed"),
+          openTab: t("report.openTab"),
+          pageOf: (n: number, total: number) => t("report.pageOf", { n, total }),
+          download: t("report.download"),
+          close: t("report.close"),
+        }}
+      />
     </Box>
   );
 }

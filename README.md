@@ -142,6 +142,10 @@ their work. Clearing site data resets them to the shared dataset.
 
 ## Where the data comes from
 
+The researched policy answers come from the per-country spreadsheets in `input/`; uploading one updates the data
+automatically (see `input/README.md` and `.github/workflows/import-input.yml`). The notes below describe the older,
+one-time import of the original Policy Map spreadsheet.
+
 `Electric Protocol - Policy Map - v2.xlsx` (in the parent directory) is a
 **one-time import**, not a live source. `npm run import:xlsx` regenerates
 `src/data/protocol.seed.json` from it.
@@ -616,7 +620,7 @@ own `src/i18n/help.ts`: headings/lists/bold-terms/links don't fit a single
 flat string per key.
 
 **What's converted, as of 2026-09-11**: everything in both apps except
-Policy Explorer's PDF report (`CountryReportDocument.tsx`), the one thing
+Policy Explorer's PDF report (`src/lib/report/policyReportModel.ts`), the one thing
 Andrew explicitly deferred. That includes both apps' nav bars, footers,
 `LanguageSwitcher.tsx` (a real switcher now, not the single-item stub it
 used to be), `HelpPage.tsx`, every jurisdiction (country/state) name
@@ -679,7 +683,7 @@ A few mechanisms worth knowing about, beyond plain `t("key")` lookups:
   `ScrollStory.tsx` calls that instead of importing `SCENES` directly.
 
 **Not converted, deliberately**:
-- Policy Explorer's PDF report (`CountryReportDocument.tsx`) - explicitly
+- Policy Explorer's PDF report (`src/lib/report/policyReportModel.ts`) - explicitly
   out of scope per Andrew's own instruction, not an oversight.
   `impactLabel`/`scoreLabel` etc. all default to `language = "en"`, which
   is what the PDF's own calls (no language argument) still resolve to.

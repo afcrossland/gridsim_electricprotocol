@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Import the per-country "Output Rev 8" spreadsheets in input/ into the app.
 
-For every `input/<Country> Ouput Rev 8.xlsx` (the BLANK template is skipped) this
+For every `input/<Country> Output Rev 8.xlsx` (spelling, case and a suffix after the rev are tolerated; the BLANK template is skipped) this
 rewrites:
 
   src/data/sourced-answers.json  - one researched answer per (country, question),
@@ -22,6 +22,7 @@ evidence note.
 import difflib
 import json
 import re
+import sys
 from pathlib import Path
 
 import openpyxl
@@ -30,17 +31,34 @@ REPO = Path(__file__).resolve().parent.parent
 INPUT = REPO / "input"
 DATA = REPO / "src" / "data"
 
-ISO = {
-    "Bangladesh": ("BD", "Bangladesh"),
-    "China": ("CN", "China"),
-    "India": ("IN", "India"),
-    "Japan": ("JP", "Japan"),
-    "Indonesia": ("ID", "Indonesia"),
-    "NZ": ("NZ", "New Zealand"),
-    "Pakistan": ("PK", "Pakistan"),
-    "Sri Lanka": ("LK", "Sri Lanka"),
-    "UK": ("GB", "Great Britain"),
-}
+# Names a file might use that are not the jurisdiction's own name. Anything else is looked up in
+# src/data/jurisdictions.json, so adding a country needs no code change - just a sheet named "<Country> Output Rev 8".
+ALIASES = {"uk": "GB", "united kingdom": "GB", "great britain": "GB", "gb": "GB", "nz": "NZ", "usa": "US", "us": "US",
+           "uae": "AE", "south korea": "KR", "korea": "KR", "russia": "RU", "vietnam": "VN", "turkey": "TR"}
+DISPLAY_NAMES = {"GB": "Great Britain"}  # the name the app already uses for the UK
+
+# "<Country> Ouput Rev 8.xlsx" - tolerant of the "Ouput"/"Output" spelling, case, spacing and a suffix after the rev.
+FILE_RE = re.compile(r"^(?P<country>.+?)\s+ou?t?put\s+rev\b.*\.xlsx$", re.IGNORECASE)
+
+
+def resolve_country(file_name):
+    """(code, display name) for a sheet's file name, or None if it is not a country sheet. Raises ValueError for a
+    country sheet whose country cannot be recognised, so the problem is reported instead of silently skipped."""
+    m = FILE_RE.match(file_name)
+    if not m:
+        return None
+    label = re.sub(r"\s+", " ", m.group("country")).strip()
+    if label.lower() == "blank":
+        return None
+    by_name = {norm(j["name"]): j for j in json.loads((DATA / "jurisdictions.json").read_text()) if j.get("level") == "country"}
+    key = norm(label)
+    code = ALIASES.get(key)
+    if code is None and key in by_name:
+        code = by_name[key]["code"]
+    if code is None:
+        raise ValueError(f"{file_name}: could not tell which country '{label}' is - use its usual English name")
+    names = {j["code"]: j["name"] for j in by_name.values()}
+    return code, DISPLAY_NAMES.get(code, names.get(code, label))
 
 
 def norm(s):
@@ -122,30 +140,51 @@ def main():
     old = json.loads((DATA / "sourced-answers.json").read_text())
     sources, answers, report = {}, [], []
     countries = []
+    # Problems that stop the import (a sheet that cannot be read, or whose country is unknown). Nothing is written
+    # while any exist, so a bad upload never leaves the data half-updated; the problems are listed in plain words.
+    problems = []
+
+    sheet_files = sorted(p for p in INPUT.glob("*.xlsx") if not p.name.startswith("~$"))
 
     sheets = []
-    for path in sorted(p for p in INPUT.glob("* Ouput Rev 8*.xlsx") if not p.name.startswith("~$")):
-        label0 = path.name.split(" Ouput Rev 8")[0]
-        if label0 not in ISO:
-            continue
-        for row in read_rows(openpyxl.load_workbook(path, data_only=True)["Question Output"]):
-            q0 = by_text.get(norm(row[1] or ""))
-            if q0:
-                sheets.append((q0["id"], row[7]))
+    for path in sheet_files:
+        try:
+            if resolve_country(path.name) is None:
+                continue
+        except ValueError:
+            continue  # reported in the main pass below
+        try:
+            for row in read_rows(openpyxl.load_workbook(path, data_only=True)["Question Output"]):
+                q0 = by_text.get(norm(row[1] or ""))
+                if q0:
+                    sheets.append((q0["id"], row[7]))
+        except Exception:
+            pass  # reported in the main pass below
     add_middle_tiers(questions, sheets)
 
-    for path in sorted(p for p in INPUT.glob("* Ouput Rev 8*.xlsx") if not p.name.startswith("~$")):
-        label = path.name.split(" Ouput Rev 8")[0]
-        if label not in ISO:
-            if label != "BLANK":
-                report.append(f"{path.name}: no ISO mapping, skipped")
+    for path in sheet_files:
+        try:
+            resolved = resolve_country(path.name)
+        except ValueError as error:
+            problems.append(str(error))
             continue
-        code, name = ISO[label]
+        if resolved is None:
+            continue
+        code, name = resolved
+        try:
+            ws = openpyxl.load_workbook(path, data_only=True)["Question Output"]
+            rows = list(read_rows(ws))
+        except KeyError as error:
+            problems.append(f"{path.name}: the sheet is missing something it needs - {str(error).strip(chr(34))}. "
+                            'It needs a tab called "Question Output" with the standard column headings.')
+            continue
+        except Exception as error:  # a corrupt or password-protected file, for example
+            problems.append(f"{path.name}: could not be opened ({error}). Is it a normal .xlsx file?")
+            continue
         countries.append({"code": code, "name": name})
-        ws = openpyxl.load_workbook(path, data_only=True)["Question Output"]
         src_ids, matched = {}, set()
 
-        for area, text, answer, etitle, eurl, enotes, rating, category in read_rows(ws):
+        for area, text, answer, etitle, eurl, enotes, rating, category in rows:
             if not text:
                 continue
             q = by_text.get(norm(text))
@@ -186,6 +225,12 @@ def main():
                 "note": note,
             })
         report.append(f"{code}: {len(matched)}/{len(questions)} questions answered")
+
+    if problems:
+        print("IMPORT STOPPED - nothing was changed. Please fix:")
+        for problem in problems:
+            print(f"  - {problem}")
+        sys.exit(1)
 
     old["README"] = (
         "Researched answers imported from input/*Ouput Rev 8.xlsx by scripts/import_output_sheets.py. "

@@ -5,22 +5,30 @@
   },
   {
     "heading": "Las preguntas",
-    "body": "Las preguntas se agrupan en áreas temáticas. Cada pregunta tiene una puntuación de impacto (cuánto cuenta para el total) y un pequeño conjunto de respuestas posibles que describen lo que realmente está vigente, desde \"no vigente\" hasta \"plenamente vigente\"."
+    "body": "Las preguntas se agrupan en áreas temáticas. Cada pregunta tiene una puntuación de impacto (cuánto cuenta para el total) y un pequeño conjunto de respuestas posibles que describen lo que realmente está vigente. Las respuestas van de débil a sólida - algunas preguntas tienen dos, otras tres - y se etiquetan Débil, Desarrollada o Sólida, la mejor primero."
   },
   {
     "heading": "Puntuación",
-    "body": "La puntuación de una jurisdicción es la proporción ponderada de lo que está vigente, entre las preguntas que realmente se han respondido, y luego se reduce según cuánto del cuestionario se ha respondido en total. Esto significa que una jurisdicción no puede obtener una puntuación alta respondiendo solo unas pocas de sus mejores preguntas; una cobertura amplia y honesta vale más que unas pocas respuestas escogidas. Las puntuaciones se muestran en una de cinco bandas, de Muy ineficaz a Muy eficaz, con el porcentaje al lado para quien quiera el detalle."
+    "body": "La puntuación de una jurisdicción es la proporción ponderada de lo que está vigente, entre las preguntas que realmente se han respondido, y luego se reduce según cuánto del cuestionario se ha respondido en total. Esto significa que una jurisdicción no puede obtener una puntuación alta respondiendo solo unas pocas de sus mejores preguntas; una cobertura amplia y honesta vale más que unas pocas respuestas escogidas. Las puntuaciones se muestran como una valoración de una a cinco estrellas, con el porcentaje al lado para quien quiera el detalle."
   },
   {
-    "heading": "Cobertura de datos",
+    "heading": "Preguntas respondidas",
     "body": "Una medida distinta de la puntuación: la proporción de preguntas respondidas en total, sin importar cómo puntuaron. Una jurisdicción con muy pocos datos aparece como \"datos insuficientes\" en lugar de una puntuación, para que la falta de investigación nunca se confunda con una mala política."
   },
   {
     "heading": "Evidencia",
-    "body": "Cada respuesta necesita una cita real - una ley, una decisión regulatoria o los propios datos de un operador de mercado. Las respuestas también registran con cuánta precisión se aplica la evidencia (una fuente nacional supera a una referencia de toda la UE, que a su vez supera a un indicador estadístico general) y cuán autorizada es la fuente en sí."
+    "body": "Cada respuesta necesita una fuente real - una ley, una decisión regulatoria, los propios datos de un operador de mercado o un informe publicado - que se muestra junto a la respuesta para poder consultarla. Las direcciones web de la evidencia son enlaces que se abren en una pestaña nueva."
+  },
+  {
+    "heading": "¿Ha visto un error?",
+    "body": "Use \"Sugerir una corrección\" en cualquier respuesta: elija la respuesta que cree correcta, añada su evidencia (un enlace o el nombre de un informe), indique qué demuestra y escriba su nombre. Un revisor la comprueba antes de que cambie nada. Si falta una pregunta, use \"Proponer una nueva pregunta de política\" en la página de un país: una vez aceptada, cuenta para la puntuación de todos los países."
+  },
+  {
+    "heading": "Informes",
+    "body": "\"Descargar informe\" en la página de un país abre una vista previa de un PDF accesible que puede leer, buscar y descargar. No se envía nada a ningún sitio: se crea en su navegador."
   },
   {
     "heading": "Jurisdicciones",
-    "body": "La mayoría de las filas son países. Unas pocas (Estados Unidos, Australia, Canadá) se muestran como sus estados o provincias, ya que la política varía demasiado como para promediarla en una sola puntuación nacional. La Unión Europea se muestra como una fila consolidada en el ranking, aunque cada estado miembro sigue teniendo su propia página de jurisdicción completa."
+    "body": "La mayoría de las filas son países. Cuando la política varía mucho dentro de un país (como Estados Unidos, Australia o Canadá), se muestra por estados o provincias, ya que una sola puntuación nacional ocultaría demasiado. La Unión Europea se muestra como una fila consolidada en el ranking, aunque cada estado miembro sigue teniendo su propia página de jurisdicción."
   }
 ]

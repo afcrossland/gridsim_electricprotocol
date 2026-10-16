@@ -49,7 +49,7 @@ function blocName(blocCode: string, fallback: string, language: string): string 
  * the scoring ceiling now, not `protocol.maxScore` (which stays 2, the count
  * of rubric steps above zero - a display concern, not a scoring one).
  */
-const MAX_TIER_POINTS = 4;
+export const MAX_TIER_POINTS = 4;
 
 /** Points a response earns, looked up from the question's own rubric definition. */
 function tierPoints(question: Question, rawScore: number): number {
@@ -640,7 +640,7 @@ const IMPACT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
   "Very high": { es: "Muy alto", fr: "Très élevé" },
 };
 
-/** "Very low" - see IMPACT_BANDS for why this replaces the raw weight in the UI. Defaults to "en" - PDF export (CountryReportDocument.tsx) calls this with no language and stays English. */
+/** "Very low" - see IMPACT_BANDS for why this replaces the raw weight in the UI. Defaults to "en" - PDF export (lib/report/policyReportModel.ts) calls this with no language and stays English. */
 export function impactLabel(weight: number, language = "en"): string {
   const label = impactBand(weight).label;
   return IMPACT_LABEL_TRANSLATIONS[label]?.[language] ?? label;

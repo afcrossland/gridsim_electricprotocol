@@ -128,7 +128,7 @@ export const SCENES: Scene[] = [
       spotlight: {
         selector: '[data-tour="country-tabs"]',
         tag: "Policy Landscape",
-        caption: "Score and data completeness per policy area - click a tile to see its own exemplars, questions, rubric, and the evidence behind each answer, editable by anyone.",
+        caption: "Score and questions answered per policy area - click a tile to see its own exemplars, questions, rubric, and the evidence behind each answer, editable by anyone.",
         arrow: "up",
       },
     },

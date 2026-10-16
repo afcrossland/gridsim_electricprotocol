@@ -534,7 +534,7 @@ called out as a `TODO` in `lib/suggestions.ts`.
 - `resetToSeed` in the admin console's Danger Zone needs new meaning once
   there is no local override state left to reset - repoint it at "revert
   to last published" or retire it.
-- The PDF report export (`src/components/report/CountryReportDocument.tsx`)
+- The PDF report export (`src/lib/report/policyReportModel.ts`, rendered by `shared/pdf/`)
   is unaffected - it already just renders whatever data is currently in
   memory.
 
@@ -544,3 +544,42 @@ A more narrative version of this plan, with the reasoning behind the phase
 ordering, was published as a Claude Artifact during planning:
 <https://claude.ai/code/artifact/155348da-75f4-4a46-a26a-c83368d364e0>
 (private to the account that created it - ask Andrew for access if needed).
+
+## Reports (shared PDF engine)
+
+Added 2026-10-15. Reports across the Electric Protocol apps use one shared engine in `shared/pdf/`, ported from the
+TUC workplace calculator: a tagged, accessible PDF (PDF/UA-1) made in the browser with PDFKit, shown in a preview window
+before download. Nothing is sent anywhere. Each app supplies only a report *model* (pages of blocks: title, heading,
+paragraph, metrics, table, list, bar chart).
+
+- **Policy Explorer: done.** `src/lib/report/policyReportModel.ts`; replaces the old picture-of-a-page (html2canvas +
+  jsPDF) export, which is removed.
+- **TODO: Deployment Explorer report.** No report exists yet; needs a decision on what it contains.
+- **TODO: Homes (Solar Homes Calculator) report.** No report exists yet; needs a decision on what it contains.
+- **TODO: run the veraPDF PDF/UA check in CI** (the TUC project does; `policyReport.test.ts` writes its PDFs to
+  `test-output/reports/` for it).
+- **Fonts: done.** Reports use the GSC's Eastman Grotesque (Bold headings, Demi-Bold emphasis, Regular body) from
+  `shared/assets/fonts/`. **Check the font licence allows embedding in PDFs** - the web licence may not. Another
+  brand's embeddable files can be dropped into `shared/pdf/fonts/brand/` and take precedence.
+- **Links: done.** Web addresses in evidence are clickable (link annotations inside PDF/UA `Link` tags). Not yet
+  verified by veraPDF (see the CI TODO above).
+- The preview draws the PDF with pdf.js (`shared/pdf/PdfPreview.tsx`) rather than the browser's embedded viewer: in
+  Chrome a link clicked in the embedded viewer replaces the whole tab. Here links open in a new tab, and the real text
+  is laid over the page so it can be selected. The downloaded file is the same tagged PDF.
+- The "score by policy area" bars replace the old radar (windrose) chart: same data, accessible as a bar chart with a
+  written summary.
+- Report text is English only for now (as before).
+
+## Updating policy data from spreadsheets (Tim's workflow)
+
+Added 2026-10-16. Tim uploads country spreadsheets to `input/` through the GitHub website (see `input/README.md`).
+`.github/workflows/import-input.yml` then runs `scripts/import_output_sheets.py`, commits the regenerated
+`src/data/` files to `main`, and starts the site deploy. No review step (Tim is trusted); a sheet that cannot be read
+fails the run, commits nothing, and the run summary says what to fix. Country sheets are named
+`<Country> Output Rev 8.xlsx`; spelling, case and a suffix after the rev are tolerated, and the country is looked up
+in `src/data/jurisdictions.json`, so a new country needs no code change.
+
+- **TODO: upload through the app itself.** Needs the backend and login (Phases 2 and 6): a signed-in upload would be
+  parsed on the server and staged for approval. Until then GitHub is the upload route.
+- **TODO: write accepted corrections back into the spreadsheets** (or store them server-side) so a re-import does not
+  overwrite them.
