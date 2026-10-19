@@ -605,14 +605,30 @@ in `src/data/jurisdictions.json`, so a new country needs no code change.
 - **TODO: write accepted corrections back into the spreadsheets** (or store them server-side) so a re-import does not
   overwrite them.
 
-## Solar & Storage Planner (members only)
+## The Playbook - the unifying planner (members only)
 
 Added 2026-10-16. A sixth tile on the Electric Futures main page (`index.html`) for a members-only planner: the
 overarching optimisation layer that uses every tool - Deployment, Policy, Future Grid Simulator, Economics and the
-Homes calculator - to produce a solar and storage plan for any country. Today the tile is only a "Members only /
-Speak to us" placeholder; nothing sits behind it.
+Homes calculator - to produce a solar and storage plan for any country. Today it is only a "Members only / Speak to us"
+placeholder; nothing sits behind it. On the main page it is shown as its own wide card above the
+individual elements, under a line "Or explore the elements one at a time" - not as one more tile among the others.
 
 - **TODO: make "Speak to us" a real link** (contact address or form) - none was given, so it is inert for now.
+- **Vision (Andrew, 2026-10-19):** the Planner is the *unifying* tool. Eventually a user explores every element of the
+  playbook in one place, or picks individual elements. So it is built from modules (Deployment, Policy, Future Grid,
+  Economics, Homes), each usable alone or combined around one country, and the combined output is one plan.
+- **TODO (agreed 2026-10-19): answer these before building the planner** -
+  1. **Who is the main user?** A government / policy team, a developer or investor, or a utility? It decides what the
+     summary page leads with.
+  2. **What is a "plan"?** A report to read, a set of recommendations, or a scenario people can adjust? Start with the
+     report.
+  3. **Embed or link?** Show each tool's views inside one Planner page, or link out to each tool with the country
+     carried across? Embedding feels more unified but is more work.
+- **TODO (agreed 2026-10-19): build order.** (a) Agree the module contract: what a module takes in (a country, a
+  scenario) and returns (headline figures, an on-screen panel, report pages). (b) Planner shell: country picker, element
+  picker (all, or just some), members-only gate, embedding the existing views. (c) Combined report: the selected
+  modules' report pages under a short summary page, on the shared PDF engine (`shared/pdf/`). (d) The optimisation layer
+  across modules - last, once there is something to optimise across.
 - **TODO: design and build the planner itself.** Open questions: what it optimises (cost, emissions, security of
   supply, policy readiness), which inputs it takes from each tool, what a "plan" contains, and how it is gated once
   real login exists (today's member gate is a shared client-side password - see `shared/lib/membership.ts`).

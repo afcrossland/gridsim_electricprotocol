@@ -139,6 +139,69 @@
     .tile { flex-basis: 100%; max-width: none; }
   }
 
+
+  /* The Planner is the unifying tool, not one more element: it gets its own wide card above the individual tools,
+     with a line saying the elements below can be used one at a time instead. */
+  .feature {
+    flex: 0 0 min(100%, 956px);
+    position: relative;
+    background: rgba(255,255,255,0.97);
+    border-radius: 18px;
+    box-shadow: 0 10px 36px rgba(0,0,0,0.4);
+    color: var(--ink);
+    padding: 30px 36px 28px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    overflow: hidden;
+  }
+  .feature::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--aqua), var(--citrus));
+  }
+  .feature .text { flex: 1 1 auto; text-align: left; }
+  .feature h2 { margin: 0 0 8px; font-size: clamp(1.5rem, 2.8vw, 2rem); font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+  .feature p.body { margin: 0 0 14px; font-size: 0.9375rem; line-height: 1.5; color: #4B5563; max-width: 58ch; }
+  .feature .elements { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .feature .elements li {
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 4px 12px;
+    color: #fff;
+  }
+  .feature .elements .e-deployment { background: var(--peach-dark); }
+  .feature .elements .e-policy { background: var(--aqua-dark); }
+  .feature .elements .e-grid { background: var(--citrus-dark); }
+  .feature .elements .e-economics { background: #6B7280; }
+  .feature .elements .e-homes { background: var(--moss-dark); }
+  .feature .actions { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .feature .cta { background: linear-gradient(90deg, var(--aqua-dark), var(--citrus-dark)); cursor: default; }
+  .feature .secondary { color: var(--muted); cursor: default; }
+  .feature .secondary:hover { text-decoration: none; }
+  
+  .or-elements {
+    flex: 0 0 100%;
+    margin: 6px 0 -2px;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9375rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .or-elements::before, .or-elements::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.22); }
+
+  @media (max-width: 960px) { .feature { flex-basis: min(100%, 788px); } }
+  @media (max-width: 760px) {
+    .feature { flex-direction: column; align-items: flex-start; padding: 28px 24px 24px; }
+    .feature .actions { flex-direction: row; align-items: center; }
+  }
+  @media (max-width: 620px) { .feature { flex-basis: 100%; } }
+
   .tile {
     position: relative;
     background: rgba(255,255,255,0.96);
@@ -187,7 +250,6 @@
   .tile.grid h2 { color: var(--citrus-dark); }
   .tile.policy h2 { color: var(--aqua-dark); }
   .tile.savings h2 { color: var(--moss-dark); }
-  .tile.planner h2 { color: var(--ink); }
   .tile.disabled h2 { color: #6B7280; }
 
   .tile p.body {
@@ -223,8 +285,6 @@
   .tile.grid .cta { background: var(--citrus-dark); }
   .tile.policy .cta { background: var(--aqua); }
   .tile.savings .cta { background: var(--moss-dark); }
-  /* The planner sits across every other tool, so its button blends the two brand hues. */
-  .tile.planner .cta { background: linear-gradient(90deg, var(--aqua-dark), var(--citrus-dark)); cursor: default; }
   a.cta:hover { filter: brightness(1.08); transform: translateX(2px); }
 
   .cta svg { width: 15px; height: 15px; flex-shrink: 0; }
@@ -240,8 +300,6 @@
   .tile.grid .secondary { color: var(--citrus-dark); }
   .tile.policy .secondary { color: var(--aqua-dark); }
   .tile.savings .secondary { color: var(--moss-dark); }
-  .tile.planner .secondary { color: var(--muted); cursor: default; }
-  .tile.planner .secondary:hover { text-decoration: none; }
   .secondary:hover { text-decoration: underline; }
 
   /* Not open yet - greyed out, static, no hover affordance or working link.
@@ -288,6 +346,26 @@
   </header>
 
   <main>
+    <section class="feature" aria-labelledby="planner-title">
+      <div class="text">
+        <h2 id="planner-title">The Playbook</h2>
+        <p class="body">Explore every element together and build a solar and storage plan for any country - or pick just the elements you need. Speak to us to find out more.</p>
+        <ul class="elements" aria-label="Elements it brings together">
+          <li class="e-deployment">Deployment</li>
+          <li class="e-policy">Policy</li>
+          <li class="e-grid">Future Grid</li>
+          <li class="e-economics">Economics</li>
+          <li class="e-homes">Homes</li>
+        </ul>
+      </div>
+      <div class="actions">
+        <span class="cta">Coming soon</span>
+        <span class="secondary">Speak to us</span>
+      </div>
+    </section>
+
+    <div class="or-elements">Or explore the elements one at a time</div>
+
     <div class="tile deployment">
       <h2>Solar Deployment<br />Explorer</h2>
       <p class="body">See how much solar and storage is actually installed, by country.</p>
@@ -347,18 +425,6 @@
       </div>
     </div>
 
-    <div class="tile planner">
-      <span class="beta-badge">Members</span>
-      <h2>Solar &amp; Storage<br />Planner</h2>
-      <p class="body">Bring every tool together to build a solar and storage plan for any country. Members only - speak to us.</p>
-      <div class="actions">
-        <span class="cta">
-          Members only
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-        </span>
-        <span class="secondary">Speak to us</span>
-      </div>
-    </div>
   </main>
 
 </body>
