@@ -6,7 +6,7 @@ interface Props {
   /** Colour for the icon, the value, and the fill of the bar beneath. */
   color: string;
   label: string;
-  value: string;
+  value: ReactNode;
   /** Small text under the value, e.g. "17/39 answered". */
   detail?: string;
   /** 0..1. Undefined hides the bar rather than drawing an empty one. */

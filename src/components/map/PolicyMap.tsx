@@ -14,7 +14,8 @@ import { useTranslation } from "react-i18next";
 import World from "../../assets/jurisdictions.geojson?url";
 import mapStyleJsonLight from "../../assets/map_gsc.json";
 import mapStyleJsonDark from "../../assets/map_gsc_dark.json";
-import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP, scoreLabel } from "../../lib/scoring";
+import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP, scoreTextColor } from "../../lib/scoring";
+import { SunScore } from "../ui/Suns";
 import { qualifiedName } from "../../lib/jurisdictions";
 import FlagImg from "../ui/FlagImg";
 import type { CountryScore } from "../../lib/types";
@@ -494,7 +495,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
                   {t("map.policyScore")}
                 </Typography>
                 <Typography variant="h5" sx={{ color: "text.primary" }}>
-                  {scoreLabel(hovered.score, i18n.language)}
+                  <SunScore score={hovered.score} color={scoreTextColor(hovered.score, theme.palette.mode)} size={16} />
                 </Typography>
               </>
             ) : (

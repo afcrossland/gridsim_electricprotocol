@@ -14,7 +14,7 @@ export type Block =
     }
   | { type: "heading"; text: string }
   | { type: "para"; text: string; style?: "lead" | "small" }
-  | { type: "metrics"; items: { label: string; value: string }[] }
+  | { type: "metrics"; items: { label: string; value: string; /** 0-5: draws a row of five discs, this many solid, beside the value. */ suns?: number }[] }
   | {
       type: "table";
       /** Omit for a table the surrounding heading already names. */

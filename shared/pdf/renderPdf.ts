@@ -204,6 +204,33 @@ export async function renderReportPdf(model: ReportModel, assets: PdfAssets): Pr
       artifact(() => {
         doc.roundedRect(x, y, w, h, 3).lineWidth(0.75).strokeColor(brand.line).stroke();
       });
+      if (item.suns !== undefined) {
+        // A row of five suns (a disc with rays) - solid for each sun earned, outlined for the rest. Decoration: the score
+        // is also in the tile's text and the sentence above, so it is not part of what a screen reader reads.
+        const suns = item.suns;
+        artifact(() => {
+          const r = 1.3 * MM; // the disc
+          const outer = 2.4 * MM; // the tips of the rays
+          const gap = 1.6 * MM;
+          const total = 5 * 2 * outer + 4 * gap;
+          for (let k = 0; k < 5; k++) {
+            const cx = x + w - 3 * MM - total + outer + k * (2 * outer + gap);
+            const cy = y + 13 * MM;
+            doc.save();
+            doc.lineWidth(0.8).lineCap("round").strokeOpacity(k < suns ? 1 : 0.5).strokeColor(brand.heading);
+            for (let a = 0; a < 8; a++) {
+              const ang = (a * Math.PI) / 4;
+              doc.moveTo(cx + Math.cos(ang) * (r + 0.7 * MM), cy + Math.sin(ang) * (r + 0.7 * MM));
+              doc.lineTo(cx + Math.cos(ang) * outer, cy + Math.sin(ang) * outer);
+            }
+            doc.stroke();
+            doc.restore();
+            doc.circle(cx, cy, r);
+            if (k < suns) doc.fillAndStroke(brand.heading, brand.heading);
+            else doc.lineWidth(0.8).stroke(brand.heading);
+          }
+        });
+      }
       root.add(
         struct("P", () => {
           doc.font(FONT.bold).fontSize(8.5).fillColor(brand.text);

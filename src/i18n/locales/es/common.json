@@ -240,5 +240,8 @@
     "download": "Descargar informe",
     "close": "Cerrar",
     "pageOf": "Página {{n}} de {{total}}"
+  },
+  "sunRating": {
+    "label": "{{count}} de 5 soles"
   }
 }

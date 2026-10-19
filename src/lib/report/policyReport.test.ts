@@ -92,7 +92,7 @@ describe("the Policy report PDF", () => {
     expect(all).not.toContain("undefined");
     expect(all).not.toContain("{{");
     for (const section of sections) expect(all).toContain(section.title);
-    expect(all).toContain("out of 5 stars");
+    expect(all).toContain("out of 5 suns");
     expect(all).toContain('"text":"Detail"');
     expect(all).not.toContain("every question");
     // Every answered question shows how it scores, in the ladder's words.

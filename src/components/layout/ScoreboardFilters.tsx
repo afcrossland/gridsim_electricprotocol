@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next";
 
 import ContinentFilter from "../../../shared/components/ContinentFilter";
 import FilterBar from "../../../shared/components/FilterBar";
-import { SCORE_BANDS, bandLabelText } from "../../lib/scoring";
+import { SCORE_BANDS, bandLabelText, bandSunCount } from "../../lib/scoring";
+import { Suns } from "../ui/Suns";
 import {
   NOT_ENOUGH_DATA_BAND,
   continentOfGroup,
@@ -146,7 +147,7 @@ export default function ScoreboardFilters({ groups }: Props) {
           {ALL_BANDS.map((band) => (
             <Chip
               key={band}
-              label={bandLabelText(band, i18n.language)}
+              label={bandSunCount(band) !== null ? <Suns count={bandSunCount(band)!} size={13} /> : bandLabelText(band, i18n.language)}
               size="small"
               onClick={() => toggleBand(band)}
               color={filters.bands.includes(band) ? "primary" : "default"}

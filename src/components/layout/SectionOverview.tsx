@@ -2,7 +2,8 @@ import { Box, ButtonBase, Typography, useTheme } from "@mui/material";
 import { lighten } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 
-import { scoreBandLabel, scoreTextColor } from "../../lib/scoring";
+import { scoreSuns, scoreTextColor } from "../../lib/scoring";
+import { Suns } from "../ui/Suns";
 import type { CountryScore, Section } from "../../lib/types";
 
 export interface SectionOverviewEntry {
@@ -76,7 +77,7 @@ interface Props {
  * the same reason.
  */
 export default function SectionOverview({ entries, selectedId, onSelect, compact = false }: Props) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   // A touch lighter than plain `background.paper` in dark mode only (per
   // Andrew's own instruction 2026-10-09, "tweak the colour in dark mode. A
@@ -122,7 +123,7 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
                   color: score.ranked ? scoreTextColor(score.score, theme.palette.mode) : "text.disabled",
                 }}
               >
-                {score.ranked ? scoreBandLabel(score.score, i18n.language) : t("countryPanel.notApplicable")}
+                {score.ranked ? <Suns count={scoreSuns(score.score)} size={14} /> : t("countryPanel.notApplicable")}
               </Typography>
             </ButtonBase>
           );
@@ -183,7 +184,7 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
                 color: score.ranked ? scoreTextColor(score.score, theme.palette.mode) : "text.disabled",
               }}
             >
-              {score.ranked ? scoreBandLabel(score.score, i18n.language) : t("countryPanel.notApplicable")}
+              {score.ranked ? <Suns count={scoreSuns(score.score)} size={22} /> : t("countryPanel.notApplicable")}
             </Typography>
           </ButtonBase>
         );

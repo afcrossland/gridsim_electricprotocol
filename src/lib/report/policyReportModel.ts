@@ -1,6 +1,6 @@
 import type { ReportModel, ReportPage } from "../../../shared/pdf/types";
 import { capitalizeFirst } from "../text";
-import { impactLabel, scoreStars } from "../scoring";
+import { impactLabel, scoreSuns } from "../scoring";
 import type { CountryScore, ImpactItem, Question, Response, Section } from "../types";
 
 export interface CompareEntry {
@@ -52,9 +52,9 @@ const EXEMPLAR_LIMIT = 3;
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 const scoreText = (s: CountryScore) => (s.ranked ? pct(s.score) : "N/A");
 
-/** "4 out of 5 stars (79%)": the PDF fonts have no star glyph, and words read better to a screen reader anyway. */
+/** "4 out of 5 suns (79%)": written in words as well as drawn, so it reads aloud and survives any font. */
 const starsPhrase = (s: CountryScore) =>
-  s.ranked ? `${scoreStars(s.score)} out of 5 stars (${pct(s.score)})` : "not yet scored";
+  s.ranked ? `${scoreSuns(s.score)} out of 5 suns (${pct(s.score)})` : "not yet scored";
 
 const answerLabel = (q: Question, r: Response | undefined) => {
   const tier = r ? q.rubric.find((t) => t.score === r.score)?.label : undefined;
@@ -103,7 +103,7 @@ export function buildPolicyReportModel(data: CountryReportData): ReportModel {
       {
         type: "metrics" as const,
         items: [
-          { label: "Overall score", value: scoreText(score) },
+          { label: "Overall score", value: scoreText(score), suns: score.ranked ? scoreSuns(score.score) : undefined },
           { label: "Questions answered", value: `${score.answered} / ${score.total} (${pct(score.completeness)})` },
         ],
       },

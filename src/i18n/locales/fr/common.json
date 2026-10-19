@@ -240,5 +240,8 @@
     "download": "Télécharger le rapport",
     "close": "Fermer",
     "pageOf": "Page {{n}} sur {{total}}"
+  },
+  "sunRating": {
+    "label": "{{count}} soleils sur 5"
   }
 }

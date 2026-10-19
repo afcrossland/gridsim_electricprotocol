@@ -491,7 +491,7 @@ export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
  * instead of a darker one.
  */
 export function scoreTextColor(score: number, mode: "light" | "dark" = "light"): string {
-  const stars = scoreStars(score);
+  const stars = scoreSuns(score);
   if (stars === 1) return mode === "dark" ? "#E8C97A" : "#8A6D23"; // cream, darkened/lightened to read as text
   return STAR_COLORS[stars];
 }
@@ -540,40 +540,20 @@ const BAND_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
   "Not enough data": { es: "Datos insuficientes", fr: "Données insuffisantes" },
 };
 
-/** Star rating (1-5) for a band: its position in SCORE_BANDS, "Very ineffective" = 1 through "Very effective" = 5. */
-export function bandStarCount(label: string): number | null {
+/** Sun rating (1-5) for a band: its position in SCORE_BANDS, "Very ineffective" = 1 through "Very effective" = 5. */
+export function bandSunCount(label: string): number | null {
   const i = SCORE_BANDS.findIndex((b) => b.label === label);
   return i === -1 ? null : i + 1;
 }
 
-/** "★★★☆☆" - filled stars for the rating, hollow for the remainder, always five characters. */
-export function starsText(count: number): string {
-  return "★".repeat(count) + "☆".repeat(5 - count);
+/** How many suns (1-5) a score earns - the app shows scores as suns (components/ui/Suns.tsx), never as band names. */
+export function scoreSuns(score: number): number {
+  return bandSunCount(scoreBand(score).label)!;
 }
 
-export function scoreStars(score: number): number {
-  return bandStarCount(scoreBand(score).label)!;
-}
-
-/**
- * A raw band label (or NOT_ENOUGH_DATA_BAND) as shown to a reader. The five
- * real bands display as a 1-5 star rating (the band names themselves stay as
- * filter keys / translation keys only); NOT_ENOUGH_DATA_BAND keeps its
- * translated text - see BAND_LABEL_TRANSLATIONS above.
- */
+/** A band's name, or NOT_ENOUGH_DATA_BAND's, translated - for the places that name a band rather than draw its suns. */
 export function bandLabelText(label: string, language = "en"): string {
-  const stars = bandStarCount(label);
-  if (stars !== null) return starsText(stars);
   return BAND_LABEL_TRANSLATIONS[label]?.[language] ?? label;
-}
-
-export function scoreBandLabel(score: number, language = "en"): string {
-  return bandLabelText(scoreBand(score).label, language);
-}
-
-/** "★★★★☆ (75%)" - the star rating leads so a reader isn't left comparing two raw numbers, the percentage follows for anyone who wants the detail. */
-export function scoreLabel(score: number, language = "en"): string {
-  return `${scoreBandLabel(score, language)} (${Math.round(score * 100)}%)`;
 }
 
 /** Ceiling of the 0-5 impact (question weight) scale editable in the admin console. */

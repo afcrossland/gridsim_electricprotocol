@@ -8,7 +8,8 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useTranslation } from "react-i18next";
 
 import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors";
-import { rankImpact, scoreLabel, scoreSections, scoreTextColor, sectionLeaderboard } from "../../lib/scoring";
+import { rankImpact, scoreSections, scoreTextColor, sectionLeaderboard } from "../../lib/scoring";
+import { SunScore } from "../ui/Suns";
 import type { CountryScore } from "../../lib/types";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
 import ReportOverlay from "../../../shared/pdf/ReportOverlay";
@@ -127,7 +128,7 @@ export default function CountryPanel({
   allScores,
   onSelectCountry,
 }: Props) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const responses = useProtocolStore((s) => s.responses);
@@ -368,7 +369,7 @@ export default function CountryPanel({
                   icon={<TrendingUpIcon fontSize="small" />}
                   color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
                   label={t("countryPanel.score")}
-                  value={score.ranked ? scoreLabel(score.score, i18n.language) : t("countryPanel.notApplicable")}
+                  value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
                 />
               </Box>
               <Box sx={{ flexShrink: 0 }}>
@@ -404,7 +405,7 @@ export default function CountryPanel({
                 icon={<TrendingUpIcon fontSize="small" />}
                 color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
                 label={t("countryPanel.score")}
-                value={score.ranked ? scoreLabel(score.score, i18n.language) : t("countryPanel.notApplicable")}
+                value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
               />
               <StatTile
                 size="small"

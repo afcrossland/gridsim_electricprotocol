@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Box, Collapse, IconButton, Stack, Typography, useTheme } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useTranslation } from "react-i18next";
 
 import { jurisdictionName } from "../../lib/jurisdictions";
-import { groupScores, scoreTextColor, scoreLabel } from "../../lib/scoring";
+import { groupScores, scoreTextColor } from "../../lib/scoring";
+import { SunScore } from "../ui/Suns";
 import {
   compareGroups,
   isCompletenessSort,
@@ -29,14 +30,13 @@ function tileDisplay(
   entry: Pick<CountryScore, "score" | "completeness" | "ranked">,
   sort: ScoreboardSort,
   t: (key: string) => string,
-  language: string,
   mode: "light" | "dark",
-): { text: string; color: string } {
+): { text: ReactNode; color: string } {
   if (isCompletenessSort(sort)) {
     return { text: `${Math.round(entry.completeness * 100)}%`, color: "primary.main" };
   }
   return entry.ranked
-    ? { text: scoreLabel(entry.score, language), color: scoreTextColor(entry.score, mode) }
+    ? { text: <SunScore score={entry.score} color={scoreTextColor(entry.score, mode)} size={14} />, color: scoreTextColor(entry.score, mode) }
     : { text: t("scoreboard.notEnoughDataToScore"), color: "text.disabled" };
 }
 
@@ -143,7 +143,7 @@ function Row({
   onSelect: (code: string) => void;
   sort: ScoreboardSort;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const [expanded, setExpanded] = useState(false);
   const selected = group.hasOwnScore
@@ -172,10 +172,10 @@ function Row({
               fontWeight: 700,
               flexShrink: 0,
               lineHeight: isCompletenessSort(sort) || group.ranked ? undefined : 1.2,
-              color: tileDisplay(group, sort, t, i18n.language, theme.palette.mode).color,
+              color: tileDisplay(group, sort, t, theme.palette.mode).color,
             }}
           >
-            {tileDisplay(group, sort, t, i18n.language, theme.palette.mode).text}
+            {tileDisplay(group, sort, t, theme.palette.mode).text}
           </Typography>
         }
         selected={selected}
@@ -274,10 +274,10 @@ function ChildRow({
           fontWeight: 600,
           flexShrink: 0,
           lineHeight: isCompletenessSort(sort) || child.ranked ? undefined : 1.2,
-          color: tileDisplay(child, sort, t, i18n.language, theme.palette.mode).color,
+          color: tileDisplay(child, sort, t, theme.palette.mode).color,
         }}
       >
-        {tileDisplay(child, sort, t, i18n.language, theme.palette.mode).text}
+        {tileDisplay(child, sort, t, theme.palette.mode).text}
       </Typography>
     </Box>
   );

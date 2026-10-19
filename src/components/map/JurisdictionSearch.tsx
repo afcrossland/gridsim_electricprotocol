@@ -4,7 +4,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
 
 import { jurisdictionName, jurisdictions } from "../../lib/jurisdictions";
-import { scoreLabel, scoreTextColor } from "../../lib/scoring";
+import { scoreTextColor } from "../../lib/scoring";
+import { SunScore } from "../ui/Suns";
 import type { CountryScore } from "../../lib/types";
 import FlagImg from "../ui/FlagImg";
 
@@ -132,7 +133,7 @@ export default function JurisdictionSearch({ scores, selected, onSelect, disable
                   }}
                 >
                   {option.score.ranked
-                    ? scoreLabel(option.score.score, i18n.language)
+                    ? <SunScore score={option.score.score} color={scoreTextColor(option.score.score, theme.palette.mode)} size={13} />
                     : `${option.score.answered}/${option.score.total}`}
                 </Typography>
               )}

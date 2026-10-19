@@ -240,5 +240,8 @@
     "download": "Download report",
     "close": "Close",
     "pageOf": "Page {{n}} of {{total}}"
+  },
+  "sunRating": {
+    "label": "{{count}} out of 5 suns"
   }
 }
