@@ -69,6 +69,10 @@
       "name": "Bangladesh"
     },
     {
+      "code": "BR",
+      "name": "Brazil"
+    },
+    {
       "code": "CN",
       "name": "China"
     },
@@ -85,6 +89,10 @@
       "name": "Japan"
     },
     {
+      "code": "MY",
+      "name": "Malaysia"
+    },
+    {
       "code": "NZ",
       "name": "New Zealand"
     },
@@ -93,12 +101,28 @@
       "name": "Pakistan"
     },
     {
+      "code": "PH",
+      "name": "Philippines"
+    },
+    {
+      "code": "KR",
+      "name": "Republic of Korea"
+    },
+    {
       "code": "LK",
       "name": "Sri Lanka"
     },
     {
+      "code": "TH",
+      "name": "Thailand"
+    },
+    {
       "code": "GB",
       "name": "Great Britain"
+    },
+    {
+      "code": "VN",
+      "name": "Vietnam"
     }
   ],
   "questions": [
