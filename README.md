@@ -442,9 +442,10 @@ every edit made to that country since its page was opened into one
 organisation, and files it under Admin console → Suggestions. An admin
 Accepts it (no-op - the data's already live) or Rejects it, which reverts
 exactly the responses that suggestion touched back to their pre-edit
-baseline, nothing more. This only lives in the submitter's own browser today
-- there's no backend to make a suggestion visible to anyone else's browser
-yet, tracked as a known gap rather than a bug.
+baseline, nothing more. On builds without the policy database this only lives
+in the submitter's own browser; on database builds (dev) suggestions and
+question proposals are filed with the server and every editor sees them (ROADMAP.md
+Phase 6).
 
 State persists to `localStorage` behind the actions in
 `src/stores/protocolStore.ts`. Nothing above that layer knows where data lives,

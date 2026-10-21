@@ -387,3 +387,121 @@ def test_research_reimport_keeps_editors_work(db, files, editor):
     assert [r["score"] for r in data["responses"] if r["countryCode"] == "AT"] == [0]
     with Session(db) as session:
         assert check(session, files, research_only=True) == []
+
+
+# --- Public suggestions and proposals, editors' review (Phase 6) ------------------------------
+
+
+@pytest.fixture
+def review(db, files, api_client, signed_in, monkeypatch):
+    from ep_db import review as review_module
+
+    review_module._recent.clear()
+    run_import(db, files)
+    question = files["protocol"]["questions"][0]
+    suggestion = {
+        "countryCode": "AT",
+        "submitterName": "Ada",
+        "submitterOrganisation": "Solar Co",
+        "changes": [{"questionId": question["id"], "questionText": "q", "kind": "score", "description": "1 -> 2"}],
+        "baseline": [{"questionId": question["id"], "countryCode": "AT", "score": 1, "evidence": [], "updatedAt": "x"}],
+        "proposed": [{"questionId": question["id"], "countryCode": "AT", "score": 2, "evidence": [], "updatedAt": "x"}],
+    }
+    proposal = {
+        "sectionId": files["protocol"]["sections"][0]["id"],
+        "text": "Is there a heat pump grant?",
+        "strongLabel": "Yes, for everyone",
+        "developedLabel": "",
+        "weakLabel": "No",
+        "reason": "Heat pumps pair with solar",
+        "source": "https://example.org",
+        "submitterName": "Bo",
+        "submitterOrganisation": "",
+    }
+    return api_client, signed_in("ed@example.org"), suggestion, proposal
+
+
+@needs_db
+def test_anyone_can_file_and_editors_see_it_all(db, review):
+    client, editor, suggestion, proposal = review
+    r = client.post("/api/policy/suggestions", json=suggestion)
+    assert r.status_code == 200 and r.json()["id"].startswith("sg-")
+    assert client.post("/api/policy/question-proposals", json=proposal).status_code == 200
+
+    assert client.get("/api/policy/review").status_code == 401
+    assert client.get("/api/policy/review", headers={"Authorization": "Bearer ok:x@y.z"}).status_code == 403
+    listed = client.get("/api/policy/review", headers=editor).json()
+    [s] = listed["suggestions"]
+    assert (s["countryName"], s["status"], s["submitterName"], s["proposed"]) == ("Austria", "pending", "Ada", suggestion["proposed"])
+    [p] = listed["questionProposals"]
+    assert (p["sectionTitle"], p["status"], "questionId" in p) == (
+        db_section_title(db, proposal["sectionId"]), "pending", False)
+    assert [(a.actor, a.action) for a in audit_rows(db)] == [("public", "submit"), ("public", "submit")]
+
+
+def db_section_title(db, section_id):
+    from ep_db.models import Section
+
+    with Session(db) as session:
+        return session.get(Section, section_id).title
+
+
+@needs_db
+def test_filing_is_bounded(review, monkeypatch):
+    from ep_db import review as review_module
+
+    client, _, suggestion, proposal = review
+    assert client.post("/api/policy/suggestions", json={**suggestion, "countryCode": "XX"}).status_code == 404
+    assert client.post("/api/policy/suggestions", json={**suggestion, "changes": []}).status_code == 422
+    assert client.post("/api/policy/suggestions", json={**suggestion, "submitterName": ""}).status_code == 422
+    assert client.post("/api/policy/question-proposals", json={**proposal, "text": "x" * 2001}).status_code == 422
+    assert client.post("/api/policy/question-proposals", json={**proposal, "sectionId": "nope"}).status_code == 404
+
+    monkeypatch.setattr(review_module, "RATE_LIMIT", 2)
+    review_module._recent.clear()
+    me = {"X-Forwarded-For": "203.0.113.7, 10.0.0.1"}
+    codes = [client.post("/api/policy/question-proposals", json=proposal, headers=me).status_code for _ in range(3)]
+    assert codes == [200, 200, 429]
+    other = {"X-Forwarded-For": "198.51.100.1"}
+    assert client.post("/api/policy/question-proposals", json=proposal, headers=other).status_code == 200
+
+
+@needs_db
+def test_honeypot_is_quietly_dropped(review):
+    client, editor, suggestion, _ = review
+    r = client.post("/api/policy/suggestions", json={**suggestion, "website": "https://spam.example"})
+    assert r.status_code == 200 and r.json()["status"] == "pending"
+    assert client.get("/api/policy/review", headers=editor).json()["suggestions"] == []
+
+
+@needs_db
+def test_editors_record_decisions(db, review):
+    client, editor, suggestion, proposal = review
+    sid = client.post("/api/policy/suggestions", json=suggestion).json()["id"]
+    pid = client.post("/api/policy/question-proposals", json=proposal).json()["id"]
+
+    assert client.put(f"/api/policy/suggestions/{sid}/status", json={"status": "accepted"}).status_code == 401
+    assert client.put(f"/api/policy/suggestions/{sid}/status", json={"status": "accepted"}, headers=editor).status_code == 200
+    assert client.put(f"/api/policy/suggestions/{sid}/status", json={"status": "maybe"}, headers=editor).status_code == 422
+    assert client.put("/api/policy/suggestions/sg-nope/status", json={"status": "accepted"}, headers=editor).status_code == 404
+
+    # A proposal can only point at a question that exists - the frontend saves the question first.
+    url = f"/api/policy/question-proposals/{pid}/status"
+    assert client.put(url, json={"status": "accepted", "questionId": "q-new"}, headers=editor).status_code == 409
+    new_q = {"sectionId": proposal["sectionId"], "subsection": None, "order": 99, "text": proposal["text"], "weight": 1,
+             "rubric": [{"score": 0, "label": "No", "points": 0}, {"score": 2, "label": "Yes", "points": 4}]}
+    client.put("/api/policy/questions/q-new", json=new_q, headers=editor)
+    assert client.put(url, json={"status": "accepted", "questionId": "q-new"}, headers=editor).status_code == 200
+
+    listed = client.get("/api/policy/review", headers=editor).json()
+    assert listed["suggestions"][0]["status"] == "accepted"
+    assert (listed["questionProposals"][0]["status"], listed["questionProposals"][0]["questionId"]) == ("accepted", "q-new")
+    last = audit_rows(db)[-1]
+    assert (last.actor, last.entity, last.action, last.before["status"], last.after) == (
+        "ed@example.org", "question_proposal", "review", "pending", {"status": "accepted", "questionId": "q-new"})
+
+    # Deleting the question keeps the proposal, unlinked (migration 0002); deleting the section drops it.
+    assert client.delete("/api/policy/questions/q-new", headers=editor).status_code == 200
+    assert "questionId" not in client.get("/api/policy/review", headers=editor).json()["questionProposals"][0]
+    assert client.delete(f"/api/policy/sections/{proposal['sectionId']}", headers=editor).status_code == 200
+    assert client.get("/api/policy/review", headers=editor).json()["questionProposals"] == []

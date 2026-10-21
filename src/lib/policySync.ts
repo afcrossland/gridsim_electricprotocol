@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+import type { QuestionProposal, Suggestion } from "./suggestions";
 import type { Question, Response, Section } from "./types";
 
 /**
@@ -18,6 +19,12 @@ import type { Question, Response, Section } from "./types";
  * before parents on deletes. Anything that no longer exists is deleted; a
  * removed answer is saved as cleared (score null), so it also hides the
  * researched answer underneath. Endpoints: klute/gate/ep_db/writes.py.
+ *
+ * Accept/reject decisions on public suggestions and question proposals
+ * (Phase 6, ep_db/review.py) are saved the same way, but only when a
+ * decision changes: those lists are loaded from the server (wrapped in
+ * `withoutSaving`), and nothing else about them is the editor's to save. A
+ * decision goes after any question it adds, so the server can link it.
  */
 
 export interface SyncSnapshot {
@@ -25,9 +32,17 @@ export interface SyncSnapshot {
   questions: Question[];
   responses: Response[];
   threshold: number;
+  suggestions: Suggestion[];
+  questionProposals: QuestionProposal[];
 }
 
-export type SyncKey = `section:${string}` | `question:${string}` | `response:${string}|${string}` | "protocol";
+export type SyncKey =
+  | `section:${string}`
+  | `question:${string}`
+  | `response:${string}|${string}`
+  | `suggestion:${string}`
+  | `proposal:${string}`
+  | "protocol";
 
 export interface SyncRequest {
   method: "PUT" | "DELETE";
@@ -68,7 +83,33 @@ export function diffSnapshots(prev: SyncSnapshot, next: SyncSnapshot): SyncKey[]
     for (const k of changedIds(prev.responses, next.responses, responseKey)) keys.push(`response:${k}` as SyncKey);
   }
   if (prev.threshold !== next.threshold) keys.push("protocol");
+  if (prev.suggestions !== next.suggestions) {
+    for (const id of decided(prev.suggestions, next.suggestions, (s) => s.status)) keys.push(`suggestion:${id}`);
+  }
+  if (prev.questionProposals !== next.questionProposals) {
+    for (const id of decided(prev.questionProposals, next.questionProposals, (p) => `${p.status}|${p.questionId ?? ""}`)) {
+      keys.push(`proposal:${id}`);
+    }
+  }
   return keys;
+}
+
+/** Ids whose decision changed - not ones that appeared or went (those come from the server). */
+function decided<T extends { id: string }>(prev: T[], next: T[], decision: (item: T) => string): string[] {
+  const before = new Map(prev.map((item) => [item.id, item]));
+  return next.filter((item) => before.has(item.id) && decision(before.get(item.id)!) !== decision(item)).map((item) => item.id);
+}
+
+let suppressed = 0;
+
+/** Apply state that came from the server - nothing in it is saved back. */
+export function withoutSaving(apply: () => void): void {
+  suppressed++;
+  try {
+    apply();
+  } finally {
+    suppressed--;
+  }
 }
 
 /** The request that brings the server in line with `state` for one key, and its place in the save order. */
@@ -77,6 +118,24 @@ export function requestFor(key: SyncKey, state: SyncSnapshot): { order: number; 
     return { order: 2, request: { method: "PUT", url: `${API}/protocol`, body: { completenessThreshold: state.threshold } } };
   }
   const [kind, id] = [key.slice(0, key.indexOf(":")), key.slice(key.indexOf(":") + 1)];
+  if (kind === "suggestion") {
+    const s = state.suggestions.find((x) => x.id === id);
+    return {
+      order: 2,
+      request: { method: "PUT", url: `${API}/suggestions/${encodeURIComponent(id)}/status`, body: { status: s?.status ?? "pending" } },
+    };
+  }
+  if (kind === "proposal") {
+    const p = state.questionProposals.find((x) => x.id === id);
+    return {
+      order: 2, // after the question an acceptance adds (1), before one a rejection deletes (3)
+      request: {
+        method: "PUT",
+        url: `${API}/question-proposals/${encodeURIComponent(id)}/status`,
+        body: { status: p?.status ?? "pending", questionId: p?.questionId ?? null },
+      },
+    };
+  }
   if (kind === "section") {
     const s = state.sections.find((x) => x.id === id);
     const url = `${API}/sections/${encodeURIComponent(id)}`;
@@ -161,6 +220,7 @@ export function startPolicySync(
   };
 
   const unsubscribe = subscribe((next, prev) => {
+    if (suppressed > 0) return;
     const keys = diffSnapshots(prev, next);
     if (keys.length === 0) return;
     const at = Date.now() + debounceMs;

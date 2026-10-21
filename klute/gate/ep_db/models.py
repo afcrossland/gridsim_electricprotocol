@@ -257,7 +257,9 @@ class QuestionProposal(Base):
     __table_args__ = (CheckConstraint(_in("status", REVIEW_STATUSES), name="status"),)
 
     id: Mapped[str] = mapped_column(Text, primary_key=True)
-    section_id: Mapped[str] = mapped_column(ForeignKey("sections.id"))
+    # A proposal filed against a section an editor then deletes goes with it; one whose question is
+    # later deleted is kept, just no longer linked (migration 0002).
+    section_id: Mapped[str] = mapped_column(ForeignKey("sections.id", ondelete="CASCADE"))
     text: Mapped[str] = mapped_column(Text)
     strong_label: Mapped[str] = mapped_column(Text)
     developed_label: Mapped[str] = mapped_column(Text)
@@ -270,7 +272,7 @@ class QuestionProposal(Base):
     submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     status: Mapped[str] = mapped_column(Text, server_default="pending")
     # Set once accepted - the question this proposal became.
-    question_id: Mapped[str | None] = mapped_column(ForeignKey("questions.id"))
+    question_id: Mapped[str | None] = mapped_column(ForeignKey("questions.id", ondelete="SET NULL"))
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     reviewed_by: Mapped[str | None] = mapped_column(Text)
 

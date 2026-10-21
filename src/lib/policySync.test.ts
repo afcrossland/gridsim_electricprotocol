@@ -1,6 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { diffSnapshots, requestFor, startPolicySync, useSyncStore, type SyncRequest, type SyncSnapshot } from "./policySync";
+import {
+  diffSnapshots,
+  requestFor,
+  startPolicySync,
+  useSyncStore,
+  withoutSaving,
+  type SyncRequest,
+  type SyncSnapshot,
+} from "./policySync";
+import type { QuestionProposal, Suggestion } from "./suggestions";
 import type { Question, Response, Section } from "./types";
 
 const section: Section = { id: "s1", title: "Access", order: 0 };
@@ -17,7 +26,41 @@ const question: Question = {
   ],
 };
 const answer: Response = { questionId: "q1", countryCode: "AT", score: 2, evidence: [], updatedAt: "", seeded: true };
-const base: SyncSnapshot = { sections: [section], questions: [question], responses: [answer], threshold: 0.3 };
+const suggestion: Suggestion = {
+  id: "sg-1",
+  countryCode: "AT",
+  countryName: "Austria",
+  submitterName: "Ada",
+  submitterOrganisation: "",
+  submittedAt: "",
+  status: "pending",
+  changes: [],
+  baseline: [],
+  proposed: [],
+};
+const proposal: QuestionProposal = {
+  id: "qp-1",
+  sectionId: "s1",
+  sectionTitle: "Access",
+  text: "New?",
+  strongLabel: "Yes",
+  developedLabel: "",
+  weakLabel: "No",
+  reason: "",
+  source: "",
+  submitterName: "Bo",
+  submitterOrganisation: "",
+  submittedAt: "",
+  status: "pending",
+};
+const base: SyncSnapshot = {
+  sections: [section],
+  questions: [question],
+  responses: [answer],
+  threshold: 0.3,
+  suggestions: [suggestion],
+  questionProposals: [proposal],
+};
 
 describe("diffSnapshots", () => {
   it("finds exactly what an immutable update replaced", () => {
@@ -28,6 +71,7 @@ describe("diffSnapshots", () => {
 
   it("sees additions, removals and settings", () => {
     const next: SyncSnapshot = {
+      ...base,
       sections: [section, { id: "s2", title: "New", order: 1 }],
       questions: [],
       responses: [],
@@ -122,5 +166,52 @@ describe("startPolicySync", () => {
     await vi.advanceTimersByTimeAsync(20);
     expect(sent).toHaveLength(2);
     expect(useSyncStore.getState().error).toBe("No section s9.");
+  });
+});
+
+describe("review decisions", () => {
+  it("are saved only when a decision changes, not when lists arrive from the server", () => {
+    const loaded = { ...base, suggestions: [{ ...suggestion }, { ...suggestion, id: "sg-2" }] };
+    expect(diffSnapshots(base, loaded)).toEqual([]); // same decision; sg-2 is new from the server
+    const accepted = { ...base, suggestions: [{ ...suggestion, status: "accepted" as const }] };
+    expect(diffSnapshots(base, accepted)).toEqual(["suggestion:sg-1"]);
+    expect(requestFor("suggestion:sg-1", accepted).request).toEqual({
+      method: "PUT",
+      url: "/api/policy/suggestions/sg-1/status",
+      body: { status: "accepted" },
+    });
+  });
+
+  it("save an accepted proposal after the question it adds", async () => {
+    vi.useFakeTimers();
+    let listener: (next: SyncSnapshot, prev: SyncSnapshot) => void = () => {};
+    let state = base;
+    const sent: SyncRequest[] = [];
+    startPolicySync((l) => ((listener = l), () => {}), () => state, async (r) => void sent.push(r), 10);
+    const prev = state;
+    state = {
+      ...state,
+      questions: [...state.questions, { ...question, id: "q-new" }],
+      questionProposals: [{ ...proposal, status: "accepted", questionId: "q-new" }],
+    };
+    listener(state, prev);
+    await vi.advanceTimersByTimeAsync(20);
+    expect(sent.map((r) => `${r.method} ${r.url}`)).toEqual([
+      "PUT /api/policy/questions/q-new",
+      "PUT /api/policy/question-proposals/qp-1/status",
+    ]);
+    expect(sent[1].body).toEqual({ status: "accepted", questionId: "q-new" });
+    vi.useRealTimers();
+  });
+
+  it("ignores state applied withoutSaving", async () => {
+    vi.useFakeTimers();
+    let listener: (next: SyncSnapshot, prev: SyncSnapshot) => void = () => {};
+    const sent: SyncRequest[] = [];
+    startPolicySync((l) => ((listener = l), () => {}), () => base, async (r) => void sent.push(r), 10);
+    withoutSaving(() => listener({ ...base, suggestions: [{ ...suggestion, status: "rejected" }] }, base));
+    await vi.advanceTimersByTimeAsync(20);
+    expect(sent).toEqual([]);
+    vi.useRealTimers();
   });
 });

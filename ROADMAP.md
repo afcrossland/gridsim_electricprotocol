@@ -47,11 +47,10 @@ comment(s) together.
   time, or an on-demand "translate" action in the review UI, are both
   plausible later options; neither is built. Flagged 2026-09-11, not an
   oversight.
-- **Suggestions only ever show up in the browser that submitted them.**
-  `diffResponses` (`src/lib/suggestions.ts`) and `SuggestionsReview.tsx` are
-  written so the local `suggestions` array can be swapped for real API calls
-  without changing shape, but there is no backend yet to carry a submitted
-  suggestion to an admin on a different device. Closed by **Phase 6** below.
+- **Suggestions only ever show up in the browser that submitted them** -
+  on builds without the policy database (prod, for now). On database builds
+  (dev) Phase 6's first part closes this: they're filed with the server and
+  every editor sees them (see Phase 6 below).
 - **Admin console has no real authentication.** Open to anyone who finds the
   URL - no password, no login, no record of who changed what (`grep -rn
   "Stands in for auth" src/` to find the UI's own callout in
@@ -216,12 +215,11 @@ Requests Andrew has flagged for later, recorded here so they don't get
 lost - not yet started.
 
 - **TODO: deliver submitted corrections to the team (backend).** Flagged
-  2026-10-15. A correction submitted through "Suggest an edit" is still only
-  saved in the submitter's own browser (see "Suggestions only ever show up in
-  the browser that submitted them" above), so nobody on the team receives it.
-  Deliberately deferred - the page is still a mockup - and closed properly by
-  Phase 6. Until then no interim delivery (email / GitHub issue / form
-  service) is wired up either.
+  2026-10-15. Done on database builds (dev) by Phase 6's first part: a
+  correction or question proposal is filed with the server and every editor
+  sees it in the admin console. Still browser-only on prod until prod moves
+  to the database. Nothing notifies editors that something new arrived - they
+  see it when they open the console.
 - **TODO: wire login to the edit screen.** Flagged 2026-10-15. The suggestion
   dialog asks for a free-text name (required) and organisation; once login
   exists, "who sent it" should come from the signed-in account instead of
@@ -602,11 +600,22 @@ Not possible at all today - there is no shared record to log against until
 Phase 4 lands. This is what finally closes the cross-device gap already
 called out as a `TODO` in `lib/suggestions.ts`.
 
-- Every write (a question edit, an answer change, a territory toggle, a
-  suggestion decision) records what changed, before/after, and when.
-- A history view in the admin console, filterable by country or question.
-- Suggestions become real database rows any admin can review from any
-  device.
+- **Done (Phase 4):** every editor write records what changed, before and
+  after, who and when, in `audit_log` - including suggestion decisions and
+  public submissions (actor `public`).
+- **Suggestions in the database - in progress, branch
+  `feature/ep-suggestions-db`.** "Suggest a correction" and "Propose a new
+  policy question" file with the server on database builds
+  (`klute/gate/ep_db/review.py`: public `POST`s, no sign-in; size limits,
+  a hidden honeypot field, 10 per visitor per hour per gate instance).
+  Editors' admin console loads everyone's (`GET /api/policy/review`);
+  accept/reject is saved by `policySync` like any edit (`PUT .../status`),
+  after any question an accepted proposal adds. Migration `0002` lets a
+  proposal go with a deleted section and come unlinked from a deleted
+  question (both deletes failed on its foreign keys before).
+- **Not started:** a history view in the admin console over `audit_log`,
+  filterable by country or question; telling editors when something new is
+  filed.
 
 ### Phase 7 - Cutover and cleanup
 

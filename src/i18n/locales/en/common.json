@@ -116,7 +116,9 @@
     "continue": "Continue",
     "back": "Back",
     "submit": "Submit",
-    "close": "Close"
+    "close": "Close",
+    "sending": "Sending…",
+    "sendFailed": "Couldn't send it: {{message}}. Please try again."
   },
   "questionCard": {
     "tierWeak": "Weak",
@@ -174,7 +176,8 @@
     "question": "Question",
     "revertQuestion": "Revert this question to the shipped version",
     "deleteQuestion": "Delete this question",
-    "confirmDeleteQuestion": "Delete this question? This also removes any answers already recorded against it."
+    "confirmDeleteQuestion": "Delete this question? This also removes any answers already recorded against it.",
+    "reviewLoadFailed": "Couldn't load everyone's suggestions: {{message}}. Reload to try again."
   },
   "suggestionsReview": {
     "empty": "No suggested changes yet. When someone uses \"Submit revised evidence\" on a country's page, it shows up here for review.",
