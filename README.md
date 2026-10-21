@@ -57,7 +57,8 @@ Deployment Explorer's own cross-link tiles - see its README) opens straight
 into that country's page, implicitly behaving like `skipIntro` too (a
 reader arriving already knowing which country they want doesn't need the
 first-run tour). All three strip themselves from the URL after taking
-effect - see the mount-time effects near the top of `App.tsx`.
+effect - see `applyLaunchParams` near the top of `App.tsx`, which applies
+them once before the first render.
 
 ## Running it
 

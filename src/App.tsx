@@ -22,6 +22,51 @@ import { protocol, useProtocolStore } from "./stores/protocolStore";
 
 const PANEL_WIDTH = 460;
 
+/**
+ * Applies the three launch URL params once, at module load - before the
+ * first render, so the tour never mounts at all on a link that skips it.
+ * These used to be mount effects, which raced the tour: on a first visit the
+ * tour mounted alongside them, and its opening scene's own
+ * `selectCountry(null)` could land after `?country` had selected one. Under
+ * StrictMode's double effect run in dev it always did, since the re-run of
+ * App's effect found the param already stripped.
+ *
+ * - `?skipIntro` - a link from somewhere that already framed the app (e.g.
+ *   the Electric Futures Playbook) marks the tour as seen.
+ * - `?showTour` - the inverse, e.g. the playbook's "Show me how": opens the
+ *   tour even for a returning visitor.
+ * - `?country=CODE` - opens straight into that country's page (e.g. the
+ *   Deployment Explorer's cross-link tiles), implicitly skipping the tour
+ *   too: a reader who arrives already knowing which country they want
+ *   doesn't need the first-run framing.
+ *
+ * Each param is stripped right after, so a reload or reshare of the
+ * resulting URL doesn't carry it along. Returns whether the intro was
+ * skipped, which also turns off the tour's "solar bloom" opening.
+ */
+function applyLaunchParams(): { skipsIntro: boolean } {
+  const url = new URL(window.location.href);
+  const params = url.searchParams;
+  const store = useProtocolStore.getState();
+  const country = params.get("country");
+  const skipsIntro = params.has("skipIntro") || Boolean(country);
+  if (skipsIntro) store.setTourSeen(true);
+  else if (params.has("showTour")) store.setTourSeen(false);
+  if (country) {
+    store.setPage("map");
+    store.selectCountry(country.toUpperCase());
+  }
+  if (params.has("skipIntro") || params.has("showTour") || country) {
+    params.delete("skipIntro");
+    params.delete("showTour");
+    params.delete("country");
+    window.history.replaceState({}, "", url);
+  }
+  return { skipsIntro };
+}
+
+const launch = applyLaunchParams();
+
 export default function App() {
   const { t, i18n } = useTranslation();
   const questions = useProtocolStore((s) => s.questions);
@@ -49,7 +94,7 @@ export default function App() {
   // has actually been dismissed for the first time, `bloomActive` turns off
   // for good, so "About" reopening the Charter later behaves normally
   // (chrome stays visible, no bloom).
-  const [bloomActive, setBloomActive] = useState(true);
+  const [bloomActive, setBloomActive] = useState(!launch.skipsIntro);
   // Edge-detected, not "is welcomeSeen true" as a static condition - that
   // would immediately re-latch bloomActive back off on every render once
   // welcomeSeen has ever been true, which defeats re-arming it below.
@@ -75,36 +120,6 @@ export default function App() {
   }, [tourSeen, welcomeSeen]);
   const onboardingHero = bloomActive && (heroScene || (!welcomeSeen && tourSeen));
 
-  // A link into the app (e.g. from the Electric Futures Playbook mockup)
-  // can skip the first-run tour with ?skipIntro - useful for anyone who's
-  // already seen an equivalent "welcome" framing on the page that sent them
-  // here. Once set, tourSeen persists as usual, so this only ever needs to
-  // fire on that first visit; the param is stripped right after so a reload
-  // or reshare of the resulting URL doesn't carry it along.
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("skipIntro")) return;
-    setTourSeen(true);
-    setBloomActive(false);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("skipIntro");
-    window.history.replaceState({}, "", url);
-    // Only ever meant to run once, against the URL the page loaded with.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // The inverse - a link that wants to open straight into the tour even if
-  // this visitor (or browser) has already seen it, e.g. the playbook's own
-  // "Show me how". Same trigger the nav's "Take the tour" uses (setTourSeen
-  // false); the bloom re-arm effect above already reacts to that transition,
-  // so there's nothing else to set here.
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("showTour")) return;
-    setTourSeen(false);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("showTour");
-    window.history.replaceState({}, "", url);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   // Desktop-only, view preference like `comparing` - not persisted, and
   // irrelevant on the mobile stacked layout, which has no side-by-side
   // sidebar to collapse in the first place.
@@ -132,26 +147,6 @@ export default function App() {
     setPage("map");
     selectCountry(code);
   };
-
-  // A link into the app can open straight into a specific country's page -
-  // e.g. the Deployment Explorer's country detail panel linking back here
-  // for the same country. Same param-stripping pattern as skipIntro/showTour
-  // above, and combined with an implicit skip of the first-run tour: a
-  // reader arriving already knowing which country they want came from
-  // somewhere that already framed the app, so the onboarding tour would be
-  // redundant on top of it.
-  useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get("country");
-    if (!code) return;
-    setTourSeen(true);
-    setBloomActive(false);
-    handleSelectCountry(code.toUpperCase());
-    const url = new URL(window.location.href);
-    url.searchParams.delete("country");
-    window.history.replaceState({}, "", url);
-    // Only ever meant to run once, against the URL the page loaded with.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Every jurisdiction with an answer, plus the ones the spreadsheet shipped
   // with, so an empty Sri Lanka is still visible as something to fill in.
