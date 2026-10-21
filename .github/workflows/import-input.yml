@@ -1,11 +1,11 @@
 name: Import policy spreadsheets
 
-# Runs when a spreadsheet in input/ is added or changed on main (for example uploaded through the GitHub website).
+# Runs when a spreadsheet in input/ is added or changed on Development (for example uploaded through the GitHub website, where Development is the default branch).
 # It re-reads every sheet in input/, rewrites the policy data in src/data/, commits that, and publishes the site.
 # If a sheet cannot be read the run fails, commits nothing, and the report below says what to fix.
 on:
   push:
-    branches: [main]
+    branches: [Development]
     paths:
       - "input/*.xlsx"
       - "scripts/import_output_sheets.py"
@@ -61,7 +61,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/data
           git commit -m "Update policy data from the input spreadsheets"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          git pull --rebase origin Development
+          git push origin HEAD:Development
           # A push made with the built-in token does not start other workflows, so start the site deploy directly.
-          gh workflow run deploy.yml --ref main
+          gh workflow run deploy.yml --ref Development

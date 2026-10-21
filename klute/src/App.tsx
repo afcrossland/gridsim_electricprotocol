@@ -4,15 +4,12 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
-import Paper from "@mui/material/Paper";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { alreadyUnlocked, gateConfigured, lock, tryUnlock } from "./lib/gate";
+import LogoutIcon from "@mui/icons-material/Logout";
 import PolicyPanel from "./panels/PolicyPanel";
 import DeploymentPanel from "./panels/DeploymentPanel";
 import CalculatorPanel from "./panels/CalculatorPanel";
@@ -36,23 +33,25 @@ interface Props {
   setMode: (m: PaletteMode) => void;
 }
 
-// /klute: the data behind each explorer, and where it has gaps. Behind a password (see
-// lib/gate.ts for what that does and does not protect).
+// /klute: the data behind each explorer, and where it has gaps. Sign-in happens before this
+// page is served at all: the sign-in gate (klute/gate/) only hands it to allowed Google accounts.
 export default function App({ mode, setMode }: Props) {
-  const [unlocked, setUnlocked] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [tab, setTab] = useState<TabId>("overview");
+  // Who the gate signed in; stays null on the local dev server, which has no gate.
+  const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "Data explorer";
-    alreadyUnlocked().then((ok) => {
-      setUnlocked(ok);
-      setChecking(false);
-    });
+    fetch("/klute/whoami")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((d: { email?: string } | null) => setEmail(d?.email ?? null))
+      .catch(() => setEmail(null));
   }, []);
 
-  if (checking) return null;
-  if (!unlocked) return <Gate onUnlock={() => setUnlocked(true)} />;
+  const signOut = async () => {
+    await fetch("/klute/logout", { method: "POST" });
+    window.location.reload();
+  };
 
   // shared/index.css locks html/body to the viewport (the other apps are full-screen maps), so
   // this page scrolls inside its own container instead of the document.
@@ -66,16 +65,16 @@ export default function App({ mode, setMode }: Props) {
           ← Electric Futures
         </Link>
         <Box sx={{ flex: 1 }} />
-        <Button
-          size="small"
-          startIcon={<LockOutlinedIcon />}
-          onClick={() => {
-            lock();
-            setUnlocked(false);
-          }}
-        >
-          Lock
-        </Button>
+        {email && (
+          <>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              {email}
+            </Typography>
+            <Button size="small" startIcon={<LogoutIcon />} onClick={signOut}>
+              Sign out
+            </Button>
+          </>
+        )}
         <IconButton aria-label="Toggle light/dark mode" onClick={() => setMode(mode === "dark" ? "light" : "dark")}>
           {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
@@ -98,49 +97,6 @@ export default function App({ mode, setMode }: Props) {
         {tab === "deployment" && <DeploymentPanel />}
         {tab === "calculator" && <CalculatorPanel />}
       </Box>
-    </Box>
-  );
-}
-
-function Gate({ onUnlock }: { onUnlock: () => void }) {
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const configured = gateConfigured();
-  const submit = async () => {
-    if (await tryUnlock(password)) onUnlock();
-    else setError(configured ? "Wrong password." : "The data explorer is not configured.");
-  };
-  return (
-    <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "background.default", p: 2 }}>
-      <Paper sx={{ p: 4, width: 360, maxWidth: "100%", textAlign: "center" }}>
-        <LockOutlinedIcon sx={{ color: TEAL, fontSize: 36 }} />
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-          Data explorer
-        </Typography>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            submit();
-          }}
-        >
-          <TextField
-            autoFocus
-            fullWidth
-            type="password"
-            label="Password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setError(null);
-            }}
-            error={Boolean(error)}
-            helperText={error ?? " "}
-          />
-          <Button type="submit" variant="contained" fullWidth sx={{ bgcolor: TEAL, "&:hover": { bgcolor: "#0195A5" } }}>
-            Unlock
-          </Button>
-        </form>
-      </Paper>
     </Box>
   );
 }

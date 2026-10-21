@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>Data explorer - sign in</title>
+    <style>
+      :root { color-scheme: light dark; --teal: #01adbf; --bg: #f5f7f8; --card: #fff; --text: #1d2327; --muted: #5b6770; }
+      @media (prefers-color-scheme: dark) { :root { --bg: #121619; --card: #1d2327; --text: #e8ecee; --muted: #9aa6ae; } }
+      body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; padding: 16px; box-sizing: border-box; }
+      main { background: var(--card); border-radius: 8px; padding: 32px; width: 360px; max-width: 100%; text-align: center; box-shadow: 0 1px 4px rgb(0 0 0 / 0.15); }
+      h1 { font-size: 1.25rem; margin: 0 0 8px; }
+      p { color: var(--muted); margin: 0 0 24px; }
+      button { background: var(--teal); color: #fff; border: 0; border-radius: 4px; padding: 10px 16px; font-size: 1rem; width: 100%; cursor: pointer; }
+      button:disabled { opacity: 0.6; cursor: default; }
+      #error { color: #d32f2f; min-height: 1.5em; margin: 16px 0 0; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Data explorer</h1>
+      <p>Sign in with an approved Google account.</p>
+      <button id="signin" type="button">Sign in with Google</button>
+      <p id="error" role="alert"></p>
+    </main>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+      const auth = getAuth(initializeApp(__FIREBASE_CONFIG__));
+      const button = document.getElementById("signin");
+      const error = document.getElementById("error");
+
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        error.textContent = "";
+        try {
+          const { user } = await signInWithPopup(auth, new GoogleAuthProvider());
+          const res = await fetch("/klute/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken: await user.getIdToken() }),
+          });
+          // The gate keeps its own session cookie; the Firebase session in this tab isn't needed.
+          await signOut(auth);
+          if (res.ok) {
+            location.reload();
+            return;
+          }
+          error.textContent = (await res.json()).error ?? `Sign-in failed (${res.status}).`;
+        } catch (e) {
+          if (e?.code !== "auth/popup-closed-by-user") error.textContent = e?.message ?? String(e);
+        }
+        button.disabled = false;
+      });
+    </script>
+  </body>
+</html>

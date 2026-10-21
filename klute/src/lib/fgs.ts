@@ -1,16 +1,17 @@
-import { sessionPassword } from "./gate";
-
-// The Future Grid Simulator backend. /coverage needs the klute password; /historic/* is the
-// same public API the simulator's own Explore tab uses.
-export const FGS_API = (import.meta.env.VITE_FGS_API_BASE_URL as string | undefined) ?? "http://localhost:8000";
+// The Future Grid Simulator backend, reached through the sign-in gate's proxy (the Vite dev
+// server's proxy locally). The gate adds the klute password that /coverage needs, so the
+// browser never sees it; /historic/* is the same public API the simulator's Explore tab uses.
+export const FGS_API = "/klute/api/";
 
 export class AuthError extends Error {}
 
-async function get<T>(path: string, params: Record<string, string> = {}, auth = false): Promise<T> {
-  const url = new URL(path, FGS_API.endsWith("/") ? FGS_API : `${FGS_API}/`);
+async function get<T>(path: string, params: Record<string, string> = {}): Promise<T> {
+  const url = new URL(path, new URL(FGS_API, window.location.origin));
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url, { headers: auth ? { "X-Klute-Password": sessionPassword() } : undefined });
-  if (res.status === 401 || res.status === 503) throw new AuthError(res.status === 503 ? "The simulator's data explorer is not configured on the server." : "The simulator rejected the password.");
+  const res = await fetch(url);
+  // 401: the gate's sign-in session ran out (reloading shows the sign-in page), or the backend
+  // rejected the password the gate sent. 503: the backend has no klute password configured.
+  if (res.status === 401 || res.status === 503) throw new AuthError(res.status === 503 ? "The simulator's data explorer is not configured on the server." : "Your sign-in has expired or the simulator rejected the gate's password. Reload the page to sign in again.");
   if (!res.ok) throw new Error(`Simulator returned ${res.status}`);
   return res.json() as Promise<T>;
 }
@@ -24,7 +25,7 @@ export interface FgsCoverage {
 }
 
 export const fetchCoverage = (dataset: FgsDataset, fresh = false) =>
-  get<FgsCoverage>(`coverage/${dataset}`, fresh ? { refresh: String(Date.now()) } : {}, true);
+  get<FgsCoverage>(`coverage/${dataset}`, fresh ? { refresh: String(Date.now()) } : {});
 
 export type GenerationRow = { ts_utc: string; [fuel: string]: string | number };
 
@@ -50,7 +51,7 @@ export interface CapacityRow {
 }
 
 export const fetchInstalledCapacity = (region: string) =>
-  get<{ region_code: string; rows: CapacityRow[] }>("coverage/data/installed-capacity", { region_code: region }, true);
+  get<{ region_code: string; rows: CapacityRow[] }>("coverage/data/installed-capacity", { region_code: region });
 
 export interface WeatherSeriesMeta {
   source: string;
@@ -59,7 +60,7 @@ export interface WeatherSeriesMeta {
   last: string;
 }
 
-export const fetchWeatherMeta = () => get<WeatherSeriesMeta[]>("coverage/data/weather/meta", {}, true);
+export const fetchWeatherMeta = () => get<WeatherSeriesMeta[]>("coverage/data/weather/meta");
 
 export type WeatherAgg = "hour" | "day" | "month";
 
@@ -74,7 +75,7 @@ export interface WeatherField {
 }
 
 export const fetchWeatherField = (source: string, variable: string, ts: string, agg: WeatherAgg) =>
-  get<WeatherField>("coverage/data/weather", { source, variable, ts, agg }, true);
+  get<WeatherField>("coverage/data/weather", { source, variable, ts, agg });
 
 export type FindingKind = "missing" | "zero" | "negative" | "low" | "partial" | "spike" | "dip" | "flat";
 
@@ -94,7 +95,7 @@ export interface QualitySeries {
 }
 
 export const fetchQualityRegion = (dataset: "generation" | "demand", region: string) =>
-  get<{ sources: QualitySeries[] }>("coverage/data/quality/region", { dataset, region_code: region }, true);
+  get<{ sources: QualitySeries[] }>("coverage/data/quality/region", { dataset, region_code: region });
 
 export interface QualitySummaryRow {
   region_code: string;
@@ -109,7 +110,7 @@ export interface QualitySummaryRow {
 }
 
 export const fetchQualitySummary = (dataset: "generation" | "demand") =>
-  get<{ series: QualitySummaryRow[] }>("coverage/data/quality/summary", { dataset }, true);
+  get<{ series: QualitySummaryRow[] }>("coverage/data/quality/summary", { dataset });
 
 export interface FreshnessRow {
   dataset: "generation" | "demand";
@@ -122,6 +123,6 @@ export interface FreshnessRow {
   last_cleaned: string | null;
 }
 
-export const fetchFreshness = () => get<{ now: string; rows: FreshnessRow[] }>("coverage/data/freshness", {}, true);
+export const fetchFreshness = () => get<{ now: string; rows: FreshnessRow[] }>("coverage/data/freshness");
 
-export const fetchRegionCountries = () => get<Record<string, string>>("coverage/data/region-countries", {}, true);
+export const fetchRegionCountries = () => get<Record<string, string>>("coverage/data/region-countries");

@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "project-08077ad6-f39e-4a3c-b19"
+  },
+  "targets": {
+    "project-08077ad6-f39e-4a3c-b19": {
+      "hosting": {
+        "electricfutures-dev": ["electricfutures-dev"],
+        "electricfutures-prod": ["electricfutures-prod"]
+      }
+    }
+  }
+}

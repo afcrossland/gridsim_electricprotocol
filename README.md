@@ -6,7 +6,7 @@ and a scoreboard.
 
 Built on the same foundations as `gridsim-frontend` - React 19 + TypeScript +
 Vite, MUI 7 with the GSC theme and Eastman Grotesque, MapLibre via
-`react-map-gl`, Zustand for state, GitHub Pages for deploys.
+`react-map-gl`, Zustand for state, Firebase Hosting + Cloud Run for deploys.
 
 ## Site structure
 
@@ -34,7 +34,7 @@ The built site has four HTML entries, not one - see `vite.config.ts`'s
   index.html` mounts its own `calculator/src/main.tsx`, a third separate
   source tree. See `calculator/README.md`.
 
-- **`/klute/`** - the password-protected Data explorer (added 2026-10-12): what data
+- **`/klute/`** - the sign-in-protected Data explorer (added 2026-10-12): what data
   sits behind each explorer and where it has gaps. One tab per explorer - Future Grid
   Simulator (coverage heatmaps for generation, demand, installed capacity and weather,
   plus a per-region generation chart), Policy Explorer (answers and evidence per
@@ -42,9 +42,10 @@ The built site has four HTML entries, not one - see `vite.config.ts`'s
   Calculator (irradiance and self-sufficiency tables). It has its own `klute/src/` tree
   and is not linked from the splash page. See "The /klute data explorer" below.
 
-All four entries share the same `base` (see Deployment below), so asset
-URLs resolve correctly under either the GitHub Pages subpath or a custom
-domain regardless of which entry references them. All three apps (policy,
+The four public entries share the same `base` (`VITE_BASE`, default `/`), so
+asset URLs resolve the same whichever entry references them. `/klute/` is not
+part of that build: it has its own (`npm run build:klute`) and ships inside its
+sign-in gate, never on public hosting. All three apps (policy,
 deployment, calculator) also share one common UI toolkit at `shared/` -
 see "Shared UI" below.
 
@@ -83,49 +84,67 @@ wired into `package.json` (they're one-time reads run by hand, not part of
 this project's regular workflow) - `python3 deployment/scripts/build_ember_solar.py`
 etc. See `deployment/README.md`.
 
-## Deployment
+## Branches and deployment
 
-Pushing to `main` builds and publishes to GitHub Pages via
-`.github/workflows/deploy.yml`. The workflow typechecks and runs the tests
-before building, so a failing test blocks the deploy.
+- **`Development`** is the working branch (and the default branch): feature branches
+  merge into it by pull request, and every push to it deploys the **dev** site,
+  `https://electricfutures-dev.web.app`.
+- **`main`** is production: merge `Development` into it by pull request when dev looks
+  right, and the push deploys `https://electricfutures-prod.web.app`.
 
-Two pieces of setup are needed once, in the repository settings:
+`.github/workflows/ci.yml` typechecks, tests and builds every pull request into either
+branch, and tests the /klute gate. `.github/workflows/deploy.yml` does the deploy on
+push: it re-runs the checks, builds the public site to Firebase Hosting, and builds the
+/klute gate image (`klute/gate/Dockerfile`, with the klute build inside) and rolls it out
+to Cloud Run as `klute-gate-<env>`. `firebase.json` rewrites `/klute/**` to that service.
+GCP access is keyless (Workload Identity Federation); GCP accepts dev deploys only from
+`Development` and prod deploys only from `main`.
 
-1. **Settings → Pages → Source: GitHub Actions.**
-2. **Settings → Secrets and variables → Actions → new repository secret
-   `VITE_MAPTILER_KEY`.**
+The infrastructure (hosting sites, gate service, its secrets, the WIF pool and the deploy
+service account) is Terraform in this repo, `infra/terraform/`; its README has the
+one-time setup. On the GitHub side, set up two environments under **Settings →
+Environments**, `dev` and `prod`, each with:
 
-The key is compiled into the client bundle and is therefore readable by anyone
-who views the site - that is inherent to a browser-based map, not a mistake.
-Restrict it by domain in the MapTiler console (the Pages origin plus
-`localhost` for development), and use a key dedicated to this project so that
-revoking it never affects anything else.
+- variable `GCP_PROJECT_ID` (`project-08077ad6-f39e-4a3c-b19`);
+- variables `GCP_WIF_PROVIDER` and `GCP_DEPLOY_SA`, from that environment's Terraform
+  outputs `github_wif_provider` and `github_deploy_service_account`;
+- secret `VITE_MAPTILER_KEY`.
 
-`VITE_BASE` sets the asset path prefix. The workflow derives it from the
-repository name, because a GitHub Pages project site is served from a subpath.
-Pointing a custom domain at the site later means setting `VITE_BASE=/` rather
-than changing any code.
+The MapTiler key is compiled into the client bundle and is therefore readable by anyone
+who views the site - that is inherent to a browser-based map, not a mistake. Restrict it
+by domain in the MapTiler console (the two `web.app` origins plus `localhost` for
+development), and use a key dedicated to this project so that revoking it never affects
+anything else.
+
+To deploy by hand instead (with `firebase login` and `gcloud` set up), build and run
+`npx firebase-tools deploy --only hosting:electricfutures-dev`; the gate needs its image
+pushed and `gcloud run deploy klute-gate-dev --image ...` as in the workflow.
 
 ## The /klute data explorer
 
 `klute/` is a fifth entry: `klute/index.html` mounts `klute/src/main.tsx`. It reads the
 other explorers' own data files directly (policy answers via `seedResponses()`, the Ember
 JSON in `deployment/src/data/`, the calculator tables), so those tabs need no backend. The
-Future Grid Simulator tab calls the simulator's API (`VITE_FGS_API_BASE_URL`, default
-`http://localhost:8000`): `/coverage/*` for the date-coverage grids and `/historic/*` for the
-region chart.
+Future Grid Simulator tab calls the simulator's API through `/klute/api/` (see below):
+`/coverage/*` for the date-coverage grids and `/historic/*` for the region chart.
 
-**The password is a deterrent here, not security.** This site is static, so the gate
-(`klute/src/lib/gate.ts`) compares a SHA-256 of what you type with `VITE_KLUTE_PASSWORD_HASH`,
-baked in at build time. The data files for the policy, deployment and calculator tabs are
-ordinary bundle assets that anyone can fetch. What the password does protect is the
-simulator tab: the same password is sent as `X-Klute-Password` and the backend (env
-`KLUTE_PASSWORD`, fails closed when unset) checks it on every `/coverage` request.
+**Access is checked on the server.** On the deployed site Firebase Hosting hands every
+`/klute/**` request to the sign-in gate (`klute/gate/main.py`, on Cloud Run). Until you sign
+in with a Google account on the allowlist (Firebase Auth), it serves only a sign-in page:
+the explorer's HTML, JS and data files are not on public hosting at all, they are inside the
+gate's image. Signing in sets a signed, HttpOnly session cookie for 12 hours, and the
+allowlist is re-checked on every request. The simulator tab's calls go to `/klute/api/*`,
+which the gate proxies to the backend, adding the backend's `KLUTE_PASSWORD` itself, so no
+password is ever in the browser.
 
-To set it up: pick a password, put it in the backend's `KLUTE_PASSWORD`, and set repository
-secret `KLUTE_PASSWORD_HASH` to `printf '%s' "<password>" | sha256sum` plus repository
-variable `FGS_API_BASE_URL` to the simulator's API URL. For local use run
-`VITE_KLUTE_PASSWORD_HASH=<hash> npm run dev` and open `/klute/`.
+The allowlist is `klute_allowed_emails` in
+`infra/terraform/environments/<env>/terraform.tfvars`; adding or removing someone is a change there plus
+`terraform apply`.
+
+Locally there is no gate: `npm run dev` serves `/klute/` directly, and the dev server proxies
+`/klute/api/*` to `FGS_API_BASE_URL` (default `http://localhost:8000`), adding
+`KLUTE_PASSWORD` from your shell - e.g. `KLUTE_PASSWORD=<backend's password> npm run dev`.
+The gate's own tests: `cd klute/gate && pip install -r requirements.txt pytest && python -m pytest`.
 
 ## How data gets updated
 
