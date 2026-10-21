@@ -86,7 +86,7 @@ etc. See `deployment/README.md`.
 
 ## Branches and deployment
 
-- **`Development`** is the working branch (and the default branch): feature branches
+- **`Development`** is the working branch (and should be the default branch): feature branches
   merge into it by pull request, and every push to it deploys the **dev** site,
   `https://electricfutures-dev.web.app`.
 - **`main`** is production: merge `Development` into it by pull request when dev looks
@@ -102,19 +102,16 @@ GCP access is keyless (Workload Identity Federation); GCP accepts dev deploys on
 
 The infrastructure (hosting sites, gate service, its secrets, the WIF pool and the deploy
 service account) is Terraform in this repo, `infra/terraform/`; its README has the
-one-time setup. On the GitHub side, set up two environments under **Settings →
-Environments**, `dev` and `prod`, each with:
-
-- variable `GCP_PROJECT_ID` (`project-08077ad6-f39e-4a3c-b19`);
-- variables `GCP_WIF_PROVIDER` and `GCP_DEPLOY_SA`, from that environment's Terraform
-  outputs `github_wif_provider` and `github_deploy_service_account`;
-- secret `VITE_MAPTILER_KEY`.
+one-time setup. Nothing needs setting on the GitHub side: the project, identity pool and
+deploy service account are plain identifiers written into `deploy.yml` (GCP's pool only
+accepts this repo's `Development`/`main`, so they are useless elsewhere), and so is the
+MapTiler key, which is gridsim-frontend's.
 
 The MapTiler key is compiled into the client bundle and is therefore readable by anyone
 who views the site - that is inherent to a browser-based map, not a mistake. Restrict it
-by domain in the MapTiler console (the two `web.app` origins plus `localhost` for
-development), and use a key dedicated to this project so that revoking it never affects
-anything else.
+by domain in the MapTiler console (`electricfutures-dev.web.app`,
+`electricfutures-prod.web.app` and `localhost` for development), and note that it is shared with gridsim-frontend, so revoking or re-restricting it
+affects both sites.
 
 To deploy by hand instead (with `firebase login` and `gcloud` set up), build and run
 `npx firebase-tools deploy --only hosting:electricfutures-dev`; the gate needs its image

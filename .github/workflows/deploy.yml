@@ -26,11 +26,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # GitHub environments "dev" and "prod" each hold their own variables/secrets (see README).
-    environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    # Everything here is an identifier, not a secret, so it lives in this file rather than in
+    # GitHub environment settings (which need repo admin). Access is enforced by GCP: the
+    # github-ef-<env> pool only accepts tokens from Development (dev) or main (prod) of this
+    # repository, so these values are no use from any other repo or branch. The names are
+    # fixed by infra/terraform/modules/electricfutures.
     env:
       ENV: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
-      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      PROJECT_ID: project-08077ad6-f39e-4a3c-b19
+      PROJECT_NUMBER: "605425219883"
       REGION: us-central1
     steps:
       - uses: actions/checkout@v4
@@ -48,17 +52,19 @@ jobs:
           npx vitest run
 
       # `npm run build:prod` runs Vite in "prod" mode, which reads .env.prod. The MapTiler key is
-      # compiled into the client bundle and is therefore public - restrict it by domain in MapTiler.
-      # Nothing else secret goes into this build: /klute is built into the gate's image instead.
+      # compiled into the client bundle and is therefore public, so it is written here rather than
+      # kept as a secret. It is the same key gridsim-frontend uses (its .env.dev/.env.prod); its
+      # allowed origins in MapTiler must include the electricfutures web.app domains.
+      # Nothing secret goes into this build: /klute is built into the gate's image instead.
       - name: Build public site
         run: |
-          echo "VITE_MAPTILER_KEY=${{ secrets.VITE_MAPTILER_KEY }}" > .env.prod
+          echo "VITE_MAPTILER_KEY=rXrItYZMKVcUgEXkMYrh" > .env.prod
           npm run build:prod
 
       - uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
-          service_account: ${{ vars.GCP_DEPLOY_SA }}
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-ef-${{ env.ENV }}/providers/github
+          service_account: ef-deploy-${{ env.ENV }}@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
 
       - uses: google-github-actions/setup-gcloud@v2
 
