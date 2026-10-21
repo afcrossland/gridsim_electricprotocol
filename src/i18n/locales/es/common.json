@@ -251,5 +251,17 @@
   },
   "sunRating": {
     "label": "{{count}} de 5 soles"
+  },
+  "editor": {
+    "signInTitle": "Inicia sesión para editar",
+    "signInBody": "La consola de administración cambia los datos de políticas que ve todo el mundo, así que es solo para editores autorizados. Inicia sesión con la cuenta de Google a la que se dio acceso.",
+    "signInButton": "Iniciar sesión con Google",
+    "signingIn": "Iniciando sesión…",
+    "notEditor": "Esta cuenta no puede editar los datos de políticas.",
+    "error": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+    "useAnotherAccount": "Usar otra cuenta",
+    "cancel": "Cancelar",
+    "signedInAs": "Sesión iniciada como {{email}}",
+    "signOut": "Cerrar sesión"
   }
 }

@@ -10,10 +10,10 @@ interface Props {
   tooltip?: string;
   /**
    * Policy's own "Admin console" button is NOT a placeholder like the
-   * other two apps' "Login" - it actually navigates to a real (if
-   * unauthenticated - "stands in for auth... open to anyone until sign-in
-   * exists") editing page, so it needs a real `onClick`. Omit for the
-   * true placeholder case (deployment's/calculator's own "Login").
+   * other two apps' "Login" - it opens a real editing page (behind an
+   * editor's Google sign-in on builds that edit the shared database - see
+   * policy's `lib/editorAuth.ts`), so it needs a real `onClick`. Omit for
+   * the true placeholder case (deployment's/calculator's own "Login").
    */
   onClick?: () => void;
   /**

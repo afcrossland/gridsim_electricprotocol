@@ -5,6 +5,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import { getTheme } from "../shared/theme/mui-theme";
 import { loadPolicyData } from "./data/policyData";
+import { restoreEditorSession } from "./lib/editorAuth";
 import "./i18n";
 import "../shared/index.css";
 
@@ -17,6 +18,7 @@ import "../shared/index.css";
  */
 async function start() {
   if (import.meta.env.VITE_POLICY_API) await loadPolicyData();
+  restoreEditorSession();
 
   const [{ default: App }, { useProtocolStore }] = await Promise.all([
     import("./App"),

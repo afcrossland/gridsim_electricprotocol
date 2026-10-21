@@ -225,8 +225,9 @@ lost - not yet started.
 - **TODO: wire login to the edit screen.** Flagged 2026-10-15. The suggestion
   dialog asks for a free-text name (required) and organisation; once login
   exists, "who sent it" should come from the signed-in account instead of
-  being typed, and edit mode should require being signed in. Depends on
-  Phase 2 (auth).
+  being typed, and edit mode should require being signed in. Phase 2 makes
+  editing need an editor's sign-in; the public suggestion dialog still asks
+  for a typed name until suggestions move to the database (Phase 6).
 - **TODO: add a categorical badge to the map hover tooltip.** Flagged
   2026-09-29, when the tooltip's design was lifted from the sibling
   gridsim-frontend project's own map hover card (`shared/components/
@@ -532,12 +533,22 @@ behaviour identical. A read-only migration, no new features yet.
 Has to land before Phase 4's write path opens up - an authenticated-looking
 screen backed by unauthenticated write endpoints is not actually locked.
 
-- Google sign-in (Firebase Auth, allowlisted emails - decision 2) in front
-  of `AdminConsole.tsx` and the country page's Edit mode.
-- Every write endpoint verifies the same Firebase session server-side, not
-  just the page route on the frontend.
-- Retire the `stands in for auth` comments in `TopNavbar.tsx`,
-  `SuggestionsReview.tsx` and `lib/suggestions.ts` once this ships.
+- **In progress, branch `feature/ep-phase2-admin-signin`.** On builds that
+  read the database (`VITE_POLICY_API`, dev), the admin console needs a
+  Google sign-in (Firebase Auth, same project as `/klute`) whose email is
+  on `policy_editor_emails` (Terraform; the gate's `POLICY_EDITOR_EMAILS`).
+  `src/lib/editorAuth.ts` loads Firebase only when someone signs in (or
+  had before); `EditorSignInDialog.tsx` is the gate; `App.tsx` won't
+  render the console for a non-editor. Other builds keep the open,
+  browser-only console until they move to the database.
+- Server side: `klute/gate/ep_db/auth.py`'s `require_editor` checks the
+  Firebase ID token (`Authorization: Bearer`) and the allowlist; every
+  Phase 4 write endpoint depends on it. `GET /api/policy/me` exposes the
+  same check, `GET /api/policy/auth-config` the public Firebase web config.
+- The country page's Edit mode was removed on 2026-10-15; it comes back in
+  Phase 4, for signed-in editors only (decided 2026-10-21). The public
+  "Suggest an edit" and "Propose a question" flows stay open and
+  browser-only until Phase 6.
 
 ### Phase 3 - (reserved)
 

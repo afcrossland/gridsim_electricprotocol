@@ -63,3 +63,9 @@ variable "cloudsql_instance_name" {
   type        = string
   description = "This environment's existing gridsim Cloud SQL instance (managed in gridsim-deploy). The policy database and its user are created on it."
 }
+
+variable "policy_editor_emails" {
+  type        = list(string)
+  description = "Google accounts that may edit the Policy Explorer's data (its admin console and Edit mode). Empty means nobody (fails closed)."
+  default     = []
+}

@@ -7,3 +7,7 @@ klute_allowed_emails = ["a.f.crossland@gmail.com", "cai.caermai@gmail.com"]
 
 # The gridsim Cloud SQL instance the policy database is created on (gridsim-deploy owns it).
 cloudsql_instance_name = "gridsim-dev-db"
+
+# Google accounts that may edit the Policy Explorer's data (admin console, Edit mode). Empty locks
+# everyone out.
+policy_editor_emails = ["a.f.crossland@gmail.com", "cai.caermai@gmail.com"]

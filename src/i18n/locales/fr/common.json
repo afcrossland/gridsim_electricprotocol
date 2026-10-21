@@ -251,5 +251,17 @@
   },
   "sunRating": {
     "label": "{{count}} soleils sur 5"
+  },
+  "editor": {
+    "signInTitle": "Connectez-vous pour modifier",
+    "signInBody": "La console d'administration modifie les données politiques que tout le monde voit ; elle est donc réservée aux éditeurs autorisés. Connectez-vous avec le compte Google auquel l'accès a été accordé.",
+    "signInButton": "Se connecter avec Google",
+    "signingIn": "Connexion…",
+    "notEditor": "Ce compte ne peut pas modifier les données politiques.",
+    "error": "La connexion a échoué. Réessayez.",
+    "useAnotherAccount": "Utiliser un autre compte",
+    "cancel": "Annuler",
+    "signedInAs": "Connecté en tant que {{email}}",
+    "signOut": "Se déconnecter"
   }
 }
