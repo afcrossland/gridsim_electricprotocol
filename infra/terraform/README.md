@@ -67,6 +67,11 @@ instance; this only looks it up and adds to it:
   Cloud Run service mounts the instance at `/cloudsql` and gets the secret as `DATABASE_URL`, to
   serve `/api/policy/data` (Firebase Hosting rewrites `/api/policy/**` to it).
 
+The spreadsheet import (`.github/workflows/import-input.yml`, Development only) keeps the dev
+database in step with `src/data` as service account `ef-import-<env>`: the same
+`github-ef-<env>` pool as deploys, but only the database secret and `roles/cloudsql.client`.
+It doesn't run migrations - do those by hand as below before merging a schema change.
+
 The tables come from Alembic, not Terraform. After applying, from `klute/gate/` with the
 [Cloud SQL Auth Proxy](https://cloud.google.com/sql/docs/postgres/sql-proxy) running as
 `cloud-sql-proxy --unix-socket /cloudsql <connection name>` (the `cloudsql_connection_name` output),

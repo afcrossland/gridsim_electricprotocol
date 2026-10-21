@@ -23,3 +23,7 @@ output "database_url_secret_id" {
 output "cloudsql_connection_name" {
   value = module.electricfutures.cloudsql_connection_name
 }
+
+output "import_service_account" {
+  value = module.electricfutures.import_service_account
+}

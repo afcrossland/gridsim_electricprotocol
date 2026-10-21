@@ -1,7 +1,8 @@
 name: Import policy spreadsheets
 
 # Runs when a spreadsheet in input/ is added or changed on Development (for example uploaded through the GitHub website - pick Development as the branch when uploading unless it is the default).
-# It re-reads every sheet in input/, rewrites the policy data in src/data/, commits that, and publishes the site.
+# It re-reads every sheet in input/, rewrites the policy data in src/data/, commits that, brings the dev policy database
+# into step with it, and publishes the site.
 # If a sheet cannot be read the run fails, commits nothing, and the report below says what to fix.
 on:
   push:
@@ -14,6 +15,7 @@ on:
 permissions:
   contents: write # commit the regenerated data
   actions: write # start the site deploy afterwards
+  id-token: write # Workload Identity Federation, for the dev policy database
 
 # One import at a time; a second upload waits for the first rather than racing it.
 concurrency:
@@ -23,6 +25,15 @@ concurrency:
 jobs:
   import:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Identifiers, not secrets (see deploy.yml). This workflow only runs for Development, so only dev's database is
+    # updated; the github-ef-dev pool only trusts that branch, and ef-import-dev can reach that database and nothing else.
+    env:
+      PROJECT_ID: project-08077ad6-f39e-4a3c-b19
+      PROJECT_NUMBER: "605425219883"
+      CLOUDSQL_INSTANCE: project-08077ad6-f39e-4a3c-b19:us-central1:gridsim-dev-db
+      CLOUD_SQL_PROXY_VERSION: v2.26.2
+      CLOUD_SQL_PROXY_SHA256: 787d23b4b396186f307b6b274c94099d25b15a81b7e60c91ceed18c07558e9d7
     steps:
       - uses: actions/checkout@v7
 
@@ -30,7 +41,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install openpyxl
+      - run: pip install openpyxl -r klute/gate/requirements.txt
 
       - name: Import the spreadsheets
         run: |
@@ -49,12 +60,11 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Commit the updated data and publish
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit the updated data
+        id: commit
         run: |
           if git diff --quiet -- src/data; then
-            echo "The spreadsheets give the same data as before - nothing to publish."
+            echo "The spreadsheets give the same data as before - nothing to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
@@ -63,5 +73,60 @@ jobs:
           git commit -m "Update policy data from the input spreadsheets"
           git pull --rebase origin Development
           git push origin HEAD:Development
-          # A push made with the built-in token does not start other workflows, so start the site deploy directly.
-          gh workflow run deploy.yml --ref Development
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # The dev Policy Explorer reads its data from the policy database (ROADMAP.md Phase 1), so it is brought into step
+      # with src/data on every run - including runs that changed nothing, which repairs any drift. Done after the push,
+      # so the database is never ahead of git, and before the deploy, so the site and the database change together.
+      - uses: google-github-actions/auth@v3
+        if: github.ref == 'refs/heads/Development'
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-ef-dev/providers/github
+          service_account: ef-import-dev@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v3
+        if: github.ref == 'refs/heads/Development'
+
+      - name: Update the dev policy database
+        if: github.ref == 'refs/heads/Development'
+        run: |
+          set -euo pipefail
+          curl -sSfL -o cloud-sql-proxy \
+            "https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/$CLOUD_SQL_PROXY_VERSION/cloud-sql-proxy.linux.amd64"
+          echo "$CLOUD_SQL_PROXY_SHA256  cloud-sql-proxy" | sha256sum -c -
+          chmod +x cloud-sql-proxy
+          ./cloud-sql-proxy --address 127.0.0.1 --port 5432 "$CLOUDSQL_INSTANCE" > proxy.log 2>&1 &
+          for _ in $(seq 1 30); do (echo > /dev/tcp/127.0.0.1/5432) 2>/dev/null && break; sleep 1; done
+
+          # The secret holds the Cloud Run (socket) form of the URL; point it at the proxy instead. Masked first, so
+          # neither the URL nor its password can reach the log.
+          url="$(gcloud secrets versions access latest --secret electricfutures-dev-database-url --project "$PROJECT_ID")"
+          echo "::add-mask::$url"
+          echo "::add-mask::$(python3 -c 'import sys; from urllib.parse import urlsplit; print(urlsplit(sys.argv[1]).password)' "$url")"
+          DATABASE_URL="$(printf '%s' "$url" | sed -E 's#@/([^?]+)\?host=.*$#@127.0.0.1:5432/\1#')"
+          export DATABASE_URL
+
+          cd klute/gate
+          # --overwrite-structure: until admins edit questions in the database (ROADMAP.md Phase 4), src/data is the
+          # only source of truth, and the spreadsheet import rewrites protocol.seed.json too. Phase 4 must drop it.
+          python -m ep_db.import_json --overwrite-structure --actor "import-input.yml run ${{ github.run_id }}" | tee ../../db-report.txt
+          python -m ep_db.import_json --check | tee -a ../../db-report.txt
+
+      - name: Show the database report
+        if: always() && github.ref == 'refs/heads/Development'
+        run: |
+          {
+            echo "## Dev policy database"
+            echo
+            echo '```'
+            cat db-report.txt 2>/dev/null || echo "The database was not updated - see the step's log. The site's JSON is already committed."
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Still published if the database update failed: the JSON is committed either way, and the run stays red.
+      - name: Publish the site
+        if: ${{ !cancelled() && steps.commit.outputs.changed == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # A push made with the built-in token does not start other workflows, so start the site deploy directly.
+        run: gh workflow run deploy.yml --ref Development

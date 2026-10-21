@@ -76,3 +76,33 @@ resource "google_project_iam_member" "gate_cloudsql_client" {
   role    = "roles/cloudsql.client"
   member  = "serviceAccount:${google_service_account.gate.email}"
 }
+
+# --- The spreadsheet import (.github/workflows/import-input.yml) -------------------------------
+# After regenerating src/data it brings this database into step, through the Cloud SQL Auth Proxy.
+# It gets its own service account rather than the deploy one: it needs this database and nothing
+# else, and the deploy account can publish the site. GitHub reaches it the same way as deploys,
+# through the github-ef-<env> pool, which only trusts deploy_branch of github_repository.
+resource "google_service_account" "importer" {
+  project      = var.project_id
+  account_id   = "ef-import-${var.env}"
+  display_name = "Electric Futures spreadsheet import to the policy database (${var.env})"
+}
+
+resource "google_service_account_iam_member" "importer_wif" {
+  service_account_id = google_service_account.importer.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${var.github_repository}"
+}
+
+resource "google_secret_manager_secret_iam_member" "importer_database_url" {
+  project   = var.project_id
+  secret_id = google_secret_manager_secret.database_url.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.importer.email}"
+}
+
+resource "google_project_iam_member" "importer_cloudsql_client" {
+  project = var.project_id
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_service_account.importer.email}"
+}
