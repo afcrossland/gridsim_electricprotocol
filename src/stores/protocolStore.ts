@@ -102,6 +102,14 @@ interface ProtocolState {
    * `selectedCountry` - a navigation aid, not user data.
    */
   tourSectionId: string | null;
+  /**
+   * Which policy area is open on the selected country's page ("" for the
+   * tile overview). Lives here rather than in CountryPanel so the map can
+   * recolour by that section and the URL can carry it. Reset on every
+   * selectCountry, so a newly opened country starts from its overview. Not
+   * persisted, same as `selectedCountry`.
+   */
+  activeSectionId: string;
 
   setThreshold: (threshold: number) => void;
   setMapMetric: (mapMetric: "score" | "completeness") => void;
@@ -112,6 +120,7 @@ interface ProtocolState {
   setLanguage: (language: string) => void;
   selectCountry: (code: string | null) => void;
   setTourSectionId: (id: string | null) => void;
+  setActiveSectionId: (id: string) => void;
   setComparing: (comparing: boolean) => void;
   /** No-ops past MAX_COMPARE_COUNTRIES or on a duplicate code. */
   addCompareCountry: (code: string) => void;
@@ -321,6 +330,7 @@ function initialState() {
     responses: seedResponses(),
     selectedCountry: null,
     tourSectionId: null,
+    activeSectionId: "",
     comparing: false,
     compareCountries: [],
     scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS,
@@ -365,8 +375,9 @@ export const useProtocolStore = create<ProtocolState>()(
       // always means "look at this one", which is not compatible with
       // whatever compare state was left over from a previous detail view.
       selectCountry: (code) =>
-        set({ selectedCountry: code, comparing: false, compareCountries: [], tourSectionId: null }),
+        set({ selectedCountry: code, comparing: false, compareCountries: [], tourSectionId: null, activeSectionId: "" }),
       setTourSectionId: (tourSectionId) => set({ tourSectionId }),
+      setActiveSectionId: (activeSectionId) => set({ activeSectionId }),
       setComparing: (comparing) => set({ comparing }),
       addCompareCountry: (code) =>
         set((state) =>

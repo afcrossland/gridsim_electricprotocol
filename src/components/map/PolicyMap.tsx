@@ -22,7 +22,6 @@ import type { CountryScore } from "../../lib/types";
 import MapHoverTooltip from "../../../shared/components/MapHoverTooltip";
 import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
-import { useProtocolStore } from "../../stores/protocolStore";
 
 /**
  * Whole-globe camera for the very first paint, before the world geometry has
@@ -56,6 +55,13 @@ interface Props {
   hideLegend?: boolean;
   /** Swaps the choropleth for the "solar bloom" intro animation - see INTRO_* below. */
   introBloom?: boolean;
+  /**
+   * Set while a policy area is open on the selected country's page - `scores`
+   * are then that one area's scores. The map zooms back out to the world (so
+   * every jurisdiction's colour is in view, the selected one still outlined)
+   * and shows a legend titled after the section.
+   */
+  sectionTitle?: string;
 }
 
 /**
@@ -170,7 +176,7 @@ export function boundsOf(
   ];
 }
 
-export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick, hideLegend, introBloom }: Props) {
+export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick, hideLegend, introBloom, sectionTitle }: Props) {
   const { t, i18n } = useTranslation();
   const mapRef = useRef<MapRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -188,8 +194,8 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   // banner's height avoids the two ever sharing the same strip of the map.
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const showingLegendBanner = isMobile && !selectedCountry && !hideLegend;
-  const mapMetric = useProtocolStore((s) => s.mapMetric);
+  const showLegend = (!selectedCountry || Boolean(sectionTitle)) && !hideLegend;
+  const showingLegendBanner = isMobile && showLegend;
 
   // The base style's own country- and continent-name labels compete with the
   // choropleth and our own hover tooltip for the same information, so they
@@ -377,7 +383,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     const map = mapRef.current?.getMap();
     if (!map || !worldData) return;
 
-    const bounds = selectedCountry ? boundsOf(worldData, selectedCountry) : null;
+    const bounds = selectedCountry && !sectionTitle ? boundsOf(worldData, selectedCountry) : null;
 
     const frame = requestAnimationFrame(() => {
       map.resize();
@@ -398,7 +404,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [selectedCountry, worldData]);
+  }, [selectedCountry, worldData, sectionTitle]);
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
@@ -505,7 +511,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
             hovered && hovered.ranked ? (
               <>
                 <Typography variant="caption" sx={{ display: "block", color: "text.secondary" }}>
-                  {t("map.policyScore")}
+                  {sectionTitle ?? t("map.policyScore")}
                 </Typography>
                 <Typography variant="h5" sx={{ color: "text.primary" }}>
                   <SunScore score={hovered.score} color={scoreTextColor(hovered.score, theme.palette.mode)} size={16} />
@@ -519,16 +525,22 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         />
       )}
 
-      {!selectedCountry && !hideLegend && (
+      {showLegend && (
         <MapLegend
-          title={mapMetric === "score" ? `${t("legend.protocolScore")} · ${t("legend.inSuns")}` : t("legend.questionsAnswered")}
+          title={
+            sectionTitle
+              ? `${t("legend.sectionScore", { section: sectionTitle })} · ${t("legend.inSuns")}`
+              : metric === "score"
+                ? `${t("legend.protocolScore")} · ${t("legend.inSuns")}`
+                : t("legend.questionsAnswered")
+          }
           rampStops={SCORE_RAMP}
           tickLabels={["0%", "25%", "50%", "75%", "100%"]}
-          bands={mapMetric === "score" ? SCORE_BANDS.map((b, i) => ({ color: b.color, label: String(i + 1) })) : undefined}
+          bands={metric === "score" ? SCORE_BANDS.map((b, i) => ({ color: b.color, label: String(i + 1) })) : undefined}
           // Completeness paints anything with an answer, so only the score
           // view has a "not enough data" grey to explain.
           extraKeys={[
-            ...(mapMetric === "score" ? [{ color: COLOR_INSUFFICIENT, label: t("legend.notEnoughData") }] : []),
+            ...(metric === "score" ? [{ color: COLOR_INSUFFICIENT, label: t("legend.notEnoughData") }] : []),
             { color: COLOR_NO_DATA, label: t("legend.noData") },
           ]}
         />

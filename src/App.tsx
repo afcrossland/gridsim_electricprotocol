@@ -170,6 +170,19 @@ export default function App() {
 
   const selectedScore = scores.find((s) => s.code === selectedCountry) ?? null;
 
+  // With a policy area open on a country's page, the map recolours every
+  // jurisdiction by that one area's score - "who does Grid Connection
+  // well" at a glance, beside the country being read. Not during the tour,
+  // which drives its own sections through tourSectionId instead.
+  const sections = useProtocolStore((s) => s.sections);
+  const activeSectionId = useProtocolStore((s) => s.activeSectionId);
+  const mapSection = selectedCountry && tourSeen ? (sections.find((s) => s.id === activeSectionId) ?? null) : null;
+  const mapScores = useMemo(() => {
+    if (!mapSection) return scores;
+    const sectionQuestions = questions.filter((q) => q.sectionId === mapSection.id);
+    return scores.map((s) => scoreCountry(protocol, sectionQuestions, responses, s.code, s.name, threshold));
+  }, [mapSection, scores, questions, responses, threshold]);
+
   const theme = useTheme();
   // Side by side stops fitting a phone screen well before the map itself
   // becomes unusable, so below `md` the layout stacks instead: map on top,
@@ -191,8 +204,11 @@ export default function App() {
 
   const map = (
     <PolicyMap
-      scores={scores}
-      metric={mapMetric}
+      scores={mapScores}
+      // The Score/Completeness toggle is hidden on a country's page, so a
+      // section view always paints the section's score.
+      metric={mapSection ? "score" : mapMetric}
+      sectionTitle={mapSection?.title}
       selectedCountry={selectedCountry}
       onCountryClick={handleSelectCountry}
       hideLegend={onboardingHero}

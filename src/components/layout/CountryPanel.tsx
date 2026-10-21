@@ -147,7 +147,10 @@ export default function CountryPanel({
   // sees first, with the narrow/expanded state only kicking in once
   // they've actually picked one (see `handleSelectSection` below and
   // SectionOverview.tsx's own `compact` prop).
-  const [uncontrolledSectionId, setUncontrolledSectionId] = useState<string>("");
+  // The "uncontrolled" case lives in the store (not local state) so the map
+  // can recolour by the open section and the URL can carry it.
+  const uncontrolledSectionId = useProtocolStore((s) => s.activeSectionId);
+  const setUncontrolledSectionId = useProtocolStore((s) => s.setActiveSectionId);
   const activeSectionId = controlledSectionId ?? uncontrolledSectionId;
   const setActiveSectionId = onSectionChange ?? setUncontrolledSectionId;
 
