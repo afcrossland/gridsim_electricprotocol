@@ -199,6 +199,8 @@ resource "google_cloud_run_v2_service" "klute_gate" {
       template[0].containers[0].image,
       client,
       client_version,
+      # Service-level scaling defaults the API fills in; instance limits are set in template.
+      scaling,
     ]
   }
 
