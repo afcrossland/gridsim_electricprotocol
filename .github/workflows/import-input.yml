@@ -1,6 +1,6 @@
 name: Import policy spreadsheets
 
-# Runs when a spreadsheet in input/ is added or changed on Development (for example uploaded through the GitHub website, where Development is the default branch).
+# Runs when a spreadsheet in input/ is added or changed on Development (for example uploaded through the GitHub website - pick Development as the branch when uploading unless it is the default).
 # It re-reads every sheet in input/, rewrites the policy data in src/data/, commits that, and publishes the site.
 # If a sheet cannot be read the run fails, commits nothing, and the report below says what to fix.
 on:

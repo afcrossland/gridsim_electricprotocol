@@ -34,10 +34,12 @@ stay in gridsim-deploy. They are passed in here as plain values in `terraform.tf
    ```
 
    The gate starts on a placeholder image until the first deploy.
-4. **GitHub:** Settings → Environments → create `dev` and `prod`, each with variables
-   `GCP_PROJECT_ID`, `GCP_WIF_PROVIDER` and `GCP_DEPLOY_SA` (the last two from
-   `terraform output github_wif_provider` / `github_deploy_service_account`) and the secret
-   `VITE_MAPTILER_KEY`. Make `Development` the default branch. The next push deploys.
+4. **MapTiler:** add the environment's `web.app` domain to the `VITE_MAPTILER_KEY` key's
+   allowed origins. The next push to that environment's branch deploys. GitHub needs no
+   settings: `.github/workflows/deploy.yml` builds the pool and service account names from
+   the same fixed names this module uses, so renaming either here means changing it there.
+   Making `Development` the default branch (repo admin) is optional but saves picking it as
+   the base of every PR and lets spreadsheets uploaded on the website reach the import.
 
 Adding or removing someone from /klute means changing `klute_allowed_emails` and running
 `terraform apply`.
