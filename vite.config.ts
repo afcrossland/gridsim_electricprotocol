@@ -61,6 +61,12 @@ export default defineConfig(({ mode }) => {
      */
     server: {
       proxy: {
+        // The Policy Explorer's data API (ROADMAP.md Phase 1), only used when VITE_POLICY_API is
+        // set. Run the gate locally (uvicorn main:app --port 8080 in klute/gate, with DATABASE_URL).
+        "/api/policy": {
+          target: env.EP_API_BASE_URL || "http://localhost:8080",
+          changeOrigin: true,
+        },
         "/klute/api": {
           target: env.FGS_API_BASE_URL || "http://localhost:8000",
           changeOrigin: true,

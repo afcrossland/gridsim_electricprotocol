@@ -21,6 +21,7 @@ WORKDIR /app
 COPY klute/gate/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY klute/gate/main.py klute/gate/login.html ./
+COPY klute/gate/ep_db ./ep_db
 COPY --from=build /app/dist-klute/klute ./static
 ENV PORT=8080
 CMD ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT} --proxy-headers --forwarded-allow-ips='*'"]

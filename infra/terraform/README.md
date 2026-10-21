@@ -63,8 +63,9 @@ instance; this only looks it up and adds to it:
 - secret `electricfutures-<env>-database-url`, holding the whole `DATABASE_URL` that
   `klute/gate/ep_db` reads, in Cloud SQL socket form
   (`postgresql+psycopg://electricfutures:…@/electricfutures?host=/cloudsql/<connection name>`);
-- `roles/cloudsql.client` and access to that secret for the gate's service account. The Cloud
-  Run service doesn't mount the instance or read the secret yet; Phase 1 adds that.
+- `roles/cloudsql.client` and access to that secret for the gate's service account, whose
+  Cloud Run service mounts the instance at `/cloudsql` and gets the secret as `DATABASE_URL`, to
+  serve `/api/policy/data` (Firebase Hosting rewrites `/api/policy/**` to it).
 
 The tables come from Alembic, not Terraform. After applying, from `klute/gate/` with the
 [Cloud SQL Auth Proxy](https://cloud.google.com/sql/docs/postgres/sql-proxy) running as

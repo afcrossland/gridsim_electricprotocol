@@ -148,12 +148,21 @@ The gate's own tests: `cd klute/gate && pip install -r requirements.txt pytest &
 The policy-database tests in the same folder (`test_ep_db.py`) also need a throwaway Postgres in
 `EP_TEST_DATABASE_URL` (they drop and recreate its `policy` schema) and are skipped without one.
 
-**Policy database (in progress, ROADMAP.md Phase 0).** `klute/gate/ep_db/` holds the schema
+**Policy database (ROADMAP.md Phases 0-1).** `klute/gate/ep_db/` holds the schema
 (SQLAlchemy models, Alembic migrations in `klute/gate/migrations/`) and
 `python -m ep_db.import_json`, which loads `src/data/`'s JSON into it; `--check` compares the
 database with the files without writing. Both read `DATABASE_URL`
-(`postgresql+psycopg://user:pass@host/electricfutures`). Nothing reads from the database yet: the
-site still uses the JSON files.
+(`postgresql+psycopg://user:pass@host/electricfutures`).
+
+The gate also serves that data, public and read-only, at `GET /api/policy/data`
+(`klute/gate/ep_db/api.py`; Firebase Hosting rewrites `/api/policy/**` to the gate) in the four
+files' shapes. The Policy Explorer reads it only when built with `VITE_POLICY_API` set - dev
+deploys only, see `deploy.yml` - and falls back to its bundled JSON on any failure, logging a
+console warning. `src/data/policyData.ts` holds the data and `src/main.tsx` loads it before
+importing the app, because several modules build lookup tables from it as they load. Prod
+builds don't make the request at all. Locally: run the gate with a `DATABASE_URL`
+(`uvicorn main:app --port 8080` in `klute/gate/`) and `VITE_POLICY_API=1 npm run dev`; the dev
+server proxies `/api/policy` to `EP_API_BASE_URL` (default `http://localhost:8080`).
 
 ## How data gets updated
 

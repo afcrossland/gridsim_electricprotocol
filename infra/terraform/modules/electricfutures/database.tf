@@ -3,8 +3,8 @@
 # looked up here; nothing in this file changes it.
 #
 # Schema and data are not Terraform's: they come from Alembic and `python -m ep_db.import_json`
-# in klute/gate/. Nothing connects to this database yet - the gate service account can, but the
-# Cloud Run service isn't given the instance or the URL until Phase 1 needs them.
+# in klute/gate/. The gate's Cloud Run service (main.tf) mounts the instance's socket and reads
+# the URL below, to serve /api/policy/data (ROADMAP.md Phase 1).
 
 data "google_sql_database_instance" "gridsim" {
   project = var.project_id
@@ -63,7 +63,7 @@ resource "google_secret_manager_secret_version" "database_url" {
   )
 }
 
-# What the gate (to become the policy API) will need in Phase 1.
+# What the gate needs to read the database.
 resource "google_secret_manager_secret_iam_member" "gate_database_url" {
   project   = var.project_id
   secret_id = google_secret_manager_secret.database_url.secret_id
