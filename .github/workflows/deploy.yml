@@ -51,13 +51,14 @@ jobs:
           npx tsc -b
           npx vitest run
 
-      # `npm run build:prod` runs Vite in "prod" mode, which reads .env.prod. VITE_MAPTILER_KEY is
-      # a repository-level secret (shared by dev and prod). The MapTiler key is
-      # compiled into the client bundle and is therefore public - restrict it by domain in MapTiler.
-      # Nothing else secret goes into this build: /klute is built into the gate's image instead.
+      # `npm run build:prod` runs Vite in "prod" mode, which reads .env.prod. The MapTiler key is
+      # compiled into the client bundle and is therefore public, so it is written here rather than
+      # kept as a secret. It is the same key gridsim-frontend uses (its .env.dev/.env.prod); its
+      # allowed origins in MapTiler must include the electricfutures web.app domains.
+      # Nothing secret goes into this build: /klute is built into the gate's image instead.
       - name: Build public site
         run: |
-          echo "VITE_MAPTILER_KEY=${{ secrets.VITE_MAPTILER_KEY }}" > .env.prod
+          echo "VITE_MAPTILER_KEY=rXrItYZMKVcUgEXkMYrh" > .env.prod
           npm run build:prod
 
       - uses: google-github-actions/auth@v2

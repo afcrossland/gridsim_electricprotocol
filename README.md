@@ -104,14 +104,14 @@ The infrastructure (hosting sites, gate service, its secrets, the WIF pool and t
 service account) is Terraform in this repo, `infra/terraform/`; its README has the
 one-time setup. Nothing needs setting on the GitHub side: the project, identity pool and
 deploy service account are plain identifiers written into `deploy.yml` (GCP's pool only
-accepts this repo's `Development`/`main`, so they are useless elsewhere), and the MapTiler
-key is the existing repository secret `VITE_MAPTILER_KEY`.
+accepts this repo's `Development`/`main`, so they are useless elsewhere), and so is the
+MapTiler key, which is gridsim-frontend's.
 
 The MapTiler key is compiled into the client bundle and is therefore readable by anyone
 who views the site - that is inherent to a browser-based map, not a mistake. Restrict it
 by domain in the MapTiler console (`electricfutures-dev.web.app`,
-`electricfutures-prod.web.app` and `localhost` for development), and use a key dedicated to this project so that revoking it never affects
-anything else.
+`electricfutures-prod.web.app` and `localhost` for development), and note that it is shared with gridsim-frontend, so revoking or re-restricting it
+affects both sites.
 
 To deploy by hand instead (with `firebase login` and `gcloud` set up), build and run
 `npx firebase-tools deploy --only hosting:electricfutures-dev`; the gate needs its image
