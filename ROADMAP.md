@@ -506,9 +506,7 @@ behaviour identical. A read-only migration, no new features yet.
   mounts the Cloud SQL socket and gets `DATABASE_URL` (Terraform, applied
   on dev only). On dev the response matched the committed JSON with no
   differences, and the Policy Explorer loads from it without falling back.
-  The dev database is a snapshot: until the import workflow writes to it
-  (below), re-run `python -m ep_db.import_json` after a spreadsheet upload
-  changes the data. The Policy Explorer fetches it before loading the app
+  The import workflow keeps the dev database in step (next item). The Policy Explorer fetches it before loading the app
   (`src/data/policyData.ts`, `src/main.tsx`) on **dev builds only**
   (`VITE_POLICY_API`), falling back to the bundled JSON on any failure.
   Answer resolution (specificity and basis precedence in
@@ -518,8 +516,14 @@ behaviour identical. A read-only migration, no new features yet.
 - Turn it on for prod (set `VITE_POLICY_API` for prod builds) once prod is
   applied and loaded and dev has run on it for a while; then the bundled
   JSON can stop shipping.
-- Point `.github/workflows/import-input.yml` at the database instead of
-  committing regenerated JSON.
+- **Spreadsheet import also updates the dev database (in progress, branch
+  `feature/import-writes-dev-db`).** After committing the regenerated
+  `src/data`, `import-input.yml` runs `import_json --overwrite-structure`
+  and `--check` against the dev database through the Cloud SQL Auth Proxy,
+  as its own service account `ef-import-<env>` (database access only;
+  Terraform needs applying), then starts the deploy. It still commits the
+  JSON, which stays the source of truth until Phase 4 - when admins edit
+  questions in the database, `--overwrite-structure` must go.
 - Ship this alone and confirm the app looks and behaves exactly as it does
   today, just from a live source.
 
@@ -643,7 +647,7 @@ paragraph, metrics, table, list, bar chart).
 
 Added 2026-10-16. Tim uploads country spreadsheets to `input/` through the GitHub website (see `input/README.md`).
 `.github/workflows/import-input.yml` then runs `scripts/import_output_sheets.py`, commits the regenerated
-`src/data/` files to `main`, and starts the site deploy. No review step (Tim is trusted); a sheet that cannot be read
+`src/data/` files to `Development`, updates the dev policy database to match, and starts the site deploy. No review step (Tim is trusted); a sheet that cannot be read
 fails the run, commits nothing, and the run summary says what to fix. Country sheets are named
 `<Country> Output Rev 8.xlsx`; spelling, case and a suffix after the rev are tolerated, and the country is looked up
 in `src/data/jurisdictions.json`, so a new country needs no code change.

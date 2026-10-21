@@ -27,3 +27,8 @@ output "cloudsql_connection_name" {
   description = "Connection name of the Cloud SQL instance the policy database lives on, for the Auth Proxy"
   value       = data.google_sql_database_instance.gridsim.connection_name
 }
+
+output "import_service_account" {
+  description = "Service account import-input.yml uses to update the policy database (its name is fixed in that workflow)"
+  value       = google_service_account.importer.email
+}
