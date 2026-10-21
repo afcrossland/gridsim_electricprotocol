@@ -499,12 +499,16 @@ Lowest-risk first step: move today's static JSON into the database, keep
 behaviour identical. A read-only migration, no new features yet.
 
 - Apply Phase 0 on prod and load it the same way (dev is done).
-- **Read endpoint (in progress, branch `feature/ep-db-phase1-read`).**
-  `GET /api/policy/data` on the gate returns the four files' shapes from
-  the database (503 on any problem); Firebase Hosting rewrites
-  `/api/policy/**` to it; the gate's Cloud Run service mounts the Cloud SQL
-  socket and gets `DATABASE_URL` (Terraform, needs applying per
-  environment). The Policy Explorer fetches it before loading the app
+- **Read endpoint (done, #16) - live on dev since 2026-10-21; prod still
+  uses the bundled JSON.** `GET /api/policy/data` on the gate returns the
+  four files' shapes from the database (503 on any problem); Firebase
+  Hosting rewrites `/api/policy/**` to it; the gate's Cloud Run service
+  mounts the Cloud SQL socket and gets `DATABASE_URL` (Terraform, applied
+  on dev only). On dev the response matched the committed JSON with no
+  differences, and the Policy Explorer loads from it without falling back.
+  The dev database is a snapshot: until the import workflow writes to it
+  (below), re-run `python -m ep_db.import_json` after a spreadsheet upload
+  changes the data. The Policy Explorer fetches it before loading the app
   (`src/data/policyData.ts`, `src/main.tsx`) on **dev builds only**
   (`VITE_POLICY_API`), falling back to the bundled JSON on any failure.
   Answer resolution (specificity and basis precedence in
