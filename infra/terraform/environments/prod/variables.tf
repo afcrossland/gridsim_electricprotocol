@@ -25,3 +25,8 @@ variable "klute_allowed_emails" {
   description = "Google accounts allowed into /klute"
   default     = []
 }
+
+variable "cloudsql_instance_name" {
+  type        = string
+  description = "This environment's gridsim Cloud SQL instance, managed in gridsim-deploy"
+}

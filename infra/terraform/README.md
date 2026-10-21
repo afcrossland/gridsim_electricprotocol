@@ -48,3 +48,49 @@ The prod backend has no klute password yet (gridsim-deploy's `enable_klute_passw
 there), so prod `/klute` signs in but its simulator tab says it isn't configured. To fix that,
 enable it in gridsim-deploy, add the secret's value, and set
 `klute_backend_password_secret_id = "gridsim-backend-prod-klute-password"` here.
+
+## Policy database
+
+`modules/electricfutures/database.tf` creates the Policy Explorer's database (ROADMAP.md,
+decision 1) on this environment's **existing gridsim Cloud SQL instance**
+(`cloudsql_instance_name`: `gridsim-dev-db` / `gridsim-prod-db`). gridsim-deploy owns the
+instance; this only looks it up and adds to it:
+
+- database `electricfutures`, which Terraform will never drop (`deletion_policy = "ABANDON"`
+  and `prevent_destroy`);
+- login `electricfutures`, with a generated password (it sits in Terraform state, like the
+  gate's session key);
+- secret `electricfutures-<env>-database-url`, holding the whole `DATABASE_URL` that
+  `klute/gate/ep_db` reads, in Cloud SQL socket form
+  (`postgresql+psycopg://electricfutures:…@/electricfutures?host=/cloudsql/<connection name>`);
+- `roles/cloudsql.client` and access to that secret for the gate's service account. The Cloud
+  Run service doesn't mount the instance or read the secret yet; Phase 1 adds that.
+
+The tables come from Alembic, not Terraform. After applying, from `klute/gate/` with the
+[Cloud SQL Auth Proxy](https://cloud.google.com/sql/docs/postgres/sql-proxy) running as
+`cloud-sql-proxy --unix-socket /cloudsql <connection name>` (the `cloudsql_connection_name` output),
+so the secret's URL works unchanged:
+
+```bash
+export DATABASE_URL="$(gcloud secrets versions access latest --secret electricfutures-dev-database-url)"
+alembic upgrade head
+python -m ep_db.import_json
+python -m ep_db.import_json --check
+```
+
+This is a write to the shared gridsim instance, so dev first and prod confirm-first.
+
+**Cloud SQL permissions caveat.** Cloud SQL makes every user created through its API (this one,
+and `gridsim_user`) a member of `cloudsqlsuperuser`, and Postgres lets `PUBLIC` connect to every
+database by default. Neither user can read the other's tables unless they're granted to
+`PUBLIC`, but each can connect to the other's database. To close that, the instance owner can run,
+as `postgres`:
+
+```sql
+REVOKE CONNECT ON DATABASE electricfutures FROM PUBLIC;
+GRANT CONNECT ON DATABASE electricfutures TO electricfutures;
+-- and the same for gridsim's databases (gridsim, devdb) and gridsim_user - check nothing
+-- else connects to them first.
+```
+
+That isn't done by Terraform: it changes gridsim's databases, which this repo doesn't own.

@@ -58,3 +58,8 @@ variable "custom_domain" {
   description = "Optional custom domain to attach to the Firebase Hosting site"
   default     = ""
 }
+
+variable "cloudsql_instance_name" {
+  type        = string
+  description = "This environment's existing gridsim Cloud SQL instance (managed in gridsim-deploy). The policy database and its user are created on it."
+}

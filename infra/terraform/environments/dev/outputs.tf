@@ -15,3 +15,11 @@ output "github_deploy_service_account" {
   description = "GitHub environment variable GCP_DEPLOY_SA"
   value       = module.electricfutures.github_deploy_service_account
 }
+
+output "database_url_secret_id" {
+  value = module.electricfutures.database_url_secret_id
+}
+
+output "cloudsql_connection_name" {
+  value = module.electricfutures.cloudsql_connection_name
+}

@@ -478,10 +478,13 @@ frontend to talk to.
   today's four JSON files. `--check` exports the database back into those
   files' shapes and fails on any difference - the evidence that Phase 1 can
   serve identical data.
-- **Not started:** Cloud SQL database + user + Secret Manager password in
-  `infra/terraform/`, and running the migration against dev. Rename
-  `klute/gate/` (e.g. to `api/`) once it serves more than `/klute`; left
-  alone for now so Terraform and the workflows don't change in Phase 0.
+- **Terraform written, not applied** (`infra/terraform/modules/electricfutures/database.tf`):
+  the `electricfutures` database and login on each environment's gridsim Cloud SQL instance,
+  and a Secret Manager `DATABASE_URL`. Apply steps and a permissions caveat in
+  `infra/terraform/README.md`. **Not started:** applying it and running the migration and
+  import against dev.
+- Rename `klute/gate/` (e.g. to `api/`) once it serves more than `/klute`;
+  left alone for now so Terraform and the workflows don't change in Phase 0.
 
 ### Phase 1 - Serve the protocol from the database
 
