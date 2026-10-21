@@ -77,14 +77,14 @@ interface Props {
 }
 
 /**
- * The chosen rubric tier is marked in neutral ink plus a labelled
- * "<Country>'s answer" badge, not a colour. It used to be GSC Citrus, but
+ * The chosen rubric tier is marked by a soft neutral fill, a slight lift and
+ * a labelled "<Country>'s answer" badge, not a colour. (A solid text-colour
+ * outline was tried first and read as too heavy, 2026-10-21.) It used to be GSC Citrus, but
  * since the score ramp was inverted (2026-10-21) amber also means "strong",
  * so a highlighted Weak answer read as a good one, and the citrus exemplar
  * names beside it blurred the two further. Colour on a tier now only ever
  * means how strong that tier is (its left edge and label).
  */
-const SELECTED_BORDER = "text.primary";
 const SELECTED_TINT = "action.selected";
 
 /** How many of a tier box's own qualifying exemplars show inline before the rest fold into a "+N more" dropdown - per Andrew's own instruction 2026-10-09 ("top 3 exemplars shown and a dropdown list for more"). */
@@ -297,10 +297,11 @@ export default function QuestionCard({
                 cursor: editMode ? "pointer" : "default",
                 border: "2px solid",
                 borderLeftWidth: 8,
-                borderColor: selected ? SELECTED_BORDER : "divider",
+                borderColor: "divider",
                 borderLeftColor: tierColor,
                 bgcolor: selected ? SELECTED_TINT : "transparent",
-                ...(editMode && { "&:hover": { borderColor: selected ? SELECTED_BORDER : "primary.light" } }),
+                boxShadow: selected ? 2 : "none",
+                ...(editMode && { "&:hover": { borderColor: "primary.light" } }),
                 display: "flex",
                 flexDirection: "column",
                 gap: 0.75,
