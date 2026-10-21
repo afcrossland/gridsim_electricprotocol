@@ -24,7 +24,8 @@
     "questionsAnswered": "Questions répondues, pondérées",
     "notEnoughData": "Données insuffisantes",
     "noData": "Aucune donnée",
-    "sectionScore": "Score : {{section}}"
+    "sectionScore": "Score : {{section}}",
+    "inSuns": "en soleils"
   },
   "welcome": {
     "body": "Ce site note les pays, états et provinces selon le Protocole Électrique, l'ensemble détaillé de questions qui sous-tend la Charte. Choisissez une juridiction sur la carte pour voir son résultat, les preuves associées, et les changements qui feraient le plus progresser son score.",

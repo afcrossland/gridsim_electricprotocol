@@ -1,4 +1,11 @@
+import type { ReactNode } from "react";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+
+/** One swatch in a discrete legend - a band of the scale, or an extra key like "No data". */
+export interface LegendSwatch {
+  color: string;
+  label: ReactNode;
+}
 
 interface Props {
   title: string;
@@ -7,6 +14,45 @@ interface Props {
   uppercaseTitle?: boolean;
   /** Quartile (or any) tick labels under the gradient bar, e.g. `["0%","25%","50%","75%","100%"]` - the root app's own legend always shows these; deployment/calculator's own show none. Omit for no ticks. */
   tickLabels?: string[];
+  /**
+   * Discrete steps instead of the gradient bar - for a map whose fill is
+   * stepped rather than interpolated (policy's own score bands), where a
+   * smooth gradient would promise shades the map never draws. Overrides
+   * `rampStops`/`tickLabels` when given.
+   */
+  bands?: LegendSwatch[];
+  /** Extra keys below the scale, e.g. the greys for "Not enough data" and "No data". */
+  extraKeys?: LegendSwatch[];
+}
+
+function Bands({ bands, height }: { bands: LegendSwatch[]; height: number }) {
+  return (
+    <Box sx={{ display: "flex", gap: "2px" }}>
+      {bands.map((b, i) => (
+        <Box key={i} sx={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+          <Box sx={{ height, bgcolor: b.color, borderRadius: i === 0 ? "4px 0 0 4px" : i === bands.length - 1 ? "0 4px 4px 0" : 0 }} />
+          <Typography component="div" sx={{ fontSize: "0.625rem", color: "text.secondary", lineHeight: 1, mt: 0.5 }}>
+            {b.label}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
+function ExtraKeys({ keys }: { keys: LegendSwatch[] }) {
+  return (
+    <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1.5, rowGap: 0.5, mt: 0.75 }}>
+      {keys.map((k, i) => (
+        <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Box sx={{ width: 10, height: 10, borderRadius: "2px", bgcolor: k.color, border: "1px solid", borderColor: "divider" }} />
+          <Typography component="span" sx={{ fontSize: "0.625rem", color: "text.secondary", lineHeight: 1 }}>
+            {k.label}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
 }
 
 /**
@@ -22,7 +68,7 @@ interface Props {
  * `title` as a plain prop (the store-reading stays in whichever
  * thin per-app wrapper renders this).
  */
-export default function MapLegend({ title, rampStops, uppercaseTitle = true, tickLabels }: Props) {
+export default function MapLegend({ title, rampStops, uppercaseTitle = true, tickLabels, bands, extraKeys }: Props) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const gradient = rampStops.map((s) => `${s.color} ${s.stop * 100}%`).join(", ");
@@ -46,7 +92,12 @@ export default function MapLegend({ title, rampStops, uppercaseTitle = true, tic
         }}
       >
         <Typography sx={{ fontSize: "0.6875rem", fontWeight: 600, color: "text.secondary", mb: 0.5 }}>{title}</Typography>
-        <Box sx={{ height: 8, borderRadius: 4, background: `linear-gradient(90deg, ${gradient})` }} />
+        {bands ? (
+          <Bands bands={bands} height={8} />
+        ) : (
+          <Box sx={{ height: 8, borderRadius: 4, background: `linear-gradient(90deg, ${gradient})` }} />
+        )}
+        {extraKeys && <ExtraKeys keys={extraKeys} />}
       </Box>
     );
   }
@@ -81,36 +132,43 @@ export default function MapLegend({ title, rampStops, uppercaseTitle = true, tic
       >
         {title}
       </Typography>
-      <Box sx={{ height: 10, borderRadius: "5px", background: `linear-gradient(90deg, ${gradient})` }} />
-      {tickLabels ? (
-        <Box sx={{ position: "relative", height: 16, mt: 0.5 }}>
-          {tickLabels.map((label, i) => {
-            const pct = (i / (tickLabels.length - 1)) * 100;
-            return (
-              <Typography
-                key={label}
-                sx={{
-                  position: "absolute",
-                  fontSize: "0.625rem",
-                  color: "text.disabled",
-                  lineHeight: 1,
-                  top: 2,
-                  left: pct === 100 ? undefined : `${pct}%`,
-                  right: pct === 100 ? 0 : undefined,
-                  transform: pct > 0 && pct < 100 ? "translateX(-50%)" : undefined,
-                }}
-              >
-                {label}
-              </Typography>
-            );
-          })}
-        </Box>
+      {bands ? (
+        <Bands bands={bands} height={10} />
       ) : (
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.5 }}>
-          <Typography sx={{ fontSize: "0.625rem", color: "text.disabled" }}>Lower</Typography>
-          <Typography sx={{ fontSize: "0.625rem", color: "text.disabled" }}>Higher</Typography>
-        </Box>
+        <>
+          <Box sx={{ height: 10, borderRadius: "5px", background: `linear-gradient(90deg, ${gradient})` }} />
+          {tickLabels ? (
+            <Box sx={{ position: "relative", height: 16, mt: 0.5 }}>
+              {tickLabels.map((label, i) => {
+                const pct = (i / (tickLabels.length - 1)) * 100;
+                return (
+                  <Typography
+                    key={label}
+                    sx={{
+                      position: "absolute",
+                      fontSize: "0.625rem",
+                      color: "text.disabled",
+                      lineHeight: 1,
+                      top: 2,
+                      left: pct === 100 ? undefined : `${pct}%`,
+                      right: pct === 100 ? 0 : undefined,
+                      transform: pct > 0 && pct < 100 ? "translateX(-50%)" : undefined,
+                    }}
+                  >
+                    {label}
+                  </Typography>
+                );
+              })}
+            </Box>
+          ) : (
+            <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.5 }}>
+              <Typography sx={{ fontSize: "0.625rem", color: "text.disabled" }}>Lower</Typography>
+              <Typography sx={{ fontSize: "0.625rem", color: "text.disabled" }}>Higher</Typography>
+            </Box>
+          )}
+        </>
       )}
+      {extraKeys && <ExtraKeys keys={extraKeys} />}
     </Box>
   );
 }

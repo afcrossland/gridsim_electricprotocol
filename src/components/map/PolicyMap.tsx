@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import World from "../../assets/jurisdictions.geojson?url";
 import mapStyleJsonLight from "../../assets/map_gsc.json";
 import mapStyleJsonDark from "../../assets/map_gsc_dark.json";
-import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP, scoreTextColor } from "../../lib/scoring";
+import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_BANDS, SCORE_RAMP, scoreTextColor } from "../../lib/scoring";
 import { SunScore } from "../ui/Suns";
 import { qualifiedName } from "../../lib/jurisdictions";
 import FlagImg from "../ui/FlagImg";
@@ -88,15 +88,28 @@ const INTRO_FILL_OPACITY_EXPR = ["coalesce", ["feature-state", "introOp"], 0];
  * everything else falls through to the grey defaults, which is what keeps a
  * country with three answers from showing up as a confident dark teal.
  */
-const FILL_COLOR = [
+/**
+ * Scores are stepped into SCORE_BANDS (the same five bands the suns use),
+ * not interpolated - the continuous ramp's stops sit at quarters while the
+ * bands break at fifths, so a three-sun country could be painted light
+ * teal. Completeness has no bands and stays a smooth ramp.
+ */
+const STEPPED_SCORE = [
+  "step",
+  ["feature-state", "score"],
+  SCORE_BANDS[0].color,
+  ...SCORE_BANDS.slice(1).flatMap((b) => [b.min, b.color]),
+];
+const CONTINUOUS_SCORE = [
+  "interpolate",
+  ["linear"],
+  ["feature-state", "score"],
+  ...SCORE_RAMP.flatMap((s) => [s.stop, s.color]),
+];
+const fillColor = (stepped: boolean) => [
   "case",
   ["!=", ["feature-state", "score"], null],
-  [
-    "interpolate",
-    ["linear"],
-    ["feature-state", "score"],
-    ...SCORE_RAMP.flatMap((s) => [s.stop, s.color]),
-  ],
+  stepped ? STEPPED_SCORE : CONTINUOUS_SCORE,
   ["==", ["feature-state", "insufficient"], true],
   COLOR_INSUFFICIENT,
   COLOR_NO_DATA,
@@ -409,7 +422,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     type: "fill",
     paint: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      "fill-color": (introBloom ? GSC_YELLOW : FILL_COLOR) as any,
+      "fill-color": (introBloom ? GSC_YELLOW : fillColor(metric === "score")) as any,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       "fill-opacity": (introBloom ? INTRO_FILL_OPACITY_EXPR : 0.85) as any,
       // Soft translucent edge baked into the fill itself, matching the
@@ -508,9 +521,16 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
 
       {!selectedCountry && !hideLegend && (
         <MapLegend
-          title={mapMetric === "score" ? t("legend.protocolScore") : t("legend.questionsAnswered")}
+          title={mapMetric === "score" ? `${t("legend.protocolScore")} · ${t("legend.inSuns")}` : t("legend.questionsAnswered")}
           rampStops={SCORE_RAMP}
           tickLabels={["0%", "25%", "50%", "75%", "100%"]}
+          bands={mapMetric === "score" ? SCORE_BANDS.map((b, i) => ({ color: b.color, label: String(i + 1) })) : undefined}
+          // Completeness paints anything with an answer, so only the score
+          // view has a "not enough data" grey to explain.
+          extraKeys={[
+            ...(mapMetric === "score" ? [{ color: COLOR_INSUFFICIENT, label: t("legend.notEnoughData") }] : []),
+            { color: COLOR_NO_DATA, label: t("legend.noData") },
+          ]}
         />
       )}
     </Box>

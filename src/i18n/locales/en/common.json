@@ -24,7 +24,8 @@
     "questionsAnswered": "Questions answered, by weight",
     "notEnoughData": "Not enough data",
     "noData": "No data",
-    "sectionScore": "{{section}} score"
+    "sectionScore": "{{section}} score",
+    "inSuns": "in suns"
   },
   "welcome": {
     "body": "This site scores countries, states and provinces against the Electric Protocol - the detailed question set behind the Charter. Pick a jurisdiction on the map to see how it does, what the evidence is, and which changes would raise its score the most.",

@@ -24,7 +24,8 @@
     "questionsAnswered": "Preguntas respondidas, por peso",
     "notEnoughData": "Datos insuficientes",
     "noData": "Sin datos",
-    "sectionScore": "Puntuación: {{section}}"
+    "sectionScore": "Puntuación: {{section}}",
+    "inSuns": "en soles"
   },
   "welcome": {
     "body": "Este sitio puntúa países, estados y provincias frente al Protocolo Eléctrico, el conjunto detallado de preguntas que sustenta la Carta. Elige una jurisdicción en el mapa para ver cómo le va, cuál es la evidencia y qué cambios elevarían más su puntuación.",
