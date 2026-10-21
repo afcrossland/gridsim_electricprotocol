@@ -3,7 +3,16 @@
 FROM node:22-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# npm silently skips an optional dependency it fails to download (npm/cli#4828). That has left out
+# Rolldown's native binding, which Vite needs, and failed the build below with "Cannot find native
+# binding". So check that Rolldown loads, retry the install if not, and say so if it never does.
+RUN for attempt in 1 2 3; do \
+      npm ci && node --input-type=module -e "await import('rolldown')" && exit 0; \
+      echo "npm ci attempt $attempt failed or left out Rolldown's native binding" >&2; \
+      sleep 5; \
+    done; \
+    echo "Giving up: Rolldown's native binding is still missing after 3 npm ci attempts" >&2; \
+    exit 1
 COPY . .
 RUN npm run build:klute
 
