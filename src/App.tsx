@@ -16,7 +16,8 @@ import ScrollStory from "./scrollstory/ScrollStory";
 import FooterComposition from "../shared/components/FooterComposition";
 import SidebarShell from "../shared/components/SidebarShell";
 import { sourcedCountries } from "./data/sourcedAnswers";
-import { canEdit, useEditorStore } from "./lib/editorAuth";
+import { canEdit, editorFetch, editsSaveToDatabase, useEditorStore } from "./lib/editorAuth";
+import { sendWith, startPolicySync, useSyncStore } from "./lib/policySync";
 import { qualifiedName, resolveTargets } from "./lib/jurisdictions";
 import { scoreCountry } from "./lib/scoring";
 import { protocol, useProtocolStore } from "./stores/protocolStore";
@@ -190,6 +191,23 @@ export default function App() {
   useEffect(() => {
     if (page === "admin" && !mayEdit) setPage("map");
   }, [page, mayEdit, setPage]);
+
+  // While an editor is signed in on a database build, every change they make
+  // is saved there (lib/policySync.ts); leaving with saves still pending asks
+  // first.
+  const savesToDatabase = useEditorStore((s) => editsSaveToDatabase(s));
+  useEffect(() => {
+    if (!savesToDatabase) return;
+    const stop = startPolicySync(useProtocolStore.subscribe, useProtocolStore.getState, sendWith(editorFetch));
+    const warn = (e: BeforeUnloadEvent) => {
+      if (useSyncStore.getState().pending > 0) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => {
+      stop();
+      window.removeEventListener("beforeunload", warn);
+    };
+  }, [savesToDatabase]);
   const selectedCountry = useProtocolStore((s) => s.selectedCountry);
   const selectCountry = useProtocolStore((s) => s.selectCountry);
   const comparing = useProtocolStore((s) => s.comparing);

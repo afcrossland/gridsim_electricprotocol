@@ -3,11 +3,13 @@ import { Box, Button, Collapse, Divider, Stack, Typography, useMediaQuery, useTh
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useTranslation } from "react-i18next";
 
 import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors";
+import { editsSaveToDatabase, useEditorStore } from "../../lib/editorAuth";
 import { rankImpact, scoreSections, scoreTextColor, sectionLeaderboard } from "../../lib/scoring";
 import { SunScore } from "../ui/Suns";
 import type { CountryScore } from "../../lib/types";
@@ -21,6 +23,7 @@ import ProposeQuestionDialog from "./ProposeQuestionDialog";
 import QuestionCard from "./QuestionCard";
 import SectionOverview from "./SectionOverview";
 import FlagImg from "../ui/FlagImg";
+import SaveStatus from "../ui/SaveStatus";
 import StatTile from "../ui/StatTile";
 import DetailHeader from "../../../shared/components/DetailHeader";
 
@@ -181,6 +184,15 @@ export default function CountryPanel({
   };
   const [reportOpen, setReportOpen] = useState(false);
   const [proposeOpen, setProposeOpen] = useState(false);
+
+  // Edit mode (ROADMAP.md Phase 4): only for a signed-in editor whose changes
+  // save to the policy database - QuestionCard's `editMode` unlocks its rubric
+  // tiles, evidence fields and clear control. Read-only again on every country
+  // switch, so browsing never inherits an edit session left open elsewhere.
+  const mayEditAnswers = useEditorStore((s) => editsSaveToDatabase(s));
+  const [editMode, setEditMode] = useState(false);
+  useEffect(() => setEditMode(false), [code]);
+  const editing = editMode && mayEditAnswers;
 
   // Collapses the stat tiles and the Compare row once the content below is
   // scrolled, so shrinking the header buys back the most visible content.
@@ -376,6 +388,20 @@ export default function CountryPanel({
             {t("countryPanel.downloadReport")}
           </Button>
 
+          {mayEditAnswers && (
+            <Button
+              size="small"
+              variant={editing ? "contained" : "outlined"}
+              color={editing ? "secondary" : "primary"}
+              startIcon={editing ? undefined : <EditOutlinedIcon fontSize="small" />}
+              onClick={() => setEditMode(!editing)}
+              sx={{ flexShrink: 0 }}
+            >
+              {editing ? t("countryPanel.doneEditing") : t("countryPanel.editAnswers")}
+            </Button>
+          )}
+          {editing && <SaveStatus />}
+
           {headerAction}
         </DetailHeader>
 
@@ -550,6 +576,7 @@ export default function CountryPanel({
                     response: exemplarResponsesByCode.get(ex.code)?.get(q.id),
                   }))}
                   onSelectCountry={onSelectCountry}
+                  editMode={editing}
                 />
               ))}
             </Stack>

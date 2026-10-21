@@ -33,6 +33,7 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 
 from ep_db.api import router as policy_router
+from ep_db.writes import router as policy_writes_router
 
 COOKIE = "__session"
 SESSION_SECONDS = 12 * 60 * 60
@@ -90,8 +91,10 @@ def verify_firebase_token(token: str) -> dict:
 
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
-# Public, read-only policy data (ep_db/api.py) - unrelated to /klute's sign-in.
+# Policy data: public reads (ep_db/api.py); writes need an editor's sign-in (ep_db/writes.py,
+# ep_db/auth.py) - unrelated to /klute's own sign-in.
 app.include_router(policy_router)
+app.include_router(policy_writes_router)
 
 
 def _login_page() -> HTMLResponse:

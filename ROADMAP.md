@@ -557,13 +557,33 @@ below rather than renumbering everything.
 
 ### Phase 4 - Admin edits become real, shared writes
 
-- Question and section create/edit/delete goes through the authenticated
-  API instead of `questionOverrides`/`sectionOverrides`/`customSections`/
-  `customQuestions` sparse-override state in `protocolStore.ts`.
-- Country answers and evidence write straight through too - editing stays
-  live and immediate, matching today's UX, just shared globally instead of
-  trapped in one browser.
-- No draft/publish step (decision 3 above).
+- **In progress, branch `feature/ep-phase4-writes` (stacked on Phase 2).**
+  On database builds, a signed-in editor's changes save to the policy
+  database: questions, sections, rubric, the completeness threshold, and
+  country answers and evidence. Each write is audit-logged with before and
+  after under the editor's email (`klute/gate/ep_db/writes.py`; all
+  endpoints need `require_editor`). Last write wins; no draft/publish step
+  (decision 3).
+- `src/lib/policySync.ts` watches the store and saves whatever changed -
+  by reference, so every action (admin console, Edit mode, accepting a
+  suggestion or question proposal) is covered without touching the
+  actions - once it has been still for 0.8 s, parents before children. A
+  removed answer is saved as cleared (score null), which also hides the
+  researched answer under it. `SaveStatus` shows saving/saved/failed.
+- The country page's **Edit answers** button is back, for signed-in
+  editors on database builds only (decided 2026-10-21).
+- On database builds the browser's saved overlays (`questionOverrides`
+  etc., edited responses, threshold) are ignored and no longer saved; only
+  preferences and the browser-only suggestion queues are. "Reset
+  everything" and per-question "revert to shipped" are hidden there:
+  either would write the bundled JSON over the database.
+- `import-input.yml` no longer passes `--overwrite-structure` and checks
+  `--research-only`: editors own questions and sections now, so a question
+  the spreadsheets reword has to be changed in the admin console too.
+- **Not covered:** suggestions and question proposals still live only in
+  the submitting browser, so accepting one works, but an editor only sees
+  those filed in their own browser - moving them to the database is
+  Phase 6.
 
 ### Phase 5 - Territory management
 

@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import type { Auth } from "firebase/auth";
 
+import { usingDatabase } from "../data/policyData";
+
 /**
  * Who is editing the policy data (ROADMAP.md, Phase 2; decision 2).
  *
@@ -40,9 +42,19 @@ export const useEditorStore = create<EditorState>(() => ({
   message: null,
 }));
 
-/** True when this person may use the admin console and Edit mode. */
+/**
+ * True when this person may use the admin console (and, on database builds,
+ * Edit mode). An editor's sign-in isn't enough on its own: if this page fell
+ * back to its bundled JSON, saving would write that stale copy over the
+ * database, so editing waits for a reload that reaches it.
+ */
 export function canEdit(state: Pick<EditorState, "status"> = useEditorStore.getState()): boolean {
-  return state.status === "editor" || state.status === "not-required";
+  return state.status === "not-required" || (state.status === "editor" && usingDatabase());
+}
+
+/** Edits save to the policy database (rather than staying in this browser). */
+export function editsSaveToDatabase(state: Pick<EditorState, "status"> = useEditorStore.getState()): boolean {
+  return state.status === "editor" && usingDatabase();
 }
 
 // Remembers (per browser) that someone signed in here, so the next visit

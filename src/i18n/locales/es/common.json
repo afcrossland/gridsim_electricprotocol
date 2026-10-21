@@ -75,7 +75,9 @@
     "buildingReport": "Generando informe...",
     "downloadReport": "Descargar resumen de política",
     "overviewIntro": "Cómo puntúa {{name}} en cada área de política, y cómo se compara con el resto del grupo.",
-    "notApplicableHint": "Aún no hay suficientes preguntas respondidas en esta área para puntuarla."
+    "notApplicableHint": "Aún no hay suficientes preguntas respondidas en esta área para puntuarla.",
+    "editAnswers": "Editar respuestas",
+    "doneEditing": "Listo"
   },
   "impactList": {
     "empty": "Nada que mostrar todavía - cada pregunta respondida ya tiene la puntuación máxima, o ninguna se ha respondido. Usa Panorama de política para añadir algunas.",
@@ -262,6 +264,12 @@
     "useAnotherAccount": "Usar otra cuenta",
     "cancel": "Cancelar",
     "signedInAs": "Sesión iniciada como {{email}}",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "databaseOffline": "Has iniciado sesión, pero esta página no pudo conectar con la base de datos de políticas, así que la edición está desactivada. Recarga para volver a intentarlo."
+  },
+  "sync": {
+    "saving": "Guardando…",
+    "saved": "Todos los cambios guardados",
+    "error": "No se pudo guardar: {{message}}. Recarga para ver lo que se guardó."
   }
 }

@@ -190,7 +190,9 @@ def test_api_serves_exactly_what_the_files_hold(db, files, api_client):
     assert r.status_code == 200
     assert "public" in r.headers["cache-control"]
     expected = {**files, **{o: {k: v for k, v in files[o].items() if k != "README"} for o in ("sourced", "indicator")}}
-    assert differences(expected, r.json()) == []
+    body = r.json()
+    assert body.pop("responses") == []  # nobody has edited anything yet
+    assert differences(expected, body) == []
 
 
 def test_api_needs_no_klute_sign_in(api_client, monkeypatch):
@@ -269,3 +271,119 @@ def test_auth_config(api_client, monkeypatch):
     monkeypatch.setenv("FIREBASE_AUTH_DOMAIN", "p.firebaseapp.com")
     monkeypatch.setenv("FIREBASE_PROJECT_ID", "p")
     assert api_client.get("/api/policy/auth-config").json() == {"apiKey": "k", "authDomain": "p.firebaseapp.com", "projectId": "p"}
+
+
+# --- Editors' writes (Phase 4) -----------------------------------------------------------------
+
+
+@pytest.fixture
+def editor(db, files, api_client, signed_in):
+    """A loaded database and a client signed in as an editor."""
+    run_import(db, files)
+    headers = signed_in("ed@example.org")
+    question = files["protocol"]["questions"][0]
+    return api_client, headers, question
+
+
+def audit_rows(db):
+    with Session(db) as session:
+        return session.scalars(select(AuditLog).where(AuditLog.entity != "import").order_by(AuditLog.id)).all()
+
+
+@needs_db
+def test_writes_need_an_editor(editor):
+    client, _, question = editor
+    body = {"score": 1, "evidence": []}
+    assert client.put(f"/api/policy/responses/AT/{question['id']}", json=body).status_code == 401
+    stranger = {"Authorization": "Bearer ok:stranger@example.org"}
+    assert client.put(f"/api/policy/responses/AT/{question['id']}", json=body, headers=stranger).status_code == 403
+    assert client.delete(f"/api/policy/questions/{question['id']}", headers=stranger).status_code == 403
+
+
+@needs_db
+def test_put_response_saves_shows_and_audits(db, editor):
+    client, headers, question = editor
+    url = f"/api/policy/responses/AT/{question['id']}"
+    body = {"score": 2, "basis": "national", "evidence": [{"title": "Act", "source": "https://x", "note": "n"}]}
+    assert client.put(url, json=body, headers=headers).status_code == 200
+
+    served = [r for r in client.get("/api/policy/data").json()["responses"] if r["countryCode"] == "AT"]
+    assert len(served) == 1
+    assert served[0] | {"updatedAt": None} == {
+        "countryCode": "AT", "questionId": question["id"], "score": 2, "basis": "national",
+        "evidence": body["evidence"], "updatedAt": None, "updatedBy": "ed@example.org",
+    }
+    [row] = audit_rows(db)
+    assert (row.actor, row.entity, row.entity_key, row.before, row.after["score"]) == (
+        "ed@example.org", "response", f"AT/{question['id']}", None, 2)
+
+    # Clearing an answer is kept as a row with no score, so it overrides the researched answer.
+    assert client.put(url, json={"score": None, "evidence": []}, headers=headers).status_code == 200
+    [cleared] = [r for r in client.get("/api/policy/data").json()["responses"] if r["countryCode"] == "AT"]
+    assert cleared["score"] is None and cleared["evidence"] == []
+    assert audit_rows(db)[-1].before["score"] == 2
+
+
+@needs_db
+def test_put_response_rejects_bad_input(editor):
+    client, headers, question = editor
+    put = lambda url, body: client.put(url, json=body, headers=headers).status_code
+    assert put(f"/api/policy/responses/AT/{question['id']}", {"score": 99, "evidence": []}) == 422
+    assert put(f"/api/policy/responses/AT/{question['id']}", {"score": 1, "basis": "vibes"}) == 422
+    assert put(f"/api/policy/responses/XX/{question['id']}", {"score": 1}) == 404
+    assert put("/api/policy/responses/AT/no-such-question", {"score": 1}) == 404
+
+
+@needs_db
+def test_questions_and_sections_round_trip(db, editor):
+    client, headers, question = editor
+    section = {"title": "New area", "order": 99}
+    assert client.put("/api/policy/sections/s-new", json=section, headers=headers).status_code == 200
+    new_q = {"sectionId": "s-new", "subsection": None, "order": 99, "text": "Is it new?", "weight": 2,
+             "rubric": [{"score": 0, "label": "No", "points": 0}, {"score": 2, "label": "Yes", "points": 4}]}
+    assert client.put("/api/policy/questions/q-new", json=new_q, headers=headers).status_code == 200
+    edited = {**{k: question[k] for k in ("sectionId", "subsection", "order", "weight", "rubric")}, "text": "Reworded"}
+    assert client.put(f"/api/policy/questions/{question['id']}", json=edited, headers=headers).status_code == 200
+    assert client.put("/api/policy/protocol", json={"completenessThreshold": 0.5}, headers=headers).status_code == 200
+
+    protocol = client.get("/api/policy/data").json()["protocol"]
+    by_id = {q["id"]: q for q in protocol["questions"]}
+    assert by_id["q-new"]["rubric"][1] == {"score": 2, "label": "Yes", "points": 4.0}
+    assert by_id[question["id"]]["text"] == "Reworded"
+    assert {"id": "s-new", "title": "New area", "order": 99} in protocol["sections"]
+    assert protocol["completenessThreshold"] == 0.5
+
+    # Deleting the section takes its question - and that question's answers - with it.
+    client.put("/api/policy/responses/AT/q-new", json={"score": 2}, headers=headers)
+    assert client.delete("/api/policy/sections/s-new", headers=headers).status_code == 200
+    data = client.get("/api/policy/data").json()
+    assert "q-new" not in {q["id"] for q in data["protocol"]["questions"]}
+    assert not [r for r in data["responses"] if r["questionId"] == "q-new"]
+    assert [(r.entity, r.action) for r in audit_rows(db)][-3:] == [("response", "delete"), ("question", "delete"), ("section", "delete")]
+    # Deletes are idempotent.
+    assert client.delete("/api/policy/sections/s-new", headers=headers).status_code == 200
+
+
+@needs_db
+def test_put_question_rejects_bad_input(editor):
+    client, headers, question = editor
+    base = {k: question[k] for k in ("sectionId", "subsection", "order", "text", "weight", "rubric")}
+    put = lambda body: client.put(f"/api/policy/questions/{question['id']}", json=body, headers=headers).status_code
+    assert put({**base, "sectionId": "nope"}) == 404
+    assert put({**base, "rubric": [{"score": 1, "label": "a", "points": 0}, {"score": 1, "label": "b", "points": 1}]}) == 422
+    assert put({**base, "rubric": []}) == 422
+    assert put({**base, "text": ""}) == 422
+
+
+@needs_db
+def test_research_reimport_keeps_editors_work(db, files, editor):
+    client, headers, question = editor
+    client.put(f"/api/policy/responses/AT/{question['id']}", json={"score": 0}, headers=headers)
+    edited = {**{k: question[k] for k in ("sectionId", "subsection", "order", "weight", "rubric")}, "text": "Reworded"}
+    client.put(f"/api/policy/questions/{question['id']}", json=edited, headers=headers)
+    run_import(db, files)  # what import-input.yml does now: no --overwrite-structure
+    data = client.get("/api/policy/data").json()
+    assert {q["id"]: q["text"] for q in data["protocol"]["questions"]}[question["id"]] == "Reworded"
+    assert [r["score"] for r in data["responses"] if r["countryCode"] == "AT"] == [0]
+    with Session(db) as session:
+        assert check(session, files, research_only=True) == []

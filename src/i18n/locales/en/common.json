@@ -75,7 +75,9 @@
     "buildingReport": "Building report...",
     "downloadReport": "Download Policy Summary Report",
     "overviewIntro": "How {{name}} scores in each policy area, and how that compares to the rest of the field.",
-    "notApplicableHint": "Not enough of this area's questions are answered yet to give it a score."
+    "notApplicableHint": "Not enough of this area's questions are answered yet to give it a score.",
+    "editAnswers": "Edit answers",
+    "doneEditing": "Done"
   },
   "impactList": {
     "empty": "Nothing to show yet - every answered question is already at full marks, or none have been answered. Use Policy Landscape to add some.",
@@ -262,6 +264,12 @@
     "useAnotherAccount": "Use another account",
     "cancel": "Cancel",
     "signedInAs": "Signed in as {{email}}",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "databaseOffline": "You're signed in, but this page couldn't reach the policy database, so editing is off. Reload to try again."
+  },
+  "sync": {
+    "saving": "Saving…",
+    "saved": "All changes saved",
+    "error": "Couldn't save: {{message}}. Reload to see what was saved."
   }
 }
