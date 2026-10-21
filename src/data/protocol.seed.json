@@ -65,16 +65,48 @@
   ],
   "countries": [
     {
+      "code": "AT",
+      "name": "Austria"
+    },
+    {
       "code": "BD",
       "name": "Bangladesh"
+    },
+    {
+      "code": "BE",
+      "name": "Belgium"
     },
     {
       "code": "BR",
       "name": "Brazil"
     },
     {
+      "code": "BG",
+      "name": "Bulgaria"
+    },
+    {
       "code": "CN",
       "name": "China"
+    },
+    {
+      "code": "CY",
+      "name": "Cyprus"
+    },
+    {
+      "code": "CZ",
+      "name": "Czech Republic"
+    },
+    {
+      "code": "DK",
+      "name": "Denmark"
+    },
+    {
+      "code": "EE",
+      "name": "Estonia"
+    },
+    {
+      "code": "DE",
+      "name": "Germany"
     },
     {
       "code": "IN",
@@ -107,6 +139,10 @@
     {
       "code": "KR",
       "name": "Republic of Korea"
+    },
+    {
+      "code": "ES",
+      "name": "Spain"
     },
     {
       "code": "LK",

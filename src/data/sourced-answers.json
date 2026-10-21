@@ -1,6 +1,154 @@
 {
   "README": "Researched answers imported from input/*Ouput Rev 8.xlsx by scripts/import_output_sheets.py. Keyed by the question's row in the source spreadsheet. Each answer's score is the rubric tier named by the sheet's Answer Category Statement; the sheet's own 0-10 score is kept in the note.",
   "sources": {
+    "at-001": {
+      "title": "Austria launches €60 million rebate program for rooftop PV in 2025; Austria's solar grant pool emptied in 33 seconds",
+      "url": "https://www.pv-magazine.com/2025/04/24/austria-launches-e60-million-rebate-program-for-rooftop-pv-in-2025 ; https://www.thecooldown.com/green-business/austria-solar-grant-funding-storage-subsidy"
+    },
+    "at-002": {
+      "title": "Photovoltaic Funding Austria 2026; IEA-PVPS Austria",
+      "url": "https://energie.werner.solutions/en/blog/photovoltaic-funding-austria-2026-federal-grants-state-subsidies-tax-exemptions-feed-in-tariffs ; https://iea-pvps.org/about-iea-pvps/members/austria"
+    },
+    "at-003": {
+      "title": "Austria's New Electricity Act — key changes for suppliers and producers; E-Control",
+      "url": "https://www.freshfields.com/en/our-thinking/blogs/risk-and-compliance/austrias-new-electricity-act-balancing-risk-and-competition-key-changes-for-sup-102lxz3 ; https://www.e-control.at"
+    },
+    "at-004": {
+      "title": "Network Charges Reform: Draft Regulation; Austria's New Electricity Act — grid operators",
+      "url": "https://cms.law/en/aut/legal-updates/network-charges-reform-draft-regulation-on-system-usage-charges-published-comments-due-by-24-july ; https://www.freshfields.com/en/our-thinking/blogs/risk-and-compliance/austrias-new-electricity-act-navigating-the-grid-of-tomorrow-key-changes-for-gr-102lxu7"
+    },
+    "at-005": {
+      "title": "Dynamic Electricity Tariffs Austria 2026; EXAA",
+      "url": "https://www.checkeverything.at/en/blog/smart-meter-dynamic-tariffs-austria-2026 ; https://www.exaa.at/en"
+    },
+    "at-006": {
+      "title": "Feed-in tariff 2025/2026; Solar Savings & Smart Meter Austria 2026",
+      "url": "https://www.autarc.energy/global/knowledge/einspeisevergutung ; https://www.checkeverything.at/en/blog/sun-discount-smart-meter-austria-2026"
+    },
+    "at-007": {
+      "title": "Electricity Network Costs by State Austria 2026 (E-Control); Energy prices, taxes — Statistics Austria",
+      "url": "https://www.checkeverything.at/en/blog/electricity-network-costs-by-state-austria-2026 ; https://www.statistik.at/en/statistics/energy-and-environment/energy/energy-prices-taxes"
+    },
+    "at-008": {
+      "title": "Smart meter data in Austria: a guide; Smart Meter Mandatory in Austria 2026",
+      "url": "https://energiedaten.at/en/blog/smart-meter-data-austria-guide ; https://energie.werner.solutions/en/blog/smart-meter-mandatory-austria-2026-what-you-need-to-know"
+    },
+    "at-009": {
+      "title": "Balancing energy — APCS; Opening of Ancillary Service Markets to DERs",
+      "url": "https://www.apcs.at/en/balancing-energy ; https://www.mdpi.com/1996-1073/16/6/2814"
+    },
+    "at-010": {
+      "title": "Day-Ahead prices — Austrian Power Grid; Balancing energy — APCS",
+      "url": "https://markt.apg.at/en/transparency/transmission/day-ahead-prices ; https://www.apcs.at/en/balancing-energy"
+    },
+    "at-011": {
+      "title": "cyberGRID — Theiss project; Austria's New Electricity Act — active customers",
+      "url": "https://www.cbinsights.com/company/cybergrid ; https://www.freshfields.com/en/our-thinking/blogs/risk-and-compliance/austrias-new-electricity-act-unlocking-flexibility-active-customers-energy-sha-102ly6k"
+    },
+    "at-012": {
+      "title": "Dynamic grid fees to reshape electricity costs in Austria; Network Charges Reform",
+      "url": "https://www.pveurope.eu/grid-connection/dynamic-grid-fees-reshape-electricity-costs-austria ; https://cms.law/en/aut/legal-updates/network-charges-reform-draft-regulation-on-system-usage-charges-published-comments-due-by-24-july"
+    },
+    "at-013": {
+      "title": "Static And Dynamic Voltage Control — APG; ENTSO-E AS survey",
+      "url": "https://markt.apg.at/en/power-grid/non-frequency-ancillary-services/static-and-dynamic-voltage-control ; https://eepublicdownloads.blob.core.windows.net/public-cdn-container/clean-documents/Publications/Market%20Committee%20publications/ENTSO-E_AS_survey_2017.pdf"
+    },
+    "at-014": {
+      "title": "Balancing energy — APCS; ENTSO-E Balancing Report 2024",
+      "url": "https://www.apcs.at/en/balancing-energy ; https://eepublicdownloads.entsoe.eu/clean-documents/nc-tasks/240628_ENTSO-E_Balancing_Report_2024.pdf"
+    },
+    "at-015": {
+      "title": "Austria's New Electricity Act — grid operators; Boosting flexibility: Electricity market reform (E-Control)",
+      "url": "https://www.freshfields.com/en/our-thinking/blogs/risk-and-compliance/austrias-new-electricity-act-navigating-the-grid-of-tomorrow-key-changes-for-gr-102lxu7 ; https://montel.energy/assets/08---sven-kaiser---boosting-flexibility-(i)-electricity-market-reform-1727355278.pdf"
+    },
+    "at-016": {
+      "title": "Dynamic Electricity Tariffs Austria 2026; Solar Savings & Smart Meter Austria 2026",
+      "url": "https://www.checkeverything.at/en/blog/smart-meter-dynamic-tariffs-austria-2026 ; https://www.checkeverything.at/en/blog/sun-discount-smart-meter-austria-2026"
+    },
+    "at-017": {
+      "title": "SURVEY ON ANCILLARY SERVICES PROCUREMENT — ENTSO-E; Non-Frequency Ancillary Services — APG",
+      "url": "https://eepublicdownloads.blob.core.windows.net/public-cdn-container/clean-documents/Publications/Market%20Committee%20publications/ENTSO-E_AS_survey_2017.pdf ; https://markt.apg.at/en/power-grid/non-frequency-ancillary-services"
+    },
+    "at-018": {
+      "title": "Demand Response — Sympower; ACER Unlocking flexibility",
+      "url": "https://sympower.net/demand-response ; https://www.acer.europa.eu/sites/default/files/documents/Publications/2025-ACER-Unlocking-flexibility-demand-response-barriers.pdf"
+    },
+    "at-019": {
+      "title": "Energy communities in Austria and the new ElWG; CMS Austria — New rules on Energy Communities",
+      "url": "https://www.taylorwessing.com/en/insights-and-events/insights/2025/09/energy-communities-in-austria-and-the-new--electricity-industry-act ; https://balkangreenenergynews.com/cms-austria-new-rules-on-energy-communities-in-austria"
+    },
+    "at-020": {
+      "title": "Austria to enable peer-to-peer electricity sharing from October; Energy communities in Austria and the new ElWG",
+      "url": "https://www.pv-magazine.com/2026/09/28/austria-to-enable-peer-to-peer-electricity-sharing-from-october ; https://www.taylorwessing.com/en/insights-and-events/insights/2025/09/energy-communities-in-austria-and-the-new--electricity-industry-act"
+    },
+    "at-021": {
+      "title": "Regulation of self-consumption in Austria (E-Control); National Survey Report of PV Power Applications in Austria",
+      "url": "https://www.energy-community.org/dam/jcr:abb1b122-eaed-495a-9015-df2cf21708f0/RES032018_E-Control.pdf ; https://iea-pvps.org/wp-content/uploads/2023/12/2023_12_14_NSR-2022_Austria.pdf"
+    },
+    "at-022": {
+      "title": "Requirements for the Grid Connection of a PV System in Austria; PV-Anlage Genehmigung & Vorschriften 2026",
+      "url": "https://sps24.eu/en/blog/requirements-for-the-grid-connection-of-a-photovoltaic-system-in-austria-1694186743.html ; https://www.aroundhome.de/solaranlage/gesetzliche-regelungen"
+    },
+    "at-023": {
+      "title": "Solar permitting guide for Austria — Gridscouter; Building — oesterreich.gv.at",
+      "url": "https://gridscouter.com/insights/austria-solar-permitting-guide ; https://www.oesterreich.gv.at/en/themen/bauen_und_wohnen/bauen"
+    },
+    "at-024": {
+      "title": "Baugenehmigung für PV-Anlagen — BauNetz Wissen; PV-Anlage Genehmigung & Vorschriften 2026",
+      "url": "https://www.baunetzwissen.de/solar/fachwissen/solarstrom/baugenehmigung-fuer-pv-anlagen-165788 ; https://www.aroundhome.de/solaranlage/gesetzliche-regelungen"
+    },
+    "at-025": {
+      "title": "PV grid connection approval in Austria; Grid connection — Austrian Power Grid",
+      "url": "https://pv-netzanschluss.at/en/knowledge/terms/pv-grid-connection-approval-austria ; https://markt.apg.at/en/power-grid/grid-connection"
+    },
+    "at-026": {
+      "title": "Austria publishes map of locations with available grid capacity for PV; Austria's New Electricity Act — grid operators",
+      "url": "https://www.pv-magazine.com/2023/08/07/austria-publishes-map-of-locations-with-available-grid-capacity-for-pv ; https://www.freshfields.com/en/our-thinking/blogs/sustainability/austrias-new-electricity-act-navigating-the-grid-of-tomorrow-key-changes-for-gr-102ly58"
+    },
+    "at-027": {
+      "title": "Austrian Solar Manufacturing Regulations; E-Control grid feed-in approval",
+      "url": "https://www.pvknowhow.com/countries/austria/austria-solar-manufacturing-regulations ; https://www.e-control.at"
+    },
+    "at-028": {
+      "title": "Smart meter data in Austria: a guide; EAG-Förderung Stromspeicher 2026",
+      "url": "https://energiedaten.at/en/blog/smart-meter-data-austria-guide ; https://lenercom.at/en/blogs/ratgeber/eag-foerderung-stromspeicher-2026"
+    },
+    "at-029": {
+      "title": "Power generation sources in Austria; Solar power in Austria",
+      "url": "https://www.sustainablesolutionseurope.com/good-sustainablesolutions/_sitefiles/file/factsheet-solar-solutions-wien.pdf ; https://en.wikipedia.org/wiki/Solar_power_in_Austria"
+    },
+    "at-030": {
+      "title": "Non-Frequency Ancillary Services — APG; Austria Electricity Industry Act — Volthein",
+      "url": "https://markt.apg.at/en/power-grid/non-frequency-ancillary-services ; https://volthein.com/austria-electricity-industry-act"
+    },
+    "at-031": {
+      "title": "ElWG Check 2.0 — Haslinger/Nagele; Smart meter data in Austria",
+      "url": "https://www.haslinger-nagele.com/en/elwg-check-2-0-der-neue-gesetzesentwurf-im-ueberblick ; https://energiedaten.at/en/blog/smart-meter-data-austria-guide"
+    },
+    "at-032": {
+      "title": "OVE — Austrian Electrotechnical Association; Austrian Solar Manufacturing Regulations",
+      "url": "https://www.ove.at/en ; https://www.pvknowhow.com/countries/austria/austria-solar-manufacturing-regulations"
+    },
+    "at-033": {
+      "title": "Austrian Solar Manufacturing Regulations; Solar Panel Regulations in the European Union",
+      "url": "https://www.pvknowhow.com/countries/austria/austria-solar-manufacturing-regulations ; https://www.compliancegate.com/solar-panel-regulations-european-union"
+    },
+    "at-034": {
+      "title": "HS Code for Solar Panels and Inverters; Austria — Import Tariffs",
+      "url": "https://carraglobe.com/hs-code-for-solar-panels-inverters-8541-8504 ; https://www.trade.gov/country-commercial-guides/austria-import-tariffs"
+    },
+    "at-035": {
+      "title": "Photovoltaic Funding Austria 2026; EAG-Förderung Stromspeicher 2026",
+      "url": "https://energie.werner.solutions/en/blog/photovoltaic-funding-austria-2026-federal-grants-state-subsidies-tax-exemptions-feed-in-tariffs ; https://lenercom.at/en/blogs/ratgeber/eag-foerderung-stromspeicher-2026"
+    },
+    "at-036": {
+      "title": "Zugang zum Gewerbe Elektrotechnik — WKO; Electrician Trade License Austria",
+      "url": "https://www.wko.at/gewerbe-handwerk/elektro-gebaeude-alarm-kommunikation/zugang-zum-gewerbe-elektrotechnik ; https://gewerbecheck.at/en/electrician"
+    },
+    "at-037": {
+      "title": "Befähigungsprüfung Elektrotechnik — WIFI; Certified photovoltaic technicians or planners — AIT",
+      "url": "https://www.wifi.at/kategorie/k-technik-technische-gewerbe/kf-elektrotechnik/kfh-befaehigungspruefung-elektrotechnik ; https://www.ait.ac.at/en/research-topics/training-education/training-in-the-field-of-photovoltaics/certified-photovoltaic-technicians-or-planners"
+    },
     "bd-001": {
       "title": "IDCOL Lending Terms; Renewable Energy Policy 2025",
       "url": "https://idcol.org/home/r_lending_terms; https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-powercell/2024/12/e090083ecd2142208d945bcb086334e0.pdf"
@@ -157,6 +305,38 @@
       "title": "Training Provider Networks; SREDA Partners",
       "url": "https://sreda.gov.bd"
     },
+    "be-001": {
+      "title": "Renovation subsidies and financial support (Brussels); Energy grants Belgium 2026",
+      "url": "https://be.brussels/en/housing/construction-and-renovation/renovation-subsidies-and-financial-support ; https://greenenergyresolutions.be/en/dont-miss-out-on-the-subsidies-available-in-2025-for-your-green-energy"
+    },
+    "be-002": {
+      "title": "Solar panels 2026: still worth it in Wallonia? (OptimCE)",
+      "url": "https://www.optimce.be/en/news/2026/08/11/solar-panels-worth-it-wallonia-2026"
+    },
+    "be-003": {
+      "title": "Elia aFRR model / market data; ENTSO-E balancing report",
+      "url": "https://www.elia.be/-/media/project/elia/elia-site/electricity-market-and-system/system-services/keeping-the-balance/afrr/202509_design_note_afrr.pdf"
+    },
+    "be-004": {
+      "title": "Synergrid C10/26; plug-in solar legalised",
+      "url": "https://pluginsolarenergy.be/en/blogs/nieuws/stekkerbatterij-in-belgie-regels-synergrid-en-fluvius ; https://www.pvknowhow.com/news/plug-in-solar-panels-now-allowed-in-belgium"
+    },
+    "be-005": {
+      "title": "Fluvius investment plan; ORES/CWaPE tariff schedules",
+      "url": "https://www.fluvius.be/en/publication/investment-plan-2024-2033 ; https://www.optimce.be/en/news/2026/08/11/solar-panels-worth-it-wallonia-2026"
+    },
+    "be-006": {
+      "title": "Register home battery in Belgium (YouPower); PlugInSolarEnergy",
+      "url": "https://www.youpower.be/en/blog/register-home-battery-belgium"
+    },
+    "be-007": {
+      "title": "Synergrid C10/11; IEC 62446 series; AREI/GREI",
+      "url": "https://www.lvfuenergy.com/pl/belgium-energy-storage-certification-c10-2026-guide ; https://datatec.es/wp-content/uploads/2019/09/Normativa-IEC-TS-62446-3.pdf"
+    },
+    "be-008": {
+      "title": "Synergrid C10/11 §7.5 anti-islanding; GREI/AREI",
+      "url": "https://www.hqmount.com/blog/belgium-to-legalize-plug-and-play-solar-devices-in-april-2025-synergrid-certification-as-key-access-requirement_b197"
+    },
     "br-001": {
       "title": "Finame: what is it and how to finance photovoltaic equipment?",
       "url": "https://canalsolar.com.br/en/finame-what-is-and-how-to-finance-photovoltaic-equipment"
@@ -257,6 +437,126 @@
       "title": "Technical Training for Renewable Energies and Energy Efficiency in Brazil",
       "url": "https://energypedia.info/wiki/Technical_Training_for_Renewable_Energies_and_Energy_Efficiency_in_Brazil"
     },
+    "bg-001": {
+      "title": "Mordor Intelligence – Bulgaria Solar Energy Market",
+      "url": "https://www.mordorintelligence.com/industry-reports/bulgaria-solar-energy-market"
+    },
+    "bg-002": {
+      "title": "Legal500 – Bulgaria: Renewable Energy",
+      "url": "https://www.legal500.com/guides/chapter/bulgaria-renewable-energy?export-pdf= ; EBRD Tenevo BESS project page"
+    },
+    "bg-003": {
+      "title": "Lexology – Year in review: renewable energy law in Bulgaria; CMS CEE Expert Guide",
+      "url": "https://www.lexology.com/library/detail.aspx?g=d6658ea8-54c3-4a05-a5c1-b5ae815d4546 ; https://cms.law/en/int/expert-guides/cms-cee-expert-guide-to-renewable-energy/bulgaria"
+    },
+    "bg-004": {
+      "title": "NetZeroLab FEBA – Merit order and electricity prices in Bulgaria",
+      "url": "https://netzerolab-feba.bg/how-does-the-merit-order-determine-electricity-prices-in-bulgaria-and-where-does-it-break-down"
+    },
+    "bg-005": {
+      "title": "Mordor Intelligence – Bulgaria Solar Energy Market; CMS CEE Expert Guide to Solar Panel Installation in Bulgaria",
+      "url": "https://www.mordorintelligence.com/industry-reports/bulgaria-solar-energy-market ; https://cms.law/en/int/expert-guides/cms-cee-expert-guide-to-solar-panel-installation/bulgaria"
+    },
+    "bg-006": {
+      "title": "SolarPower Europe – EU Market Outlook for Solar Power 2023–2027",
+      "url": "https://www.solarpowereurope.org/insights/outlooks/eu-market-outlook-for-solar-power-2023-2027/detail"
+    },
+    "bg-007": {
+      "title": "Trade.gov – Bulgaria's Battery Storage Market; Schoenherr – Bulgaria energy transition",
+      "url": "https://www.trade.gov/market-intelligence/bulgarias-battery-storage-market ; https://www.schoenherr.eu/content/bulgaria-accelerating-the-energy-transition-through-renewables-storage-and-next-generation-nuclear"
+    },
+    "bg-008": {
+      "title": "Lexology – Year in review: renewable energy law in Bulgaria; Enerfip – Enerstorage Bulgaria BESS",
+      "url": "https://www.lexology.com/library/detail.aspx?g=d6658ea8-54c3-4a05-a5c1-b5ae815d4546 ; https://app.enerfip.eu/invest-your-money/investissement-stockage/bess-bulgaria"
+    },
+    "bg-009": {
+      "title": "Schoenherr – Bulgaria energy transition; Renewables Now – Grid upgrades powering Bulgaria's renewable surge",
+      "url": "https://www.schoenherr.eu/content/bulgaria-accelerating-the-energy-transition-through-renewables-storage-and-next-generation-nuclear ; https://renewablesnow.com/news/grid-upgrades-powering-bulgarias-renewable-surge-1293599"
+    },
+    "bg-010": {
+      "title": "Trade.gov – Bulgaria's Battery Storage Market",
+      "url": "https://www.trade.gov/market-intelligence/bulgarias-battery-storage-market"
+    },
+    "bg-011": {
+      "title": "Enerfip – Enerstorage Bulgaria BESS; Balkan Green Energy News – BESS subsidies",
+      "url": "https://app.enerfip.eu/invest-your-money/investissement-stockage/bess-bulgaria ; https://balkangreenenergynews.com/bulgaria-preparing-more-bess-subsidies-amid-boom-in-construction-of-large-facilities"
+    },
+    "bg-012": {
+      "title": "Photonik – Solar & Battery Pricing for Bulgaria",
+      "url": "https://www.photonik.solar/bg"
+    },
+    "bg-013": {
+      "title": "Schoenherr – Bulgaria energy transition",
+      "url": "https://www.schoenherr.eu/content/bulgaria-accelerating-the-energy-transition-through-renewables-storage-and-next-generation-nuclear"
+    },
+    "bg-014": {
+      "title": "No territory-specific primary source located",
+      "url": "n/a"
+    },
+    "bg-015": {
+      "title": "Lexology – Year in review: renewable energy law in Bulgaria",
+      "url": "https://www.lexology.com/library/detail.aspx?g=d6658ea8-54c3-4a05-a5c1-b5ae815d4546"
+    },
+    "bg-016": {
+      "title": "Balkan Green Energy News – BESS subsidies; Trade.gov – Bulgaria's Battery Storage Market",
+      "url": "https://balkangreenenergynews.com/bulgaria-preparing-more-bess-subsidies-amid-boom-in-construction-of-large-facilities ; https://www.trade.gov/market-intelligence/bulgarias-battery-storage-market"
+    },
+    "bg-017": {
+      "title": "CMS CEE Expert Guide to Solar Panel Installation in Bulgaria",
+      "url": "https://cms.law/en/int/expert-guides/cms-cee-expert-guide-to-solar-panel-installation/bulgaria"
+    },
+    "bg-018": {
+      "title": "CMS CEE Expert Guide to Solar Panel Installation in Bulgaria; OECD Diagnostic Toolkit",
+      "url": "https://cms.law/en/int/expert-guides/cms-cee-expert-guide-to-solar-panel-installation/bulgaria ; https://www.oecd.org/en/publications/diagnostic-toolkit-for-reducing-regulatory-barriers-to-solar-wind-and-pumped-hydro-storage-in-the-european-union_15f4aed4-en/full-report/spatial-planning-and-permitting_279bc96f.html"
+    },
+    "bg-019": {
+      "title": "OECD Diagnostic Toolkit; Mordor Intelligence – Bulgaria Solar Energy Market",
+      "url": "https://www.oecd.org/en/publications/diagnostic-toolkit-for-reducing-regulatory-barriers-to-solar-wind-and-pumped-hydro-storage-in-the-european-union_15f4aed4-en/full-report/spatial-planning-and-permitting_279bc96f.html ; https://www.mordorintelligence.com/industry-reports/bulgaria-solar-energy-market"
+    },
+    "bg-020": {
+      "title": "CMS CEE Expert Guide to Renewable Energy in Bulgaria",
+      "url": "https://cms.law/en/int/expert-guides/cms-expert-guide-to-renewable-energy/bulgaria"
+    },
+    "bg-021": {
+      "title": "Solarplaza Summit Bulgaria program; Renewables Now – Grid upgrades",
+      "url": "https://www.solarplaza.com/event/solarplaza-summit-bulgaria/program ; https://renewablesnow.com/news/grid-upgrades-powering-bulgarias-renewable-surge-1293599"
+    },
+    "bg-022": {
+      "title": "SolarPower Europe – EU Market Outlook for Solar Power 2023–2027; OECD Diagnostic Toolkit",
+      "url": "https://www.solarpowereurope.org/insights/outlooks/eu-market-outlook-for-solar-power-2023-2027/detail ; https://www.oecd.org/en/publications/diagnostic-toolkit-for-reducing-regulatory-barriers-to-solar-wind-and-pumped-hydro-storage-in-the-european-union_15f4aed4-en/full-report/spatial-planning-and-permitting_279bc96f.html"
+    },
+    "bg-023": {
+      "title": "Trade.gov – Bulgaria's Battery Storage Market; Legal500 – Bulgaria: Renewable Energy",
+      "url": "https://www.trade.gov/market-intelligence/bulgarias-battery-storage-market ; https://www.legal500.com/guides/chapter/bulgaria-renewable-energy?export-pdf="
+    },
+    "bg-024": {
+      "title": "Schoenherr – Bulgaria energy transition; ICLG – Bulgaria Renewable Energy Laws and Regulations",
+      "url": "https://www.schoenherr.eu/content/bulgaria-accelerating-the-energy-transition-through-renewables-storage-and-next-generation-nuclear ; https://iclg.com/practice-areas/renewable-energy-laws-and-regulations/bulgaria"
+    },
+    "bg-025": {
+      "title": "ICLG – Bulgaria Renewable Energy Laws and Regulations; SolarPower Europe – EU Market Outlook",
+      "url": "https://iclg.com/practice-areas/renewable-energy-laws-and-regulations/bulgaria ; https://www.solarpowereurope.org/insights/outlooks/eu-market-outlook-for-solar-power-2023-2027/detail"
+    },
+    "bg-026": {
+      "title": "ICLG – Bulgaria Renewable Energy Laws and Regulations",
+      "url": "https://iclg.com/practice-areas/renewable-energy-laws-and-regulations/bulgaria"
+    },
+    "bg-027": {
+      "title": "EU trade policy framework (stable, settled policy — based on my training data, high confidence; not re-verified in this search round)",
+      "url": "n/a"
+    },
+    "bg-028": {
+      "title": "CMS CEE Expert Guide to Solar Panel Installation in Bulgaria; Mordor Intelligence – Bulgaria Solar Energy Market",
+      "url": "https://cms.law/en/int/expert-guides/cms-cee-expert-guide-to-solar-panel-installation/bulgaria ; https://www.mordorintelligence.com/industry-reports/bulgaria-solar-energy-market"
+    },
+    "bg-029": {
+      "title": "InnoEnergy – European Installer Training & Credential Initiative (context); ICLG – Bulgaria Renewable Energy Laws and Regulations",
+      "url": "https://innoenergy.com/news-resources/building-a-skilled-solar-workforce-the-european-installer-training-credential-initiative ; https://iclg.com/practice-areas/renewable-energy-laws-and-regulations/bulgaria"
+    },
+    "bg-030": {
+      "title": "InnoEnergy – European Installer Training & Credential Initiative",
+      "url": "https://innoenergy.com/news-resources/building-a-skilled-solar-workforce-the-european-installer-training-credential-initiative"
+    },
     "cn-001": {
       "title": "IEA-PVPS Task 1 National Survey Report of PV Power Applications in China 2024",
       "url": "IEA-PVPS NSR China 2024"
@@ -320,6 +620,442 @@
     "cn-016": {
       "title": "VoxChina – Ray of hope? China and the rise of solar energy",
       "url": "VoxChina"
+    },
+    "cy-001": {
+      "title": "Bank of Cyprus Green Housing Loan; Eurobank Green Loan",
+      "url": "https://www.bankofcyrus.com/en-gb/Personal/loans/Housing/green ; https://www.eurobank.cy/en/personal/personal/green-loan-for-home-improvements"
+    },
+    "cy-002": {
+      "title": "Bank of Cyprus Green Loan; Eurobank Green Loan",
+      "url": "https://www.bankofcyprus.com/en-gb/Personal/loans/Housing/green"
+    },
+    "cy-003": {
+      "title": "EAC Net-metering Technical Guide; CERA self-consumption framework",
+      "url": "https://www.eac.com.cy/EN/RegulatedActivities/Supply/renewableenergy/Pages/netmetering.aspx"
+    },
+    "cy-004": {
+      "title": "EAC Ring-Fenced Meter Department; CERA market framework",
+      "url": "https://www.eac.com.cy/EN/RegulatedActivities/Distribution/Ring-Fenced_Meter_Department/Pages/Meter-and-Meter-Reading-Data.aspx"
+    },
+    "cy-005": {
+      "title": "Cyprus Competitive Electricity Market launch; TSOC market",
+      "url": "https://energy.cyi.ac.cy/launch_of_the_electricity_market_en"
+    },
+    "cy-006": {
+      "title": "pv magazine: Cyprus to replace net metering with new self-consumption regime",
+      "url": "https://www.pv-magazine.com/2025/10/13/cyprus-to-replace-net-metering-with-new-self-consumption-regime"
+    },
+    "cy-007": {
+      "title": "CERA Electricity (network fees); EAC billing",
+      "url": "https://www.cera.org.cy/en-gb/ilektrismos/details/geniki-adeia"
+    },
+    "cy-008": {
+      "title": "Landis+Gyr Cyprus smart meter rollout",
+      "url": "https://www.landisgyr.com/news/landisgyr-to-provide-solutions-for-cyprus-smart-meter-roll-out"
+    },
+    "cy-009": {
+      "title": "RSE report on Cyprus aggregation rules",
+      "url": "https://www.energy.gov.cy/assets/modules/wnp/articles/202307/226/docs/rseoutput12final.pdf"
+    },
+    "cy-010": {
+      "title": "SolarFarms.cy Live Electricity Market Pricing",
+      "url": "https://solarfarms.cy/market"
+    },
+    "cy-011": {
+      "title": "Balkan Green Energy News; RSE report",
+      "url": "https://balkangreenenergynews.com/electricity-exchange-kicks-off-in-cyprus-with-17-participants ; https://www.energy.gov.cy/assets/modules/wnp/articles/202307/226/docs/rseoutput12final.pdf"
+    },
+    "cy-012": {
+      "title": "CERA market framework; RSE report",
+      "url": "https://www.cera.org.cy/en-gb/ilektrismos/details/geniki-adeia"
+    },
+    "cy-013": {
+      "title": "CERA Net Pool market arrangements; TSOC TSRs",
+      "url": "https://www.cera.org.cy/Templates/00001/data/nomothesia/ethniki/hlektrismos/rythmistikes_apofaseis/2015_01%20en.pdf"
+    },
+    "cy-014": {
+      "title": "Cyprus Institute market launch; TSOC",
+      "url": "https://energy.cyi.ac.cy/launch_of_the_electricity_market_en"
+    },
+    "cy-015": {
+      "title": "RSE report",
+      "url": "https://www.energy.gov.cy/assets/modules/wnp/articles/202307/226/docs/rseoutput12final.pdf"
+    },
+    "cy-016": {
+      "title": "SolarFarms.cy market pricing",
+      "url": "https://solarfarms.cy/market"
+    },
+    "cy-017": {
+      "title": "CERA Net Pool arrangements",
+      "url": "https://www.cera.org.cy/Templates/00001/data/nomothesia/ethniki/hlektrismos/rythmistikes_apofaseis/2015_01%20en.pdf"
+    },
+    "cy-018": {
+      "title": "—",
+      "url": "—"
+    },
+    "cy-019": {
+      "title": "CERA market framework",
+      "url": "https://www.cera.org.cy/en-gb/ilektrismos/details/geniki-adeia"
+    },
+    "cy-020": {
+      "title": "pv magazine; CERA self-consumption framework",
+      "url": "https://www.pv-magazine.com/2025/10/13/cyprus-to-replace-net-metering-with-new-self-consumption-regime"
+    },
+    "cy-021": {
+      "title": "Clean Energy for EU Islands: grid connection permit process",
+      "url": "https://clean-energy-islands.ec.europa.eu/countries/cyprus/legal/res-permits-and-authorisation-processes/grid-connection-permit-process"
+    },
+    "cy-022": {
+      "title": "Petrolina Solar licensing process; Suxeed Solar",
+      "url": "https://petrolinasolar.com.cy/en/virtual-net-billing ; https://www.suxeed-solar.com.cy/net-metering"
+    },
+    "cy-023": {
+      "title": "Petrolina Solar; cgpsolar net billing guide",
+      "url": "https://cgpsolar.eu/net-billing-in-cyprus"
+    },
+    "cy-024": {
+      "title": "Clean Energy for EU Islands",
+      "url": "https://clean-energy-islands.ec.europa.eu/countries/cyprus/legal/res-permits-and-authorisation-processes/grid-connection-permit-process"
+    },
+    "cy-025": {
+      "title": "EAC RES-E Hosting Capacity",
+      "url": "https://www.eac.com.cy/EN/RegulatedActivities/Distribution/renewableenergy/Pages/hosting-capacity.aspx"
+    },
+    "cy-026": {
+      "title": "Clean Energy for EU Islands; EAC",
+      "url": "https://clean-energy-islands.ec.europa.eu/countries/cyprus/legal/res-permits-and-authorisation-processes/grid-connection-permit-process"
+    },
+    "cy-027": {
+      "title": "EAC FAQ; Petrolina Solar",
+      "url": "https://www.eac.com.cy/EN/EAC/FAQ/Pages/default.aspx"
+    },
+    "cy-028": {
+      "title": "TSOC TSRs/TDRs; EU storage regulatory framework",
+      "url": "https://reforms-investments.ec.europa.eu/projects/energy-storage-regulatory-framework_en"
+    },
+    "cy-029": {
+      "title": "Landis+Gyr; TSOC",
+      "url": "https://www.landisgyr.com/news/landisgyr-to-provide-solutions-for-cyprus-smart-meter-roll-out"
+    },
+    "cy-030": {
+      "title": "RES EU certification Cyprus; EAC technical guide",
+      "url": "https://reseu.eu/schemes/cyprus"
+    },
+    "cy-031": {
+      "title": "EU TARIC; Cyprus customs",
+      "url": "https://www.als-cs.com/industries/renewable-energy"
+    },
+    "cy-032": {
+      "title": "RESEC Fund; cgpsolar grants guide",
+      "url": "https://resecfund.org.cy/en/sxedia ; https://cgpsolar.eu/solar-panel-grants-in-cyprus"
+    },
+    "cy-033": {
+      "title": "RES EU certification Cyprus",
+      "url": "https://reseu.eu/schemes/cyprus"
+    },
+    "cz-001": {
+      "title": "\"Czech Republic Solar Energy Market Size...\"",
+      "url": "Mordor Intelligence"
+    },
+    "cz-002": {
+      "title": "\"Turning to the sun: Solar rise in Central Europe\"",
+      "url": "Ember"
+    },
+    "cz-003": {
+      "title": "\"RES+ Funding Note\"",
+      "url": "KPMG"
+    },
+    "cz-004": {
+      "title": "\"Building a Skilled Solar Workforce...\"",
+      "url": "InnoEnergy"
+    },
+    "cz-005": {
+      "title": "\"Virtual Power Plants (VPP) — Distributed Grid Intelligence\"",
+      "url": "Solar Data Atlas"
+    },
+    "cz-006": {
+      "title": "\"Electricity price statistics - Eurostat\"",
+      "url": "Eurostat"
+    },
+    "cz-007": {
+      "title": "\"Snapshot of Global PV Markets - 2025\"",
+      "url": "IEA-PVPS"
+    },
+    "cz-008": {
+      "title": "\"Electricity bill explained — what every line item means in 2026\"",
+      "url": "euenergy.live"
+    },
+    "cz-009": {
+      "title": "\"Smart meter deployment in the EU: which countries are leading...\"",
+      "url": "triPica"
+    },
+    "cz-010": {
+      "title": "\"The technical-economic potential of demand response...\"",
+      "url": "UPC"
+    },
+    "cz-011": {
+      "title": "\"Ancillary Services Markets Explained\"",
+      "url": "Montel"
+    },
+    "cz-012": {
+      "title": "\"Overcoming energy price volatility for Czech businesses\"",
+      "url": "Wattstor"
+    },
+    "cz-013": {
+      "title": "\"Country profile – Czech Republic\"",
+      "url": "EEA"
+    },
+    "cz-014": {
+      "title": "\"Company Solar Tax: Slovakia vs Czechia 2026\"",
+      "url": "Wellbens"
+    },
+    "cz-015": {
+      "title": "\"Energy self-defence against official policy...\"",
+      "url": "ScienceDirect"
+    },
+    "cz-016": {
+      "title": "\"CMS CEE Expert Guide to Solar Panel Installation...\"",
+      "url": "CMS"
+    },
+    "cz-017": {
+      "title": "\"Czech Republic: amended building code to make life easier\"",
+      "url": "Lexology"
+    },
+    "cz-018": {
+      "title": "\"Czech Republic BESS Policies and Market (2024–25)\"",
+      "url": "LZY Energy"
+    },
+    "cz-019": {
+      "title": "\"CMS CEE Expert Guide...\"",
+      "url": "CMS"
+    },
+    "cz-020": {
+      "title": "\"EU curbs on Chinese components risk halting renewables rollout...\"",
+      "url": "Reuters/Yahoo Finance"
+    },
+    "dk-001": {
+      "title": "Auxilium grid queue analysis",
+      "url": "auxinfra.com)"
+    },
+    "dk-002": {
+      "title": "Energinet retail market report; denmark.dk",
+      "url": "energinet.dk / denmark.dk"
+    },
+    "ee-001": {
+      "title": "Reconstruction grant for small residences 2024-2025 RRF – EIS",
+      "url": "https://eis.ee/en/services/majaduueks"
+    },
+    "ee-002": {
+      "title": "Subsidy II (reconstruction grant for small residences) – Clean Energy for EU islands",
+      "url": "https://clean-energy-islands.ec.europa.eu/countries/estonia/legal/heating-cooling-support/subsidy-ii-reconstruction-grant-small-residences"
+    },
+    "ee-003": {
+      "title": "Electricity market – Ministry of Climate",
+      "url": "https://kliimaministeerium.ee/en/electricity-market"
+    },
+    "ee-004": {
+      "title": "Electricity market – Ministry of Climate; Estonia Electricity Tariff API – tounify",
+      "url": "https://kliimaministeerium.ee/en/electricity-market ; https://tounify.io/markets/ee"
+    },
+    "ee-005": {
+      "title": "The changing regulatory landscape of household self-consumption – REKK",
+      "url": "https://rekk.hu/downloads/events/ECF%20Self-consumption%20study%20REKK_final.pdf"
+    },
+    "ee-006": {
+      "title": "Estonia Electricity Tariff API – tounify",
+      "url": "https://tounify.io/markets/ee"
+    },
+    "ee-007": {
+      "title": "Additional Grid-E Aspects – Clean Energy for EU islands",
+      "url": "https://clean-energy-islands.ec.europa.eu/additional-grid-e-aspects-13"
+    },
+    "ee-008": {
+      "title": "Connection of an electricity producer – Elektrilevi",
+      "url": "https://elektrilevi.ee/en/elektritootja/elektritootja-liitumine/elektritootja"
+    },
+    "ee-009": {
+      "title": "NordPool day-ahead electricity prices (Estonia) – evcc GitHub discussion; Baltic TSOs access MARI platform – ENTSO-E",
+      "url": "https://github.com/evcc-io/evcc/discussions/1545 ; https://eepublicdownloads.blob.core.windows.net/public-cdn-container/clean-documents/Network%20codes%20documents/NC%20EB/2024/241010_Communication_note_Baltic_TSOs__Elering__AST_and_Litgrid__go-live.pdf"
+    },
+    "ee-010": {
+      "title": "Additional Grid-E Aspects – Clean Energy for EU islands; Balancing Energy via our Next Kraftwerke VPP",
+      "url": "https://clean-energy-islands.ec.europa.eu/additional-grid-e-aspects-13 ; https://www.next-kraftwerke.com/products/balancing-energy"
+    },
+    "ee-011": {
+      "title": "Connection conditions and legislation – Elering",
+      "url": "https://www.elering.ee/en/connection-conditions-and-legislation-0"
+    },
+    "ee-012": {
+      "title": "Baltic TSOs access MARI platform – ENTSO-E",
+      "url": "https://eepublicdownloads.blob.core.windows.net/public-cdn-container/clean-documents/Network%20codes%20documents/NC%20EB/2024/241010_Communication_note_Baltic_TSOs__Elering__AST_and_Litgrid__go-live.pdf"
+    },
+    "ee-013": {
+      "title": "NordPool day-ahead electricity prices (Estonia) – evcc GitHub discussion",
+      "url": "https://github.com/evcc-io/evcc/discussions/1545"
+    },
+    "ee-014": {
+      "title": "Estonia Electricity Tariff API – tounify; Connection of an electricity producer – Elektrilevi",
+      "url": "https://tounify.io/markets/ee ; https://elektrilevi.ee/en/elektritootja/elektritootja-liitumine/elektritootja"
+    },
+    "ee-015": {
+      "title": "Estonia – OECD Infrastructure Toolkit (Building Register)",
+      "url": "https://infrastructure-toolkit.oecd.org/wp-content/uploads/Estonia_BuildingRegister.pdf"
+    },
+    "ee-016": {
+      "title": "Solar and Precautionary Requirements in different Built Environments – FEDARENE",
+      "url": "https://fedarene.org/best-practice/solar-and-precautionary-requirements-in-different-built-environments"
+    },
+    "ee-017": {
+      "title": "Elering – TSO-DSO Cooperation Platform (Capacitypedia)",
+      "url": "https://www.tsodsoplatform.eu/capacitypedia/estonia/elering"
+    },
+    "ee-018": {
+      "title": "Legislation – Elering",
+      "url": "https://www.elering.ee/en/legislation"
+    },
+    "ee-019": {
+      "title": "Electrician Certificate in Estonia – safecity.ee",
+      "url": "https://safecity.ee/electrician-certificate-estonia"
+    },
+    "ee-020": {
+      "title": "Electrician Certificate in Estonia – safecity.ee; Building Code 1 – Riigi Teataja",
+      "url": "https://safecity.ee/electrician-certificate-estonia ; https://www.riigiteataja.ee/en/eli/529082019021/consolide"
+    },
+    "ee-021": {
+      "title": "Smarter European Union industrial policy for solar panels – Bruegel",
+      "url": "https://www.bruegel.org/policy-brief/smarter-european-union-industrial-policy-solar-panels"
+    },
+    "ee-022": {
+      "title": "Reconstruction grant for small residences 2024-2025 RRF – EIS; Estonia increases VAT to 24% – Avalara",
+      "url": "https://eis.ee/en/services/majaduueks ; https://www.avalara.com/blog/en/europe/2025/07/estonia-vat-rate-change-2025.html"
+    },
+    "de-001": {
+      "title": "KfW press release, 18 Jun 2026; SurgePV Germany incentives guide",
+      "url": "https://www.kfw.de/About-KfW/Newsroom/Latest-News/Pressemitteilungen-Details_898368.html"
+    },
+    "de-002": {
+      "title": "Ember, Germany's battery opportunity; Clean Energy Wire Q1 2026",
+      "url": "https://ember-energy.org/latest-insights/germanys-battery-opportunity"
+    },
+    "de-003": {
+      "title": "SurgePV Germany incentives guide; KfW press release",
+      "url": "https://www.surgepv.com/hub/solar-industry/germany"
+    },
+    "de-004": {
+      "title": "SurgePV guide; BSW-Solar market overview",
+      "url": "https://www.solarwirtschaft.de/en/the-german-pv-and-battery-storage-market"
+    },
+    "de-005": {
+      "title": "CMS Law, Energy storage trends – Germany; McDermott, Solarpaket I",
+      "url": "https://cms.law/en/deu/legal-updates/energy-storage-trends-spotlight-on-germany"
+    },
+    "de-006": {
+      "title": "Photovoltaikshop EEG rates Aug 2025; Reslink Solarspitzengesetz guide",
+      "url": "https://www.reslink.org/blogs/germany-solar-feed-in-tariff-solar-peak-act-epc-guide"
+    },
+    "de-007": {
+      "title": "Clean Energy Wire, what households pay; BNetzA network charges",
+      "url": "https://www.cleanenergywire.org/factsheets/what-german-households-pay-electricity"
+    },
+    "de-008": {
+      "title": "innobu smart meter rollout; U-Energie B2B storage blog",
+      "url": "https://www.innobu.com/en/book-smart-meter-rollout-practice.html"
+    },
+    "de-009": {
+      "title": "Next Kraftwerke/sonnen FCR cooperation; enefirst, Enabling rules for DR aggregators",
+      "url": "https://www.next-kraftwerke.com/news/sonnen-next-kraftwerke-co-operate-fcr-home-batteries"
+    },
+    "de-010": {
+      "title": "Netztransparenz ancillary services",
+      "url": "https://www.netztransparenz.de"
+    },
+    "de-011": {
+      "title": "sonnen, 5 years of sonnenVPP; Next Kraftwerke press release",
+      "url": "https://www.sonnenbatterie.co.uk/blog/5-years-of-sonnenvpp"
+    },
+    "de-012": {
+      "title": "netztransparenz, black start procurement; enspired, Non-frequency ancillary services",
+      "url": "https://www.enspired-trading.com/blog/non-frequency-ancillary-services-inertia-reactive-power-black-start"
+    },
+    "de-013": {
+      "title": "sonnen, 5 years of sonnenVPP; Next Kraftwerke press release; netztransparenz.de",
+      "url": "https://www.sonnenbatterie.co.uk/blog/5-years-of-sonnenvpp"
+    },
+    "de-014": {
+      "title": "Bender EEBUS blog; TransnetBW, interruptible loads levy",
+      "url": "https://www.transnetbw.de/en/energy-market/renewables-and-levies/interruptible-loads-levy"
+    },
+    "de-015": {
+      "title": "CheckAlle, dynamic tariffs Germany 2026; sonnenVPP",
+      "url": "https://checkalle.de/dynamic-electricity-tariffs-2026"
+    },
+    "de-016": {
+      "title": "netztransparenz, market-based procurement of black start; TransnetBW, black start capability",
+      "url": "https://www.netztransparenz.de/en/Ancillary-Services/Emergency-restoration/Market-based-procurement-of-black-start-capability"
+    },
+    "de-017": {
+      "title": "Reslink, Solarspitzengesetz guide; CheckAlle dynamic tariffs",
+      "url": "https://checkalle.de/dynamic-electricity-tariffs-2026"
+    },
+    "de-018": {
+      "title": "enefirst, Enabling rules for DR aggregators; TransnetBW interruptible loads levy",
+      "url": "https://enefirst.eu/wp-content/uploads/5_ENABLING-RULES-FOR-DEMAND-RESPONSE-AGGREGATORS.pdf"
+    },
+    "de-019": {
+      "title": "Eurostat electricity price statistics; Clean Energy Wire price composition",
+      "url": "https://www.cleanenergywire.org/factsheets/what-german-households-pay-electricity"
+    },
+    "de-020": {
+      "title": "Eurelectric, Gridlock to grid growth; pvprosolar, Solar energy laws",
+      "url": "https://www.eurelectric.org/blog/gridlock-to-grid-growth"
+    },
+    "de-021": {
+      "title": "pvprosolar, Solar Energy Laws in Germany",
+      "url": "https://pvprosolar.de/en/solar-energy-laws-in-germany"
+    },
+    "de-022": {
+      "title": "pv magazine, new German rule for plug-in PV; Clean Energy Wire, balcony PV registration; Prompt Quorum Balkonkraftwerk rules",
+      "url": "https://www.cleanenergywire.org/news/germany-simplifies-registration-balcony-photovoltaic-units"
+    },
+    "de-023": {
+      "title": "BNetzA, Core energy market data register; amtsguide, registering balcony solar",
+      "url": "https://www.bundesnetzagentur.de/EN/Areas/Energy/CoreEnergyMarketDataRegister/start.html"
+    },
+    "de-024": {
+      "title": "pvprosolar, Solar energy laws; Taylor Wessing, EEG 2027 overview",
+      "url": "https://pvprosolar.de/en/solar-energy-laws-in-germany"
+    },
+    "de-025": {
+      "title": "Beyond Fossil Fuels/AFRY, distribution backlog report; Eurelectric, Gridlock to grid growth",
+      "url": "https://beyondfossilfuels.org/wp-content/uploads/2026/05/AFRY_BFF_Grid-expectations-The-distribution-backlog-stalling-Europes-energy-transition-report.pdf"
+    },
+    "de-026": {
+      "title": "BNetzA, Network charges; netztransparenz levies",
+      "url": "https://www.bundesnetzagentur.de/EN/RulingChambers/Chamber8/RC8_06_Network%20charges/RC8_06_Network%20charges.html"
+    },
+    "de-027": {
+      "title": "BNetzA, Core energy market data register; ESS News, new German allowances for plug-in PV and storage",
+      "url": "https://www.bundesnetzagentur.de/EN/Areas/Energy/CoreEnergyMarketDataRegister/start.html"
+    },
+    "de-028": {
+      "title": "pv magazine, VDE-AR-N 4105:2026-03 update; EEBUS/VDE documentation",
+      "url": "https://www.pv-magazine.com/2026/04/08/new-german-rule-allarger-plug-in-pv-without-electrician"
+    },
+    "de-029": {
+      "title": "Prompt Quorum, Balkonkraftwerk rules; pv magazine, plug-in PV rules",
+      "url": "https://www.promptquorum.com/balcony-solar/balkonkraftwerk-germany-rules"
+    },
+    "de-030": {
+      "title": "Andrews-Speed, EU removes import duties on Chinese solar panels; Clean Energy Wire, EU lifts tariffs on Chinese solar panels; Aurora Solar, solar tariffs",
+      "url": "https://www.cleanenergywire.org/news/eu-lifts-tariffs-chinese-solar-panels-co2-fills-germanys-coffers"
+    },
+    "de-031": {
+      "title": "RES EU certification, Germany scheme; InnoEnergy, European Solar Academy",
+      "url": "https://reseu.eu/schemes/germany"
+    },
+    "de-032": {
+      "title": "DGS/GREEN Solar Academy; RENAC courses; MyGermanUniversity solar programmes list",
+      "url": "https://www.renac.de/solar-energy-photovoltaics-pv-training-course-training-classes-online"
     },
     "in-001": {
       "title": "PM Surya Ghar Central Financial Assistance Guidelines",
@@ -1289,6 +2025,142 @@
       "title": "electimes article; 배울학 training provider",
       "url": "electimes.com ; youtube.com"
     },
+    "es-001": {
+      "title": "Spain moves toward national tax relief for solar self-consumption",
+      "url": "https://www.pveurope.eu/markets/spain-moves-toward-national-tax-relief-solar-self-consumption"
+    },
+    "es-002": {
+      "title": "What's the Return on Investment for Solar Panels in Spain?",
+      "url": "https://marblancsolar.com/whats-the-roi-for-solar-panels"
+    },
+    "es-003": {
+      "title": "Historic-low interest rates will power ahead astonishing solar cost reductions",
+      "url": "https://www.pv-magazine.com/2020/06/09/historic-low-interest-rates-will-power-ahead-astonishing-solar-cost-reductions"
+    },
+    "es-004": {
+      "title": "Self-Consumption Installer Certification",
+      "url": "UNEF"
+    },
+    "es-005": {
+      "title": "The Spanish Energy Storage Market: Foundations for a Clean Energy Future",
+      "url": "https://www.mdpi.com/1996-1073/18/21/5788"
+    },
+    "es-006": {
+      "title": "Spanish Electricity Bill Explained: Potencia, Consumo and Hidden Costs",
+      "url": "https://guides.waypointsur.com/spain-electricity-bill-explained"
+    },
+    "es-007": {
+      "title": "Self-consumption in Spain 2024",
+      "url": "https://onehub.energy/en/blog/self-consumption"
+    },
+    "es-008": {
+      "title": "CNMC Regulation 2026: Energy Obligations, Rules and How",
+      "url": "https://igerasolutions.com/en/blog/regulacion-cnmc-energia-2026"
+    },
+    "es-009": {
+      "title": "An electricity smart meter dataset of Spanish households",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10781956"
+    },
+    "es-010": {
+      "title": "Backup power for Europe - part 4: Spain's BESS market is heating up",
+      "url": "https://www.rabobank.com/knowledge/d011476239-backup-power-for-europe-part-4-spain-s-bess-market-is-heating-up"
+    },
+    "es-011": {
+      "title": "Red Eléctrica - Data",
+      "url": "https://www.ree.es/en/date/todate"
+    },
+    "es-012": {
+      "title": "Virtual power plants (vpp) aggregating distributed energy",
+      "url": "https://oa.upm.es/63128/1/TFM_JOEL_LOPEZ_SAEZ_DE_ARGANDONA.pdf"
+    },
+    "es-013": {
+      "title": "Unlock Ancillary Services Revenue for Battery Storage",
+      "url": "https://www.sysotechnologies.com/2024/11/22/unlocking-ancillary-services-revenue-for-battery-storage"
+    },
+    "es-014": {
+      "title": "Introduction to Battery Energy Storage Markets: Spain and Portugal",
+      "url": "https://www.gorestreetcap.com/blog/introduction-to-battery-energy-storage-markets-spain-and-portugal-the-iberian-grid"
+    },
+    "es-015": {
+      "title": "What Are Ancillary Services in Energy Storage?",
+      "url": "https://www.linkedin.com/pulse/flowcast-what-ancillary-services-energy-v7lpc"
+    },
+    "es-016": {
+      "title": "The Spanish Electricity Market - SEM Committee",
+      "url": "https://www.semcommittee.com/files/semcommittee/media-files/SEM-15-043b%20Maria%20Luisa%20Huidobro%20Presentation%2C%20I-SEM%20Stakeholder%20Forum.pdf"
+    },
+    "es-017": {
+      "title": "Grid design, frequency regulation & ancillary services",
+      "url": "https://www.enspired-trading.com/blog/grid-design-frequency-regulation-ancillary-services"
+    },
+    "es-018": {
+      "title": "Virtual Power Plant Market Size, Share & Forecast Report 2025 to 2033",
+      "url": "https://dataintelo.com/report/virtual-power-plant-market"
+    },
+    "es-019": {
+      "title": "Review of global sustainable solar energy policies",
+      "url": "https://www.sciencedirect.com/science/article/pii/S2949753125000219"
+    },
+    "es-020": {
+      "title": "How solar self-consumption (autoconsumo) works in Spain",
+      "url": "https://sunriseenergy.es/how-does-a-grid-connected-solar-system-work-in-spain"
+    },
+    "es-021": {
+      "title": "PV Commissioning and Permitting – Case Study: Spain",
+      "url": "https://matiasverdu.com/2025/08/24/pv-commissioning-and-permitting-case-study-spain"
+    },
+    "es-022": {
+      "title": "Grid connection permit process",
+      "url": "https://clean-energy-islands.ec.europa.eu/countries/spain/legal/res-permits-and-authorisation-processes/grid-connection-permit-process"
+    },
+    "es-023": {
+      "title": "Solar PV Market in Spain: Insights into the Current State and Future Prospects",
+      "url": "https://malogica.solar/blog/solar-pv-market-in-spain-insights-into-the-current-state-and-future-prospects"
+    },
+    "es-024": {
+      "title": "Red Eléctrica publishes the demand access capacity map by consumption type",
+      "url": "https://www.ree.es/en/press-office/news/press-release/2026/09/red-electrica-publishes-the-demand-access-capacity-map-by-consumption-type"
+    },
+    "es-025": {
+      "title": "Spanish regulator sets 6.58% return for power grids",
+      "url": "https://www.reuters.com/business/energy/spanish-regulator-sets-658-return-power-grids-2026-2031-2025-12-23"
+    },
+    "es-026": {
+      "title": "Digital certificate Spain: why you need it",
+      "url": "https://easytospain.com/blogs/digital-certificate-spain-why-you-need-it"
+    },
+    "es-027": {
+      "title": "After the Blackout: What Next for Spain's Power System?",
+      "url": "https://www.linkedin.com/posts/aurora-energy-research-limited_after-the-blackout-what-next-for-spains-activity-7347951609491972096-Lpj3"
+    },
+    "es-028": {
+      "title": "Cybersecurity for telecom operators: NIS2 and CNMC in Spain 2026",
+      "url": "https://secra.es/en/blog/telecom-operators-cybersecurity-nis2"
+    },
+    "es-029": {
+      "title": "ENS - Esquema Nacional de Seguridad",
+      "url": "https://ens.ccn.cni.es/en"
+    },
+    "es-030": {
+      "title": "TRAINING OF PHOTOVOLTAIC INSTALLERS IN EUROPE",
+      "url": "http://pvtrin.eu/assets/media/PDF/Publications/Informational%20Material/training_cert_scheme/378.pdf"
+    },
+    "es-031": {
+      "title": "Solar Installer Certification & Licensing Guide",
+      "url": "https://www.greenlancer.com/post/solar-installer-certification"
+    },
+    "es-032": {
+      "title": "EU Market Outlook for Solar Power 2023-2027",
+      "url": "https://www.solarpowereurope.org/insights/outlooks/eu-market-outlook-for-solar-power-2023-2027/detail"
+    },
+    "es-033": {
+      "title": "Solar Incentives in Spain 2025",
+      "url": "https://solarin.es/solar-incentives-in-spain-2025"
+    },
+    "es-034": {
+      "title": "Building a Skilled Solar Workforce: The European Installer Training & Credential Initiative",
+      "url": "https://innoenergy.com/news-resources/building-a-skilled-solar-workforce-the-european-installer-training-credential-initiative"
+    },
     "lk-001": {
       "title": "ADB Financing for Rooftop Solar",
       "url": "https://www.adb.org/news/adb-approves-financing-rooftop-solar-and-virtual-net-metering-boost-clean-energy-access-sri-lanka"
@@ -1803,6 +2675,376 @@
   "answers": [
     {
       "countries": [
+        "AT"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-001",
+      "note": "Some low cost finance available but not yet universally acessible\n\nGovernment investment grants (EAG/OeMAG) and provincial rebates exist, but no universal no-/low-interest retail lending scheme; grants are quota-limited and oversubscribed\n\nGrants of €150–160/kWp PV and €150/kWh storage; rounds oversubscribed within seconds; no dedicated low-interest loan product identified"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 11,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-002",
+      "note": "Behind-the-meter technology only affordable and accessible to middle and highest earners\n\nBroadly accessible to middle and higher earners via grants; zero-capital-cost models are not mainstream; VAT exemption removal raised upfront cost\n\nPayback 6–9 years; residential installations fell after 0% VAT ended 31 March 2025"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 13,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-003",
+      "note": "Best practices and standards in place for consumer protection but not enforced\n\nConsumer protection framework is mature (E-Control, Tarifkalkulator), and ElWG strengthens transparency, but no single mandated calculation standard for BTMT benefits\n\nElWG requires supplier reporting to comparison tool; supplier switching cut to 24h from 1 April 2026"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 14,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-004",
+      "note": "Network operators face some barriers to operating, incentivising, contracting with or owning behind-the-meter technology\n\nDSOs may contract flexibility and storage services, but ownership of customer-sited BTMT faces structural and regulatory barriers\n\nStorage exempt from grid charges only if grid-charged and system-supportive; DSO flexibility platform agreements required"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 16,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-005",
+      "note": "Time of use pricing for electricity import available to all or almost all customers\n\nFully liberalised market with EPEX/EXAA day-ahead and quarter-hourly products; dynamic tariffs widely available but not universal\n\naWATTar, Wien Energie, Energie AG, Energie Steiermark offer spot-linked tariffs; requires 15-min smart meter"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-006",
+      "note": "Export pricing available but restricted to only one form of behind-the-meter technology or not available to all customers\n\nExport priced via OeMAG feed-in tariff or market-based sale; dynamic export pricing available through some suppliers but not universal\n\nOeMAG 7.67 c/kWh (≤10 kWp, 13 yrs); dynamic export via aWATTar/Tibber; applies to both solar and storage"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 18,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-007",
+      "note": "Bills broken down to show all of the following: wholesale/energy costs, network costs, system operation and taxes (where these are applicable)\n\nBills itemise energy, network charges, taxes and levies separately\n\nBills show energy, network, electricity tax, levies, metering, VAT; ~130 grid operators under E-Control supervision"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 19,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-008",
+      "note": "Data is available in an electronic fomat online\n\nQuarter-hourly data available electronically by default since ElWG (Dec 2025); ~97% smart meter coverage\n\n6.5m+ devices; >140 grid operators; EDA network access; no opt-in required for quarter-hourly transmission"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 20,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-009",
+      "note": "Behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology\n\n1 MW minimum bid size in aFRR/mFRR balancing markets excludes individual small assets; aggregation required\n\nFCR ±60–80 MW in APG area; aFRR/mFRR organised by APG; 1 MW minimum standard product"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 21,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "at-010",
+      "note": "At least one wholesale or ancillary market does not have transparent pricing\n\nWholesale day-ahead prices published by APG/EXAA; balancing market outcomes less fully transparent in real time\n\nAPG publishes Market Coupling and EXAA 10:15 auction prices; historical day-ahead values downloadable"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 22,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-011",
+      "note": "VPPs have access to no more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology\n\nVPPs operate (e.g. cyberGRID, Theiss hybrid project); ElWG recognises aggregators and active customers, but balancing access still constrained by bid-size rules\n\nTheiss: 3.1 MW PV + 5 MW/6 MWh battery providing FCR/aFRR/mFRR; ElWG grants aggregators equal data access"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 24,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-012",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards but only under trials\n\nElWG introduces flexible grid connection and DSO flexibility platforms; grid-charge reductions for consumption 10:00–16:00 April–September from 2026\n\n20% lower grid fees for 10:00–16:00 summer consumption; storage exemption tied to system-supportive operation"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 25,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-013",
+      "note": "Compensation available but not to all customers\n\nReactive power contracts available to APG-connected users under TOR; distribution-level arrangements bilateral, not open to all\n\nAll transmission-connected plants obliged to provide voltage control; DSO-level based on individual arrangements"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 26,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-014",
+      "note": "Compensation available but not to all customers\n\nFCR, aFRR and mFRR markets operate via APG auctions; open to DERs meeting technical requirements but subject to 1 MW minimum\n\nFCR 30s, aFRR 5min, mFRR 10min activation; interest from solar and storage to become BSPs"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 27,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-015",
+      "note": "Compensation available but not to all customers\n\nElWG introduces peak shaving (uncompensated curtailment) and flexible connection; no general household demand-charge reduction product\n\nPeak shaving imposes financial risk as curtailments uncompensated; flexibility monetisation still developing"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 28,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-016",
+      "note": "Compensation available but not to all customers\n\nAchieved implicitly via dynamic tariffs and self-consumption arbitrage; no dedicated capacity payment for households\n\nSpot-linked tariffs let prosumers shift load/export at high prices; self-consumption saves 25–35 c/kWh"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 29,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-017",
+      "note": "Compensation available but not to all customers\n\nBlack start procured from hydro storage plants via agreement with APG; not open to behind-the-meter technology\n\nAPG relies on hydro storage; no special rules opening black start to DERs"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 31,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-018",
+      "note": "Compensation available but not to all customers\n\nDemand response exists via aggregators and balancing markets, but not universally accessible to households\n\nAggregators monetise industrial/commercial flexibility; ACER notes barriers to demand response remain"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 32,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "at-019",
+      "note": "No compensation available / market does not exist for any assets.\n\nNo carbon-related compensation market open to behind-the-meter technology identified\n\nGuarantees of origin exist under EAG, but no carbon-service remuneration for BTMT"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 33,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-020",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards as part of business as usual\n\nEnergy communities and P2P sharing offer alternative revenue routes; grid-charge and levy exemptions create value\n\nP2P from 5 Oct 2026; RECs exempt from electricity duty and renewable contribution duty"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-021",
+      "note": "No fee is payable\n\nNo grid fees, network charges or green electricity surcharge on self-consumed electricity; electricity duty removed\n\n25,000 kWh threshold removed in 2021 — no electricity tax on self-consumed renewable generation"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-022",
+      "note": "No barriers to connecting and using behind-the-meter technology for self-consumption\n\nGeneral connection obligation; rooftop systems generally permit-free; minor notification/registration steps remain\n\nStatutory connection obligation; small rooftop arrays typically approval-free subject to statics/heritage rules"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 38,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-023",
+      "note": "Permitting is required but is simple and online\n\nNo single national automated permitting system; building law is provincial, with registration via grid operator and OeMAG\n\nBuilding law sits with nine provinces; no one-stop-shop; provincial variation persists"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 39,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-024",
+      "note": "Solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes\n\nRooftop PV generally permitted without consent; restrictions apply for heritage zones, facades and oversized arrays\n\n\"Schlichte Genehmigungsfreiheit\" for roof-parallel installs; exceptions for listed buildings and design codes"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-025",
+      "note": "Interconnection application is required but is simple and online. Applications are processeed in less than 15 days.\n\nConnection is a right with regulated fees, but the process involves applications, capacity assessment and is not fully automated or zero-cost\n\nRequires grid compatibility assessment, connection capacity agreement, operating licence; NE1/NE2 minimum 200 MW"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 42,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-026",
+      "note": "There is a full location specific database of available capacity for customers to connect behind-the-meter technology\n\nNational grid capacity map published in 2023; ElWG mandates a common DSO platform publishing available/booked capacity by 1 Jan 2026\n\nMap upgraded quarterly by Oesterreichs Energie; platform deadline implementation uncertain"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 43,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-027",
+      "note": "Data available but is only for import or export or some customers\n\nConnection fees are regulated by E-Control, but location-specific cost data for capacity upgrades is not fully public\n\nElWOG mandates general connection obligation with regulated fees; upgrade cost transparency limited"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-028",
+      "note": "Digital registration process in place which is at least regionalised\n\nRegistration handled digitally via grid operator portals and OeMAG/EAG platform, but fragmented across ~130 operators\n\n>140 grid operators; EDA data network; OeMAG portal for subsidy applications"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 47,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-029",
+      "note": "System operator cannot dispatch with more than 50% of total electricity generation from behind the meter tech at any one time\n\nNo evidence Austria dispatches ≥70% from behind-the-meter sources; hydro dominates (~60%) and PV ~10–11%\n\nHydro ~60%, wind 16%, PV 10%; BTMT share far below 70% dispatch threshold"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 48,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-030",
+      "note": "Some localised rules and some national/statewide rules\n\nNational grid code (TOR) and E-Control rules govern market participation; ElWG consolidates national framework\n\nTOR sets technical requirements; ElWG first comprehensive reform since 2010"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 49,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "at-031",
+      "note": "Some localised rules and some national/statewide rules\n\nElWG mandates digital interfaces giving customers and aggregators equal data access; quarter-hourly values standard\n\nNew digital interfaces for customers and aggregators; EDA network; opt-out available"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-032",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nÖVE/ÖNORM standards harmonised with EN/IEC; OVE publishes ~7,000 standards; TAEV/electrical inspection regime\n\nÖVE/ÖNORM E-series; initial inspection under ÖVE/ÖNORM E 8001-6-61; Anlagenbuch/E-Befund"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-033",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nComprehensive occupational safety (Arbeitsschutzgesetz), fire-safety guidance, CE marking and IEC 61730 module safety standards\n\nEN IEC 61730-1/-2 module safety qualification; Low Voltage Directive; TRVB fire guidelines"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-034",
+      "note": "Tariffs on imported behind-the-meter technology <10%\n\nEU customs union: 0% MFN duty on PV modules (8541.43) and inverters (8504.40); EU trade-defence measures may apply by origin\n\nBase MFN duty often zero; anti-dumping/countervailing duties origin-dependent"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 55,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-035",
+      "note": "Any tax incentives or subsidies for behind-the-meter technology match or exceed those provided to utility scale technology or other energy technology\n\nEAG investment grants (€150–160/kWp PV; €150/kWh storage), provincial subsidies €500–€3,000, income-tax exemption on feed-in up to €12,500, Made-in-Europe bonus\n\nFeed-in revenue income-tax-free up to 35 kWp/€12,500; VAT exemption ended 31 Mar 2025"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 57,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-036",
+      "note": "National qualification certificate(s) for behind-the-meter technology installation and maintenance\n\nRegulated Elektrotechnik trade with 5-module Befähigungsprüfung; national qualification certificate; plus supplier/industry schemes\n\nNationally recognised qualification via HTL, Werkmeisterschule or exam; also RES EU certification scheme"
+    },
+    {
+      "countries": [
+        "AT"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "at-037",
+      "note": "Courses offered throughout country and on a regular basis\n\nWIFI and other providers offer courses nationwide; AIT certified PV technician/planner courses; TÜV Rheinland modules\n\nCourses offered across provinces; PV-specific certification available"
+    },
+    {
+      "countries": [
         "BD"
       ],
       "row": 10,
@@ -2190,6 +3432,86 @@
       "basis": "national",
       "sourceId": "bd-039",
       "note": "Course offered but in single location or infrequently (>6 monthly)\n\nCourses offered but limited geographic availability; frequency improving\n\nTraining available in major cities; rural access limited"
+    },
+    {
+      "countries": [
+        "BE"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "be-001",
+      "note": "Some low cost finance available but not yet universally accessible\n\nYes, but fragmented and regionally variable\n\nBrussels ECORENO credit at 2.5–3.5%; Flanders low-interest renovation loans up to €60,000; Wallonia zero-interest loans. Not universal; regional."
+    },
+    {
+      "countries": [
+        "BE"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "be-002",
+      "note": "Export pricing available but restricted to only one form of BTM technology or not available to all customers\n\nPartial; export paid but low and not time-of-day by default\n\nInjection tariffs 0.94–4.90 c€/kWh, unregulated, supplier-set, tracking wholesale; not a true TOU export market for all customers."
+    },
+    {
+      "countries": [
+        "BE"
+      ],
+      "row": 21,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "be-003",
+      "note": "All ancillary and wholesale markets pricing is fully transparent, and pricing is available in real time\n\nYes, fully transparent and largely real-time\n\nElia publishes day-ahead, aFRR capacity/energy auction results, activated volumes and prices; opendata.elia.be provides APIs."
+    },
+    {
+      "countries": [
+        "BE"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "be-004",
+      "note": "No barriers to connecting and using behind-the-meter technology for self-consumption\n\nLargely yes\n\nPlug-and-play PV/batteries legal since 17 April 2025 with C10/26 homologation; notification required (≥800 W in Fluvius area)."
+    },
+    {
+      "countries": [
+        "BE"
+      ],
+      "row": 43,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "be-005",
+      "note": "Data available but is only for import or export or some customers\n\nPartial\n\nTariff schedules and connection-cost methodologies are published, but a single customer-facing, connection-point-level cost dataset for both import and export is not clearly evidenced."
+    },
+    {
+      "countries": [
+        "BE"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "be-006",
+      "note": "Digital registration process in place which is at least regionalised\n\nYes, regional digital portals\n\nMijn Fluvius digital notification with inspection report + single-line diagram; ORES/Sibelga equivalents. Digital but regionally siloed."
+    },
+    {
+      "countries": [
+        "BE"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "be-007",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nYes, national + international alignment\n\nBinding technical prescription + mandatory AREI inspection by accredited body; aligns with IEC/EN standards. Reviewed periodically (C10/11 editions 2.2→2.4 in 2025)."
+    },
+    {
+      "countries": [
+        "BE"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "be-008",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nYes\n\nAutomatic disconnection/anti-islanding mandated; CE + GREI compliance; accredited inspection before commissioning."
     },
     {
       "countries": [
@@ -2583,6 +3905,386 @@
     },
     {
       "countries": [
+        "BG"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-001",
+      "note": "Some low cost finance available but not yet universally acessible\n\nYes — grant support exists (grants of up to BGN 15,000 per residential system), largely EU-co-funded; no evidence of a universal dedicated low-interest retail bank loan product at scale\n\nGrants of up to BGN 15,000 cited as a key driver of residential growth (household applications 12,000 in 2024 vs 4,500 in 2023). Legal500 confirms EU-backed instruments (e.g., RRF) are frequently blended with private financing, but retail bank green-lending products for households are not evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 11,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-001",
+      "note": "Behind-the-meter technology only affordable and accessible to middle and highest earners\n\nPartially — strong uptake and grants improve accessibility, but no evidence of zero-capital-cost models reaching lower-income households at scale\n\nSoaring power bills and grants are driving residential adoption (14.25% forecast CAGR to 2031), indicating accessibility beyond top earners; however evidence of zero-capital-cost or third-party ownership models for lowest earners was not found"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 12,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-002",
+      "note": "Cost of finance for behind-the-meter technology above 5% and below 10%\n\nCost of capital for residential-scale projects appears above 5% but below 10%; concessional finance exists mainly at utility/corporate scale (EBRD, RRF-funded)\n\nCorporate/project finance available with blended structures (e.g., EBRD up to EUR 30m senior secured loan for Tenevo 246 MW/512.5 MWh BESS). No verified data on residential household lending rates — evidence is indirect, medium confidence"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 14,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-003",
+      "note": "Network operators face some barriers to operating, incentivising, contracting with or owning behind-the-meter technology\n\nPartially — grid operators can own battery storage centres under conditions; barriers and first-come-first-served connection affect market operation\n\n2025 amendments address electricity storage, shared grid capacity and connection rules; grid connection granted on \"first come – first served\" basis, allowing speculative projects to block capacity. Full free-market operator participation not clearly evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 16,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-004",
+      "note": "Time of use pricing for electricity import available to some customers\n\nHousehold supply remains on a regulated uniform tariff (140.03 BGN/MWh for 2025–26, subsidised via the Electricity System Security Fund); day/night two-rate pricing exists for metered customers; liberalised non-household customers can access market pricing\n\nRegulated retail tariff for households is uniform, not full TOU; residential rates quoted at 0.24–0.28 BGN/kWh day and 0.14–0.17 BGN/kWh night (Photonik). Administrative price control suppresses market signals for households"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-005",
+      "note": "Export pricing available but restricted to only one form of behind-the-meter technology or not available to all customers\n\nProsumer export compensation exists (surplus purchased by suppliers/Guaranteed Supplier), with net-metering-style credits reported below 200 kW at retail-linked rates (EUR 0.14/kWh in 2024); but export pricing is not a full, real-time TOU market open to all\n\nBulgaria migrated away from classic feed-in tariffs (FIT retained only for legacy RES ≤30 kW under EWRC-set rates). Surplus export valuation is administratively linked rather than dynamic TOU; export access for storage-based prosumers not fully evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 18,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-004",
+      "note": "Bills broken down to show some but not all of the following: wholesale/energy costs, network costs, system operation, taxes\n\nBills typically itemise energy, network, system security fund and other levies, but the full cost stack for household regulated tariffs is not transparently presented to all customers\n\nThe gap between procurement price (189.58 BGN/MWh) and regulated retail tariff (140.03 BGN/MWh) is compensated from the Electricity System Security Fund — a hidden subsidy that obscures true cost composition on bills. Medium confidence on itemisation detail"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 19,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-006",
+      "note": "Data can be obtained through a manual process\n\nInterval meter data is limited; smart meter rollout is not complete and data is generally obtained through the DSO/supplier rather than freely electronically\n\nBulgaria's smart metering deployment lags EU leaders; grid-connection procedures in some cases still require paper forms, per SolarPower Europe's assessment of cumbersome, non-transparent application processes"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 20,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-007",
+      "note": "Behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology\n\nSize barriers effectively exclude residential/small BTM assets from most wholesale and ancillary markets; battery participation is emerging mainly at scale (≥ MW class)\n\nRystad analysis (cited by Trade.gov) shows €110/MWh arbitrage opportunity for 2-hour batteries — but the RESTORE-funded pipeline (3,000 MWh target, €590m grant) is stand-alone utility-scale. No evidence of sub-100 kW BTM market access"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 21,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-001",
+      "note": "All ancillary and wholesale markets pricing is fully transparent\n\nIBEX day-ahead/intraday prices and ESO balancing market results are publicly published\n\nOn-grid segment \"buoyed by CfD contracts and IBEX liquidity\"; ancillary (reserves) procurement outcomes published by ESO. Real-time granular ancillary price publication was not independently verified — Category 3 with caveat on real-time availability"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 22,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-008",
+      "note": "VPPs have access to no more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology\n\nVPP/aggregation frameworks are emerging but access for BTM assets is limited to under half of accessible markets\n\n2025 amendments address storage, shared grid capacity and connection rules; new BESS assets (e.g., Energreen 20 MW/100 MWh portfolio) target day-ahead, intraday and balancing markets — but these are front-of-meter/standalone. Residential VPP aggregation not evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 24,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "bg-009",
+      "note": "No compensation available\n\nNo structured, business-as-usual compensation mechanism for BTM-driven network investment deferral identified\n\nGrid reinforcement is being pursued centrally (ESO expanding interconnection from 4 GW to 10 GW by 2030), not through market-based DER deferral signals. Temporary connection regime lets the grid operator invest in parallel with producers — but no compensation mechanism for BTM customers"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 25,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "bg-010",
+      "note": "No compensation available / market does not exist for any assets\n\nNo evidence of compensation mechanisms available to BTM technology for voltage services\n\nBattery storage is used for \"solar peak shaving and grid balancing\" at utility scale under RRF-funded programmes; no residential/small-BTM voltage service compensation identified"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 26,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-011",
+      "note": "Compensation available but not to all customers\n\nReserve/balancing markets exist and remunerate participants, but access is effectively limited to large assets/aggregators — not all customers\n\nBulgaria's intraday wholesale price spread makes it \"one of the most lucrative battery storage markets in Europe\"; new BESS revenues derive from day-ahead, intraday and balancing markets — but standalone utility-scale assets, not BTM residential systems"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 27,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-012",
+      "note": "Compensation available but not to all customers\n\nIndirect signals only (day/night tariffs); no explicit BTM peak-demand-reduction compensation programme identified\n\nTwo-rate day/night residential tariffs (0.24–0.28 vs 0.14–0.17 BGN/kWh) incentivise off-peak consumption but are not a compensated demand-response product; no verified explicit peak-reduction compensation mechanism"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 28,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-010",
+      "note": "Compensation available but not to all customers\n\nWholesale price spreads provide an implicit signal for flexible assets; no customer-facing BTM compensation product evidenced\n\n€110/MWh arbitrage opportunity for 2-hour batteries during price spikes (Rystad via Trade.gov) — accessible to market-participating batteries, not residential BTM customers under current arrangements"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 29,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "bg-013",
+      "note": "No compensation available / market does not exist for any assets\n\nNo compensation available to behind-the-meter technology; black start is procured from eligible large generators\n\nNothing in reviewed sources evidences BTM access to black start compensation"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 30,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "bg-014",
+      "note": "No compensation available / market does not exist for any assets\n\nNo dedicated demand-increase compensation mechanism for BTM identified\n\nNot addressed in sources reviewed; negative-price/oversupply management for distributed assets not evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 31,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-015",
+      "note": "Compensation available but not to all customers\n\nEmerging/limited — 2024–25 market reforms and balancing market development may enable DR, but not for all customers\n\nAmendments address storage and shared capacity and simplify connection procedures; no verified BTM-inclusive DR compensation scheme in reviewed evidence — Category assigned with medium confidence"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 32,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "bg-014",
+      "note": "No compensation available / market does not exist for any assets\n\nNo carbon-related compensation mechanism for BTM technology identified\n\nNo evidence of carbon-service payments to distributed assets in reviewed sources"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 33,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-016",
+      "note": "Compensation available but not to all customers\n\nSupport programmes exist (restoration premiums, PIP auctions, RESTORE storage grants) but are oriented to grid-scale/utility assets, not BTM customers\n\nRESTORE rounds delivered 9.71 GWh (round 1, €587m) and >4 GWh (round 2, €120m additional planned for 1.5 GWh) — all standalone utility-scale BESS. Government target of 10 GWh operating storage by end-2026"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "bg-017",
+      "note": "No fee is payable\n\nYes — self-consumption of own generation carries no per-kWh fee; charges apply to grid exchange/connection, not self-consumption itself\n\nTax exemptions for building owners with RES installed are provided in law; permitting for ≤20 kW self-consumption systems removed in favour of simple notification, indicating no toll on the act of self-consumption"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "bg-018",
+      "note": "No barriers to connecting and using behind-the-meter technology for self-consumption\n\nLargely yes for ≤20 kW (notification-only regime), but procedural frictions persist in practice (document demands, delays)\n\nNew legislation eased rules for rooftop solar for own use, removing construction permit and project submission for ≤20 kW; however \"more complex procedures still apply for installations wishing to export surplus electricity to the grid\""
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 38,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "bg-019",
+      "note": "Fit and inform, or no permitting in place\n\nNotification regime for ≤20 kW (construction permit removed); project deemed approved if no municipal objection within 14 days; practical delays reported\n\nStatutory 30-day cap for small rooftop approvals (2023 Energy Act) but actual timelines reported at 90–120 days, with 42% of residential applications delayed by redundant document requests and 18% abandoned (per BPVA survey cited by Mordor). Systems ≤1 MW constructible within 14 days–2 months (CMS)"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 39,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-017",
+      "note": "Planning rules apply to restrict installation in certain locations\n\nRooftop PV largely treated as permitted development; restrictions mainly apply to larger arrays and specific locations\n\nThree permitting regimes by capacity (≤20 kW / ≤1 MW / ≤5 MW); rooftop systems of ≤1 MW constructible within 14 days–2 months. Installation above 5 MW subject to full permitting incl. judicial appeal windows. Municipal extra fire-safety/structural certificates create de facto restrictions"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-020",
+      "note": "Interconnection application is required but is simple and online. Applications are processeed in less than 15 days\n\nApplication required but simplified; connections granted first-come-first-served with speculative blocking risk; not zero-cost\n\nGrid connection on \"first come – first served\" basis; speculative projects block capacity. 2025 reforms introduced a universal connection agreement and a 6-month deadline for project completion, preventing delay by grid operators; grid permitting ~6–8 weeks for most projects (SolarPower Europe). Zero cost not evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 42,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-021",
+      "note": "There is a database of network capacity, but it is not open to the public or does not show individual customers\n\nNetwork capacity databases exist but are not fully open to individual customers\n\nGrid congestion and connection queues are headline issues for the sector (Solarplaza 2026 agenda); ESO plans interconnection expansion 4 GW→10 GW by 2030. No evidence of a public, location-specific capacity map available to end-customers"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 43,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-020",
+      "note": "Data available but is only for import or export or some customers\n\nPartial transparency; costs regulated but not comprehensively published for all customers and both directions\n\nGrid connection terms determined by the DSO/TSO under regulatory oversight; 2025 connection-rule amendments (Vassilev & Partners) distinguish full connection procedures from additional coordination. Publishable, customer-facing tariff schedules for capacity increases were not evidenced — medium confidence"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "bg-022",
+      "note": "Digital registration process in place which is at least regionalised\n\nRegistration/notification processes exist and are being digitised, but paper-based elements reportedly persist\n\nSolarPower Europe notes grid-connection procedures in some cases still require paper forms, resulting in cumbersome, non-transparent applications"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 47,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-023",
+      "note": "System operator cannot dispatch with more than 50% of total electricity generation from behind the meter tech at any one time\n\nNo — system cannot dispatch at anywhere near 70% BTM supply; storage deployment is utility-scale and grid-forming BTM dispatch frameworks are absent\n\n~40–50 MWh of battery storage installed to date (pre-RESTORE), with ~1 GWh expected via RRF within two years — all utility-scale. Solar is ~6 GW cumulative but BTM dispatch capability/incentives at system level not evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 48,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-024",
+      "note": "Some localised rules and some national/statewide rules\n\nEU network codes plus national ESO rules apply; a mix of national rules and localised practice\n\nAs an EU member and ENTSO-E observer/participant, Bulgaria transposes EU network codes; grid connection terms and technical requirements determined by DSO/TSO under EWRC-regulated framework. Full national-level, internationally aligned BTM protocol approval not evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 49,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-025",
+      "note": "Some localised rules and some national/statewide rules\n\nSame as market participation — mixed national rules and DSO-specific practice; smart metering data protocols not fully harmonised\n\nData exchange governed by the Energy Act, Ordinance 6/2013 on metering and DSO practice; incomplete smart meter rollout limits standardised electronic data exchange for BTM assets"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 51,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-026",
+      "note": "Some local / voluntary best practices and standards in place but not reviewed regularly or aligned with international best practice\n\nBulgarian State Standard (BDS)/EN standards harmonised to IEC apply under EU single-market rules, but no evidence of annually-reviewed national best-practice programme specific to BTM\n\nElectrical installation work falls under national technical rules transposing EU directives and CEN/CENELEC standards; quality assurance for small rooftop installs depends on DSO connection checks. Dedicated annual-review best-practice regime not evidenced — medium confidence"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 52,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-026",
+      "note": "Some local / voluntary best practices and standards in place but not reviewed regularly or aligned with international best practice\n\nNational electrical/fire safety rules apply; no evidence of a specific, continually-updated solar safety best-practice programme\n\nMunicipal offices demand fire-safety and structural certificates for rooftop installs (per Mordor/BPVA citation), implying safety oversight exists but is applied inconsistently; no dedicated annual solar safety standards review evidenced"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "bg-027",
+      "note": "Tariffs on imported behind-the-meter technology <10%\n\nEffectively zero — as an EU member state, Bulgaria applies the EU Common External Tariff; PV modules, inverters and batteries generally enter duty-free under EU trade policy\n\nPV module import duties under the EU CET are 0%; anti-dumping measures on Chinese panels were removed in September 2018. No Bulgaria-specific border surcharge identified"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 55,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-028",
+      "note": "Tax incentives or subsidies are available for behind-the-meter technology but are less than those provided to utility scale technology or other energy technology\n\nYes — VAT relief and reduced expenses for residential PV, plus grants (up to BGN 15,000); however, headline support volumes skew to utility scale (RESTORE, auctions)\n\nLaw provides tax exemptions to building owners with RES installed; residential grants up to BGN 15,000 cited as deployment catalysts. Contrast: RESTORE BESS funding (€590m+) and premium auctions (EUR 52–58/MWh, 3 GW in Nov 2024) target grid-scale. ICLG notes €0.10–0.12/kWh FIT support being considered for ≤30 kW systems"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 57,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-029",
+      "note": "Some in house Equipment supplier / Industry body qualifications offered for behind-the-meter technology installation and maintenance\n\nQualifications exist via vocational education (professional qualifications in electrical installation of RES), but a dedicated, nationally-standardised solar installer curriculum and certification analogous to e.g. certified PV installer schemes is not clearly evidenced\n\nThe pan-European initiative exists precisely because training is fragmented across member states including Bulgaria; energy-sector labour shortages in Bulgaria noted in sources. Strong territory-specific evidence lacking — Insufficient Data flagged; score reflects likely in-house/industry-body qualifications predominating"
+    },
+    {
+      "countries": [
+        "BG"
+      ],
+      "row": 58,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "bg-030",
+      "note": "Course offered but in single location or infrequently (>6 monthly)\n\nCourses appear available but evidence of nationwide, frequent provision is weak; the European Solar Academy initiative indicates a recognised gap in Bulgaria and comparable markets\n\nThe launch of a Europe-wide credentialing effort implies member-state coverage gaps; no Bulgaria-specific course catalogue or training frequency data located in this search round — Insufficient Data flagged; score reflects inferred limited provision"
+    },
+    {
+      "countries": [
         "CN"
       ],
       "row": 10,
@@ -2970,6 +4672,1376 @@
       "basis": "national",
       "sourceId": "cn-001",
       "note": "Courses offered throughout country and on a regular basis\n\nVocational institutes, manufacturers and utility training centres deliver PV installation training across provinces on a regular basis, supported by the scale of the domestic industry.\n\nTraining capacity underpins the world's largest installer workforce; the mass deployment documented (118 GW distributed in 2024) implies broad, regularly available training provision, though quality consistency at county level is discussed in the literature."
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-001",
+      "note": "Some low cost finance available but not yet universally accessible\n\nRetail banks offer discounted \"green loans\" (BoC, Eurobank) tied to mortgages/consumer lending at commercial rates; government offers periodic grant rounds, not low-interest loans\n\nNo state-backed zero/low-interest lending found; grants cyclical (closed end-2025, reopened Oct 2026)"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 12,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-002",
+      "note": "Cost of finance for behind-the-meter technology above 5% and below 10%\n\nGreen loans offered at discounted commercial rates; no evidence of rates ≤5% for BTM\n\nCyprus lending rates generally above 5%; green discount is a margin reduction, not concessional"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 13,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-003",
+      "note": "Best practices and standards in place for consumer protection but not enforced\n\nCERA/EAC publish technical guides and net-metering/billing explainers; no single mandated consumer-benefit calculator identified\n\nConsumer protection via licence conditions; benefit communication fragmented across installers"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 14,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-004",
+      "note": "Network operators face some barriers to operating, incentivising, contracting with or owning behind-the-meter technology\n\nNetwork/system operators (EAC DSO, TSOC) operate within regulated ring-fenced roles; ownership of BTM by operators is not an established open-market model\n\nRing-fencing and unbundling constrain operator BTM ownership; barriers present"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 16,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-005",
+      "note": "Time of use pricing for electricity import available to some customers\n\nCompetitive market trades in 30-min intervals since Oct 2025, but retail time-of-use tariffs for all customers not yet universal\n\nWholesale TOU exists; retail pass-through limited by EAC dominance and immature competition"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-006",
+      "note": "Export pricing available but restricted to only one form of BTM technology or not available to all customers\n\nFrom Jan 2026 self-consumers export via bilateral retailer agreement or aggregator at real-time market value\n\nExport pricing market-based (30-min); available to self-consumers but via contract, not universal direct access"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 18,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-007",
+      "note": "Bills broken down to show some but not all of the following: wholesale/energy costs, network costs, system operation, taxes\n\nBills itemise energy, network, system and levies; CERA approves network usage fees and charging policy\n\nBreakdown exists but completeness/uniformity across suppliers not fully evidenced"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 19,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-008",
+      "note": "Data can be obtained through a manual process (transitioning to electronic as rollout completes)\n\n400,000 smart meters rolling out (Landis+Gyr/Cyta); 250,000 due by July 2026; not yet universal\n\nHalf-hourly capable AMI; coverage incomplete pending rollout completion"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 20,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-009",
+      "note": "Behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology\n\nRES/storage aggregation allowed 1–20 MW; demand response ≥300 kVA; small RES (<1 MW unsupported) must use aggregator\n\nSize thresholds create barriers for smallest assets; type-mixing prohibited"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 21,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-010",
+      "note": "All ancillary and wholesale markets pricing is fully transparent\n\nTSOC/SolarFarms publish market clearing prices; DAM and balancing prices disclosed\n\nPrices published; real-time ancillary pricing transparency less complete"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 22,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cy-011",
+      "note": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology\n\nAggregators (nine registered at launch) can participate in energy and ancillary markets; type-mixing not allowed\n\nVPP/aggregation permitted; single-type aggregates only"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 24,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "cy-012",
+      "note": "No compensation available\n\nNo dedicated network-deferral compensation mechanism identified for BTM\n\nNo evidence of business-as-usual network deferral payments"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 25,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-013",
+      "note": "Compensation available but not to all customers\n\nAncillary services procured by TSO; BTM participation not yet established at scale\n\nVoltage services exist but BTM access not universal"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 26,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-014",
+      "note": "Compensation available but not to all customers\n\nBalancing/ancillary framework live; BSPs eligible; BTM via aggregators in principle\n\nReserve markets exist; BTM access nascent"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 27,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-015",
+      "note": "Compensation available but not to all customers\n\nDemand response permitted (≥300 kVA portfolios) in energy and ancillary markets\n\nDR framework exists; not universal to all customers"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 28,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-016",
+      "note": "Compensation available but not to all customers\n\nMarket-based pricing rewards response; explicit tight-supply mechanism not separately compensated\n\nVolatile peak pricing provides implicit signal"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 29,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-017",
+      "note": "Compensation available but not to all customers\n\nBlack start procured separately by TSO from conventional providers\n\nProcured from market participants but not BTM"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 30,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-017",
+      "note": "Compensation available but not to all customers\n\nDemand-increase bids contemplated in balancing mechanism\n\nMechanism exists; BTM access limited"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 31,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-015",
+      "note": "Compensation available but not to all customers\n\nYes — DR portfolios ≥300 kVA may participate\n\nDR downturn compensated; not universal"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 32,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "cy-018",
+      "note": "No compensation available / market does not exist for any assets\n\nNo BTM carbon-service market identified\n\nEU ETS covers large emitters; no BTM carbon compensation"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 33,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "cy-019",
+      "note": "No compensation available / market does not exist for any assets\n\nNo distinct non-wholesale BTM market identified beyond energy/ancillary\n\nNo evidence of additional open market"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cy-020",
+      "note": "No fee is payable\n\nSelf-consumption prioritised; no per-kWh charge for own generation; standing/network charges still apply\n\nNo fee on self-consumed kWh; grid charges on imports remain"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 36,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-021",
+      "note": "Some barriers to connecting and using behind-the-meter technology for self-consumption\n\nConnection requires EAC application and technical compliance; administrative fee applies\n\nFee €332.85+VAT; technical study required"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 38,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-022",
+      "note": "Permitting is required but is simple and online\n\nRooftop PV ≤20 m² exempted from building permit via EOA; larger systems require permit\n\nExemption streamlines rooftop; not fully automated/online"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 39,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cy-023",
+      "note": "Solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes\n\nRooftop installs largely permitted/exempted; ground-mounted >20 m² requires planning approval\n\nRestrictions mainly on ground-mount and heritage; rooftop clear"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-024",
+      "note": "Interconnection application is required but is simple and online. Applications are processed in less than 15 days (partially met)\n\nApplication required; fee €332.85+VAT (net metering); technical study; not zero-cost\n\nStandardised but fee-bearing and not automated"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 42,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-025",
+      "note": "There is a database of network capacity, but it is not open to the public or does not show individual customers\n\nEAC publishes RES-E Hosting Capacity map at transmission substation level\n\nPublic map exists; granularity at substation, not per-customer"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 43,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-026",
+      "note": "Data available but is only for import or export or some customers\n\nConnection cost quoted case-by-case by EAC; no public cost database identified\n\nCosts on application, not published prospectively"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 45,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-027",
+      "note": "Registration process but is paper based (transitioning to digital)\n\nEAC application process partly digital via installers; smart meter registration integral\n\nDigital elements present; not fully paperless nationwide"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 48,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-028",
+      "note": "Some localised rules and some national/statewide rules\n\nTSOC sets Transmission/Connection Rules nationally; aligns to EU network codes\n\nNational rules exist; full international conformance partial"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 49,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-029",
+      "note": "Some localised rules and some national/statewide rules\n\nNational rules via TSOC/EAC; smart metering standards being applied\n\nNational AMI standards; data-exchange protocols maturing"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cy-030",
+      "note": "Best practices and standards in place which are continually reviewed and align to international best practice (partially evidenced)\n\nNational standards aligned to EU; EAC technical guides; installer certification\n\nNational standards in place; review cadence not fully evidenced"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cy-027",
+      "note": "Best practices and standards in place which are continually reviewed and align to international best practice (partially evidenced)\n\nNational electrical safety standards; EAC inspection and Certificate of Conformity\n\nSafety regime enforced via EAC inspection"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cy-031",
+      "note": "Tariffs on imported behind-the-meter technology <10%\n\nCyprus is in the EU customs union; no internal tariffs; standard EU import duties apply to non-EU origin\n\nNo discriminatory BTM tariffs; EU common external tariff applies"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 55,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cy-032",
+      "note": "Tax incentives or subsidies are available for behind-the-meter technology but are less than those provided to utility scale technology or other energy technology\n\nGrant scheme reopened 20 Oct 2026: €450–€1,000/kW PV; €720–€960/kWh battery; vulnerable households up to €6,250\n\nBTM grants exist but historically less than utility-scale support; cyclical availability"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 57,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cy-033",
+      "note": "National qualification certificate(s) for behind-the-meter technology installation and maintenance\n\nNational installer certification (theoretical + practical + exam) under EU RES certification scheme\n\nRecognised national qualification exists"
+    },
+    {
+      "countries": [
+        "CY"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cy-033",
+      "note": "Courses offered throughout country and on a regular basis (partially evidenced)\n\nTraining courses offered; certification pathway established\n\nCourses available; frequency/location coverage not fully evidenced"
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-001",
+      "note": "Special loans or rebates available to reduce upfront cost and available to all customers\n\nYes. A CZK 3 billion interest-free loan pool for C&I solar and attached battery storage was renewed in April 2025. The RES+ program offers grants covering up to 30% of PV and 50% of storage costs.\n\nInterest-free loans cover up to 30% PV CAPEX and 50% storage. RES+ grants extend to 2027."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 11,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-002",
+      "note": "Behind-the-meter technology affordable and accessible to all earners inc. through zero capital cost models\n\nAffordability is improving rapidly due to subsidies. Residential segment expanding at 27.5% CAGR. Access is broadening but still skewed toward higher earners without targeted low-income programs.\n\nStrong growth, but explicit low-income access models are not yet universal."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 12,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-003",
+      "note": "Cost of finance for behind-the-meter technology available at or below 5%\n\nYes. Interest-free loans and grants reduce effective cost of finance to near 0% for qualified projects. Market rates for remaining balance are standard.\n\nSubsidies significantly lower effective financing costs."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 13,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cz-004",
+      "note": "Best practices and standards in place for consumer protection but not enforced\n\nBest practices are emerging via industry bodies (SolarPower Europe, Czech Solar Association) but not universally codified or enforced at a state level.\n\nIndustry-led, not state-enforced."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 14,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-005",
+      "note": "Network operators face no barriers to operating, incentivising, contracting with or owning behind-the-meter technology\n\nYes. Network operators face minimal barriers. Aggregators and VPPs are permitted and active.\n\nAggregation and VPP participation are legally enabled."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 16,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-006",
+      "note": "Time of use pricing for electricity import available to all or almost all customers\n\nYes. EPEX SPOT provides transparent day-ahead/intraday pricing. ToU tariffs are widely available to most customers, though not yet universal for all residential segments.\n\nToU available to most, but full universal coverage is still rolling out."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 17,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-007",
+      "note": "Time of use pricing available for export to all customers and both solar and storage\n\nYes. Export pricing is available via net billing or feed-in mechanisms. ToU export pricing is available for solar and storage.\n\nNet billing/export markets are active and transparent."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 18,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cz-008",
+      "note": "Bills broken down to show some but not all of the following: wholesale/energy costs, network costs, system operation, taxes.\n\nBills generally show wholesale, network, and tax components, but granularity varies by supplier. Not all bills show a full breakdown of system operation costs.\n\nStandard breakdown exists, but depth varies."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 19,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "cz-009",
+      "note": "Data is not available\n\nNo. The Czech Republic has no mandatory national smart meter rollout. Data is available only for those with voluntarily installed smart meters or specific commercial contracts.\n\nCzech Republic is among countries that decided against a national rollout."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 20,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-010",
+      "note": "No size barriers for behind-the-meter technology in more than 50% of the wholesale and ancillary markets which are open to behind-the-meter technology\n\nBarriers are diminishing. VPPs can access >50% of markets. Small assets (<100 kW) have exemptions from imbalance responsibilities until 2026.\n\nAggregation allows small assets to bypass size barriers."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 21,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-011",
+      "note": "All ancillary and wholesale markets pricing is fully transparent, and pricing is available in real time\n\nYes. ČEPS and EPEX SPOT publish real-time or near-real-time pricing for wholesale and ancillary services.\n\nPricing is transparent and publicly accessible."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 22,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-005",
+      "note": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology\n\nYes. VPPs have access to more than 50% of relevant markets. Aggregators are active in FCR and imbalance markets.\n\nVPP participation is well-established."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 24,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-012",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards as part of business as usual\n\nCompensation is available for network reinforcement via trials and business-as-usual schemes for meeting technical standards.\n\nBusiness-as-usual compensation exists for compliant assets."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 25,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-011",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.\n\nYes. Compensation is available to all compliant behind-the-meter technology.\n\nStandard ancillary service markets include these services."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 26,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-010",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.\n\nYes. FCR and other reserve markets are active and accessible via aggregators.\n\nActive markets for frequency regulation."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 31,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-012",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.\n\nYes. Demand response and peak shaving compensation is available.\n\nPeak demand reduction is a recognized service."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 28,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-012",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.\n\nYes. Intraday markets and demand response mechanisms reward this behavior.\n\nMarket signals align with high-price periods."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 29,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cz-011",
+      "note": "Compensation available but not to all customers\n\nLimited. Black start is typically reserved for large generators; no specific compensation for behind-the-meter assets is widely documented.\n\nNot a standard offering for small assets."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 30,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cz-011",
+      "note": "Compensation available but not to all customers\n\nLimited. Demand increase is not a standard compensated service in the current market design.\n\nNot a primary market service."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 32,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "cz-013",
+      "note": "No compensation available / market does not exist for any assets.\n\nNo direct compensation for carbon services at the retail/behind-the-meter level. Carbon pricing is handled via ETS for large emitters.\n\nCarbon services not directly monetized for small assets."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 33,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-012",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers.\n\nYes. Some non-wholesale flexibility markets exist for grid support.\n\nFlexibility markets are developing."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-014",
+      "note": "No fee is payable\n\nYes. No fees are payable for self-consumption from systems under 100 kW.\n\nExempt from electricity tax for small systems."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-015",
+      "note": "No barriers to connecting and using behind-the-meter technology for self-consumption\n\nYes. No regulatory barriers for self-consumption; collective self-consumption is legally enabled.\n\nLegal framework supports self-consumption and sharing."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 38,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-016",
+      "note": "Fit and inform, or no permitting in place\n\nPartially. Systems <50 kW require no zoning/building permit. Larger systems require simplified online processes, but not fully automated nationwide.\n\nSimplified for small systems; online for larger."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 39,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-017",
+      "note": "Solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes\n\nYes. Planning rules have been relaxed; solar is often a permitted activity. Building consents apply mainly to large rooftop arrays.\n\nRestrictions minimized for most installations."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cz-018",
+      "note": "Interconnection application is required but is simple and online. Applications are processed in less than 15 days.\n\nPartially. A simplified \"filing\" process exists for storage ≤10 MW, but costs and timelines vary by DSO. Not fully zero-cost or automated for all.\n\nFast-track exists, but not universal zero-cost."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 42,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cz-018",
+      "note": "There is a database of network capacity, but it is not open to the public or does not show individual customers\n\nNo. A full location-specific database is not yet publicly available.\n\nDSOs are working on this, but not yet fully operational."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 43,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "cz-018",
+      "note": "Data available but is only for import or export or some customers\n\nPartially. Some data is available, but not comprehensive for all connection points.\n\nTransparency is improving but incomplete."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-019",
+      "note": "Digital registration process in place which is at least regionalised\n\nYes. Digital registration processes are in place at a regional level.\n\nRegional digital registration exists."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 48,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-018",
+      "note": "National and universally adopted rules which also confirm to international norms\n\nYes. National rules aligning with EU norms are in place.\n\nNational protocols conform to international norms."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 49,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-018",
+      "note": "National and universally adopted rules which also confirm to international norms\n\nYes. National/statewide rules are established.\n\nProtocols are standardized nationally."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-004",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nYes. Best practices align with EU standards and are reviewed annually.\n\nEU-aligned standards with regular reviews."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-004",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nYes. Safety standards are aligned with EU norms and reviewed regularly.\n\nStrong safety framework."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-020",
+      "note": "Tariffs on imported behind-the-meter technology <10%\n\nLow. Tariffs are <10% due to EU trade agreements and lack of specific punitive tariffs.\n\nEU-wide trade policy keeps tariffs low."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 55,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-003",
+      "note": "Any tax incentives or subsidies for behind-the-meter technology match or exceed those provided to utility scale technology or other energy technology\n\nYes. Tax incentives and subsidies match or exceed those for utility-scale in many cases (e.g., RES+ program).\n\nSubsidies are generous and comparable to utility-scale."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 57,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-004",
+      "note": "National qualification certificate(s) for behind-the-meter technology installation and maintenance\n\nPartially. Industry certifications exist (e.g., SolarPower Europe), but no single mandatory national qualification.\n\nVoluntary national-level credentials are emerging."
+    },
+    {
+      "countries": [
+        "CZ"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "cz-004",
+      "note": "Courses offered throughout country and on a regular basis\n\nYes. Courses are offered throughout the country on a regular basis by industry bodies and training providers.\n\nRegular training availability."
+    },
+    {
+      "countries": [
+        "DK"
+      ],
+      "row": 43,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "dk-001",
+      "note": "Cat 2: Data available but only for import or export or some customers [ASSUMPTION]\n\nNot confirmed in reviewed sources; DSO tariff sheets public but capacity-reinforcement cost quotations not evidently published [ASSUMPTION]\n\nReinforcement timelines (years) documented; cost transparency for capacity increases not found — flagged as data gap"
+    },
+    {
+      "countries": [
+        "DK"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "dk-002",
+      "note": "Cat 3: Digital registration process in place which is at least regionalised (national)\n\nRegistration handled through national DataHub with digital processes for new metering points; Denmark among world's most digitalized public-administration environments\n\nDataHub centralizes master data/metered values for all market actors incl. prosumers; digital-first regime"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-001",
+      "note": "Special loans or rebates available to reduce upfront cost and available to all customers\n\nRebates available via EIS/KredEx covering 30% of solar+inverter+battery cost up to €8,982/home; no no-/low-interest retail loan product evidenced\n\nGrant = 30% of unit cost; solar/inverter max €5,130 (15 kW); battery max €3,852 (20 kWh); total cap €8,982. No primary evidence found of a subsidised retail loan rate"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 11,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-002",
+      "note": "Behind-the-meter technology only affordable and accessible to middle and highest earners\n\nAffordable to owner-occupiers of detached/small multi-unit homes via grant; excluded for apartment buildings (3+ units), summer/commercial buildings\n\nAddressees: single-family, two-apartment, row houses in Building Register; excludes apartment buildings with 3+ units and commercial/auxiliary buildings; energy class must improve ≥1 level"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 13,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-003",
+      "note": "Best practices and standards in place for consumer protection but not enforced\n\nNational consumer-protection and market-transparency framework exists (Competition Authority oversight, Estfeed data access, published market prices); BTM-specific benefit-calculation standard not evidenced\n\nCompetition Authority supervises market and publishes annual report; Estfeed lets consumers view consumption data and authorise sellers to make personalised offers"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 16,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-004",
+      "note": "Time of use pricing for electricity import available to all or almost all customers\n\nFully open market since 2013; Nord Pool day-ahead hourly prices; network tariffs offer single-rate, day/night or winter-peak bands; retail ToU uptake not universal\n\nMarket fully open since 2013; Nord Pool Spot trading; network charges at low voltage structured as single-rate, day/night or winter-peak band plus monthly connection fee"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-005",
+      "note": "Export pricing available but restricted to only one form of behind-the-meter technology or not available to all customers\n\nExport remunerated at market price (post-RED II net-billing logic); no dedicated ToU export product for all customers evidenced\n\nRED II required net-metering schemes to be reviewed by end-2023; surplus electricity exported must be remunerated at rates reflecting market price"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 18,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-006",
+      "note": "Bills broken down to show all of the following: wholesale/energy costs, network costs, system operation and taxes (where these are applicable)\n\nFour statutory per-kWh charges each shown as separate invoice line by law: electricity excise, renewable-energy charge, security-of-supply charge, balancing-capacity cost; network charges on separate invoice\n\nEnergy and network charges billed and set independently; network operator bills own tariff on separate invoice from supplier's energy charge; balancing-capacity cost is the only charge also applying to exported kWh"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 19,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-007",
+      "note": "Data is available in an electronic format online\n\n15-minute metering rollout for all major metering points by start of 2025; >99% smart meter penetration; data via Estfeed\n\nEstfeed data access platform connects energy datahubs; by start of 2025 all major metering points transition to 15-minute metering; >99% domestic remote-reading devices"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 20,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-008",
+      "note": "Behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology\n\nMicro-producers can connect and export; balancing market access via aggregation subject to prequalification; explicit size thresholds exist in connection tiers\n\nTiered regime by capacity: nano (≤0.79 kW), personal use (0 kW export), micro-producer and producer; connection process, fee and terms depend on capacity band"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 21,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-009",
+      "note": "All ancillary and wholesale markets pricing is fully transparent\n\nNord Pool day-ahead prices publicly available; Elering API and ENTSO-E publication; Baltic TSOs on MARI platform from Oct 2024\n\nEstonia is a Nord Pool area with day-ahead prices via Elering API; Baltics accessed MARI mFRR platform Oct 2024"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 22,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-010",
+      "note": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology\n\nEstfeed explicitly supports demand-response aggregators; balancing market access via aggregation subject to prequalification; no evidence of broad household VPP market access\n\nEstfeed \"enables energy companies, demand response aggregators, and other service providers to access data from one place\"; VPP units require TSO prequalification"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 24,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "ee-011",
+      "note": "No compensation available\n\nNo BTM-specific network-deferral compensation evidenced; grid reinforcement costs are charged to connecting parties rather than rewarded\n\nConnection fee components include a network reinforcement fee applicable to generation-oriented connections; costs flow to the connector, not as a reward for deferral"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 26,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-012",
+      "note": "Compensation available but not to all customers\n\nBaltic balancing markets integrated via MARI (mFRR) from Oct 2024; access requires prequalification; BTM participation not universal\n\nEstonian, Latvian and Lithuanian markets connected to MARI platform for exchange of balancing energy from mFRR under EB Regulation"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 28,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-013",
+      "note": "Compensation available but not to all customers\n\nExposure to Nord Pool day-ahead prices provides implicit signal; explicit BTM tight-supply compensation not evidenced\n\nEstonia is part of Nord Pool open market with day-ahead prices available via Elering API, enabling price-responsive behaviour"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 31,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-007",
+      "note": "Compensation available but not to all customers\n\nEstfeed supports demand-response aggregators; explicit residential DR compensation product not evidenced\n\nEstfeed enables demand response aggregators to access data from one place; no specific residential DR tariff/product cited"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-014",
+      "note": "No fee is payable\n\nNo fee to self-consume; however a balancing-capacity cost applies to exported kWh, and a charge exists for unused production capacity\n\nBalancing-capacity cost is the only statutory charge also applying to exported kWh; separate charge for unused production capacity under Electricity Market Act, first levied Q1 2026"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 36,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-008",
+      "note": "Some barriers to connecting and using behind-the-meter technology for self-consumption\n\nConnection permitted; \"production for personal use\" tier (0 kW export) carries a €615.04 connection fee and 30-day offer period\n\nPersonal-use tier: generation >0.79 kW, 0 kW to network, connection offer in 30 days, connection fee €615.04, junction box fee may be added"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 38,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-015",
+      "note": "Permitting is required but is simple and online\n\nNationwide digital Building Register (EHR) handles all permits/notices; three formality levels incl. free construction; BIM-based permits piloted\n\nEHR is a nation-wide online platform for issuing all building-related permits and notifications; BIM-based permits available from early 2024 after pilot"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 39,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-016",
+      "note": "Solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes\n\nGeneral exemption from building permit for solar panels introduced August 2018; formality level determined by Building Code Annex 1 per project\n\n\"In August 2018, a general exemption from the requirement for a building permit for solar panels was introduced\""
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-008",
+      "note": "Interconnection application is required but is simple and online. Applications are processed in less than 15 days\n\nTiered and published, but €0 applies only to nano-producers (≤0.79 kW); micro-producer/producer tiers carry fees\n\nNano-producer: ≤0.79 kW, connection offer in 4 business days, €0 connection fee; higher tiers carry connection fees"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 42,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-017",
+      "note": "There is a full location specific database of available capacity for customers to connect behind-the-meter technology\n\nElering publishes interactive e-Gridmap with nodal connection possibilities and indicative costs; TSO-DSO platform confirms \"Open\" accessibility, nodal granularity\n\nPublished connection possibilities available in interactive map with indicated connection costs; hosting capacity data non-binding; accessibility \"Open\"; spatial granularity nodal (substation); 110/330 kV scope"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 43,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-011",
+      "note": "Data available but is only for import or export or some customers\n\nElering publishes a connection fee price list and methodology; Competition Authority approves calculation methods; scope is TSO-level\n\nConnection fee price list published at elering.ee/liitumistasud; main cost components are network reinforcement fee and substation works fee; Competition Authority approves calculation methods"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-015",
+      "note": "Digital registration process in place which is at least regionalised\n\nDigital registration via EHR and Estfeed; connection applications submitted electronically\n\nApplications and notices submitted digitally through the building register, requiring ID-card login; nation-wide online platform"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 48,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-018",
+      "note": "National and universally adopted rules which also conform to international norms\n\nNational Grid Code and Grid Code on the Functioning of the Electricity System apply; EU RfG network code compliance\n\nCompliance with the network code on requirements for grid connection of generators (RfG); national Grid Code regulations in force"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 49,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-007",
+      "note": "National and universally adopted rules which also conform to international norms\n\nEstfeed national data-exchange platform operated by TSO Elering; access rights set in Electricity Market Act\n\nEstfeed created by the TSO connects energy datahubs; all consumers and producers have access to their own metering data; TSO Elering responsible for transmitting and receiving metering data"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-019",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nNational electrical qualification certificate system (levels 3–6) governs who may perform and certify electrical work\n\nLevel 4 holders may confirm in writing that their own work meets requirements in compliant low-voltage installations up to 35 A; levels 5–6 extend scope and leadership"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-020",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nNational qualification and building-code safety framework in force; solar-specific safety standard not separately evidenced\n\nQualification levels tied to installation class and protective-device ratings; Building Code governs permit issuance against legislative requirements"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "ee-021",
+      "note": "Tariffs on imported behind-the-meter technology <10%\n\nNo EU anti-dumping duties on Chinese solar modules since August 2018; no EU-wide solar import tariff in force\n\n\"in August 2018, the Commission removed the anti-dumping tariffs, considering it beneficial for the EU after evaluating the needs of producers against those of users and importers of solar panels\""
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 55,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-022",
+      "note": "Tax incentives or subsidies are available for behind-the-meter technology but are less than those provided to utility scale technology or other energy technology\n\nEIS/KredEx grant 30% of unit cost up to €8,982/home for solar+inverter+battery; VAT on solar purchases at standard 24%\n\nGrant capped at €8,982 per small residence; VAT standard rate rose from 22% to 24% on 1 July 2025"
+    },
+    {
+      "countries": [
+        "EE"
+      ],
+      "row": 57,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "ee-019",
+      "note": "Some in house Equipment supplier / Industry body qualifications offered for behind-the-meter technology installation and maintenance\n\nNational electrical qualification certificate system exists (levels 3–6); solar-specific curriculum not separately evidenced\n\nSix-level national certificate framework defining scope of operating and electrical work; no distinct solar/PV qualification named in source"
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 10,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-001",
+      "note": "Special loans or rebates available to reduce upfront cost and available to all customers\n\nYes. KfW Programme 270 (\"Renewable Energies – Standard\") offers low-interest loans (from ~3.45% effective, up to 100% financing) for PV and battery storage via partner banks, available nationwide; supplemented by 0% VAT since Jan 2023 and income-tax exemption (§ 3 No. 72 EStG) up to 30 kWp/unit. A refreshed KfW product (\"Renewable Energy Plus\", 18 June 2026) continues/expands support. Dedicated grant programs (e.g., KfW 442 solar+storage+EV, up to €10,200) have existed but were periodically exhausted.\n\nTriangulated across KfW primary announcement, industry guides and prior EC support-scheme database (G-01, G-02, G-03). Grants time-limited vs. loans ongoing."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 11,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-002",
+      "note": "Behind-the-meter technology only affordable and accessible to middle and highest earners\n\nPartially. Uptake is broad among owner-occupiers (1 in 6 homeowners has a battery; 30% more considering). But upfront system costs (€14,000 for 10 kWp) and ownership requirements concentrate adoption with middle/higher earners and homeowners; renters/apartment dwellers are reached mainly via deregulated 800 W balcony systems, not full solar-plus-storage. Residential installs fell 21% in Q1 2026 on cost-benefit compression.\n\nHousehold affordability triangulated via Ember + Clean Energy Wire + BSW-Solar registry data (G-14, G-15, G-16)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 12,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-003",
+      "note": "Cost of finance for behind-the-meter technology available at or below 5%\n\nYes at competitive rates. KfW 270 promotional loans from ~3.45% effective (prior program listings as low as ~1.03% in favourable rate windows); commercial bank finance adds depth; up to 100% of investment financeable. Rates at or below 5% are available at scale.\n\nRate data from KfW-linked program descriptions; single-firm marketing source (G-02) used for effective-rate figure, triangulated with KfW primary announcements (G-01)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 13,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-004",
+      "note": "Best practices and standards in place for consumer protection but not enforced\n\nPartially. EEG statutory guarantees (20-yr tariff), BNetzA-mandated price transparency and consumer-advice infrastructure (e.g., Verbraucherzentrale) provide consumer protection, but there is no enforced national standard method for calculating/communicating the benefits of solar-plus-storage to customers; quality of advice varies by installer.\n\nConsumer protection mechanisms identified in law/industry sources; no evidence found of a mandated, enforced national benefit-calculation standard (G-02, G-29)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 14,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-005",
+      "note": "Network operators face some barriers to operating, incentivising, contracting with or owning behind-the-meter technology\n\nRestricted but easing. Under Art. 36/54 Directive 2019/944 and § 11a EnWG, DSOs may own/operate storage only via transparent tendering and BNetzA oversight; TSOs require BNetzA exemption (§ 118b EnWG) and may only build storage for grid stabilisation under conditions. EEG 2023/Solarpaket I eased DSO operation of grid-serving rooftop PV/storage, but operators still face approval/tendering barriers vs. private owners.\n\nLegal analysis of EnWG/EEG ownership rules by two law firms (G-19, G-20)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 17,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-006",
+      "note": "Export pricing available but restricted to only one form of behind-the-meter technology or not available to all customers\n\nNo. Export is compensated mainly via administrated, degressive flat EEG tariffs (Aug 2025: 7.86 ct/kWh partial feed-in ≤10 kWp; 12.92 ct full feed-in early 2026), suspended during negative prices (Solarspitzengesetz, Feb 2025) and capped at 60% of capacity without iMSys. Time-varying export value exists only via direct marketing/segment options not available to all customers; EEG 2027 will move new systems to market-based remuneration.\n\nFlat administrated FIT confirmed across multiple sources; negative-price and 60% cap rules from Solar Peak Act analyses (G-24, G-25, G-04)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 18,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-007",
+      "note": "Bills broken down to show all of the following: wholesale/energy costs, network costs, system operation and taxes (where these are applicable)\n\nYes. BDEW 2025 composition data (avg 39.6 ct/kWh): supply/energy ~40.4% (16.00 ct), network charges ~27.6%, taxes ~23% (VAT 16% + electricity tax 7%), plus itemised levies (§19 StromNEV 1.56 ct, offshore levy 0.816 ct, KWKG 0.277 ct, concession fees). Bills are fully itemised at contract level.\n\nBDEW primary composition data via Clean Energy Wire; BNetzA component definitions corroborate (G-05, G-36)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 19,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-008",
+      "note": "Data can be obtained through a manual process\n\nLimited. iMSys (which delivers 15-min interval data) covers only ~5.5–5.9% of metering points; rollout is supervised/sanctioned (BNetzA proceedings vs 77 operators in March 2026); mandatory cases (consumption >6,000 kWh) only 23.3% equipped. Standard households can request data but largely via manual process today.\n\nBNetzA quota data (31 Dec 2025) cross-checked between two independent trackers (G-08, G-07)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 20,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-009",
+      "note": "Behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology\n\nPartially. FCR procured in divisible 1 MW blocks; balancing-market bid sizes (1–5 MW) and prequalification standards mean single household assets cannot participate individually — aggregation via prequalified VPPs is required. Several markets (black start, inertia) effectively exclude small assets. Size barriers exist in roughly half of the markets open to BTM.\n\nAggregation model (2 MW reserve groups) confirms practical min-size operation; bid-size analysis from EU-funded research (G-13, ref)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 21,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-010",
+      "note": "All ancillary and wholesale markets pricing is fully transparent, and pricing is available in real time\n\nYes. All balancing-market results (FCR/aFRR/mFRR), TSO ancillary data and wholesale prices (EPEX) are published on regelleistung.net and netztransparenz.de transparently and close to real time.\n\nOfficial joint TSO transparency platform (G-17)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 22,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-011",
+      "note": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology\n\nYes. Germany pioneered household-battery VPPs: sonnen/Next Kraftwerke deliver FCR from aggregated home batteries; sonnenVPP has ~25,000 batteries (~250 MWh) and is prequalified in the national balancing market; participation is business-as-usual across FCR and wholesale energy markets for prequalified pools.\n\nOperator primary statements; prequalification since 2018 (G-12, G-13)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 25,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "de-012",
+      "note": "No compensation available / market does not exist for any assets\n\nNo. Reactive power/voltage support is an unpaid grid-code obligation (VDE-AR-N 4105) for generators rather than a compensated market; non-frequency ancillary service procurement (inertia, reactive power, black start) has only recently been designed under Art. 40 Directive 2019/944/§ 12h EnWG, with markets still in early tender stages and oriented to large assets. Households receive no compensation for voltage services.\n\nUnpaid grid-code obligation confirmed via standard/VDE references and market-design analyses (G-17, G-18)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 26,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-013",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers\n\nYes — the flagship BTM revenue stream. FCR, aFRR and mFRR are procured via transparent, technology-neutral tenders on regelleistung.net; aggregated residential batteries (sonnenVPP ~25,000 batteries; Next Kraftwerke 2 MW reserve groups) are prequalified participants, with prequalification standards open to any qualifying pool.\n\nDirect operator evidence of household-battery prequalification since 2018; procurement rules via official TSO platform (G-12, G-13, G-17)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 27,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-014",
+      "note": "Compensation available but not to all customers\n\nPartially. § 14a EnWG grants reduced network charges to customers operating controllable devices (heat pumps, EV chargers, storage) — a functioning peak/network-cost avoidance mechanism. However, classical demand-charge-based demand response programmes comparable to US-style coincident-peak markets do not exist for households; the AbLaV interruptible-load framework largely expired July 2022.\n\nAbLaV expiry per TransnetBW; §14a benefit per VDE/EEBUS documentation (G-33, G-26)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 28,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-015",
+      "note": "Compensation available but not to all customers\n\nPartially. Dynamic tariffs (mandatory offer since 2025) allow economically rational load-shifting during high-price periods, and VPP participation monetises such response for enrolled households. No dedicated scarcity/tight-supply compensation product exists at household level; smart meter scarcity blocks universal access.\n\nIndirect monetisation via dynamic tariffs + VPP, not dedicated product (G-07, G-12)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 29,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "de-016",
+      "note": "No compensation available / market does not exist for any assets\n\nEmerging, effectively closed to households. § 12h EnWG + BNetzA BK6-21-023 mandate market-based procurement of black start capability via tenders (TransnetBW ran tenders Jan 2024/Jun 2025); ~174 plants ≥10 MW nominally capable (mostly hydro/gas), only 26 contracted. Minimum sizes and technical requirements exclude residential assets; household participation not enabled.\n\nOfficial TSO/regulator documentation of tender design and plant counts (G-17, G-27)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 30,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "de-017",
+      "note": "No compensation available / market does not exist for any assets\n\nNo. No dedicated market compensating households for increasing demand during low/negative price periods; benefit accrues implicitly via dynamic tariffs (mandatory since 2025, iMSys-dependent). Negative-price FIT suspension (Feb 2025) even penalises unmetered export but does not compensate demand increase.\n\nNo evidence of a dedicated demand-increase product found in reviewed sources (G-07, G-25)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 31,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-018",
+      "note": "Compensation available but not to all customers\n\nPartially. Aggregated households enrolled in VPPs earn compensation for downward flexibility in energy/balancing markets; § 14a network-fee reductions reward curtailment-capable devices. Historic dedicated household DR product (AbLaV) expired 2022; classic household DR compensation is not universally available without aggregator enrolment and iMSys.\n\nAggregation-based access confirmed; AbLaV lapse per TSO documentation (G-13, G-26)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 32,
+      "score": 0,
+      "basis": "national",
+      "sourceId": "de-019",
+      "note": "No compensation available / market does not exist for any assets\n\nNo. EU ETS prices carbon at generator level (raising wholesale prices) but provides no household-level compensation for carbon-related services from BTM assets.\n\nNo BTM carbon-compensation mechanism identified in reviewed evidence (G-05, G-36)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 33,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-020",
+      "note": "Compensation available but not to all customers\n\nPartially. Grid-fee avoidance (self-consumption reduces network charges) and § 14a reduced network charges constitute functioning non-wholesale value streams; grid operators' emerging local flexibility tenders reward BTM flexibility in trial regions. No other fully mature non-wholesale market open equally to households.\n\nNetwork-charge avoidance value streams confirmed; local flexibility markets trial-stage (G-34, G-29)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-021",
+      "note": "No fee is payable\n\nYes. No fee is payable to grid/network/system incumbents to self-consume; since Jan 2023, 0% VAT on supply/installation of PV and storage on/near residential buildings (§ 12(3) UStG) and feed-in/operating income tax-free up to 30 kWp/unit, 100 kWp/taxpayer (§ 3 No. 72 EStG).\n\nStatutory tax exemptions verified via legal summary citing primary law sections (G-29)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-022",
+      "note": "No barriers to connecting and using behind-the-meter technology for self-consumption\n\nYes. EEG guarantees grid connection; Solarpaket I (2024) and VDE-AR-N 4105:2026-03 massively deregulated small systems: balcony solar ≤800 VA needs only MaStR registration (no grid-operator notification), and simplified self-registration now extends to larger plug-in arrays and storage. Minor residual requirements (registration within 1 month, standards conformity) remain.\n\nVDE standard update and BNetzA statements cross-checked (G-09, G-10, G-11)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 38,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-023",
+      "note": "Fit and inform, or no permitting in place\n\nEffectively yes. MaStR (marktstammdatenregister.de) is the single national digital register for all generation and storage units; registration is a 15–30-minute online process with digital assistants; no local construction permit is needed for standard rooftop arrays; balcony units now require only MaStR entry. A residual \"notification to grid operator\" step exists for larger systems (legislation pending to remove it).\n\nOfficial BNetzA register documentation + procedural guides (G-10, G-31, G-32)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 39,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-024",
+      "note": "Solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes\n\nYes. Solar rooftop installs are privileged permitted activities under federal building law; building consents only for rooftop arrays above certain sizes. Some Länder add solar obligations (e.g., Berlin Solar Act mandates PV on new builds >50 m²) rather than restrictions; heritage zones remain a limited constraint.\n\nBuilding-code treatment and Berlin mandate confirmed; minor historic-listing caveats noted (G-29, G-23)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 42,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-025",
+      "note": "There is a database of network capacity, but it is not open to the public or does not show individual customers\n\nPartially. DSOs publish local/regional maps showing area-based loading and congestion zones (e.g., E.ON's Online Connection Check assesses feasibility in minutes), but coverage is fragmented across ~860+ DSOs, not centralised, and does not consistently show individual-customer connection capacity. No single nationwide location-specific capacity database.\n\nIndependent consultant study on German DSO mapping fragmentation + Eurelectric digital-tools survey (G-34, G-35)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 43,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "de-026",
+      "note": "Data available but is only for import or export or some customers\n\nPartially. Grid-charge schedules are regulated and published (BNetzA-approved network charges per DSO), and increased import capacity is reflected in capacity-based network charges from 2025 (§14a/TOU network charge frameworks). However, location-specific reinforcement costs for customers wanting higher export capacity are not uniformly published.\n\nPublished regulated charges confirmed; location-specific upgrade pricing transparency not evidenced (G-36, G-37)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-027",
+      "note": "Digital registration process in place which is at least regionalised\n\nYes. All units register once in the national digital MaStR portal (online, guided, ~15–30 min); grid operators are automatically informed via the register rather than requiring separate utility paperwork; balcony systems need only MaStR. VDE-AR-N 4105:2026-03 extends simplified digital registration to storage and larger plug-in systems.\n\nOfficial register rules + 2026 standard update coverage (G-10, G-32, G-38)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-028",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nYes. VDE-AR-N 4105 (generation connection), VDE standards for storage, and DIN/VDE installation rules are national, legally referenced, continually updated (most recent revision March 2026) and aligned to international (IEC/CENELEC) norms.\n\n2026 standard revision demonstrates at-least-annual review cadence; international alignment via IEC 63380 recognition (G-09, G-40)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-029",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nYes. National safety standards include DIN VDE V 0126-95 (plug-in solar device safety, in force since Dec 2025), VDE grid-connection and storage safety rules, integrated with legally mandated installer qualifications — continually reviewed and internationally aligned.\n\nSafety standard enactment (Dec 2025) evidenced; VDE review processes documented (G-11, G-09)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-030",
+      "note": "Tariffs on imported behind-the-meter technology <10%\n\nMinimal. The EU removed anti-dumping/minimum-price measures on Chinese solar in 2018; solar modules, inverters and batteries enter at low/zero MFN rates (0% on many components). A German \"resilience bonus\" to shield domestic manufacturers was proposed but not adopted. Risk flagged: EU-wide trade-defence instruments are periodically discussed.\n\nEU/German removal of import controls triangulated across trade-policy commentary and news reporting (G-43, G-44, G-45)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 57,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-031",
+      "note": "National qualification certificate(s) for behind-the-meter technology installation and maintenance\n\nYes. Installation of small-scale renewable systems is a licensed skilled craft (\"Meister\" qualification via IHK examinations, with mandatory theory, practical, workplace learning and examination components; certification validity 16+ years with inspections of installers' work). A European Solar PV credential is emerging on top (EIT InnoEnergy European Solar Academy), reinforcing the national system.\n\nFormal EU RES-H/C policy database describing Germany's Meister qualification system (G-46, G-47)."
+    },
+    {
+      "countries": [
+        "DE"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "de-032",
+      "note": "Courses offered throughout country and on a regular basis\n\nYes. Courses available nationwide through IHK chambers, DGS SolarSchools (since 1996), RENAC (online/in-person/blended, multiple languages), plus ~250 university programmes on solar energy; regularly scheduled throughout the country.\n\nMultiple independent training providers with national coverage documented (G-48, G-49, G-50)."
     },
     {
       "countries": [
@@ -5880,6 +8952,396 @@
       "basis": "national",
       "sourceId": "kr-038",
       "note": "Courses offered throughout country and on a regular basis\n\nCourses widely available nationally through commercial academies and institutional providers\n\nMultiple national training providers offer written and practical exam preparation courses; delivery appears nationwide and regular"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 10,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-001",
+      "note": "Some low cost finance available but not yet universally accessible\n\nNo government-backed low-interest loan programs; standard commercial rates apply (5-8%). Municipal tax rebates available but not financing.\n\nTax rebates (IBI, ICIO, IRPF) available but no specialized low-interest lending programs identified"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 11,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-002",
+      "note": "Behind-the-meter technology only affordable and accessible to middle and highest earners\n\nModerate affordability; tax rebates reduce upfront costs by 30-50% but financing costs remain high for lower earners\n\nROI of 20-22% achievable but requires upfront capital; no zero-capital models widely available"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 12,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-003",
+      "note": "Cost of finance for behind-the-meter technology above 5% and below 10%\n\nCommercial rates typically 5-8%; no rates consistently below 5% identified\n\nInterest rates above 5% threshold for optimal scaling"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 13,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-004",
+      "note": "Best practices and standards in place for consumer protection but not enforced\n\nUNEF provides quality certification and best practices; enforcement varies by municipality . i.e.  Best practices exist but enforcement not universal across all regions\n\nhttps://www.unef.es/en/sello-autoconsumo"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 14,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-005",
+      "note": "Network operators face some barriers to operating, incentivising, contracting with or owning behind-the-meter technology\n\nNetwork operators face some barriers; unbundling requirements limit direct ownership but contracting opportunities exist\n\nDirective 2009/72/EC unbundling creates constraints but market mechanisms developing"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 16,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-006",
+      "note": "Time of use pricing for electricity import available to all or almost all customers\n\nYes - PVPC regulated tariff provides hourly pricing; available to all customers with <10kW capacity\n\nHourly pricing based on wholesale market; 8 regulated suppliers listed by CNMC"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 17,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-007",
+      "note": "Time of use pricing available for export to all customers and both solar and storage\n\nYes - surplus compensation mechanism with simplified modality for systems <100kW\n\n90% of self-consumption power legalized under surplus modality as of Q2 2024"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 18,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-008",
+      "note": "Bills broken down to show all of the following: wholesale/energy costs, network costs, system operation and taxes (where these are applicable)\n\nYes - CNMC Circular 3/2024 requires itemization of wholesale, network, taxes, system operation\n\nGeneric line items prohibited; full breakdown mandatory"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 19,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-009",
+      "note": "Data is available in an electronic format online\n\nYes - smart meters provide electronic half-hourly data through distributor online portals\n\nData available electronically; 25,559 hourly time series dataset published"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 20,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-010",
+      "note": "Behind-the-meter technology have size barriers 50% or more of the wholesale and ancillary markets which are open to behind-the-meter technology\n\nSize barriers exist for systems >100kW requiring complex procedures; smaller systems have simplified access\n\nBarriers primarily for larger installations; aggregation through VPPs reduces barriers"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 21,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-011",
+      "note": "All ancillary and wholesale markets pricing is fully transparent, and pricing is available in real time\n\nYes - REE and OMIE publish real-time wholesale prices; ancillary service pricing transparent\n\nReal-time demand, generation mix, and wholesale pricing publicly available"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 22,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-012",
+      "note": "VPPs have access to more than 50% of wholesale or ancillary markets which are open to behind-the-meter technology\n\nYes - VPPs legally recognized and can access wholesale markets; individual participation limited by size\n\nVPP framework established; regulatory reforms enabling aggregator participation"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 24,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-013",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards as part of business as usual\n\nCompensation available through trials and business-as-usual for technical-standard-compliant assets\n\nMultiple revenue streams available including network services"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 25,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-010",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers\n\nYes - voltage support service available; enhanced voltage control compensated\n\nVoltage support market exists; compensation for enhanced services"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 26,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-014",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers\n\nYes - aFRR, mFRR, RR services available through European platforms (PICASSO, MARI, TERRE)\n\nThree ancillary services available; Spain joining PICASSO for aFRR"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 27,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-015",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers\n\nYes - demand response mechanisms exist; compensation through ancillary service markets\n\nPeak demand reduction part of ancillary services portfolio"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 28,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-016",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers\n\nYes - intraday markets and balancing mechanisms provide signals\n\nSix intraday auctions plus balancing mechanisms"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 29,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-010",
+      "note": "Compensation available but not to all customers\n\nYes - black start service expected to become available; market developing\n\nBlack start market in development phase"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 30,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-017",
+      "note": "Compensation available but not to all customers\n\nLimited - primarily focused on demand reduction rather than increase\n\nMarket design favors demand response over demand increase"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 31,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-018",
+      "note": "Compensation available to all behind-the-meter technology that meet required technical standards for all customers\n\nYes - demand response integrated into ancillary services and balancing markets\n\nDemand response programs established through VPP aggregators"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 32,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-019",
+      "note": "Compensation available but not to all customers\n\nLimited - carbon pricing through EU ETS but no specific compensation for distributed assets\n\nCarbon services more relevant to utility-scale; distributed impact indirect"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 33,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-014",
+      "note": "Compensation available but not to all customers\n\nYes - capacity market planned; currently limited non-wholesale mechanisms\n\nCapacity market plans approved but not yet fully implemented"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 35,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-020",
+      "note": "No fee is payable\n\nYes - no fees payable for self-consumption behind the meter\n\nRD 244/2019 eliminates connection fees for pure self-consumption"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 36,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-021",
+      "note": "No barriers to connecting and using behind-the-meter technology for self-consumption\n\nYes - minimal barriers; simplified procedures for systems <100kW\n\nRobust legal structure promoting self-consumption with simplified admin"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 38,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-022",
+      "note": "Fit and inform, or no permitting in place\n\nYes - online registration for most systems; fit-and-inform for small installations\n\nSystems <15kW with surplus exempt from permits; online processes standard"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 39,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-023",
+      "note": "Solar panel installs are permitted activities and building consents only apply to rooftop arrays above certain sizes\n\nYes - solar panels permitted activities; consents only for large rooftop arrays\n\nStreamlined regulations introduced; floating PV framework developed"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 41,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-022",
+      "note": "Interconnection application is required but is simple and online. Applications are processed in less than 15 days\n\nPartially - zero-cost for self-consumption without surplus; simplified online for <15kW surplus\n\nComplex/costly for larger systems; simplified for small urban installations"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 42,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-024",
+      "note": "There is a full location specific database of available capacity for customers to connect behind-the-meter technology\n\nYes - REE publishes transmission capacity; e-distribución provides distribution node data\n\nVoluntary publication; full location-specific database available"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 43,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-025",
+      "note": "Data available for import and export at all connection points/all customers\n\nYes - CNMC oversees transparent pricing; data available for most connection points\n\nRegulated returns published; capacity costs transparent"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 45,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-026",
+      "note": "Digital registration process in place which is at least regionalised\n\nYes - digital registration processes in place; regionalized but expanding\n\nOnline registration through FNMT digital certificates; utility portals available"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 47,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-027",
+      "note": "System operator cannot dispatch with more than 50% of total electricity generation from behind the meter tech at any one time\n\nPartially - system operator can dispatch high renewable shares but 70% BTM threshold not yet tested\n\nHigh renewable penetration achieved; BTM dispatch capability developing"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 48,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-028",
+      "note": "Some localised rules and some national/statewide rules\n\nYes - national rules conforming to international norms being established\n\nNIS2 directive transposed; national cybersecurity framework aligned with EU"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 49,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-029",
+      "note": "Some localised rules and some national/statewide rules\n\nYes - national protocols developing; some regional variation remains\n\nNational Security Framework established; ENISA guidance followed"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 51,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-030",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nYes - UNEF certification and EU standards alignment; annual reviews\n\nPVTRIN courses offered in Spain; alignment with international best practices"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 52,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-031",
+      "note": "Best practices and standards in place which are continually (at least annually) reviewed and align to international best practice and standards\n\nYes - safety standards aligned with international norms; regular reviews\n\nOSHA-equivalent safety training required; industry standards enforced"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 54,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-032",
+      "note": "Tariffs on imported behind-the-meter technology <10%\n\nLow - EU-wide tariffs typically <10% for solar equipment\n\nEU trade policy; no specific high tariffs on solar imports to Spain"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 55,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-033",
+      "note": "Any tax incentives or subsidies for behind-the-meter technology match or exceed those provided to utility scale technology or other energy technology\n\nYes - IBI (50%), ICIO (up to 95%), IRPF (up to 40%) match or exceed utility-scale incentives\n\nComprehensive tax incentive package; national reach since 2026"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 57,
+      "score": 1,
+      "basis": "national",
+      "sourceId": "es-004",
+      "note": "Some in house Equipment supplier / Industry body qualifications offered for behind-the-meter technology installation and maintenance\n\nPartially - UNEF certification available but not universally mandated; national qualifications developing .  Industry body qualifications; national certificate system evolving\n\nhttps://www.unef.es/en/sello-autoconsumo"
+    },
+    {
+      "countries": [
+        "ES"
+      ],
+      "row": 58,
+      "score": 2,
+      "basis": "national",
+      "sourceId": "es-034",
+      "note": "Courses offered throughout country and on a regular basis\n\nYes - courses offered regularly through PVTRIN and UNEF; multiple locations\n\nEuropean Installer Credential initiative; training available throughout country"
     },
     {
       "countries": [
