@@ -221,6 +221,20 @@ resource "google_cloud_run_v2_service_iam_member" "gate_public" {
 
 # --- GitHub Actions deploys (Workload Identity Federation) ------------------------------------
 
+# GitHub's federated token is exchanged (STS) and then used to impersonate the deploy service
+# account (IAM Credentials). Without the latter the first deploy failed at docker auth. The
+# project is shared with gridsim and both environments declare these, so they are never
+# disabled on destroy.
+resource "google_project_service" "wif" {
+  for_each = toset([
+    "iamcredentials.googleapis.com",
+    "sts.googleapis.com",
+  ])
+  project            = var.project_id
+  service            = each.value
+  disable_on_destroy = false
+}
+
 resource "google_iam_workload_identity_pool" "github" {
   project                   = var.project_id
   workload_identity_pool_id = "github-ef-${var.env}"
