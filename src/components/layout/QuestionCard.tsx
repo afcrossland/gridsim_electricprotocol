@@ -318,7 +318,10 @@ export default function QuestionCard({
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
                     fontSize: "0.65rem",
-                    color: tierRank === 0 ? "#B07A00" : tierRank === 1 ? "#008593" : "text.secondary",
+                    // Amber for strong, teal for weak - the same way round as
+                    // SCORE_BANDS (and so the tile's own left edge), darkened
+                    // a step for legibility as text.
+                    color: tierRank === 1 ? "#B07A00" : tierRank === 0 ? "#008593" : "text.secondary",
                   }}
                 >
                   {tierName}

@@ -350,40 +350,19 @@ export default function CountryPanel({
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
       <Box sx={{ px: 3, pt: 2, pb: 1 }}>
-        {/* Name row and stat-tile row are separate on mobile - one shared
-            row squeezed the country name toward nothing on a narrow screen,
-            since the tiles and headerAction refused to shrink and nothing
-            wrapped. Desktop keeps them on one line, where there's room. */}
+        {/* Name row and stat-tile row are separate at every width - one
+            shared row squeezed the country name to nothing, since the tiles
+            and the report button refused to shrink and nothing wrapped. That
+            happened on desktop too once the detail panel became half the
+            screen (2026-10-16): at 1440px "Germany" vanished entirely and
+            the report button was clipped. */}
         <DetailHeader
           onBack={onBack}
           backTooltip={t("countryPanel.backToScoreboard")}
           flag={<FlagImg code={code} size={28} />}
           name={score.name}
-          sx={{ p: 0, gap: 1.5, mb: isMobile ? 1 : 1.5, flexWrap: isMobile ? "wrap" : "nowrap" }}
+          sx={{ p: 0, gap: 1.5, mb: 1, flexWrap: isMobile ? "wrap" : "nowrap" }}
         >
-          {!isMobile && (
-            <>
-              <Box sx={{ flexShrink: 0 }}>
-                <StatTile
-                  size="small"
-                  icon={<TrendingUpIcon fontSize="small" />}
-                  color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
-                  label={t("countryPanel.score")}
-                  value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
-                />
-              </Box>
-              <Box sx={{ flexShrink: 0 }}>
-                <StatTile
-                  size="small"
-                  icon={<FactCheckIcon fontSize="small" />}
-                  color={theme.palette.primary.main}
-                  label={t("countryPanel.dataCompleteness")}
-                  value={`${Math.round(score.completeness * 100)}%`}
-                />
-              </Box>
-            </>
-          )}
-
           <Button
             size="small"
             variant="contained"
@@ -397,26 +376,25 @@ export default function CountryPanel({
           {headerAction}
         </DetailHeader>
 
-        {isMobile && (
-          <Collapse in={!headerShrunk}>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
-              <StatTile
-                size="small"
-                icon={<TrendingUpIcon fontSize="small" />}
-                color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
-                label={t("countryPanel.score")}
-                value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
-              />
-              <StatTile
-                size="small"
-                icon={<FactCheckIcon fontSize="small" />}
-                color={theme.palette.primary.main}
-                label={t("countryPanel.dataCompleteness")}
-                value={`${Math.round(score.completeness * 100)}%`}
-              />
-            </Box>
-          </Collapse>
-        )}
+        {/* headerShrunk is mobile-only, so on desktop this always stays open. */}
+        <Collapse in={!headerShrunk}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
+            <StatTile
+              size="small"
+              icon={<TrendingUpIcon fontSize="small" />}
+              color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
+              label={t("countryPanel.score")}
+              value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
+            />
+            <StatTile
+              size="small"
+              icon={<FactCheckIcon fontSize="small" />}
+              color={theme.palette.primary.main}
+              label={t("countryPanel.dataCompleteness")}
+              value={`${Math.round(score.completeness * 100)}%`}
+            />
+          </Box>
+        </Collapse>
       </Box>
 
       {/* Matches the sibling gridsim-frontend project's own sidebar - a grey
