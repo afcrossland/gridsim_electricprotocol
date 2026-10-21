@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import World from "../../assets/jurisdictions.geojson?url";
 import mapStyleJsonLight from "../../assets/map_gsc.json";
 import mapStyleJsonDark from "../../assets/map_gsc_dark.json";
-import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_RAMP, scoreTextColor } from "../../lib/scoring";
+import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_BANDS, SCORE_RAMP, scoreTextColor } from "../../lib/scoring";
 import { SunScore } from "../ui/Suns";
 import { qualifiedName } from "../../lib/jurisdictions";
 import FlagImg from "../ui/FlagImg";
@@ -22,7 +22,6 @@ import type { CountryScore } from "../../lib/types";
 import MapHoverTooltip from "../../../shared/components/MapHoverTooltip";
 import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
-import { useProtocolStore } from "../../stores/protocolStore";
 
 /**
  * Whole-globe camera for the very first paint, before the world geometry has
@@ -56,6 +55,13 @@ interface Props {
   hideLegend?: boolean;
   /** Swaps the choropleth for the "solar bloom" intro animation - see INTRO_* below. */
   introBloom?: boolean;
+  /**
+   * Set while a policy area is open on the selected country's page - `scores`
+   * are then that one area's scores. The map zooms back out to the world (so
+   * every jurisdiction's colour is in view, the selected one still outlined)
+   * and shows a legend titled after the section.
+   */
+  sectionTitle?: string;
 }
 
 /**
@@ -88,15 +94,28 @@ const INTRO_FILL_OPACITY_EXPR = ["coalesce", ["feature-state", "introOp"], 0];
  * everything else falls through to the grey defaults, which is what keeps a
  * country with three answers from showing up as a confident dark teal.
  */
-const FILL_COLOR = [
+/**
+ * Scores are stepped into SCORE_BANDS (the same five bands the suns use),
+ * not interpolated - the continuous ramp's stops sit at quarters while the
+ * bands break at fifths, so a three-sun country could be painted light
+ * teal. Completeness has no bands and stays a smooth ramp.
+ */
+const STEPPED_SCORE = [
+  "step",
+  ["feature-state", "score"],
+  SCORE_BANDS[0].color,
+  ...SCORE_BANDS.slice(1).flatMap((b) => [b.min, b.color]),
+];
+const CONTINUOUS_SCORE = [
+  "interpolate",
+  ["linear"],
+  ["feature-state", "score"],
+  ...SCORE_RAMP.flatMap((s) => [s.stop, s.color]),
+];
+const fillColor = (stepped: boolean) => [
   "case",
   ["!=", ["feature-state", "score"], null],
-  [
-    "interpolate",
-    ["linear"],
-    ["feature-state", "score"],
-    ...SCORE_RAMP.flatMap((s) => [s.stop, s.color]),
-  ],
+  stepped ? STEPPED_SCORE : CONTINUOUS_SCORE,
   ["==", ["feature-state", "insufficient"], true],
   COLOR_INSUFFICIENT,
   COLOR_NO_DATA,
@@ -157,7 +176,7 @@ export function boundsOf(
   ];
 }
 
-export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick, hideLegend, introBloom }: Props) {
+export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick, hideLegend, introBloom, sectionTitle }: Props) {
   const { t, i18n } = useTranslation();
   const mapRef = useRef<MapRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -175,8 +194,8 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   // banner's height avoids the two ever sharing the same strip of the map.
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const showingLegendBanner = isMobile && !selectedCountry && !hideLegend;
-  const mapMetric = useProtocolStore((s) => s.mapMetric);
+  const showLegend = (!selectedCountry || Boolean(sectionTitle)) && !hideLegend;
+  const showingLegendBanner = isMobile && showLegend;
 
   // The base style's own country- and continent-name labels compete with the
   // choropleth and our own hover tooltip for the same information, so they
@@ -364,7 +383,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     const map = mapRef.current?.getMap();
     if (!map || !worldData) return;
 
-    const bounds = selectedCountry ? boundsOf(worldData, selectedCountry) : null;
+    const bounds = selectedCountry && !sectionTitle ? boundsOf(worldData, selectedCountry) : null;
 
     const frame = requestAnimationFrame(() => {
       map.resize();
@@ -385,7 +404,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [selectedCountry, worldData]);
+  }, [selectedCountry, worldData, sectionTitle]);
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
@@ -409,7 +428,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     type: "fill",
     paint: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      "fill-color": (introBloom ? GSC_YELLOW : FILL_COLOR) as any,
+      "fill-color": (introBloom ? GSC_YELLOW : fillColor(metric === "score")) as any,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       "fill-opacity": (introBloom ? INTRO_FILL_OPACITY_EXPR : 0.85) as any,
       // Soft translucent edge baked into the fill itself, matching the
@@ -492,7 +511,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
             hovered && hovered.ranked ? (
               <>
                 <Typography variant="caption" sx={{ display: "block", color: "text.secondary" }}>
-                  {t("map.policyScore")}
+                  {sectionTitle ?? t("map.policyScore")}
                 </Typography>
                 <Typography variant="h5" sx={{ color: "text.primary" }}>
                   <SunScore score={hovered.score} color={scoreTextColor(hovered.score, theme.palette.mode)} size={16} />
@@ -506,11 +525,24 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
         />
       )}
 
-      {!selectedCountry && !hideLegend && (
+      {showLegend && (
         <MapLegend
-          title={mapMetric === "score" ? t("legend.protocolScore") : t("legend.questionsAnswered")}
+          title={
+            sectionTitle
+              ? `${t("legend.sectionScore", { section: sectionTitle })} · ${t("legend.inSuns")}`
+              : metric === "score"
+                ? `${t("legend.protocolScore")} · ${t("legend.inSuns")}`
+                : t("legend.questionsAnswered")
+          }
           rampStops={SCORE_RAMP}
           tickLabels={["0%", "25%", "50%", "75%", "100%"]}
+          bands={metric === "score" ? SCORE_BANDS.map((b, i) => ({ color: b.color, label: String(i + 1) })) : undefined}
+          // Completeness paints anything with an answer, so only the score
+          // view has a "not enough data" grey to explain.
+          extraKeys={[
+            ...(metric === "score" ? [{ color: COLOR_INSUFFICIENT, label: t("legend.notEnoughData") }] : []),
+            { color: COLOR_NO_DATA, label: t("legend.noData") },
+          ]}
         />
       )}
     </Box>

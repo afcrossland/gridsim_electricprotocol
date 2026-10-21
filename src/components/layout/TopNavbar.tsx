@@ -70,8 +70,10 @@ export default function TopNavbar() {
           {/* Stands in for auth: open to anyone until sign-in exists. Not a
               placeholder like the other two apps' own "Login" - this really
               navigates to the admin console, just with no auth gate yet -
-              see AuthButton's own `onClick` doc comment. */}
-          <AuthButton label={t("nav.adminConsole")} mode={mode} tooltip={t("nav.adminConsole")} onClick={() => setPage(page === "admin" ? "map" : "admin")} />
+              see AuthButton's own `onClick` doc comment. A quiet text link
+              rather than the filled button: it's for the few people
+              editing answers, not the public reading them. */}
+          <AuthButton label={t("nav.adminConsole")} mode={mode} variant="text" tooltip={t("nav.adminConsole")} onClick={() => setPage(page === "admin" ? "map" : "admin")} />
         </Box>
       </Box>
     </AppHeader>

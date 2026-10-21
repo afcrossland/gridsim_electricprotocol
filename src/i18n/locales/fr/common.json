@@ -21,7 +21,11 @@
   },
   "legend": {
     "protocolScore": "Score du protocole",
-    "questionsAnswered": "Questions répondues, pondérées"
+    "questionsAnswered": "Questions répondues, pondérées",
+    "notEnoughData": "Données insuffisantes",
+    "noData": "Aucune donnée",
+    "sectionScore": "Score : {{section}}",
+    "inSuns": "en soleils"
   },
   "welcome": {
     "body": "Ce site note les pays, états et provinces selon le Protocole Électrique, l'ensemble détaillé de questions qui sous-tend la Charte. Choisissez une juridiction sur la carte pour voir son résultat, les preuves associées, et les changements qui feraient le plus progresser son score.",
@@ -70,7 +74,8 @@
     "exitEditMode": "Quitter le mode édition",
     "buildingReport": "Génération du rapport...",
     "downloadReport": "Télécharger le résumé des politiques",
-    "overviewIntro": "Comment {{name}} se positionne dans chaque domaine politique, et comment cela se compare au reste du groupe."
+    "overviewIntro": "Comment {{name}} se positionne dans chaque domaine politique, et comment cela se compare au reste du groupe.",
+    "notApplicableHint": "Pas encore assez de questions répondues dans ce domaine pour lui attribuer un score."
   },
   "impactList": {
     "empty": "Rien à afficher pour l'instant - chaque question répondue est déjà notée au maximum, ou aucune n'a encore de réponse. Utilisez Paysage politique pour en ajouter.",
@@ -128,7 +133,10 @@
     "addEvidence": "Ajouter une preuve",
     "moreExemplars": "+{{count}} de plus",
     "exemplars": "Exemples à suivre",
-    "viewProfile": "Voir le profil du pays"
+    "viewProfile": "Voir le profil du pays",
+    "showAllLevels": "Afficher tous les niveaux ({{count}} de plus)",
+    "showFewerLevels": "Afficher moins de niveaux",
+    "currentAnswer": "Réponse : {{name}}"
   },
   "adminConsole": {
     "title": "Console d'administration",

@@ -147,7 +147,10 @@ export default function CountryPanel({
   // sees first, with the narrow/expanded state only kicking in once
   // they've actually picked one (see `handleSelectSection` below and
   // SectionOverview.tsx's own `compact` prop).
-  const [uncontrolledSectionId, setUncontrolledSectionId] = useState<string>("");
+  // The "uncontrolled" case lives in the store (not local state) so the map
+  // can recolour by the open section and the URL can carry it.
+  const uncontrolledSectionId = useProtocolStore((s) => s.activeSectionId);
+  const setUncontrolledSectionId = useProtocolStore((s) => s.setActiveSectionId);
   const activeSectionId = controlledSectionId ?? uncontrolledSectionId;
   const setActiveSectionId = onSectionChange ?? setUncontrolledSectionId;
 
@@ -350,40 +353,19 @@ export default function CountryPanel({
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
       <Box sx={{ px: 3, pt: 2, pb: 1 }}>
-        {/* Name row and stat-tile row are separate on mobile - one shared
-            row squeezed the country name toward nothing on a narrow screen,
-            since the tiles and headerAction refused to shrink and nothing
-            wrapped. Desktop keeps them on one line, where there's room. */}
+        {/* Name row and stat-tile row are separate at every width - one
+            shared row squeezed the country name to nothing, since the tiles
+            and the report button refused to shrink and nothing wrapped. That
+            happened on desktop too once the detail panel became half the
+            screen (2026-10-16): at 1440px "Germany" vanished entirely and
+            the report button was clipped. */}
         <DetailHeader
           onBack={onBack}
           backTooltip={t("countryPanel.backToScoreboard")}
           flag={<FlagImg code={code} size={28} />}
           name={score.name}
-          sx={{ p: 0, gap: 1.5, mb: isMobile ? 1 : 1.5, flexWrap: isMobile ? "wrap" : "nowrap" }}
+          sx={{ p: 0, gap: 1.5, mb: 1, flexWrap: isMobile ? "wrap" : "nowrap" }}
         >
-          {!isMobile && (
-            <>
-              <Box sx={{ flexShrink: 0 }}>
-                <StatTile
-                  size="small"
-                  icon={<TrendingUpIcon fontSize="small" />}
-                  color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
-                  label={t("countryPanel.score")}
-                  value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
-                />
-              </Box>
-              <Box sx={{ flexShrink: 0 }}>
-                <StatTile
-                  size="small"
-                  icon={<FactCheckIcon fontSize="small" />}
-                  color={theme.palette.primary.main}
-                  label={t("countryPanel.dataCompleteness")}
-                  value={`${Math.round(score.completeness * 100)}%`}
-                />
-              </Box>
-            </>
-          )}
-
           <Button
             size="small"
             variant="contained"
@@ -397,26 +379,25 @@ export default function CountryPanel({
           {headerAction}
         </DetailHeader>
 
-        {isMobile && (
-          <Collapse in={!headerShrunk}>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
-              <StatTile
-                size="small"
-                icon={<TrendingUpIcon fontSize="small" />}
-                color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
-                label={t("countryPanel.score")}
-                value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
-              />
-              <StatTile
-                size="small"
-                icon={<FactCheckIcon fontSize="small" />}
-                color={theme.palette.primary.main}
-                label={t("countryPanel.dataCompleteness")}
-                value={`${Math.round(score.completeness * 100)}%`}
-              />
-            </Box>
-          </Collapse>
-        )}
+        {/* headerShrunk is mobile-only, so on desktop this always stays open. */}
+        <Collapse in={!headerShrunk}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
+            <StatTile
+              size="small"
+              icon={<TrendingUpIcon fontSize="small" />}
+              color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
+              label={t("countryPanel.score")}
+              value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
+            />
+            <StatTile
+              size="small"
+              icon={<FactCheckIcon fontSize="small" />}
+              color={theme.palette.primary.main}
+              label={t("countryPanel.dataCompleteness")}
+              value={`${Math.round(score.completeness * 100)}%`}
+            />
+          </Box>
+        </Collapse>
       </Box>
 
       {/* Matches the sibling gridsim-frontend project's own sidebar - a grey
@@ -511,12 +492,35 @@ export default function CountryPanel({
             </Box>
           )}
 
-          <SectionOverview
-            entries={sectionOverview}
-            selectedId={activeSectionId}
-            onSelect={handleSelectSection}
-            compact={Boolean(activeSectionId)}
-          />
+          {/* Once a section is open the pills become one pinned row, so
+              switching areas never means scrolling back up past a long
+              question list - a wrapped strip used to take ~200px above
+              the questions. Negative top/margins cancel the scroll
+              container's own padding so the row pins flush to its edge. */}
+          <Box
+            sx={
+              activeSectionId
+                ? {
+                    position: "sticky",
+                    top: isMobile ? -12 : -24,
+                    zIndex: 2,
+                    mx: isMobile ? -1.5 : -3,
+                    px: isMobile ? 1.5 : 3,
+                    py: 1,
+                    bgcolor: "background.paper",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }
+                : undefined
+            }
+          >
+            <SectionOverview
+              entries={sectionOverview}
+              selectedId={activeSectionId}
+              onSelect={handleSelectSection}
+              compact={Boolean(activeSectionId)}
+            />
+          </Box>
 
           {/* The expanded panel for whichever tile is active - that
               section's own questions, each now carrying its own exemplar
