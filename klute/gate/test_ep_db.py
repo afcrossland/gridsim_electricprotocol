@@ -155,3 +155,65 @@ def test_export_shape_matches_what_the_frontend_imports(db, files):
         exported = export_all(session)
     assert set(exported) == {"protocol", "jurisdictions", "sourced", "indicator"}
     assert set(exported["protocol"]["questions"][0]) == set(files["protocol"]["questions"][0])
+
+
+# --- GET /api/policy/data ----------------------------------------------------------------------
+
+
+@pytest.fixture
+def api_client():
+    from fastapi.testclient import TestClient
+
+    import main
+
+    return TestClient(main.app)
+
+
+def test_api_without_a_database_is_unavailable(api_client, monkeypatch):
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    r = api_client.get("/api/policy/data")
+    assert r.status_code == 503
+    assert r.headers["cache-control"] == "no-store"
+
+
+@needs_db
+def test_api_on_an_empty_database_is_unavailable(db, api_client):
+    r = api_client.get("/api/policy/data")
+    assert r.status_code == 503
+    assert "run the import" in r.json()["error"]
+
+
+@needs_db
+def test_api_serves_exactly_what_the_files_hold(db, files, api_client):
+    run_import(db, files)
+    r = api_client.get("/api/policy/data")
+    assert r.status_code == 200
+    assert "public" in r.headers["cache-control"]
+    expected = {**files, **{o: {k: v for k, v in files[o].items() if k != "README"} for o in ("sourced", "indicator")}}
+    assert differences(expected, r.json()) == []
+
+
+def test_api_needs_no_klute_sign_in(api_client, monkeypatch):
+    # The gate's /klute routes all require a session; this one must not.
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    assert api_client.get("/api/policy/data").status_code != 401
+
+
+def test_ep_db_imports_without_the_repo_around_it():
+    # The gate's image holds ep_db at /app/ep_db with no repo above it, and main.py imports the API
+    # from it at startup. Reading a repo path at import time there once crashed the whole gate, so
+    # import it with __file__ paths resolving as they do in the image.
+    import subprocess
+    import sys
+
+    fake_image_paths = (
+        "import pathlib\n"
+        "real = pathlib.Path.resolve\n"
+        "def resolve(self, *a, **k):\n"
+        "    p = real(self, *a, **k)\n"
+        "    return pathlib.Path('/app/ep_db', p.name) if p.parent.name == 'ep_db' else p\n"
+        "pathlib.Path.resolve = resolve\n"
+        "import ep_db.api\n"
+    )
+    result = subprocess.run([sys.executable, "-c", fake_image_paths], cwd=HERE, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr

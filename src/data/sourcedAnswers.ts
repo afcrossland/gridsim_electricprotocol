@@ -1,7 +1,6 @@
 import { resolveTargets } from "../lib/jurisdictions";
 import type { Question, Response } from "../lib/types";
-import raw from "./sourced-answers.json";
-import indicatorRaw from "./indicator-answers.json";
+import { readPolicyData } from "./policyData";
 
 interface SourceRef {
   title: string;
@@ -38,8 +37,8 @@ interface SourcedAnswers {
   answers: AnswerEntry[];
 }
 
-const handWritten = raw as unknown as SourcedAnswers;
-const indicators = indicatorRaw as unknown as SourcedAnswers;
+const handWritten = readPolicyData().sourced as unknown as SourcedAnswers;
+const indicators = readPolicyData().indicator as unknown as SourcedAnswers;
 
 /**
  * Both files share a schema. Indicator answers are listed first so that a

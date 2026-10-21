@@ -11,6 +11,9 @@ Google (Firebase Auth) as an email on KLUTE_ALLOWED_EMAILS:
   hosting), and /klute/api/** is proxied to the simulator backend with the backend's klute
   password added here, so the password never reaches a browser.
 
+It also serves the public, read-only policy data at /api/policy/data (ep_db/api.py, ROADMAP.md
+Phase 1), which needs no sign-in.
+
 The allowlist is re-checked on every request, so removing an email takes effect on the next
 deploy of this service even for an existing session.
 """
@@ -28,6 +31,8 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
+
+from ep_db.api import router as policy_router
 
 COOKIE = "__session"
 SESSION_SECONDS = 12 * 60 * 60
@@ -85,6 +90,8 @@ def verify_firebase_token(token: str) -> dict:
 
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+# Public, read-only policy data (ep_db/api.py) - unrelated to /klute's sign-in.
+app.include_router(policy_router)
 
 
 def _login_page() -> HTMLResponse:

@@ -499,12 +499,21 @@ Lowest-risk first step: move today's static JSON into the database, keep
 behaviour identical. A read-only migration, no new features yet.
 
 - Apply Phase 0 on prod and load it the same way (dev is done).
-- Add read endpoints that return the four files' current shapes, and a
-  Firebase Hosting rewrite for them; the frontend fetches on load instead of
-  importing JSON at build time (`src/stores/protocolStore.ts`'s
-  `initialState()` and `seedResponses()` are the two places that currently
-  do this). Answer resolution (specificity and basis precedence in
-  `src/data/sourcedAnswers.ts`) stays in the frontend for this phase.
+- **Read endpoint (in progress, branch `feature/ep-db-phase1-read`).**
+  `GET /api/policy/data` on the gate returns the four files' shapes from
+  the database (503 on any problem); Firebase Hosting rewrites
+  `/api/policy/**` to it; the gate's Cloud Run service mounts the Cloud SQL
+  socket and gets `DATABASE_URL` (Terraform, needs applying per
+  environment). The Policy Explorer fetches it before loading the app
+  (`src/data/policyData.ts`, `src/main.tsx`) on **dev builds only**
+  (`VITE_POLICY_API`), falling back to the bundled JSON on any failure.
+  Answer resolution (specificity and basis precedence in
+  `src/data/sourcedAnswers.ts`) stays in the frontend for this phase. The
+  `/klute` explorer still imports `protocol.seed.json` directly
+  (`klute/src/panels/PolicyPanel.tsx`, `klute/src/lib/countryStatus.ts`).
+- Turn it on for prod (set `VITE_POLICY_API` for prod builds) once prod is
+  applied and loaded and dev has run on it for a while; then the bundled
+  JSON can stop shipping.
 - Point `.github/workflows/import-input.yml` at the database instead of
   committing regenerated JSON.
 - Ship this alone and confirm the app looks and behaves exactly as it does

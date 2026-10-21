@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import seed from "../data/protocol.seed.json";
+import { readPolicyData } from "../data/policyData";
 import { sourcedResponses } from "../data/sourcedAnswers";
 import i18n, { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "../i18n";
 import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
@@ -11,7 +11,7 @@ import { diffResponses, type QuestionProposal, type Suggestion } from "../lib/su
 import { getStoredMode, setStoredMode } from "../../shared/lib/darkMode";
 import { type EvidenceItem, type Protocol, type Question, type Response, type Section } from "../lib/types";
 
-const protocol = seed as unknown as Protocol;
+const protocol = readPolicyData().protocol as unknown as Protocol;
 
 /**
  * Everything mutable lives here behind a small set of actions. There is no

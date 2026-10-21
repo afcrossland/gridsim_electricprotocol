@@ -125,6 +125,15 @@ resource "google_cloud_run_v2_service" "klute_gate" {
       max_instance_count = 2
     }
 
+    # The Cloud SQL socket for the policy database (database.tf), mounted the way gridsim's
+    # backend mounts its own.
+    volumes {
+      name = "cloudsql"
+      cloud_sql_instance {
+        instances = [data.google_sql_database_instance.gridsim.connection_name]
+      }
+    }
+
     containers {
       # Placeholder until the repo's first deploy; CI owns the image from then on.
       image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -176,6 +185,22 @@ resource "google_cloud_run_v2_service" "klute_gate" {
         }
       }
 
+      # The policy database (database.tf), read by /api/policy/data over the socket mounted below.
+      env {
+        name = "DATABASE_URL"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.database_url.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      volume_mounts {
+        name       = "cloudsql"
+        mount_path = "/cloudsql"
+      }
+
       dynamic "env" {
         for_each = var.klute_backend_password_secret_id != "" ? [1] : []
         content {
@@ -208,6 +233,9 @@ resource "google_cloud_run_v2_service" "klute_gate" {
     google_secret_manager_secret_version.session_key,
     google_secret_manager_secret_iam_member.gate_session_key,
     google_secret_manager_secret_iam_member.gate_backend_password,
+    google_secret_manager_secret_version.database_url,
+    google_secret_manager_secret_iam_member.gate_database_url,
+    google_project_iam_member.gate_cloudsql_client,
   ]
 }
 

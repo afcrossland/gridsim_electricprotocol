@@ -1,4 +1,4 @@
-import index from "../data/jurisdictions.json";
+import { readPolicyData } from "../data/policyData";
 import subdivisionNames from "../data/subdivision-names.json";
 import { CONTINENTS, continentOfRegion, continentOverrideFor } from "../../shared/lib/continents";
 
@@ -21,7 +21,7 @@ export interface Jurisdiction {
   mappable: boolean;
 }
 
-export const jurisdictions = index as Jurisdiction[];
+export const jurisdictions = readPolicyData().jurisdictions as Jurisdiction[];
 
 const byCode = new Map(jurisdictions.map((j) => [j.code, j]));
 

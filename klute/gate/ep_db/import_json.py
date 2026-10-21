@@ -46,8 +46,12 @@ from ep_db.models import (
     Source,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-DATA_DIR = REPO_ROOT / "src" / "data"
+def default_data_dir() -> Path:
+    """`src/data` in this repo (klute/gate/ep_db/ is three levels down). Only worked out when
+    needed: the gate's image holds ep_db without the repo around it, and the API imports this
+    module there."""
+    return Path(__file__).resolve().parents[3] / "src" / "data"
+
 ANSWER_FILES = {"sourced": "sourced-answers.json", "indicator": "indicator-answers.json"}
 
 
@@ -62,7 +66,8 @@ def _keys(obj: dict, required: set[str], optional: set[str], where: str) -> None
         raise DataError(f"{where}: missing {sorted(missing)}, unknown {sorted(unknown)}")
 
 
-def load_files(data_dir: Path = DATA_DIR) -> dict[str, Any]:
+def load_files(data_dir: Path | None = None) -> dict[str, Any]:
+    data_dir = data_dir or default_data_dir()
     files = {"protocol": "protocol.seed.json", "jurisdictions": "jurisdictions.json", **ANSWER_FILES}
     return {name: json.loads((data_dir / file).read_text()) for name, file in files.items()}
 
@@ -346,7 +351,7 @@ def check(session: Session, files: dict[str, Any]) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--data-dir", type=Path, default=DATA_DIR)
+    parser.add_argument("--data-dir", type=Path, help="default: src/data in this repo")
     parser.add_argument("--check", action="store_true", help="compare the database with the files; write nothing")
     parser.add_argument("--overwrite-structure", action="store_true", help="update sections/questions/jurisdictions from JSON")
     parser.add_argument("--actor", default=os.environ.get("USER", "import_json"), help="recorded in audit_log")
