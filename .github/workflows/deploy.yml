@@ -1,24 +1,37 @@
-name: Deploy to GitHub Pages
+name: Deploy
 
+# Development -> the dev site (electricfutures-dev.web.app), main -> prod (electricfutures-prod.web.app).
+# Each push deploys two things:
+# - the public site (splash, /policy/, /deployment/, /calculator/) to Firebase Hosting;
+# - the /klute sign-in gate (klute/gate/, with the klute build inside it) to Cloud Run, which
+#   Firebase Hosting rewrites /klute/** to (see firebase.json).
+# GCP access is keyless, through Workload Identity Federation. The pool, provider, deploy service
+# account and every other resource here are in gridsim-deploy's modules/electricfutures; that
+# module only trusts this repository's Development branch for dev and main for prod.
 on:
   push:
-    branches: [main]
+    branches: [Development, main]
   workflow_dispatch:
 
-# Pages deployment needs to write the Pages artifact and mint an id-token.
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  id-token: write # for Workload Identity Federation
 
-# Never let two deploys race; skip superseded runs rather than queueing them.
+# Never let two deploys of the same environment race; skip superseded runs.
 concurrency:
-  group: pages
+  group: deploy-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # GitHub environments "dev" and "prod" each hold their own variables/secrets (see README).
+    environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    env:
+      ENV: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: us-central1
     steps:
       - uses: actions/checkout@v4
 
@@ -34,31 +47,33 @@ jobs:
           npx tsc -b
           npx vitest run
 
-      # `npm run build:prod` runs Vite in "prod" mode, which reads .env.prod.
-      # The MapTiler key is not in the repo, so it is written here from a
-      # repository secret. Note that the key is compiled into the client bundle
-      # and is therefore public - restrict it by domain in MapTiler.
-      - name: Write build environment
+      # `npm run build:prod` runs Vite in "prod" mode, which reads .env.prod. The MapTiler key is
+      # compiled into the client bundle and is therefore public - restrict it by domain in MapTiler.
+      # Nothing else secret goes into this build: /klute is built into the gate's image instead.
+      - name: Build public site
         run: |
           echo "VITE_MAPTILER_KEY=${{ secrets.VITE_MAPTILER_KEY }}" > .env.prod
-          echo "VITE_BASE=/${GITHUB_REPOSITORY#*/}/" >> .env.prod
-          # /klute/ data explorer: SHA-256 of its password, and the Future Grid Simulator
-          # backend it reads coverage from. Without the hash nobody can unlock the page.
-          echo "VITE_KLUTE_PASSWORD_HASH=${{ secrets.KLUTE_PASSWORD_HASH }}" >> .env.prod
-          echo "VITE_FGS_API_BASE_URL=${{ vars.FGS_API_BASE_URL }}" >> .env.prod
+          npm run build:prod
 
-      - run: npm run build:prod
-
-      - uses: actions/upload-pages-artifact@v3
+      - uses: google-github-actions/auth@v2
         with:
-          path: dist
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and push the /klute gate image
+        run: |
+          IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/electricfutures-repo-$ENV/klute-gate:${GITHUB_SHA::7}"
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+          docker build -f klute/gate/Dockerfile -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      # Only the image changes here; the service's settings (env, secrets, scaling) are owned by
+      # Terraform, which ignores the image so the two don't fight.
+      - name: Deploy the /klute gate
+        run: gcloud run deploy "klute-gate-$ENV" --image "$IMAGE" --region "$REGION" --project "$PROJECT_ID" --quiet
+
+      - name: Deploy the public site
+        run: npx --yes firebase-tools@15.24.0 deploy --only "hosting:electricfutures-$ENV" --project "$PROJECT_ID" --non-interactive

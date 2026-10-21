@@ -17,15 +17,14 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: { include: ["pdfkit", "pdfjs-dist"] },
 
     /**
-     * GitHub Pages serves a project site from a subpath
-     * (/gridsim_electricprotocol/), so assets need that prefix. The CI workflow
-     * sets VITE_BASE from the repository name; a custom domain served at the
-     * root only needs VITE_BASE=/ instead of a code change.
+     * Firebase Hosting serves the site at the root, so VITE_BASE is normally
+     * unset. It is still configurable for hosting under a subpath (as the old
+     * GitHub Pages project site did) without a code change.
      */
     base: env.VITE_BASE || "/",
 
     /**
-     * Four HTML entries, not the default single root one - the site root
+     * Four public HTML entries, not the default single root one - the site root
      * is the static Electric Futures Playbook splash (`index.html`, no JS
      * bundle of its own), the Solar Policy Explorer app lives at `/policy/`,
      * the Solar Deployment Explorer app (moved in from the standalone
@@ -48,7 +47,25 @@ export default defineConfig(({ mode }) => {
           policy: fileURLToPath(new URL("./policy/index.html", import.meta.url)),
           deployment: fileURLToPath(new URL("./deployment/index.html", import.meta.url)),
           calculator: fileURLToPath(new URL("./calculator/index.html", import.meta.url)),
-          klute: fileURLToPath(new URL("./klute/index.html", import.meta.url)),
+          // /klute/ is deliberately not here: it is built on its own (klute/vite.config.ts)
+          // into the sign-in gate's image, so it never lands on public hosting.
+        },
+      },
+    },
+
+    /**
+     * The dev server still serves /klute/ (any HTML file under the root works in dev). In
+     * production the sign-in gate proxies /klute/api/* to the simulator and adds the klute
+     * password; locally this does the same, reading the password from the shell
+     * (KLUTE_PASSWORD - not VITE_-prefixed, so it never reaches the bundle).
+     */
+    server: {
+      proxy: {
+        "/klute/api": {
+          target: env.FGS_API_BASE_URL || "http://localhost:8000",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/klute\/api/, ""),
+          headers: { "X-Klute-Password": env.KLUTE_PASSWORD ?? "" },
         },
       },
     },

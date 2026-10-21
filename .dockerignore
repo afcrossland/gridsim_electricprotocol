@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-klute
+.git
+.env
+.env.*
+deployment/.env
+**/__pycache__
