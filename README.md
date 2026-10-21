@@ -171,6 +171,11 @@ adding or removing an editor is a change there plus `terraform apply`. Builds wi
 
 ## How data gets updated
 
+**Dev (database builds) works differently - see "Policy database" above and
+ROADMAP.md Phases 1-4:** the policy database is the record there, signed-in
+editors' changes save to it for everyone, and the spreadsheet import updates its
+researched answers. What follows describes builds without it (prod, for now).
+
 The shared dataset lives in git: `protocol.seed.json`, `sourced-answers.json`,
 `indicator-answers.json` and `jurisdictions.json`. **The only way to change what
 everyone sees is a commit to this repository** - there is no backend and nothing

@@ -20,11 +20,27 @@ import jurisdictionsJson from "./jurisdictions.json";
  * already read it would leave the app built from two different sources, so
  * a late load is refused instead.
  */
+/**
+ * An answer an editor set in the app (Phase 4) - served by the API alongside
+ * the files' data, never bundled. Takes precedence over a researched answer
+ * for the same pair; `score: null` means the editor cleared it.
+ */
+export interface EditedResponse {
+  countryCode: string;
+  questionId: string;
+  score: number | null;
+  basis: "national" | "directive-baseline" | "proxy-indicator" | null;
+  evidence: { title: string; source: string; note: string }[];
+  updatedAt: string;
+  updatedBy: string;
+}
+
 export interface PolicyData {
   protocol: typeof seedJson;
   jurisdictions: typeof jurisdictionsJson;
   sourced: typeof sourcedJson;
   indicator: typeof indicatorJson;
+  responses: EditedResponse[];
 }
 
 export type PolicyDataSource = "bundled" | "api";
@@ -34,6 +50,7 @@ const data: PolicyData = {
   jurisdictions: jurisdictionsJson,
   sourced: sourcedJson,
   indicator: indicatorJson,
+  responses: [],
 };
 let source: PolicyDataSource = "bundled";
 let read = false;
@@ -46,9 +63,17 @@ export function readPolicyData(): PolicyData {
   return data;
 }
 
-/** Where the data in use came from - for diagnostics. */
+/** Where the data in use came from. */
 export function policyDataSource(): PolicyDataSource {
   return source;
+}
+
+/**
+ * True when the data came from the policy database: the database, not this
+ * browser's own saved edits, is then the record (see protocolStore's merge).
+ */
+export function usingDatabase(): boolean {
+  return source === "api";
 }
 
 function looksLikePolicyData(value: unknown): value is PolicyData {
@@ -84,7 +109,7 @@ export async function loadPolicyData({
     const body: unknown = await response.json();
     if (!looksLikePolicyData(body)) throw new Error("unexpected response shape");
     if (read) throw new Error("data was read while the request was in flight");
-    Object.assign(data, body);
+    Object.assign(data, { responses: [] }, body);
     source = "api";
   } catch (error) {
     console.warn(`Policy data: using the bundled JSON (${url} unavailable: ${String(error)})`);

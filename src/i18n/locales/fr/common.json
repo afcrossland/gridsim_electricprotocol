@@ -75,7 +75,9 @@
     "buildingReport": "Génération du rapport...",
     "downloadReport": "Télécharger le résumé des politiques",
     "overviewIntro": "Comment {{name}} se positionne dans chaque domaine politique, et comment cela se compare au reste du groupe.",
-    "notApplicableHint": "Pas encore assez de questions répondues dans ce domaine pour lui attribuer un score."
+    "notApplicableHint": "Pas encore assez de questions répondues dans ce domaine pour lui attribuer un score.",
+    "editAnswers": "Modifier les réponses",
+    "doneEditing": "Terminé"
   },
   "impactList": {
     "empty": "Rien à afficher pour l'instant - chaque question répondue est déjà notée au maximum, ou aucune n'a encore de réponse. Utilisez Paysage politique pour en ajouter.",
@@ -262,6 +264,12 @@
     "useAnotherAccount": "Utiliser un autre compte",
     "cancel": "Annuler",
     "signedInAs": "Connecté en tant que {{email}}",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "databaseOffline": "Vous êtes connecté, mais cette page n'a pas pu joindre la base de données politiques ; la modification est donc désactivée. Rechargez pour réessayer."
+  },
+  "sync": {
+    "saving": "Enregistrement…",
+    "saved": "Toutes les modifications sont enregistrées",
+    "error": "Échec de l'enregistrement : {{message}}. Rechargez pour voir ce qui a été enregistré."
   }
 }

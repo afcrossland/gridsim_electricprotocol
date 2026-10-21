@@ -25,7 +25,8 @@ import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
-import { signOutEditor, useEditorStore } from "../../lib/editorAuth";
+import { editsSaveToDatabase, signOutEditor, useEditorStore } from "../../lib/editorAuth";
+import SaveStatus from "../ui/SaveStatus";
 import type { Question, RubricTier } from "../../lib/types";
 import { impactColor, impactLabel, MAX_IMPACT } from "../../lib/scoring";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
@@ -58,6 +59,9 @@ export default function AdminConsole({ onBack }: Props) {
   const { t } = useTranslation();
   // Set only on builds where editing needs a sign-in (lib/editorAuth.ts).
   const editorEmail = useEditorStore((s) => (s.status === "editor" ? s.email : null));
+  // Resetting to the shipped JSON would, once saved, overwrite the database -
+  // so neither reset is offered while edits save there.
+  const savingToDatabase = useEditorStore((s) => editsSaveToDatabase(s));
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const questionOverrides = useProtocolStore((s) => s.questionOverrides);
@@ -160,6 +164,7 @@ export default function AdminConsole({ onBack }: Props) {
         </Box>
         {editorEmail && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+            <SaveStatus />
             <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" } }}>
               {t("editor.signedInAs", { email: editorEmail })}
             </Typography>
@@ -443,6 +448,7 @@ export default function AdminConsole({ onBack }: Props) {
               />
             </Paper>
 
+            {!savingToDatabase && (
             <Paper variant="outlined" sx={{ p: 2.5, flex: "1 1 380px", borderColor: "error.main" }}>
               <Typography variant="h6" color="error.main" gutterBottom>
                 {t("adminConsole.dangerZone")}
@@ -463,6 +469,7 @@ export default function AdminConsole({ onBack }: Props) {
                 {t("adminConsole.resetEverything")}
               </Button>
             </Paper>
+            )}
             </Box>
           ) : showingSuggestions ? (
             <SuggestionsReview />
@@ -485,7 +492,7 @@ export default function AdminConsole({ onBack }: Props) {
                 <QuestionHeader
                   question={question}
                   isMobile={isMobile}
-                  overridden={Boolean(questionOverrides[question.id])}
+                  overridden={!savingToDatabase && Boolean(questionOverrides[question.id])}
                   onChangeText={(text) => updateQuestion(question.id, { text })}
                   onChangeWeight={(weight) => updateQuestion(question.id, { weight })}
                   onResetQuestion={() => resetQuestion(question.id)}
@@ -567,7 +574,7 @@ export default function AdminConsole({ onBack }: Props) {
                   {t("adminConsole.addAnswer")}
                 </Button>
 
-                {questionOverrides[question.id] && (
+                {!savingToDatabase && questionOverrides[question.id] && (
                   <Chip
                     size="small"
                     sx={{ mt: 1, bgcolor: "secondary.main", color: "secondary.contrastText", fontWeight: 600 }}
