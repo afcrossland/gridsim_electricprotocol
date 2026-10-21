@@ -21,7 +21,10 @@
   },
   "legend": {
     "protocolScore": "Protocol score",
-    "questionsAnswered": "Questions answered, by weight"
+    "questionsAnswered": "Questions answered, by weight",
+    "notEnoughData": "Not enough data",
+    "noData": "No data",
+    "sectionScore": "{{section}} score"
   },
   "welcome": {
     "body": "This site scores countries, states and provinces against the Electric Protocol - the detailed question set behind the Charter. Pick a jurisdiction on the map to see how it does, what the evidence is, and which changes would raise its score the most.",
@@ -70,7 +73,8 @@
     "exitEditMode": "Exit edit mode",
     "buildingReport": "Building report...",
     "downloadReport": "Download Policy Summary Report",
-    "overviewIntro": "How {{name}} scores in each policy area, and how that compares to the rest of the field."
+    "overviewIntro": "How {{name}} scores in each policy area, and how that compares to the rest of the field.",
+    "notApplicableHint": "Not enough of this area's questions are answered yet to give it a score."
   },
   "impactList": {
     "empty": "Nothing to show yet - every answered question is already at full marks, or none have been answered. Use Policy Landscape to add some.",
@@ -128,7 +132,10 @@
     "addEvidence": "Add evidence",
     "moreExemplars": "+{{count}} more",
     "exemplars": "Exemplars",
-    "viewProfile": "View country profile"
+    "viewProfile": "View country profile",
+    "showAllLevels": "Show all levels ({{count}} more)",
+    "showFewerLevels": "Show fewer levels",
+    "currentAnswer": "{{name}}'s answer"
   },
   "adminConsole": {
     "title": "Admin console",

@@ -26,7 +26,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTranslation } from "react-i18next";
 
 import type { Question, Response } from "../../lib/types";
-import { SCORE_BANDS, SECTION_STANDING_COLORS } from "../../lib/scoring";
+import { SCORE_BANDS } from "../../lib/scoring";
 import { qualifiedName } from "../../lib/jurisdictions";
 import { capitalizeFirst } from "../../lib/text";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -77,29 +77,15 @@ interface Props {
 }
 
 /**
- * GSC Citrus, used for the chosen rubric tier.
- *
- * Aqua was too close to the card's own border and to the unselected outline to
- * read at a glance. Citrus is reserved for this one meaning - "this is the
- * answer" - so the unanswered marker below uses a neutral dashed edge rather
- * than competing for the same colour.
- *
- * Mode-aware since 2026-10-09 ("the colour of the tiles and sidebar more
- * generally does not work in light or dark mode") - the light-mode values
- * (solid citrus border over a 12%-opacity tint) blended down to a muddy
- * brown-olive wash on a dark surface, reading as a smudge rather than a
- * highlight. Dark mode keeps the same two building blocks - a solid border,
- * a translucent tint of it - but moves to the theme's own lighter citrus
- * step (`secondary.light`, already used for this purpose in mui-theme.tsx's
- * own dark-mode chip/toggle fills) and a higher tint opacity, which holds
- * up against a dark surface the same way the light version does against a
- * white one.
+ * The chosen rubric tier is marked in neutral ink plus a labelled
+ * "<Country>'s answer" badge, not a colour. It used to be GSC Citrus, but
+ * since the score ramp was inverted (2026-10-21) amber also means "strong",
+ * so a highlighted Weak answer read as a good one, and the citrus exemplar
+ * names beside it blurred the two further. Colour on a tier now only ever
+ * means how strong that tier is (its left edge and label).
  */
-function selectedTierColors(mode: "light" | "dark") {
-  return mode === "dark"
-    ? { border: "#FCCA4A", tint: "rgba(252, 202, 74, 0.2)" }
-    : { border: "#FBB114", tint: "rgba(251, 177, 20, 0.12)" };
-}
+const SELECTED_BORDER = "text.primary";
+const SELECTED_TINT = "action.selected";
 
 /** How many of a tier box's own qualifying exemplars show inline before the rest fold into a "+N more" dropdown - per Andrew's own instruction 2026-10-09 ("top 3 exemplars shown and a dropdown list for more"). */
 const EXEMPLAR_DISPLAY_LIMIT = 3;
@@ -171,6 +157,11 @@ export default function QuestionCard({
   const removeEvidence = useProtocolStore((s) => s.removeEvidence);
 
   const [showEvidence, setShowEvidence] = useState(false);
+  // Read-only answered cards fold away the tiers below the chosen answer -
+  // they're the least useful to a reader (no exemplars ever sit below the
+  // answer, see qualifyingExemplars) and stacking every tier made each card
+  // roughly 450px tall.
+  const [showAllTiers, setShowAllTiers] = useState(false);
   // Which tier's "+N more" dropdown is open, if any - one piece of state
   // for the whole card (not one per tier box) since at most one dropdown
   // is ever open at once; the Menu itself is rendered once, below the
@@ -200,7 +191,10 @@ export default function QuestionCard({
   );
 
   const rubricAscending = [...question.rubric].sort((a, b) => a.score - b.score);
-  const { border: selectedBorder, tint: selectedTint } = selectedTierColors(theme.palette.mode);
+  const countryName = qualifiedName(code, i18n.language);
+  // Tiers below the chosen answer, folded away on read-only answered cards.
+  const foldedTierCount = !editMode && response ? question.rubric.filter((tier) => tier.score < response.score).length : 0;
+  const isFolded = (tierScore: number) => foldedTierCount > 0 && !showAllTiers && tierScore < response!.score;
 
   return (
     <Paper
@@ -234,7 +228,10 @@ export default function QuestionCard({
             unhighlighted, which reads the same as "not yet loaded" rather
             than "deliberately nothing to report here" - this box makes the
             absence of an answer a first-class, clickable state rather than
-            an implicit one. */}
+            an implicit one. Only shown when it *is* the state (or in edit
+            mode, where it's the way to clear an answer) - on an answered
+            card it was just one more row of noise. */}
+        {(!response || editMode) && (
         <Box
           onClick={editMode && response ? () => deleteResponse(code, question.id) : undefined}
           sx={{
@@ -263,8 +260,9 @@ export default function QuestionCard({
             {t("questionCard.notKnown")}
           </Typography>
         </Box>
+        )}
 
-        {[...question.rubric].sort((a, b) => b.score - a.score).map((tier) => {
+        {[...question.rubric].sort((a, b) => b.score - a.score).filter((tier) => !isFolded(tier.score)).map((tier) => {
           const tierIndex = rubricAscending.findIndex((t) => t.score === tier.score);
           const tierRank = rubricAscending.length > 1 ? tierIndex / (rubricAscending.length - 1) : 1;
           const tierColor = SCORE_BANDS[Math.round(tierRank * (SCORE_BANDS.length - 1))].color;
@@ -299,10 +297,10 @@ export default function QuestionCard({
                 cursor: editMode ? "pointer" : "default",
                 border: "2px solid",
                 borderLeftWidth: 8,
-                borderColor: selected ? selectedBorder : "divider",
+                borderColor: selected ? SELECTED_BORDER : "divider",
                 borderLeftColor: tierColor,
-                bgcolor: selected ? selectedTint : "transparent",
-                ...(editMode && { "&:hover": { borderColor: selected ? selectedBorder : "primary.light" } }),
+                bgcolor: selected ? SELECTED_TINT : "transparent",
+                ...(editMode && { "&:hover": { borderColor: selected ? SELECTED_BORDER : "primary.light" } }),
                 display: "flex",
                 flexDirection: "column",
                 gap: 0.75,
@@ -336,6 +334,15 @@ export default function QuestionCard({
                   {capitalizeFirst(tier.label)}
                 </Typography>
               </Box>
+
+              {selected && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: "6px", ml: `calc(${TIER_LABEL_WIDTH}px + 10px)` }}>
+                  <FlagImg code={code} size={14} />
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary" }}>
+                    {t("questionCard.currentAnswer", { name: countryName })}
+                  </Typography>
+                </Box>
+              )}
 
               {tierComparators.length > 0 && (
                 <Box sx={{ position: "absolute", left: 8, bottom: 6, display: "flex", gap: "3px" }}>
@@ -425,7 +432,7 @@ export default function QuestionCard({
                           <Typography
                             variant="caption"
                             noWrap
-                            sx={{ color: SECTION_STANDING_COLORS.leading, fontWeight: 600 }}
+                            sx={{ color: "text.primary", fontWeight: 600, textDecoration: "underline dotted", textUnderlineOffset: "3px" }}
                           >
                             {exemplar.name}
                             {isLastOverall ? "" : ","}
@@ -461,6 +468,17 @@ export default function QuestionCard({
           );
         })}
       </Box>
+
+      {foldedTierCount > 0 && (
+        <Button
+          size="small"
+          onClick={() => setShowAllTiers((v) => !v)}
+          endIcon={<ExpandMoreIcon fontSize="small" sx={{ transform: showAllTiers ? "rotate(180deg)" : "none", transition: "transform 150ms" }} />}
+          sx={{ mt: 0.5 }}
+        >
+          {showAllTiers ? t("questionCard.showFewerLevels") : t("questionCard.showAllLevels", { count: foldedTierCount })}
+        </Button>
+      )}
 
       {/* One shared dropdown for the whole card (see `moreAnchor`'s own
           doc comment above) - looks its tier's exemplars back up by score
@@ -565,7 +583,7 @@ export default function QuestionCard({
 
             <Box sx={{ flex: 1 }} />
             {!editMode && (
-              <Button data-tour="suggest-correction" size="small" variant="outlined" startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
+              <Button data-tour="suggest-correction" size="small" variant="text" color="inherit" sx={{ color: "text.secondary" }} startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
                 {t("correctionDialog.link")}
               </Button>
             )}
@@ -601,65 +619,57 @@ export default function QuestionCard({
                 >
                   {/* title/note are free text, not translated - see
                       EvidenceItem's doc comment in lib/types.ts and
-                      ROADMAP.md's "Known gaps flagged in code". */}
-                  <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label={t("questionCard.title")}
-                      placeholder={t("questionCard.titlePlaceholder")}
-                      value={item.title}
-                      slotProps={{ input: { readOnly: !editMode } }}
-                      onChange={(e) =>
-                        updateEvidence(code, question.id, i, { title: e.target.value })
-                      }
-                    />
-                    {!editMode && item.source ? (
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                          {t("questionCard.source")}
+                      ROADMAP.md's "Known gaps flagged in code". Read-only,
+                      each item reads as a citation (title, source link,
+                      note) - the same layout as an exemplar's evidence
+                      popup - rather than a form of disabled text fields. */}
+                  {editMode ? (
+                    <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label={t("questionCard.title")}
+                        placeholder={t("questionCard.titlePlaceholder")}
+                        value={item.title}
+                        onChange={(e) => updateEvidence(code, question.id, i, { title: e.target.value })}
+                      />
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label={t("questionCard.source")}
+                        placeholder={t("questionCard.sourcePlaceholder")}
+                        value={item.source}
+                        onChange={(e) => updateEvidence(code, question.id, i, { source: e.target.value })}
+                      />
+                      <TextField
+                        fullWidth
+                        multiline
+                        minRows={2}
+                        size="small"
+                        label={t("questionCard.notes")}
+                        value={item.note}
+                        onChange={(e) => updateEvidence(code, question.id, i, { note: e.target.value })}
+                      />
+                    </Stack>
+                  ) : (
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      {item.title && (
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {item.title}
                         </Typography>
-                        <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
+                      )}
+                      {item.source && (
+                        <Typography variant="caption" sx={{ display: "block", color: "primary.main", wordBreak: "break-word" }}>
                           <Linkified text={item.source} />
                         </Typography>
-                      </Box>
-                    ) : (
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label={t("questionCard.source")}
-                      placeholder={t("questionCard.sourcePlaceholder")}
-                      value={item.source}
-                      slotProps={{ input: { readOnly: !editMode } }}
-                      onChange={(e) =>
-                        updateEvidence(code, question.id, i, { source: e.target.value })
-                      }
-                    />
-                    )}
-                    {!editMode && item.note ? (
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                          {t("questionCard.notes")}
-                        </Typography>
-                        <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                      )}
+                      {item.note && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                           <Linkified text={item.note} />
                         </Typography>
-                      </Box>
-                    ) : (
-                    <TextField
-                      fullWidth
-                      multiline
-                      minRows={2}
-                      size="small"
-                      label={t("questionCard.notes")}
-                      value={item.note}
-                      slotProps={{ input: { readOnly: !editMode } }}
-                      onChange={(e) =>
-                        updateEvidence(code, question.id, i, { note: e.target.value })
-                      }
-                    />
-                    )}
-                  </Stack>
+                      )}
+                    </Box>
+                  )}
                   {editMode && (
                     <Tooltip title={t("questionCard.removeEvidence")}>
                       <IconButton size="small" onClick={() => removeEvidence(code, question.id, i)}>
@@ -692,7 +702,7 @@ export default function QuestionCard({
           edit workflow applies. */}
       {!editMode && !response && (
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
-          <Button data-tour="suggest-correction" size="small" variant="outlined" startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
+          <Button data-tour="suggest-correction" size="small" variant="text" color="inherit" sx={{ color: "text.secondary" }} startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
             {t("correctionDialog.link")}
           </Button>
         </Box>

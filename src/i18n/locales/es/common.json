@@ -21,7 +21,10 @@
   },
   "legend": {
     "protocolScore": "Puntuación del protocolo",
-    "questionsAnswered": "Preguntas respondidas, por peso"
+    "questionsAnswered": "Preguntas respondidas, por peso",
+    "notEnoughData": "Datos insuficientes",
+    "noData": "Sin datos",
+    "sectionScore": "Puntuación: {{section}}"
   },
   "welcome": {
     "body": "Este sitio puntúa países, estados y provincias frente al Protocolo Eléctrico, el conjunto detallado de preguntas que sustenta la Carta. Elige una jurisdicción en el mapa para ver cómo le va, cuál es la evidencia y qué cambios elevarían más su puntuación.",
@@ -70,7 +73,8 @@
     "exitEditMode": "Salir del modo de edición",
     "buildingReport": "Generando informe...",
     "downloadReport": "Descargar resumen de política",
-    "overviewIntro": "Cómo puntúa {{name}} en cada área de política, y cómo se compara con el resto del grupo."
+    "overviewIntro": "Cómo puntúa {{name}} en cada área de política, y cómo se compara con el resto del grupo.",
+    "notApplicableHint": "Aún no hay suficientes preguntas respondidas en esta área para puntuarla."
   },
   "impactList": {
     "empty": "Nada que mostrar todavía - cada pregunta respondida ya tiene la puntuación máxima, o ninguna se ha respondido. Usa Panorama de política para añadir algunas.",
@@ -128,7 +132,10 @@
     "addEvidence": "Añadir evidencia",
     "moreExemplars": "+{{count}} más",
     "exemplars": "Ejemplos a seguir",
-    "viewProfile": "Ver perfil del país"
+    "viewProfile": "Ver perfil del país",
+    "showAllLevels": "Mostrar todos los niveles ({{count}} más)",
+    "showFewerLevels": "Mostrar menos niveles",
+    "currentAnswer": "Respuesta de {{name}}"
   },
   "adminConsole": {
     "title": "Consola de administración",
