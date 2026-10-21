@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -26,6 +27,8 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
 import { editsSaveToDatabase, signOutEditor, useEditorStore } from "../../lib/editorAuth";
+import { withoutSaving } from "../../lib/policySync";
+import { loadReviewQueue } from "../../lib/reviewApi";
 import SaveStatus from "../ui/SaveStatus";
 import type { Question, RubricTier } from "../../lib/types";
 import { impactColor, impactLabel, MAX_IMPACT } from "../../lib/scoring";
@@ -62,6 +65,25 @@ export default function AdminConsole({ onBack }: Props) {
   // Resetting to the shipped JSON would, once saved, overwrite the database -
   // so neither reset is offered while edits save there.
   const savingToDatabase = useEditorStore((s) => editsSaveToDatabase(s));
+
+  // Everyone's suggestions and question proposals, filed with the server on
+  // database builds (lib/reviewApi.ts). Loaded as they are - nothing in them
+  // is saved back except an editor's own decisions (lib/policySync.ts).
+  const [reviewLoadError, setReviewLoadError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!savingToDatabase) return;
+    let cancelled = false;
+    loadReviewQueue()
+      .then((queue) => {
+        if (!cancelled) withoutSaving(() => useProtocolStore.setState(queue));
+      })
+      .catch((e) => {
+        if (!cancelled) setReviewLoadError(e instanceof Error ? e.message : String(e));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [savingToDatabase]);
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const questionOverrides = useProtocolStore((s) => s.questionOverrides);
@@ -472,7 +494,14 @@ export default function AdminConsole({ onBack }: Props) {
             )}
             </Box>
           ) : showingSuggestions ? (
-            <SuggestionsReview />
+            <>
+              {reviewLoadError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {t("adminConsole.reviewLoadFailed", { message: reviewLoadError })}
+                </Alert>
+              )}
+              <SuggestionsReview />
+            </>
           ) : (
           <Stack spacing={2}>
             {activeSection && (

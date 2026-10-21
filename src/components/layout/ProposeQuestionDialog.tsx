@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -12,6 +13,8 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
+import { fileQuestionProposal } from "../../lib/reviewApi";
+import { useFiling } from "../../lib/useFiling";
 import { useProtocolStore } from "../../stores/protocolStore";
 
 interface Props {
@@ -41,6 +44,7 @@ export default function ProposeQuestionDialog({ open, onClose, defaultSectionId 
   const [name, setName] = useState("");
   const [organisation, setOrganisation] = useState("");
   const [done, setDone] = useState(false);
+  const filing = useFiling();
 
   // Re-seed the section each time the dialog opens, since the visitor may have moved sections since last time.
   useEffect(() => {
@@ -59,15 +63,16 @@ export default function ProposeQuestionDialog({ open, onClose, defaultSectionId 
       setName("");
       setOrganisation("");
       setDone(false);
+      filing.reset();
     }, 200);
   };
 
   const required = [sectionId, text, strong, weak, reason, source, name]; // the middle answer is optional - some questions only have two
   const canSubmit = required.every((v) => v.trim() !== "");
 
-  const handleSubmit = () => {
-    if (!canSubmit) return;
-    submitQuestionProposal({
+  const handleSubmit = async () => {
+    if (!canSubmit || filing.sending) return;
+    const proposal = submitQuestionProposal({
       sectionId,
       sectionTitle: sections.find((s) => s.id === sectionId)?.title ?? "",
       text: text.trim(),
@@ -79,7 +84,7 @@ export default function ProposeQuestionDialog({ open, onClose, defaultSectionId 
       submitterName: name.trim(),
       submitterOrganisation: organisation.trim(),
     });
-    setDone(true);
+    if (await filing.file((website) => fileQuestionProposal(proposal, website))) setDone(true);
   };
 
   return (
@@ -90,6 +95,7 @@ export default function ProposeQuestionDialog({ open, onClose, defaultSectionId 
           <Typography variant="body2">{t("proposeDialog.done")}</Typography>
         ) : (
           <Stack spacing={2} sx={{ pt: 0.5 }}>
+            <input {...filing.honeypotProps} />
             <Typography variant="body2" color="text.secondary">
               {t("proposeDialog.intro")}
             </Typography>
@@ -112,6 +118,11 @@ export default function ProposeQuestionDialog({ open, onClose, defaultSectionId 
             </Stack>
           </Stack>
         )}
+        {filing.error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {t("suggestionDialog.sendFailed", { message: filing.error })}
+          </Alert>
+        )}
       </DialogContent>
       <DialogActions>
         {done ? (
@@ -119,8 +130,8 @@ export default function ProposeQuestionDialog({ open, onClose, defaultSectionId 
         ) : (
           <>
             <Button onClick={handleClose}>{t("suggestionDialog.cancel")}</Button>
-            <Button variant="contained" disabled={!canSubmit} onClick={handleSubmit}>
-              {t("proposeDialog.submit")}
+            <Button variant="contained" disabled={!canSubmit || filing.sending} onClick={() => void handleSubmit()}>
+              {filing.sending ? t("suggestionDialog.sending") : t("proposeDialog.submit")}
             </Button>
           </>
         )}

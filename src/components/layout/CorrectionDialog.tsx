@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -15,7 +16,9 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
+import { fileSuggestion } from "../../lib/reviewApi";
 import { capitalizeFirst } from "../../lib/text";
+import { useFiling } from "../../lib/useFiling";
 import type { Question, Response } from "../../lib/types";
 import { useProtocolStore } from "../../stores/protocolStore";
 
@@ -46,6 +49,7 @@ export default function CorrectionDialog({ open, onClose, question, response, co
   const [organisation, setOrganisation] = useState("");
   const [done, setDone] = useState(false);
   const [touchedSource, setTouchedSource] = useState(false);
+  const filing = useFiling();
 
   const handleClose = () => {
     onClose();
@@ -58,15 +62,16 @@ export default function CorrectionDialog({ open, onClose, question, response, co
       setOrganisation("");
       setDone(false);
       setTouchedSource(false);
+      filing.reset();
     }, 200);
   };
 
   const sourceOk = source.trim() !== "";
   const canSubmit = score !== null && sourceOk && reason.trim() !== "" && name.trim() !== "";
 
-  const handleSubmit = () => {
-    if (!canSubmit) return;
-    submitCorrection({
+  const handleSubmit = async () => {
+    if (!canSubmit || filing.sending) return;
+    const suggestion = submitCorrection({
       countryCode,
       countryName,
       questionId: question.id,
@@ -76,7 +81,7 @@ export default function CorrectionDialog({ open, onClose, question, response, co
       submitterName: name.trim(),
       submitterOrganisation: organisation.trim(),
     });
-    setDone(true);
+    if (!suggestion || (await filing.file((website) => fileSuggestion(suggestion, website)))) setDone(true);
   };
 
   const tiers = [...question.rubric].sort((a, b) => b.score - a.score);
@@ -92,6 +97,7 @@ export default function CorrectionDialog({ open, onClose, question, response, co
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
               {question.text}
             </Typography>
+            <input {...filing.honeypotProps} />
 
             <Box>
               <Typography variant="caption" color="text.secondary">
@@ -163,6 +169,11 @@ export default function CorrectionDialog({ open, onClose, question, response, co
             </Stack>
           </Stack>
         )}
+        {filing.error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {t("suggestionDialog.sendFailed", { message: filing.error })}
+          </Alert>
+        )}
       </DialogContent>
       <DialogActions>
         {done ? (
@@ -170,8 +181,8 @@ export default function CorrectionDialog({ open, onClose, question, response, co
         ) : (
           <>
             <Button onClick={handleClose}>{t("suggestionDialog.cancel")}</Button>
-            <Button variant="contained" disabled={!canSubmit} onClick={handleSubmit}>
-              {t("correctionDialog.submit")}
+            <Button variant="contained" disabled={!canSubmit || filing.sending} onClick={() => void handleSubmit()}>
+              {filing.sending ? t("suggestionDialog.sending") : t("correctionDialog.submit")}
             </Button>
           </>
         )}

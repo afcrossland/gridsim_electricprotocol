@@ -158,6 +158,8 @@ interface ProtocolState {
   /**
    * Files a single-question correction as a pending Suggestion without touching the live
    * responses - the proposed answer (and its evidence) only applies if a reviewer accepts it.
+   * Returns it (null if it changes nothing); on database builds it is not kept here, since the
+   * dialog files it with the server.
    */
   submitCorrection: (input: {
     countryCode: string;
@@ -168,9 +170,9 @@ interface ProtocolState {
     reason: string;
     submitterName: string;
     submitterOrganisation: string;
-  }) => void;
+  }) => Suggestion | null;
   /** Files a proposal for a new question as pending. Nothing is added to the question set until it is accepted. */
-  submitQuestionProposal: (input: Omit<QuestionProposal, "id" | "submittedAt" | "status" | "questionId">) => void;
+  submitQuestionProposal: (input: Omit<QuestionProposal, "id" | "submittedAt" | "status" | "questionId">) => QuestionProposal;
   /** Accepting adds the question (three rubric tiers, the given weight) so it counts toward scores straight away; rejecting a previously-accepted proposal removes it again. */
   reviewQuestionProposal: (id: string, decision: "accepted" | "rejected", weight?: number) => void;
   /** On "rejected", also restores every response the suggestion touched back to its pre-suggestion value. */
@@ -548,52 +550,54 @@ export const useProtocolStore = create<ProtocolState>()(
         reason,
         submitterName,
         submitterOrganisation,
-      }) =>
-        set((state) => {
-          const baseline = state.responses.filter((r) => r.countryCode === countryCode);
-          const existing = baseline.find((r) => r.questionId === questionId);
-          const evidence = [
-            ...(existing?.evidence ?? []),
-            { title: "Submitted correction", source: source.trim(), note: reason.trim() },
-          ];
-          const revised: Response = {
-            questionId,
-            countryCode,
-            score: proposedScore,
-            evidence,
-            updatedAt: new Date().toISOString(),
-          };
-          const proposed = [...baseline.filter((r) => r.questionId !== questionId), revised];
-          const changes = diffResponses(baseline, proposed, state.questions);
-          if (changes.length === 0) return state;
+      }) => {
+        const state = get();
+        const baseline = state.responses.filter((r) => r.countryCode === countryCode);
+        const existing = baseline.find((r) => r.questionId === questionId);
+        const evidence = [
+          ...(existing?.evidence ?? []),
+          { title: "Submitted correction", source: source.trim(), note: reason.trim() },
+        ];
+        const revised: Response = {
+          questionId,
+          countryCode,
+          score: proposedScore,
+          evidence,
+          updatedAt: new Date().toISOString(),
+        };
+        const proposed = [...baseline.filter((r) => r.questionId !== questionId), revised];
+        const changes = diffResponses(baseline, proposed, state.questions);
+        if (changes.length === 0) return null;
 
-          const suggestion: Suggestion = {
-            id: `sg-${Date.now().toString(36)}`,
-            countryCode,
-            countryName,
-            submitterName,
-            submitterOrganisation,
-            submittedAt: new Date().toISOString(),
-            status: "pending",
-            changes,
-            baseline,
-            proposed,
-          };
-          return { suggestions: [...state.suggestions, suggestion] };
-        }),
+        const suggestion: Suggestion = {
+          id: `sg-${Date.now().toString(36)}`,
+          countryCode,
+          countryName,
+          submitterName,
+          submitterOrganisation,
+          submittedAt: new Date().toISOString(),
+          status: "pending",
+          changes,
+          baseline,
+          proposed,
+        };
+        // On database builds the dialog files it with the server instead
+        // (lib/reviewApi.ts), and editors load everyone's from there.
+        if (!usingDatabase()) set({ suggestions: [...state.suggestions, suggestion] });
+        return suggestion;
+      },
 
-      submitQuestionProposal: (input) =>
-        set((state) => ({
-          questionProposals: [
-            ...state.questionProposals,
-            {
-              ...input,
-              id: `qp-${Date.now().toString(36)}`,
-              submittedAt: new Date().toISOString(),
-              status: "pending",
-            },
-          ],
-        })),
+      submitQuestionProposal: (input) => {
+        const proposal: QuestionProposal = {
+          ...input,
+          id: `qp-${Date.now().toString(36)}`,
+          submittedAt: new Date().toISOString(),
+          status: "pending",
+        };
+        // Filed with the server instead on database builds - see submitCorrection.
+        if (!usingDatabase()) set((state) => ({ questionProposals: [...state.questionProposals, proposal] }));
+        return proposal;
+      },
 
       reviewQuestionProposal: (id, decision, weight = 1) => {
         const proposal = get().questionProposals.find((p) => p.id === id);

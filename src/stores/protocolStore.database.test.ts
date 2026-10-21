@@ -73,4 +73,34 @@ describe("database builds", () => {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!).state;
     expect(Object.keys(stored).sort()).toEqual(["language", "mapMetric", "mode", "questionProposals", "suggestions", "tourSeen", "welcomeSeen"]);
   });
+
+  it("hand corrections and proposals back for the server instead of keeping them here", async () => {
+    const useStore = await storeLoadedFromDatabase([]);
+    const correction = useStore.getState().submitCorrection({
+      countryCode: answeredCountry,
+      countryName: "Somewhere",
+      questionId: firstQuestion.id,
+      proposedScore: firstQuestion.rubric[0].score === firstAnswer.score ? firstQuestion.rubric[1].score : firstQuestion.rubric[0].score,
+      source: "https://example.org",
+      reason: "It changed",
+      submitterName: "Ada",
+      submitterOrganisation: "",
+    });
+    expect(correction?.status).toBe("pending");
+    const proposal = useStore.getState().submitQuestionProposal({
+      sectionId: seedJson.sections[0].id,
+      sectionTitle: seedJson.sections[0].title,
+      text: "New?",
+      strongLabel: "Yes",
+      developedLabel: "",
+      weakLabel: "No",
+      reason: "",
+      source: "",
+      submitterName: "Bo",
+      submitterOrganisation: "",
+    });
+    expect(proposal.status).toBe("pending");
+    expect(useStore.getState().suggestions).toEqual([]);
+    expect(useStore.getState().questionProposals).toEqual([]);
+  });
 });

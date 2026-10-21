@@ -116,7 +116,9 @@
     "continue": "Continuar",
     "back": "Atrás",
     "submit": "Enviar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "sending": "Enviando…",
+    "sendFailed": "No se pudo enviar: {{message}}. Inténtalo de nuevo."
   },
   "questionCard": {
     "tierWeak": "Débil",
@@ -174,7 +176,8 @@
     "question": "Pregunta",
     "revertQuestion": "Revertir esta pregunta a la versión publicada",
     "deleteQuestion": "Eliminar esta pregunta",
-    "confirmDeleteQuestion": "¿Eliminar esta pregunta? Esto también elimina cualquier respuesta ya registrada para ella."
+    "confirmDeleteQuestion": "¿Eliminar esta pregunta? Esto también elimina cualquier respuesta ya registrada para ella.",
+    "reviewLoadFailed": "No se pudieron cargar las sugerencias de todos: {{message}}. Recarga para volver a intentarlo."
   },
   "suggestionsReview": {
     "empty": "Aún no hay cambios sugeridos. Cuando alguien use \"Enviar evidencia revisada\" en la página de un país, aparecerá aquí para revisión.",

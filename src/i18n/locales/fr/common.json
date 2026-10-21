@@ -116,7 +116,9 @@
     "continue": "Continuer",
     "back": "Retour",
     "submit": "Soumettre",
-    "close": "Fermer"
+    "close": "Fermer",
+    "sending": "Envoi…",
+    "sendFailed": "Envoi impossible : {{message}}. Veuillez réessayer."
   },
   "questionCard": {
     "tierWeak": "Faible",
@@ -174,7 +176,8 @@
     "question": "Question",
     "revertQuestion": "Revenir à la version publiée de cette question",
     "deleteQuestion": "Supprimer cette question",
-    "confirmDeleteQuestion": "Supprimer cette question ? Cela supprime aussi toute réponse déjà enregistrée pour elle."
+    "confirmDeleteQuestion": "Supprimer cette question ? Cela supprime aussi toute réponse déjà enregistrée pour elle.",
+    "reviewLoadFailed": "Impossible de charger les suggestions de tous : {{message}}. Rechargez pour réessayer."
   },
   "suggestionsReview": {
     "empty": "Aucun changement suggéré pour l'instant. Quand quelqu'un utilise « Soumettre des preuves révisées » sur la page d'un pays, cela apparaît ici pour relecture.",
