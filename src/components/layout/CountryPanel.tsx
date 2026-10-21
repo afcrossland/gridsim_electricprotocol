@@ -492,12 +492,35 @@ export default function CountryPanel({
             </Box>
           )}
 
-          <SectionOverview
-            entries={sectionOverview}
-            selectedId={activeSectionId}
-            onSelect={handleSelectSection}
-            compact={Boolean(activeSectionId)}
-          />
+          {/* Once a section is open the pills become one pinned row, so
+              switching areas never means scrolling back up past a long
+              question list - a wrapped strip used to take ~200px above
+              the questions. Negative top/margins cancel the scroll
+              container's own padding so the row pins flush to its edge. */}
+          <Box
+            sx={
+              activeSectionId
+                ? {
+                    position: "sticky",
+                    top: isMobile ? -12 : -24,
+                    zIndex: 2,
+                    mx: isMobile ? -1.5 : -3,
+                    px: isMobile ? 1.5 : 3,
+                    py: 1,
+                    bgcolor: "background.paper",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }
+                : undefined
+            }
+          >
+            <SectionOverview
+              entries={sectionOverview}
+              selectedId={activeSectionId}
+              onSelect={handleSelectSection}
+              compact={Boolean(activeSectionId)}
+            />
+          </Box>
 
           {/* The expanded panel for whichever tile is active - that
               section's own questions, each now carrying its own exemplar

@@ -35,14 +35,17 @@ const PANEL_WIDTH = 460;
  *   the Electric Futures Playbook) marks the tour as seen.
  * - `?showTour` - the inverse, e.g. the playbook's "Show me how": opens the
  *   tour even for a returning visitor.
- * - `?country=CODE` - opens straight into that country's page (e.g. the
- *   Deployment Explorer's cross-link tiles), implicitly skipping the tour
- *   too: a reader who arrives already knowing which country they want
+ * - `?country=CODE` (plus optional `&section=<section id>`) - opens
+ *   straight into that country's page, and that policy area if given (e.g.
+ *   the Deployment Explorer's cross-link tiles), implicitly skipping the
+ *   tour too: a reader who arrives already knowing which country they want
  *   doesn't need the first-run framing.
  *
- * Each param is stripped right after, so a reload or reshare of the
- * resulting URL doesn't carry it along. Returns whether the intro was
- * skipped, which also turns off the tour's "solar bloom" opening.
+ * skipIntro/showTour are stripped right after, so a reload or reshare
+ * doesn't carry them along. country/section stay: they're the app's own
+ * shareable location, kept in step by useLocationSync below. Returns
+ * whether the intro was skipped, which also turns off the tour's "solar
+ * bloom" opening.
  */
 function applyLaunchParams(): { skipsIntro: boolean } {
   const url = new URL(window.location.href);
@@ -54,18 +57,65 @@ function applyLaunchParams(): { skipsIntro: boolean } {
   else if (params.has("showTour")) store.setTourSeen(false);
   if (country) {
     store.setPage("map");
-    store.selectCountry(country.toUpperCase());
+    applyLocation(params);
   }
-  if (params.has("skipIntro") || params.has("showTour") || country) {
+  if (params.has("skipIntro") || params.has("showTour")) {
     params.delete("skipIntro");
     params.delete("showTour");
-    params.delete("country");
     window.history.replaceState({}, "", url);
   }
   return { skipsIntro };
 }
 
+/** Selects the country (and section, if it's a real one) a URL's params name. */
+function applyLocation(params: URLSearchParams) {
+  const store = useProtocolStore.getState();
+  const country = params.get("country");
+  store.selectCountry(country ? country.toUpperCase() : null);
+  const section = params.get("section");
+  if (country && section && store.sections.some((s) => s.id === section)) store.setActiveSectionId(section);
+}
+
+/** The URL for a selection - the current one with only country/section changed. */
+function locationUrl(country: string | null, section: string): string {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("country");
+  url.searchParams.delete("section");
+  if (country) url.searchParams.set("country", country);
+  if (country && section) url.searchParams.set("section", section);
+  return url.toString();
+}
+
 const launch = applyLaunchParams();
+
+/**
+ * Keeps `?country=&section=` in step with what's open, so a country or
+ * policy area can be linked to and the browser's back button steps back
+ * through them. Each change pushes a history entry; Back/Forward re-apply
+ * the URL they land on. Off during the tour, which drives the selection
+ * itself and always ends back at the plain world view.
+ */
+function useLocationSync(enabled: boolean) {
+  const selectedCountry = useProtocolStore((s) => s.selectedCountry);
+  const activeSectionId = useProtocolStore((s) => s.activeSectionId);
+
+  // The first sync only normalises the URL the page opened with (e.g. a
+  // lowercase ?country=de) rather than adding a history entry for it.
+  const synced = useRef(false);
+  useEffect(() => {
+    if (!enabled) return;
+    const next = locationUrl(selectedCountry, activeSectionId);
+    if (next !== window.location.href) window.history[synced.current ? "pushState" : "replaceState"]({}, "", next);
+    synced.current = true;
+  }, [enabled, selectedCountry, activeSectionId]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const onPop = () => applyLocation(new URLSearchParams(window.location.search));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [enabled]);
+}
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -77,6 +127,7 @@ export default function App() {
   const welcomeSeen = useProtocolStore((s) => s.welcomeSeen);
   const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
   const tourSeen = useProtocolStore((s) => s.tourSeen);
+  useLocationSync(tourSeen);
   const tourSectionId = useProtocolStore((s) => s.tourSectionId);
   const setTourSectionId = useProtocolStore((s) => s.setTourSectionId);
   const setTourSeen = useProtocolStore((s) => s.setTourSeen);
