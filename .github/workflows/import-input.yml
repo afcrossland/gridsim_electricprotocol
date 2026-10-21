@@ -107,10 +107,11 @@ jobs:
           export DATABASE_URL
 
           cd klute/gate
-          # --overwrite-structure: until admins edit questions in the database (ROADMAP.md Phase 4), src/data is the
-          # only source of truth, and the spreadsheet import rewrites protocol.seed.json too. Phase 4 must drop it.
-          python -m ep_db.import_json --overwrite-structure --actor "import-input.yml run ${{ github.run_id }}" | tee ../../db-report.txt
-          python -m ep_db.import_json --check | tee -a ../../db-report.txt
+          # Only the imported research is replaced. Editors change questions, sections and answers in the app (ROADMAP.md
+          # Phase 4), so --overwrite-structure would throw their work away, and only the research is checked against
+          # the files. A question the spreadsheets change has to be changed in the admin console too.
+          python -m ep_db.import_json --actor "import-input.yml run ${{ github.run_id }}" | tee ../../db-report.txt
+          python -m ep_db.import_json --check --research-only | tee -a ../../db-report.txt
 
       - name: Show the database report
         if: always() && github.ref == 'refs/heads/Development'

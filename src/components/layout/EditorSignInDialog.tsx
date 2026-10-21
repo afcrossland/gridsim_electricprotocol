@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Alert, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
+import { usingDatabase } from "../../data/policyData";
 import { signInEditor, signOutEditor, useEditorStore } from "../../lib/editorAuth";
 
 interface Props {
@@ -22,7 +23,8 @@ export default function EditorSignInDialog({ open, onClose, onSignedIn }: Props)
   const message = useEditorStore((s) => s.message);
 
   useEffect(() => {
-    if (open && status === "editor") onSignedIn();
+    // Not when the database is unreachable: stay open to say why editing is off.
+    if (open && status === "editor" && usingDatabase()) onSignedIn();
   }, [open, status, onSignedIn]);
 
   const busy = status === "checking";
@@ -37,6 +39,11 @@ export default function EditorSignInDialog({ open, onClose, onSignedIn }: Props)
         {status === "not-editor" && (
           <Alert severity="warning" sx={{ mt: 2 }}>
             {message ?? t("editor.notEditor")}
+          </Alert>
+        )}
+        {status === "editor" && !usingDatabase() && (
+          <Alert severity="warning" sx={{ mt: 2 }}>
+            {t("editor.databaseOffline")}
           </Alert>
         )}
         {status === "error" && (

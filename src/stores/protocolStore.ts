@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { readPolicyData } from "../data/policyData";
+import { readPolicyData, usingDatabase } from "../data/policyData";
 import { sourcedResponses } from "../data/sourcedAnswers";
 import i18n, { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "../i18n";
 import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
@@ -300,6 +300,26 @@ export function seedResponses(): Response[] {
       continue;
     }
     byKey.set(key, r);
+  }
+
+  // Answers editors set in the app (Phase 4) win over researched ones; a
+  // cleared one (score null) removes the researched answer too.
+  if (usingDatabase()) {
+    for (const e of readPolicyData().responses) {
+      const key = `${e.countryCode}|${e.questionId}`;
+      if (e.score === null) {
+        byKey.delete(key);
+        continue;
+      }
+      byKey.set(key, {
+        questionId: e.questionId,
+        countryCode: e.countryCode,
+        score: e.score,
+        evidence: e.evidence,
+        updatedAt: e.updatedAt,
+        ...(e.basis ? { basis: e.basis } : {}),
+      });
+    }
   }
   return [...byKey.values()];
 }
@@ -868,7 +888,21 @@ export const useProtocolStore = create<ProtocolState>()(
        * every load removes that failure mode rather than relying on
        * remembering to bump the version every time the data changes.
        */
-      partialize: (state) => ({
+      partialize: (state) =>
+        usingDatabase()
+          ? // The policy database holds the data on these builds (see merge
+            // below), so only preferences and the browser-only suggestion
+            // queues (until Phase 6) are kept here.
+            {
+              mapMetric: state.mapMetric,
+              welcomeSeen: state.welcomeSeen,
+              tourSeen: state.tourSeen,
+              mode: state.mode,
+              language: state.language,
+              suggestions: state.suggestions,
+              questionProposals: state.questionProposals,
+            }
+          : {
         threshold: state.threshold,
         mapMetric: state.mapMetric,
         welcomeSeen: state.welcomeSeen,
@@ -884,7 +918,7 @@ export const useProtocolStore = create<ProtocolState>()(
         removedQuestionIds: state.removedQuestionIds,
         suggestions: state.suggestions,
         questionProposals: state.questionProposals,
-      }),
+            },
 
       /**
        * Rebuild the full response list on every load - current seed data,
@@ -897,6 +931,27 @@ export const useProtocolStore = create<ProtocolState>()(
       merge: (persisted, current) => {
         const state = persisted as Partial<ProtocolState> | undefined;
         if (!state) return current;
+
+        // On builds reading the policy database the database is the record:
+        // edits this browser saved before (or under an older build) must not
+        // hide it, so only preferences and the browser-only suggestion queues
+        // (until Phase 6) carry over. Sections, questions, answers and the
+        // threshold all come from the database, already in `current`.
+        if (usingDatabase()) {
+          if (state.language && (SUPPORTED_LANGUAGES as readonly string[]).includes(state.language)) {
+            i18n.changeLanguage(state.language);
+          }
+          return {
+            ...current,
+            mapMetric: state.mapMetric ?? current.mapMetric,
+            welcomeSeen: state.welcomeSeen ?? current.welcomeSeen,
+            tourSeen: state.tourSeen ?? current.tourSeen,
+            mode: getStoredMode() ?? state.mode ?? current.mode,
+            language: state.language ?? current.language,
+            suggestions: state.suggestions ?? current.suggestions,
+            questionProposals: state.questionProposals ?? current.questionProposals,
+          };
+        }
 
         // migrateResponseShape also runs here, not just in `migrate` below -
         // `migrate` only fires on an actual version bump, so a response

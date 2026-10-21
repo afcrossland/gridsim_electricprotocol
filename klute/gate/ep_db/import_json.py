@@ -15,7 +15,9 @@ Reads `src/data/protocol.seed.json`, `sourced-answers.json`, `indicator-answers.
 
 `--check` writes nothing: it exports the database back into the four files' shapes and fails if
 they differ from the files (only the answers files' README text isn't stored). That is the
-evidence Phase 1 needs that the database serves exactly what the JSON does today.
+evidence Phase 1 needs that the database serves exactly what the JSON does today. Once editors
+change questions and sections in the app (Phase 4), `--check --research-only` compares just the
+imported research, and `--overwrite-structure` would throw their work away - don't use it.
 
 Everything runs in one transaction, so a failed import leaves the database as it was. Any key the
 script doesn't know about fails the run rather than being silently dropped.
@@ -339,11 +341,17 @@ def differences(expected: Any, actual: Any, path: str = "") -> list[str]:
     return []
 
 
-def check(session: Session, files: dict[str, Any]) -> list[str]:
+def check(session: Session, files: dict[str, Any], *, research_only: bool = False) -> list[str]:
+    """research_only compares just the imported research (sources, groups, answers): once editors
+    change questions and sections in the app (Phase 4), those rightly differ from the files."""
     expected = dict(files)
     for origin in ANSWER_FILES:
         expected[origin] = {k: v for k, v in files[origin].items() if k != "README"}
-    return differences(expected, export_all(session))
+    actual = export_all(session)
+    if research_only:
+        expected = {o: expected[o] for o in ANSWER_FILES}
+        actual = {o: actual[o] for o in ANSWER_FILES}
+    return differences(expected, actual)
 
 
 # --- CLI ----------------------------------------------------------------------------------------
@@ -353,6 +361,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--data-dir", type=Path, help="default: src/data in this repo")
     parser.add_argument("--check", action="store_true", help="compare the database with the files; write nothing")
+    parser.add_argument("--research-only", action="store_true", help="with --check: compare only the imported research")
     parser.add_argument("--overwrite-structure", action="store_true", help="update sections/questions/jurisdictions from JSON")
     parser.add_argument("--actor", default=os.environ.get("USER", "import_json"), help="recorded in audit_log")
     args = parser.parse_args(argv)
@@ -364,7 +373,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with Session(engine()) as session:
             if args.check:
-                diffs = check(session, files)
+                diffs = check(session, files, research_only=args.research_only)
                 for d in diffs[:50]:
                     print(d)
                 if len(diffs) > 50:

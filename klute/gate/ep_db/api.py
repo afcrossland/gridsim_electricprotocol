@@ -2,7 +2,8 @@
 
 GET /api/policy/data returns the four `src/data/` files' shapes, rebuilt from the database by
 `export_all` - the same function `import_json --check` compares against the files - as
-{"protocol", "jurisdictions", "sourced", "indicator"}. Firebase Hosting rewrites /api/policy/**
+{"protocol", "jurisdictions", "sourced", "indicator"}, plus "responses": the answers editors have
+set in the app (Phase 4), which take precedence over researched ones for the same pair. Firebase Hosting rewrites /api/policy/**
 here. It is public: it serves what the site's bundle already ships to every visitor.
 
 Any problem answers 503, never partial data: the frontend then falls back to its bundled JSON.
@@ -15,14 +16,15 @@ import logging
 import os
 from functools import lru_cache
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from sqlalchemy import Engine, create_engine
+from sqlalchemy import Engine, create_engine, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ep_db.auth import Editor
 from ep_db.import_json import DataError, export_all
+from ep_db.models import Response, ResponseEvidence
 
 log = logging.getLogger(__name__)
 router = APIRouter()
@@ -39,6 +41,32 @@ def _engine(url: str) -> Engine:
     return create_engine(url, pool_size=2, max_overflow=2, pool_pre_ping=True)
 
 
+def database_url_or_503() -> str:
+    url = os.environ.get("DATABASE_URL", "")
+    if not url:
+        raise HTTPException(503, "The policy database isn't configured here.")
+    return url
+
+
+def edited_responses(session: Session) -> list[dict]:
+    """Editors' answers in the frontend's Response shape; score None means they cleared it."""
+    evidence: dict[tuple[str, str], list[dict]] = {}
+    for e in session.scalars(select(ResponseEvidence).order_by(ResponseEvidence.position)):
+        evidence.setdefault((e.country_code, e.question_id), []).append({"title": e.title, "source": e.source, "note": e.note})
+    return [
+        {
+            "countryCode": r.country_code,
+            "questionId": r.question_id,
+            "score": r.score,
+            "basis": r.basis,
+            "evidence": evidence.get((r.country_code, r.question_id), []),
+            "updatedAt": r.updated_at.isoformat(),
+            "updatedBy": r.updated_by,
+        }
+        for r in session.scalars(select(Response).order_by(Response.country_code, Response.question_id))
+    ]
+
+
 def _unavailable(message: str) -> JSONResponse:
     return JSONResponse({"error": message}, status_code=503, headers=NO_STORE)
 
@@ -51,6 +79,7 @@ def policy_data() -> JSONResponse:
     try:
         with Session(_engine(url)) as session:
             data = export_all(session)
+            data["responses"] = edited_responses(session)
     except DataError as e:
         return _unavailable(str(e))
     except SQLAlchemyError:
