@@ -460,7 +460,7 @@ requires a big-bang cutover.
 Nothing else can start until there is a database and an API for the
 frontend to talk to.
 
-- **Schema (in progress, branch `feature/ep-db-phase0`).** SQLAlchemy
+- **Schema (done, #11).** SQLAlchemy
   models in `klute/gate/ep_db/models.py`, Alembic migrations in
   `klute/gate/migrations/`. Two kinds of data are kept apart:
   - *Imported research*: `sources`, `jurisdiction_groups`, and
@@ -474,15 +474,22 @@ frontend to talk to.
   - The protocol's structure (`protocol`, `sections`, `questions`,
     `rubric_tiers`) and `jurisdictions` sit in between: seeded from JSON
     once, then edited by admins (Phases 4-5).
-- **Import script (in progress).** `python -m ep_db.import_json` loads
+- **Import script (done, #11).** `python -m ep_db.import_json` loads
   today's four JSON files. `--check` exports the database back into those
   files' shapes and fails on any difference - the evidence that Phase 1 can
   serve identical data.
-- **Terraform written, not applied** (`infra/terraform/modules/electricfutures/database.tf`):
+- **Terraform (done, #13)** (`infra/terraform/modules/electricfutures/database.tf`):
   the `electricfutures` database and login on each environment's gridsim Cloud SQL instance,
   and a Secret Manager `DATABASE_URL`. Apply steps and a permissions caveat in
-  `infra/terraform/README.md`. **Not started:** applying it and running the migration and
-  import against dev.
+  `infra/terraform/README.md`.
+- **Dev: applied and loaded (2026-10-21).** Terraform applied on `gridsim-dev-db`, migration
+  `0001` run, and the import loaded today's JSON (821 researched answers, 657 sources, 39
+  questions, 317 jurisdictions); `--check` matches the files exactly. Nothing reads from it
+  yet, and spreadsheet uploads still only update the JSON, so it falls behind until the
+  import workflow writes to the database (Phase 1) - re-run the import by hand meanwhile.
+- **Prod: not applied.** Same steps on `gridsim-prod-db`, each with its own go-ahead.
+- **Not done:** the `REVOKE CONNECT ... FROM PUBLIC` grants from the Terraform README, which
+  need the gridsim instance owner.
 - Rename `klute/gate/` (e.g. to `api/`) once it serves more than `/klute`;
   left alone for now so Terraform and the workflows don't change in Phase 0.
 
@@ -491,7 +498,7 @@ frontend to talk to.
 Lowest-risk first step: move today's static JSON into the database, keep
 behaviour identical. A read-only migration, no new features yet.
 
-- Run the Phase 0 import against the real database.
+- Apply Phase 0 on prod and load it the same way (dev is done).
 - Add read endpoints that return the four files' current shapes, and a
   Firebase Hosting rewrite for them; the frontend fetches on load instead of
   importing JSON at build time (`src/stores/protocolStore.ts`'s
