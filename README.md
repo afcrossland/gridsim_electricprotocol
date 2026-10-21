@@ -101,14 +101,13 @@ GCP access is keyless (Workload Identity Federation); GCP accepts dev deploys on
 `Development` and prod deploys only from `main`.
 
 The infrastructure (hosting sites, gate service, its secrets, the WIF pool and the deploy
-service account) is Terraform in `gridsim-deploy`'s `modules/electricfutures`; its README
-has the one-time setup. On the GitHub side, set up two environments under **Settings →
+service account) is Terraform in this repo, `infra/terraform/`; its README has the
+one-time setup. On the GitHub side, set up two environments under **Settings →
 Environments**, `dev` and `prod`, each with:
 
 - variable `GCP_PROJECT_ID` (`project-08077ad6-f39e-4a3c-b19`);
 - variables `GCP_WIF_PROVIDER` and `GCP_DEPLOY_SA`, from that environment's Terraform
-  outputs `electricfutures_github_wif_provider` and
-  `electricfutures_github_deploy_service_account`;
+  outputs `github_wif_provider` and `github_deploy_service_account`;
 - secret `VITE_MAPTILER_KEY`.
 
 The MapTiler key is compiled into the client bundle and is therefore readable by anyone
@@ -138,8 +137,8 @@ allowlist is re-checked on every request. The simulator tab's calls go to `/klut
 which the gate proxies to the backend, adding the backend's `KLUTE_PASSWORD` itself, so no
 password is ever in the browser.
 
-The allowlist is `klute_allowed_emails` in `gridsim-deploy`'s
-`environments/<env>/terraform.tfvars`; adding or removing someone is a change there plus
+The allowlist is `klute_allowed_emails` in
+`infra/terraform/environments/<env>/terraform.tfvars`; adding or removing someone is a change there plus
 `terraform apply`.
 
 Locally there is no gate: `npm run dev` serves `/klute/` directly, and the dev server proxies

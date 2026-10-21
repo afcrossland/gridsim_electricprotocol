@@ -47,3 +47,26 @@ jobs:
         run: |
           pip install -r requirements.txt pytest
           python -m pytest -q
+
+  terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        environment: [dev, prod]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.8"
+
+      - name: Format check
+        run: terraform fmt -check -recursive infra/terraform
+
+      # -backend=false: syntax/types only. Not a substitute for `terraform plan`.
+      - name: Validate
+        working-directory: infra/terraform/environments/${{ matrix.environment }}
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate

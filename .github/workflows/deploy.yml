@@ -6,8 +6,8 @@ name: Deploy
 # - the /klute sign-in gate (klute/gate/, with the klute build inside it) to Cloud Run, which
 #   Firebase Hosting rewrites /klute/** to (see firebase.json).
 # GCP access is keyless, through Workload Identity Federation. The pool, provider, deploy service
-# account and every other resource here are in gridsim-deploy's modules/electricfutures; that
-# module only trusts this repository's Development branch for dev and main for prod.
+# account and every other resource here are in infra/terraform/; GCP only trusts this
+# repository's Development branch for dev and main for prod.
 on:
   push:
     branches: [Development, main]
