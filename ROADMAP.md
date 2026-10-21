@@ -415,22 +415,26 @@ lost - not yet started.
 
 ## Decisions already made
 
-Settled 26 August 2026. Each of these changed the shape of the plan below
-enough to be worth recording rather than assuming.
+Settled 26 August 2026; decisions 1, 2 and 5 revised 21 October 2026 (the
+originals are kept in each entry for the record). Each of these changed the
+shape of the plan below enough to be worth recording rather than assuming.
 
-1. **Backend platform: `gridsim-backend`.** Build on the Global Solar
-   Council's existing FastAPI + SQLAlchemy + Postgres service
-   (`github.com/afcrossland/gridsim-backend`, private repo) rather than a
-   new managed platform or a hand-built API. Already deployed via Docker to
-   Google Cloud with Terraform-managed infra. New policy-tool tables live in
-   their own schema (or database) in the same Postgres instance, kept
-   separate from gridsim's own simulation tables - shared infrastructure and
-   deploy pipeline only. Two gaps to fill in that repo before this starts:
-   no migration tooling (add Alembic or similar) and no auth system yet.
-2. **Admin auth: one shared password.** No individual accounts. Simple to
-   build; the accepted trade-off is that the future change log (below) can
-   only ever say "an admin" made a change, not which one. Upgradable to
-   named accounts later without a schema rewrite.
+1. **Backend platform: a FastAPI service in this repo, grown from the
+   `/klute` gate.** *Revised 2026-10-21.* The gate (`klute/gate/`) is
+   already a FastAPI service on Cloud Run with Firebase Auth, deployed by
+   this repo's own Terraform (`infra/terraform/`) and workflows, so the
+   policy API grows out of it rather than going into `gridsim-backend`.
+   Data lives in **its own Postgres database (`electricfutures`, schema
+   `policy`) on the existing gridsim Cloud SQL instance** - shared instance,
+   nothing else shared with gridsim's simulation tables. Schema changes go
+   through Alembic in `klute/gate/`. *Was:* build on `gridsim-backend`; set
+   aside because Electric Futures infrastructure now deliberately lives in
+   this repo, not in `gridsim-deploy`, and it would tie policy releases to
+   the simulator's.
+2. **Admin auth: Google sign-in (Firebase Auth) with an allowlist.**
+   *Revised 2026-10-21.* Reuses what the `/klute` gate already does. Every
+   write is attributable to a named email, so the change log (Phase 6) can
+   say who made a change. *Was:* one shared admin password.
 3. **Publish model: stays instant.** An edit is live for every visitor the
    moment it is made, no draft or review step - matches today's UX exactly,
    just now shared globally instead of trapped in one browser.
@@ -439,11 +443,12 @@ enough to be worth recording rather than assuming.
    style bloc membership) on jurisdictions Natural Earth already provides
    shapes for. Drawing or importing genuinely new custom shapes is out of
    scope.
-5. **Frontend hosting: moves to Google Cloud.** The frontend leaves GitHub
-   Pages and moves onto the same Google Cloud infrastructure as the
-   backend, rather than staying static on GitHub Pages and calling the API
-   remotely. This replaces the `.github/workflows/deploy.yml` pipeline
-   described in `README.md`.
+5. **Frontend hosting: Firebase Hosting.** *Done 2026-10-21* (the
+   Firebase hosting work, afcrossland/gridsim_electricprotocol#5): the
+   public site is on Firebase Hosting, which rewrites `/klute/**` to the
+   Cloud Run gate. The API's routes get the same kind of rewrite, so the
+   frontend calls it on its own origin. *Was:* "moves to Google Cloud" with
+   no specific product chosen.
 
 ## The phases
 
@@ -455,23 +460,43 @@ requires a big-bang cutover.
 Nothing else can start until there is a database and an API for the
 frontend to talk to.
 
-- Add the policy tool's schema to `gridsim-backend`: jurisdictions,
-  sections, questions, rubric tiers, responses, evidence, suggestions,
-  audit log.
-- Introduce migration tooling (Alembic) in that repo - it has none today.
-- Stand up the new router group alongside the existing `historic.py`,
-  `irradiance.py`, `simulate.py` routers.
+- **Schema (in progress, branch `feature/ep-db-phase0`).** SQLAlchemy
+  models in `klute/gate/ep_db/models.py`, Alembic migrations in
+  `klute/gate/migrations/`. Two kinds of data are kept apart:
+  - *Imported research*: `sources`, `jurisdiction_groups`, and
+    `researched_answers` (one row per entry of `sourced-answers.json` /
+    `indicator-answers.json`, unresolved). The spreadsheet import owns
+    these and replaces them wholesale, so a re-import never touches
+    anything a person entered.
+  - *Things people do*: `responses` + `response_evidence` (an edit made in
+    the app; a row with no score records that someone cleared a researched
+    answer), `suggestions`, `question_proposals`, `audit_log`.
+  - The protocol's structure (`protocol`, `sections`, `questions`,
+    `rubric_tiers`) and `jurisdictions` sit in between: seeded from JSON
+    once, then edited by admins (Phases 4-5).
+- **Import script (in progress).** `python -m ep_db.import_json` loads
+  today's four JSON files. `--check` exports the database back into those
+  files' shapes and fails on any difference - the evidence that Phase 1 can
+  serve identical data.
+- **Not started:** Cloud SQL database + user + Secret Manager password in
+  `infra/terraform/`, and running the migration against dev. Rename
+  `klute/gate/` (e.g. to `api/`) once it serves more than `/klute`; left
+  alone for now so Terraform and the workflows don't change in Phase 0.
 
 ### Phase 1 - Serve the protocol from the database
 
 Lowest-risk first step: move today's static JSON into the database, keep
 behaviour identical. A read-only migration, no new features yet.
 
-- One-time import of `protocol.seed.json` and `src/data/jurisdictions.json`
-  into the new schema.
-- Add read endpoints; the frontend fetches on load instead of importing a
-  JSON file at build time (`src/stores/protocolStore.ts`'s `initialState()`
-  and `seedResponses()` are the two places that currently do this).
+- Run the Phase 0 import against the real database.
+- Add read endpoints that return the four files' current shapes, and a
+  Firebase Hosting rewrite for them; the frontend fetches on load instead of
+  importing JSON at build time (`src/stores/protocolStore.ts`'s
+  `initialState()` and `seedResponses()` are the two places that currently
+  do this). Answer resolution (specificity and basis precedence in
+  `src/data/sourcedAnswers.ts`) stays in the frontend for this phase.
+- Point `.github/workflows/import-input.yml` at the database instead of
+  committing regenerated JSON.
 - Ship this alone and confirm the app looks and behaves exactly as it does
   today, just from a live source.
 
@@ -480,9 +505,10 @@ behaviour identical. A read-only migration, no new features yet.
 Has to land before Phase 4's write path opens up - an authenticated-looking
 screen backed by unauthenticated write endpoints is not actually locked.
 
-- Shared password login in front of `AdminConsole.tsx`.
-- Every write endpoint checks the same session server-side, not just the
-  page route on the frontend.
+- Google sign-in (Firebase Auth, allowlisted emails - decision 2) in front
+  of `AdminConsole.tsx` and the country page's Edit mode.
+- Every write endpoint verifies the same Firebase session server-side, not
+  just the page route on the frontend.
 - Retire the `stands in for auth` comments in `TopNavbar.tsx`,
   `SuggestionsReview.tsx` and `lib/suggestions.ts` once this ships.
 
@@ -526,8 +552,7 @@ called out as a `TODO` in `lib/suggestions.ts`.
 
 ### Phase 7 - Cutover and cleanup
 
-- Move the frontend off GitHub Pages onto the same Google Cloud
-  infrastructure as the backend (decision 5).
+- Frontend hosting already moved to Firebase (decision 5).
 - Edits already sitting in visitors' browser storage were always
   provisional - no migration needed, they are simply superseded by the
   database.

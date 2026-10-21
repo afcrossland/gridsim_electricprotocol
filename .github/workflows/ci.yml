@@ -35,6 +35,17 @@ jobs:
   klute-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Throwaway database for the policy-database tests (test_ep_db.py); same major version as
+    # the gridsim Cloud SQL instance it will run on.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: electricfutures
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -42,8 +53,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Test the /klute sign-in gate
+      - name: Test the /klute sign-in gate and the policy database
         working-directory: klute/gate
+        env:
+          EP_TEST_DATABASE_URL: postgresql+psycopg://postgres:test@localhost:5432/electricfutures
         run: |
           pip install -r requirements.txt pytest
           python -m pytest -q
