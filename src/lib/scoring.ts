@@ -195,11 +195,11 @@ export function sectionStanding(ownScore: CountryScore, leaderboard: CountryScor
   return "typical";
 }
 
-/** Same hues as SCORE_BANDS' own ends (teal for strong, amber for weak) - a relative standing and an absolute band are different judgements, but reusing the same two hues keeps "good" reading as the same colour everywhere in the app. */
+/** Same hues as SCORE_BANDS' own ends (amber for strong, teal for weak) - a relative standing and an absolute band are different judgements, but reusing the same two hues keeps "good" reading as the same colour everywhere in the app. */
 export const SECTION_STANDING_COLORS: Record<SectionStanding, string> = {
-  leading: "#00ABBB",
+  leading: "#FBB114",
   typical: "#6B7280",
-  behind: "#FBB114",
+  behind: "#00ABBB",
   insufficient: "#9CA3AF",
 };
 
@@ -417,7 +417,7 @@ function syntheticGroup(code: string, name: string, children: CountryScore[]): G
 }
 
 /**
- * Colour ramp for the choropleth, low score to high - amber to teal/aqua
+ * Colour ramp for the choropleth, low score to high - teal/aqua to amber
  * via a pale warm cream midpoint. Now just this app's own name for
  * `shared/lib/mapColor.ts`'s `GSC_RAMP`, confirmed byte-identical to
  * deployment's and calculator's own ramps before being centralized there
@@ -457,11 +457,11 @@ export function scoreColor(score: number): string {
  * means.
  */
 export const SCORE_BANDS = [
-  { label: "Very ineffective", min: 0.0, color: "#FBB114" },
-  { label: "Ineffective", min: 0.2, color: "#F8CB6E" },
+  { label: "Very ineffective", min: 0.0, color: "#00ABBB" },
+  { label: "Ineffective", min: 0.2, color: "#7AC8C1" },
   { label: "Moderate", min: 0.4, color: "#F5E6C8" },
-  { label: "Effective", min: 0.6, color: "#7AC8C1" },
-  { label: "Very effective", min: 0.8, color: "#00ABBB" },
+  { label: "Effective", min: 0.6, color: "#F8CB6E" },
+  { label: "Very effective", min: 0.8, color: "#FBB114" },
 ] as const;
 
 export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
@@ -499,16 +499,16 @@ export function scoreTextColor(score: number, mode: "light" | "dark" = "light"):
 /**
  * Star-rating text colours (set 2026-10-15, per Andrew's own instruction):
  * 1 star is the cream (see scoreTextColor above for its legible variants),
- * 2 stars amber, 3 stars light amber, 4 stars light teal, 5 stars teal.
+ * 2 stars teal, 3 stars light teal, 4 stars light amber, 5 stars amber.
  * Deliberately independent of SCORE_BANDS' own colours, which still drive the
- * map fill and the answer ladder's amber-to-teal edge.
+ * map fill and the answer ladder's teal-to-amber edge.
  */
 const STAR_COLORS: Record<number, string> = {
   1: "#F5E6C8",
-  2: "#FBB114",
-  3: "#F8CB6E",
-  4: "#7AC8C1",
-  5: "#00ABBB",
+  2: "#00ABBB",
+  3: "#7AC8C1",
+  4: "#F8CB6E",
+  5: "#FBB114",
 };
 
 /**
