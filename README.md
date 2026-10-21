@@ -145,6 +145,15 @@ Locally there is no gate: `npm run dev` serves `/klute/` directly, and the dev s
 `/klute/api/*` to `FGS_API_BASE_URL` (default `http://localhost:8000`), adding
 `KLUTE_PASSWORD` from your shell - e.g. `KLUTE_PASSWORD=<backend's password> npm run dev`.
 The gate's own tests: `cd klute/gate && pip install -r requirements.txt pytest && python -m pytest`.
+The policy-database tests in the same folder (`test_ep_db.py`) also need a throwaway Postgres in
+`EP_TEST_DATABASE_URL` (they drop and recreate its `policy` schema) and are skipped without one.
+
+**Policy database (in progress, ROADMAP.md Phase 0).** `klute/gate/ep_db/` holds the schema
+(SQLAlchemy models, Alembic migrations in `klute/gate/migrations/`) and
+`python -m ep_db.import_json`, which loads `src/data/`'s JSON into it; `--check` compares the
+database with the files without writing. Both read `DATABASE_URL`
+(`postgresql+psycopg://user:pass@host/electricfutures`). Nothing reads from the database yet: the
+site still uses the JSON files.
 
 ## How data gets updated
 
