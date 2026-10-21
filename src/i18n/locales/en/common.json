@@ -251,5 +251,17 @@
   },
   "sunRating": {
     "label": "{{count}} out of 5 suns"
+  },
+  "editor": {
+    "signInTitle": "Sign in to edit",
+    "signInBody": "The admin console changes the policy data everyone sees, so it's for named editors only. Sign in with the Google account you were given access with.",
+    "signInButton": "Sign in with Google",
+    "signingIn": "Signing in…",
+    "notEditor": "This account can't edit the policy data.",
+    "error": "Sign-in didn't work - try again.",
+    "useAnotherAccount": "Use another account",
+    "cancel": "Cancel",
+    "signedInAs": "Signed in as {{email}}",
+    "signOut": "Sign out"
   }
 }

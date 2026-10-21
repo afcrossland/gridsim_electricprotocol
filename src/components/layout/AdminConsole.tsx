@@ -25,6 +25,7 @@ import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
+import { signOutEditor, useEditorStore } from "../../lib/editorAuth";
 import type { Question, RubricTier } from "../../lib/types";
 import { impactColor, impactLabel, MAX_IMPACT } from "../../lib/scoring";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
@@ -55,6 +56,8 @@ const POINTS_OPTIONS = [0, 1, 2, 3, 4];
  */
 export default function AdminConsole({ onBack }: Props) {
   const { t } = useTranslation();
+  // Set only on builds where editing needs a sign-in (lib/editorAuth.ts).
+  const editorEmail = useEditorStore((s) => (s.status === "editor" ? s.email : null));
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const questionOverrides = useProtocolStore((s) => s.questionOverrides);
@@ -155,6 +158,16 @@ export default function AdminConsole({ onBack }: Props) {
             {t("adminConsole.description")}
           </Typography>
         </Box>
+        {editorEmail && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" } }}>
+              {t("editor.signedInAs", { email: editorEmail })}
+            </Typography>
+            <Button size="small" onClick={() => void signOutEditor()}>
+              {t("editor.signOut")}
+            </Button>
+          </Box>
+        )}
       </Box>
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>

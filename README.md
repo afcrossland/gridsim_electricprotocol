@@ -164,6 +164,11 @@ builds don't make the request at all. Locally: run the gate with a `DATABASE_URL
 (`uvicorn main:app --port 8080` in `klute/gate/`) and `VITE_POLICY_API=1 npm run dev`; the dev
 server proxies `/api/policy` to `EP_API_BASE_URL` (default `http://localhost:8080`).
 
+**Editing needs a sign-in on those builds (ROADMAP.md Phase 2).** The admin console opens only for
+a Google account on `policy_editor_emails` (`infra/terraform/environments/<env>/terraform.tfvars`);
+adding or removing an editor is a change there plus `terraform apply`. Builds without
+`VITE_POLICY_API` (prod, for now) keep the open admin console whose edits stay in the browser.
+
 ## How data gets updated
 
 The shared dataset lives in git: `protocol.seed.json`, `sourced-answers.json`,

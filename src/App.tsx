@@ -16,6 +16,7 @@ import ScrollStory from "./scrollstory/ScrollStory";
 import FooterComposition from "../shared/components/FooterComposition";
 import SidebarShell from "../shared/components/SidebarShell";
 import { sourcedCountries } from "./data/sourcedAnswers";
+import { canEdit, useEditorStore } from "./lib/editorAuth";
 import { qualifiedName, resolveTargets } from "./lib/jurisdictions";
 import { scoreCountry } from "./lib/scoring";
 import { protocol, useProtocolStore } from "./stores/protocolStore";
@@ -183,6 +184,12 @@ export default function App() {
   const [listScrolled, setListScrolled] = useState(false);
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
+  // The admin console is only for editors (lib/editorAuth.ts) - leave it if
+  // they sign out, or if anything else lands here without a sign-in.
+  const mayEdit = useEditorStore((s) => canEdit(s));
+  useEffect(() => {
+    if (page === "admin" && !mayEdit) setPage("map");
+  }, [page, mayEdit, setPage]);
   const selectedCountry = useProtocolStore((s) => s.selectedCountry);
   const selectCountry = useProtocolStore((s) => s.selectCountry);
   const comparing = useProtocolStore((s) => s.comparing);
@@ -347,7 +354,7 @@ export default function App() {
         // Full takeover - there is nothing useful to keep the map visible
         // for while editing question definitions, settings, or reading help.
         <Box sx={{ flex: 1, overflow: "hidden" }}>
-          {page === "admin" ? (
+          {page === "admin" && mayEdit ? (
             <AdminConsole onBack={() => setPage("map")} />
           ) : (
             <HelpPage onBack={() => setPage("map")} />

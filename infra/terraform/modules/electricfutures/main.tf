@@ -170,6 +170,13 @@ resource "google_cloud_run_v2_service" "klute_gate" {
         value = join(",", var.klute_allowed_emails)
       }
 
+      # Who may change the policy data through the API (klute/gate/ep_db/auth.py). Separate from
+      # /klute's list: seeing the explorer and editing the public data are different permissions.
+      env {
+        name  = "POLICY_EDITOR_EMAILS"
+        value = join(",", var.policy_editor_emails)
+      }
+
       env {
         name  = "FGS_API_BASE_URL"
         value = var.fgs_api_base_url

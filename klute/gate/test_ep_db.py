@@ -217,3 +217,55 @@ def test_ep_db_imports_without_the_repo_around_it():
     )
     result = subprocess.run([sys.executable, "-c", fake_image_paths], cwd=HERE, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+
+
+# --- Sign-in (Phase 2) -------------------------------------------------------------------------
+
+
+@pytest.fixture
+def signed_in(monkeypatch):
+    """Stand-in for Firebase: a token "ok:<email>" verifies as that (verified) email."""
+    from ep_db import auth
+
+    def fake_verify(token):
+        if not token.startswith("ok:"):
+            raise ValueError("bad token")
+        return {"email": token[3:], "email_verified": True}
+
+    monkeypatch.setattr(auth, "verify_firebase_token", fake_verify)
+    monkeypatch.setenv("POLICY_EDITOR_EMAILS", "Ed@Example.org, other@example.org")
+    return lambda email: {"Authorization": f"Bearer ok:{email}"}
+
+
+def test_me_needs_a_sign_in(api_client, signed_in):
+    assert api_client.get("/api/policy/me").status_code == 401
+    assert api_client.get("/api/policy/me", headers={"Authorization": "Bearer forged"}).status_code == 401
+
+
+def test_me_only_admits_listed_editors(api_client, signed_in):
+    r = api_client.get("/api/policy/me", headers=signed_in("ed@example.org"))
+    assert r.status_code == 200 and r.json() == {"email": "ed@example.org"}
+    assert api_client.get("/api/policy/me", headers=signed_in("stranger@example.org")).status_code == 403
+
+
+def test_unverified_email_is_not_an_editor(api_client, monkeypatch):
+    from ep_db import auth
+
+    monkeypatch.setattr(auth, "verify_firebase_token", lambda t: {"email": "ed@example.org", "email_verified": False})
+    monkeypatch.setenv("POLICY_EDITOR_EMAILS", "ed@example.org")
+    assert api_client.get("/api/policy/me", headers={"Authorization": "Bearer x"}).status_code == 403
+
+
+def test_no_editor_list_means_no_editors(api_client, signed_in, monkeypatch):
+    monkeypatch.delenv("POLICY_EDITOR_EMAILS")
+    assert api_client.get("/api/policy/me", headers=signed_in("ed@example.org")).status_code == 403
+
+
+def test_auth_config(api_client, monkeypatch):
+    for name in ("FIREBASE_API_KEY", "FIREBASE_AUTH_DOMAIN", "FIREBASE_PROJECT_ID"):
+        monkeypatch.delenv(name, raising=False)
+    assert api_client.get("/api/policy/auth-config").status_code == 503
+    monkeypatch.setenv("FIREBASE_API_KEY", "k")
+    monkeypatch.setenv("FIREBASE_AUTH_DOMAIN", "p.firebaseapp.com")
+    monkeypatch.setenv("FIREBASE_PROJECT_ID", "p")
+    assert api_client.get("/api/policy/auth-config").json() == {"apiKey": "k", "authDomain": "p.firebaseapp.com", "projectId": "p"}
