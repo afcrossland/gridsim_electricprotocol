@@ -123,3 +123,14 @@ def test_proxy_adds_password_server_side(client, monkeypatch):
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([os.path.dirname(__file__)]))
+
+
+def test_large_responses_are_gzipped_only_when_asked(client):
+    sign_in(client)
+    (main.STATIC_DIR / "big.js").write_text("x" * 5000)
+    r = client.get("/klute/big.js", headers={"Accept-Encoding": "gzip"})
+    assert r.headers["content-encoding"] == "gzip"
+    assert "Accept-Encoding" in r.headers["vary"]
+    assert r.text == "x" * 5000
+    assert "content-encoding" not in client.get("/klute/big.js", headers={"Accept-Encoding": "identity"}).headers
+    assert "content-encoding" not in client.get("/klute/index.html", headers={"Accept-Encoding": "gzip"}).headers

@@ -28,6 +28,7 @@ from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, Request, Response
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
@@ -92,6 +93,9 @@ def verify_firebase_token(token: str) -> dict:
 
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+# Firebase Hosting passes a Cloud Run response through as it finds it; /api/policy/data is ~500KB of JSON that
+# shrinks about tenfold, and the Policy Explorer waits for it before it can start.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 # Policy data: public reads (ep_db/api.py) and public suggestions (ep_db/review.py); everything
 # else needs an editor's sign-in (ep_db/writes.py, ep_db/auth.py) - unrelated to /klute's own.
 app.include_router(policy_router)
