@@ -1,4 +1,3 @@
-import { EU27 } from "../data/sourcedAnswers";
 import { getJurisdiction, jurisdictionName } from "./jurisdictions";
 import { GSC_RAMP } from "../../shared/lib/mapColor";
 import type {
@@ -10,36 +9,6 @@ import type {
   Response,
   Section,
 } from "./types";
-
-/**
- * Political/economic blocs collapsed into one scoreboard row, the same way a
- * subdivided country's states roll up - distinct from ISO subdivision
- * (Australia, the US, Canada) because every member keeps its own real
- * jurisdiction record, shape and score everywhere else (the map, search, its
- * own country page). This only changes how the *scoreboard* reads 27
- * near-identical rows as one. Extend this map for another bloc row.
- */
-const POLITICAL_BLOCS: Record<string, { name: string; members: readonly string[] }> = {
-  EU: { name: "European Union", members: EU27 },
-};
-
-/**
- * `POLITICAL_BLOCS`' own `name` has nowhere to go through
- * `jurisdictionName`'s Intl.DisplayNames/subdivision-file lookup - "EU" as
- * a bloc code means something different from "EU" the ISO-ish region code
- * `jurisdictionName` already handles (that one resolves to "European
- * Union" too, coincidentally, but this map exists so a future bloc that
- * doesn't share its code with a real region still translates). Small and
- * local rather than another data file, since there's only ever been the
- * one bloc so far.
- */
-const BLOC_NAMES: Record<string, Record<string, string>> = {
-  EU: { es: "Unión Europea", fr: "Union européenne" },
-};
-
-function blocName(blocCode: string, fallback: string, language: string): string {
-  return BLOC_NAMES[blocCode]?.[language] ?? fallback;
-}
 
 /**
  * Ceiling a rubric tier's `points` can be set to in the admin console, and
@@ -290,10 +259,11 @@ export function rankImpact(
 }
 
 /**
- * Group country scores for the scoreboard - by sovereign state, and by
- * political bloc where one is configured (POLITICAL_BLOCS, currently the EU).
+ * Group country scores for the scoreboard, by sovereign state. Political blocs such as the EU are NOT grouped: every
+ * EU member is its own row, as in the Deployment Explorer and the Solar Homes Calculator (changed 2026-10-23 so the
+ * three apps are consistent).
  *
- * Three different shapes of row come out of this:
+ * Two different shapes of row come out of this:
  *
  * - A subdivided country (Australia, the US, Canada) has no score of its own -
  *   its row's score is the average across whichever of its states/provinces
@@ -307,15 +277,6 @@ export function rankImpact(
  *   score untouched. The exclaves appear as children for the breakdown, but
  *   are never averaged into it - they are additional jurisdictions, not
  *   missing pieces of France's own figure.
- * - A bloc (the EU) has no jurisdiction of its own at all - not a country, not
- *   a subdivision - so it is built purely from its members' scores, using the
- *   same ranked-only averaging as a subdivided country. Unlike ISO
- *   subdivision, membership does not touch a country's own jurisdiction
- *   record: an ordinary EU member (Germany, say) is hidden from the top-level
- *   list and shown only inside the EU row, but a member that is itself a
- *   France-shaped country (its own mappable shape, plus exclave children of
- *   its own) stays a normal top-level row too - see the comment where
- *   `childrenByBloc` is built for why.
  */
 export function groupScores(scores: CountryScore[], language = "en"): GroupedScore[] {
   const byCode = new Map(scores.map((s) => [s.code, s]));
@@ -332,35 +293,10 @@ export function groupScores(scores: CountryScore[], language = "en"): GroupedSco
     hiddenFromTopLevel.add(s.code);
   }
 
-  // Political blocs: member states roll up under the bloc the same way,
-  // without touching their own jurisdiction record - each still has a real
-  // ISO parent of null (a top-level sovereign country) everywhere else.
-  //
-  // A member with its own exclave children (France) is the one exception -
-  // it still contributes to the bloc's average below, but is not hidden from
-  // the top level. Hiding it there would have meant its own exclaves
-  // (French Guiana etc.) had nowhere left to nest under: `children` is only
-  // ever attached to a row that is actually pushed to `grouped`, and a
-  // country demoted to a bare bloc-member entry never gets one. France needs
-  // to stay a normal, independent top-level row - with its exclaves nested
-  // under it, same as if it were not in any bloc at all - for exactly the
-  // reason it is not ISO-subdivided in the first place.
-  const childrenByBloc = new Map<string, CountryScore[]>();
-  for (const [blocCode, bloc] of Object.entries(POLITICAL_BLOCS)) {
-    for (const memberCode of bloc.members) {
-      const s = byCode.get(memberCode);
-      if (!s) continue;
-      const list = childrenByBloc.get(blocCode) ?? [];
-      list.push(s);
-      childrenByBloc.set(blocCode, list);
-      if (!childrenByParent.has(s.code)) hiddenFromTopLevel.add(s.code);
-    }
-  }
-
   const grouped: GroupedScore[] = [];
 
   for (const s of scores) {
-    if (hiddenFromTopLevel.has(s.code)) continue; // shown under its parent/bloc below
+    if (hiddenFromTopLevel.has(s.code)) continue; // shown under its parent below
     const children = childrenByParent.get(s.code) ?? [];
     grouped.push({
       code: s.code,
@@ -381,15 +317,6 @@ export function groupScores(scores: CountryScore[], language = "en"): GroupedSco
   for (const [parentCode, children] of childrenByParent) {
     if (byCode.has(parentCode)) continue;
     grouped.push(syntheticGroup(parentCode, jurisdictionName(parentCode, language), children));
-  }
-
-  // Blocs have no jurisdiction entry at all, so this is the only place they
-  // are ever produced.
-  for (const [blocCode, bloc] of Object.entries(POLITICAL_BLOCS)) {
-    const children = childrenByBloc.get(blocCode);
-    if (children && children.length > 0) {
-      grouped.push(syntheticGroup(blocCode, blocName(blocCode, bloc.name, language), children));
-    }
   }
 
   return grouped;
@@ -429,14 +356,14 @@ function syntheticGroup(code: string, name: string, children: CountryScore[]): G
 export const SCORE_RAMP = GSC_RAMP;
 
 /**
- * Countries below the completeness threshold, and those with no data at
- * all. Two tiers, unlike the sibling apps (which have no completeness
- * concept and just one no-data grey) - genuinely different from
- * `shared/lib/mapColor.ts`'s own `COLOR_NO_DATA`, not merely differently
- * named, so these stay local rather than importing that one.
+ * Countries below the completeness threshold, and those with no data at all, are painted the same grey and both
+ * called "not enough data" in the legend (merged 2026-10-23 - they used to be two greys, "#D1D5DB" and "#EDEBE4", with
+ * two legend labels). Two names remain because the map's fill expression still distinguishes the two cases; they just
+ * resolve to one colour. This warm grey is local rather than `shared/lib/mapColor.ts`'s own `COLOR_NO_DATA`
+ * ("#E5E7EB"), so the Policy map keeps its own look.
  */
-export const COLOR_INSUFFICIENT = "#D1D5DB";
 export const COLOR_NO_DATA = "#EDEBE4";
+export const COLOR_INSUFFICIENT = COLOR_NO_DATA;
 
 export function scoreColor(score: number): string {
   let chosen: string = SCORE_RAMP[0].color;
@@ -473,37 +400,30 @@ export function scoreBand(score: number): (typeof SCORE_BANDS)[number] {
 }
 
 /**
- * A band's own `color` is calibrated to be a map fill and a swatch, not
- * body text - "Could do better"'s pale cream (#F5E6C8) is close to
- * unreadable on a white/paper background. Everywhere a score's colour is
- * used as literal text (score labels, the PDF report), use this instead of
- * `scoreBand(...).color` directly - same hue, darkened enough to read as
- * text on a light surface; every other band's colour is legible as-is.
- * Added 2026-09-11, the same day the cream stop itself was adopted from
- * Deployment Explorer's ramp.
+ * The colour to use wherever a score is shown as text or as its suns (score labels, the sun rating, the PDF report):
+ * the sun rating's own colour, from SUN_COLORS below. A band's own `color` is calibrated to be a map fill and a
+ * swatch, not text - the pale cream of the 1-sun band (#F5E6C8) is close to unreadable on a white/paper background -
+ * so use this rather than `scoreBand(...).color` for anything a reader has to read.
  *
- * `mode` defaults to "light" (the PDF report is always a printable light
- * page, regardless of the app's own theme, so its call sites never pass
- * this) - live UI call sites pass `theme.palette.mode` instead, since the
- * light-mode darkened cream (#8A6D23) read as too close to the dark-mode
- * paper background to tell apart (flagged 2026-10-09, "the moderate font
- * colour is hard to read in dark mode") and needs a lighter tint there
- * instead of a darker one.
+ * 1 sun is the one colour that needs adjusting to be legible as text: a darker brown on a light surface, and a lighter
+ * gold on a dark one (the light-mode brown #8A6D23 read as too close to the dark-mode paper background to tell apart,
+ * flagged 2026-10-09). `mode` defaults to "light" (the PDF report is always a printable light page, so its call sites
+ * never pass it); live UI call sites pass `theme.palette.mode`.
  */
 export function scoreTextColor(score: number, mode: "light" | "dark" = "light"): string {
-  const stars = scoreSuns(score);
-  if (stars === 1) return mode === "dark" ? "#E8C97A" : "#8A6D23"; // cream, darkened/lightened to read as text
-  return STAR_COLORS[stars];
+  const suns = scoreSuns(score);
+  if (suns === 1) return mode === "dark" ? "#E8C97A" : "#8A6D23"; // cream, darkened/lightened to read as text
+  return SUN_COLORS[suns];
 }
 
 /**
- * Star-rating text colours (set 2026-10-15, per Andrew's own instruction):
- * 1 star is the cream (see scoreTextColor above for its legible variants),
- * 2 stars teal, 3 stars light teal, 4 stars light amber, 5 stars amber.
- * Deliberately independent of SCORE_BANDS' own colours, which still drive the
- * map fill and the answer ladder's teal-to-amber edge.
+ * Sun-rating colours (set 2026-10-15 for the old star rating, per Andrew's own instruction; renamed when stars became
+ * suns, and flipped on 2026-10-21 when the map ramp was inverted to teal for low and amber for high):
+ * 1 sun is cream (see scoreTextColor above for its legible variants), 2 suns teal, 3 suns light teal, 4 suns light
+ * amber, 5 suns amber. The same hues as the map ramp, but deliberately independent of SCORE_BANDS' own colours (where
+ * 1 is teal and 3 is cream), which drive the map fill and the answer ladder's edge.
  */
-const STAR_COLORS: Record<number, string> = {
+const SUN_COLORS: Record<number, string> = {
   1: "#F5E6C8",
   2: "#00ABBB",
   3: "#7AC8C1",

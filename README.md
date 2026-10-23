@@ -284,12 +284,15 @@ Chile (Easter Island) is the one case left unsplit - revisit if answers
 ever get written for it specifically. Re-running `npm run build:geometry`
 after an `EXCLAVES` change reuses the cached Natural Earth download in
 `.cache/`, so it doesn't need network access unless that cache is cleared.
-**Remember to also refresh the Deployment Explorer's own geometry copy**
-after any change here - `deployment/src/assets/jurisdictions.geojson` and
-`deployment/src/data/jurisdictions.json` are copies of this project's own
-`src/assets/`/`src/data/` files, not symlinks, and then need
-`python3 deployment/scripts/dissolve_subdivided.py` re-run on top to
-restore that app's own AU/US/CA country-level dissolution.
+**Remember to also regenerate the shared country-level copies** after any
+change here: the Deployment Explorer and the Solar Homes Calculator share
+`shared/assets/jurisdictions.dissolved.geojson` and
+`shared/data/jurisdictions.dissolved.json`, which are *generated* from this
+project's own `src/assets/jurisdictions.geojson` and `src/data/jurisdictions.json`
+(AU/US/CA dissolved to one country shape) by
+`python3 deployment/scripts/dissolve_subdivided.py`. Re-run it. (This project's
+`src/data/jurisdictions.json` is also what the policy database imports - see
+`klute/gate/ep_db/import_json.py` - so it is never edited by that script.)
 
 ### Answer inheritance
 
@@ -433,6 +436,20 @@ panel) is clicked - rubric tiles, evidence fields and the clear-response
 control all gate on this. It resets to read-only on every jurisdiction
 switch, so browsing a new country never silently inherits an edit session
 left open on the last one.
+
+A country's page is one scrolling list: the section tiles at the top, then every
+section's questions under its group heading. Clicking a tile (or opening a
+`?section=` link) scrolls to that heading, pins the tiles as a compact strip;
+"Back to overview" clears it. The tiles also pin themselves as a strip once the
+full grid has scrolled out of view. The map always shows the overall score.
+
+Each question has a short `title` (a few words, edited in the Admin console
+beside the full question). The question card shows just that, the current
+answer (Yes / Somewhat / No, or Not known) and any comparators; clicking
+it opens the full question, the answer levels, exemplars and evidence. Edit
+mode and the guided tour show everything. A question with no title (a newly
+added one) shows its full text, as before. `title` is optional in
+`protocol.seed.json` and stored in `policy.questions.title` (migration 0003).
 
 Editing itself is still live and immediate, not held back for approval - what
 *is* held back is attribution and review. **Submit revised evidence** (in the
@@ -603,10 +620,10 @@ mount and write to it on every toggle; this app's own `setMode` action
 over whatever this app's own persisted `mode` field says, so a more recent
 choice made in a sibling app is never shadowed by a stale local one.
 
-The live map gets its own dark variant too - `src/assets/map_gsc_dark.json`
+The live map gets its own dark variant too - `shared/assets/map_gsc_dark.json`
 is a transformed copy of the base MapTiler style (`map_gsc.json`: dark
 background/water, light label text, dark label halos), picked by
-`PolicyMap.tsx` based on `theme.palette.mode`. The country-score choropleth
+`shared/lib/mapStyle.ts` (used by all three maps) based on `theme.palette.mode`. The country-score choropleth
 colours themselves (`SCORE_RAMP`) are unchanged in both modes, since that's
 the actual data being visualised, not UI chrome.
 
@@ -694,9 +711,8 @@ A few mechanisms worth knowing about, beyond plain `t("key")` lookups:
   halves of Saint Martin). The ~80 ISO 3166-2-style subdivision codes (US
   states, Canadian provinces, Australian states/territories, France's
   overseas exclaves, the Canary Islands, Svalbard/Jan Mayen) have no such
-  browser API, so those are hand-translated in `data/subdivision-names.json`
-  (identical file, copied between both apps - their subdivision code sets
-  match).
+  browser API, so those are hand-translated in `shared/data/subdivision-names.json`
+  (one file, used by both apps).
 - **Month abbreviations** (Deployment Explorer's total-capacity tile and
   country-detail charts) go through the same idea - `monthAbbrev()`
   (`deployment/src/lib/formatMonth.ts`) wraps a cached
@@ -711,9 +727,8 @@ A few mechanisms worth knowing about, beyond plain `t("key")` lookups:
   language)` in `lib/scoring.ts` are the display-only translation for
   wherever a band's name is actually shown to a reader (same "raw value
   for logic, translated label for display" split as the continent
-  filters). The EU political-bloc row on Policy Explorer's Scoreboard -
-  not a real jurisdiction, so it doesn't go through `jurisdictionName` -
-  has its own tiny `BLOC_NAMES` map next to `POLITICAL_BLOCS`.
+  filters).  (There is no EU row on Policy Explorer's Scoreboard any more -
+  removed 2026-10-23 so the three apps group countries the same way.)
 - **The Citizens Electrification Charter** moved from a single English
   `CHARTER` export (`data/charter.ts`, deleted) to the same structured
   per-language JSON pattern as the Help page - `data/charter.json` +

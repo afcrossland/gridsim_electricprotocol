@@ -33,6 +33,13 @@ describe("policyData", () => {
     expect(m.policyDataSource()).toBe("bundled");
   });
 
+  it("gives every question a short title for its card", () => {
+    for (const q of seedJson.questions) {
+      expect((q as { title?: string }).title, q.id).toMatch(/\S/);
+      expect((q as { title?: string }).title!.length, q.id).toBeLessThanOrEqual(60);
+    }
+  });
+
   it("uses the API's data when it answers with the right shape", async () => {
     const m = await freshModule();
     expect(await m.loadPolicyData({ fetchImpl: respond(apiData) })).toBe("api");

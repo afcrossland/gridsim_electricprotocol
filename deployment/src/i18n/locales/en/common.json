@@ -83,38 +83,6 @@
   "comparePanel": {
     "remove": "Remove from comparison"
   },
-  "subregions": {
-    "Northern Africa": "Northern Africa",
-    "Eastern Africa": "Eastern Africa",
-    "Middle Africa": "Middle Africa",
-    "Southern Africa": "Southern Africa",
-    "Western Africa": "Western Africa",
-    "Central Asia": "Central Asia",
-    "Eastern Asia": "Eastern Asia",
-    "South-Eastern Asia": "South-Eastern Asia",
-    "Southern Asia": "Southern Asia",
-    "Western Asia": "Western Asia",
-    "Eastern Europe": "Eastern Europe",
-    "Northern Europe": "Northern Europe",
-    "Southern Europe": "Southern Europe",
-    "Western Europe": "Western Europe",
-    "Caribbean": "Caribbean",
-    "Central America": "Central America",
-    "Northern America": "Northern America",
-    "South America": "South America",
-    "Australia and New Zealand": "Australia and New Zealand",
-    "Melanesia": "Melanesia",
-    "Micronesia": "Micronesia",
-    "Polynesia": "Polynesia"
-  },
-  "continents": {
-    "Africa": "Africa",
-    "Asia": "Asia",
-    "Europe": "Europe",
-    "North America": "North America",
-    "South America": "South America",
-    "Oceania": "Oceania"
-  },
   "map": {
     "noData": "No data",
     "share": "{{value}}% of generation",

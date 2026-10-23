@@ -104,6 +104,8 @@ class Question(Base):
     subsection: Mapped[str | None] = mapped_column(Text)
     sort_order: Mapped[int] = mapped_column(Integer)
     text: Mapped[str] = mapped_column(Text)
+    # A few words standing in for `text` where space is short; null until someone writes one.
+    title: Mapped[str | None] = mapped_column(Text)
     weight: Mapped[float] = mapped_column(Float)
     # Researched answers address a question by its row in the source spreadsheet.
     source_row: Mapped[int | None] = mapped_column(Integer, unique=True)

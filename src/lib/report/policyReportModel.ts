@@ -62,7 +62,7 @@ const answerLabel = (q: Question, r: Response | undefined) => {
 };
 
 /**
- * How this answer scores, in the same words as the answer ladder in the app (Strong / Developed / Weak, by the answer's
+ * How this answer scores, in the same words as the answer ladder in the app (Yes / Somewhat / No, by the answer's
  * place among the question's options) - so a reader sees what the answer is worth, not just what it says. Empty
  * when the question has no answer.
  */
@@ -71,7 +71,7 @@ const scoreLine = (q: Question, r: Response | undefined): string => {
   const tiers = [...q.rubric].sort((a, b) => a.score - b.score);
   const index = tiers.findIndex((t) => t.score === r.score);
   if (index === -1) return "";
-  const word = index === tiers.length - 1 ? "Strong" : index === 0 ? "Weak" : "Developed";
+  const word = index === tiers.length - 1 ? "Yes" : index === 0 ? "No" : "Somewhat";
   return word;
 };
 

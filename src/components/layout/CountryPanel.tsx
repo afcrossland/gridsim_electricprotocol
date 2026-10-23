@@ -150,8 +150,8 @@ export default function CountryPanel({
   // sees first, with the narrow/expanded state only kicking in once
   // they've actually picked one (see `handleSelectSection` below and
   // SectionOverview.tsx's own `compact` prop).
-  // The "uncontrolled" case lives in the store (not local state) so the map
-  // can recolour by the open section and the URL can carry it.
+  // The "uncontrolled" case lives in the store (not local state) so the URL
+  // can carry it.
   const uncontrolledSectionId = useProtocolStore((s) => s.activeSectionId);
   const setUncontrolledSectionId = useProtocolStore((s) => s.setActiveSectionId);
   const activeSectionId = controlledSectionId ?? uncontrolledSectionId;
@@ -178,8 +178,23 @@ export default function CountryPanel({
   // fixes a real bug flagged the same day ("we cannot return to the
   // summary view of each country after we click the tiles"): once a
   // section was open there had been no way back to the overview at all.
+  // All sections' questions now sit in one scrolling list under their group heading,
+  // so picking a section (a tile, or ?section= in the link) scrolls to its heading
+  // and marks it. Picking the marked one again just
+  // scrolls back to it; "Back to overview" clears it.
+  const scrollToSection = (id: string) =>
+    requestAnimationFrame(() => document.getElementById(`section-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
   const handleSelectSection = (id: string) => {
-    setActiveSectionId(id === activeSectionId ? "" : id);
+    if (id === activeSectionId) scrollToSection(id);
+    else setActiveSectionId(id);
+  };
+  // Runs once the tiles have shrunk to their pinned strip, so the heading lands under it.
+  useEffect(() => {
+    if (activeSectionId) scrollToSection(activeSectionId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSectionId, code]);
+  const handleBackToOverview = () => {
+    setActiveSectionId("");
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
   const [reportOpen, setReportOpen] = useState(false);
@@ -201,9 +216,15 @@ export default function CountryPanel({
   const [contentScrolled, setContentScrolled] = useState(false);
   useEffect(() => setContentScrolled(false), [code]);
   const headerShrunk = isMobile && contentScrolled;
+  const tileGridRef = useRef<HTMLDivElement>(null);
+  const [gridOut, setGridOut] = useState(false);
+  useEffect(() => setGridOut(false), [code]);
   const handleContentScroll = (e: UIEvent<HTMLDivElement>) => {
     onContentScroll?.(e);
     setContentScrolled(e.currentTarget.scrollTop > 8);
+    // The full tile grid has scrolled out of view - time for the pinned strip.
+    const grid = tileGridRef.current;
+    setGridOut(Boolean(grid) && grid!.getBoundingClientRect().bottom < e.currentTarget.getBoundingClientRect().top + 8);
   };
 
   const compareCodes = COMPARE_ENABLED && inlineCompare ? compareCountries : [];
@@ -293,12 +314,11 @@ export default function CountryPanel({
   // decides per question (not here) whether a given exemplar's answer is
   // actually worth showing.
   const exemplarResponsesByCode = useMemo(() => {
-    const overview = sectionOverview.find((e) => e.section.id === activeSectionId);
-    const exemplarCodes = overview?.exemplars.map((ex) => ex.code) ?? [];
-    return new Map(
-      exemplarCodes.map((c) => [c, new Map(responses.filter((r) => r.countryCode === c).map((r) => [r.questionId, r]))]),
-    );
-  }, [sectionOverview, activeSectionId, responses]);
+    const exemplarCodes = new Set(sectionOverview.flatMap((e) => e.exemplars.map((ex) => ex.code)));
+    const byCode = new Map<string, Map<string, (typeof responses)[number]>>([...exemplarCodes].map((c) => [c, new Map()]));
+    for (const r of responses) byCode.get(r.countryCode)?.set(r.questionId, r);
+    return byCode;
+  }, [sectionOverview, responses]);
 
   // Per-comparator section scores, feeding the PDF report's compare table
   // (the live UI dropped its own windrose 2026-10-09 in favour of
@@ -351,15 +371,13 @@ export default function CountryPanel({
     return buildPdfBlob(model, assets);
   };
 
-  const activeSection = sections.find((s) => s.id === activeSectionId) ?? null;
-  const sectionQuestions = useMemo(
+  const questionGroups = useMemo(
     () =>
-      activeSection
-        ? questions
-            .filter((q) => q.sectionId === activeSection.id)
-            .sort((a, b) => a.order - b.order)
-        : [],
-    [questions, activeSection],
+      sections.map((section) => ({
+        section,
+        questions: questions.filter((q) => q.sectionId === section.id).sort((a, b) => a.order - b.order),
+      })),
+    [sections, questions],
   );
 
   return (
@@ -511,7 +529,7 @@ export default function CountryPanel({
               view... after we click the tiles"). */}
           {activeSectionId && (
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
-              <Button size="small" startIcon={<ArrowBackIcon fontSize="small" />} onClick={() => handleSelectSection(activeSectionId)}>
+              <Button size="small" startIcon={<ArrowBackIcon fontSize="small" />} onClick={handleBackToOverview}>
                 {t("countryPanel.backToOverview")}
               </Button>
               <ProposePrompt onClick={() => setProposeOpen(true)} />
@@ -523,7 +541,23 @@ export default function CountryPanel({
               question list - a wrapped strip used to take ~200px above
               the questions. Negative top/margins cancel the scroll
               container's own padding so the row pins flush to its edge. */}
+          {!activeSectionId && gridOut && (
+            <Box sx={{ position: "sticky", top: isMobile ? -12 : -24, height: 0, zIndex: 2, mx: isMobile ? -1.5 : -3 }}>
+              <Box
+                sx={{
+                  px: isMobile ? 1.5 : 3,
+                  py: 1,
+                  bgcolor: "background.paper",
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <SectionOverview entries={sectionOverview} selectedId="" onSelect={handleSelectSection} compact />
+              </Box>
+            </Box>
+          )}
           <Box
+            ref={activeSectionId ? undefined : tileGridRef}
             sx={
               activeSectionId
                 ? {
@@ -556,31 +590,41 @@ export default function CountryPanel({
               2026-10-09, "exemplars should be by question not category" -
               see QuestionCard.tsx's own `exemplars` prop for the filtering
               logic). */}
-          {activeSection && (
-            <Stack spacing={2} sx={{ mt: 3 }}>
-              {sectionQuestions.map((q) => (
-                <QuestionCard
-                  key={q.id}
-                  question={q}
-                  response={byQuestion.get(q.id)}
-                  code={code}
-                  compareEntries={compareEntries.map((entry) => ({
-                    code: entry.code,
-                    color: entry.color,
-                    name: entry.score?.name,
-                    response: compareByQuestionByCode.get(entry.code)?.get(q.id),
-                  }))}
-                  exemplars={(sectionOverview.find((e) => e.section.id === activeSection.id)?.exemplars ?? []).map((ex) => ({
-                    code: ex.code,
-                    name: ex.name,
-                    response: exemplarResponsesByCode.get(ex.code)?.get(q.id),
-                  }))}
-                  onSelectCountry={onSelectCountry}
-                  editMode={editing}
-                />
-              ))}
-            </Stack>
-          )}
+          {questionGroups.map(({ section, questions: groupQuestions }) => (
+            <Box key={section.id} sx={{ mt: 3 }}>
+              <Typography
+                id={`section-${section.id}`}
+                variant="h6"
+                component="h2"
+                sx={{ mb: 1.5, scrollMarginTop: isMobile ? 64 : 72 }}
+              >
+                {section.title}
+              </Typography>
+              <Stack spacing={2}>
+                {groupQuestions.map((q) => (
+                  <QuestionCard
+                    key={q.id}
+                    question={q}
+                    response={byQuestion.get(q.id)}
+                    code={code}
+                    compareEntries={compareEntries.map((entry) => ({
+                      code: entry.code,
+                      color: entry.color,
+                      name: entry.score?.name,
+                      response: compareByQuestionByCode.get(entry.code)?.get(q.id),
+                    }))}
+                    exemplars={(sectionOverview.find((e) => e.section.id === section.id)?.exemplars ?? []).map((ex) => ({
+                      code: ex.code,
+                      name: ex.name,
+                      response: exemplarResponsesByCode.get(ex.code)?.get(q.id),
+                    }))}
+                    onSelectCountry={onSelectCountry}
+                    editMode={editing}
+                  />
+                ))}
+              </Stack>
+            </Box>
+          ))}
         </Box>
       </Box>
 

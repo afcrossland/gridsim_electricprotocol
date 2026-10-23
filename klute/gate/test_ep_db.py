@@ -350,6 +350,12 @@ def test_questions_and_sections_round_trip(db, editor):
     by_id = {q["id"]: q for q in protocol["questions"]}
     assert by_id["q-new"]["rubric"][1] == {"score": 2, "label": "Yes", "points": 4.0}
     assert by_id[question["id"]]["text"] == "Reworded"
+    assert "title" not in by_id["q-new"]
+
+    titled = {**new_q, "title": "  Is it new  "}
+    assert client.put("/api/policy/questions/q-new", json=titled, headers=headers).status_code == 200
+    protocol = client.get("/api/policy/data").json()["protocol"]
+    assert {q["id"]: q for q in protocol["questions"]}["q-new"]["title"] == "Is it new"
     assert {"id": "s-new", "title": "New area", "order": 99} in protocol["sections"]
     assert protocol["completenessThreshold"] == 0.5
 

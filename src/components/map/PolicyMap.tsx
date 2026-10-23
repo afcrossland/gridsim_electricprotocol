@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Map as MapGL, Source, Layer } from "react-map-gl/maplibre";
 import type {
   LayerProps,
   MapLayerMouseEvent,
-  MapRef,
   StyleSpecification,
 } from "react-map-gl/maplibre";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
@@ -12,8 +11,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useTranslation } from "react-i18next";
 
 import World from "../../assets/jurisdictions.geojson?url";
-import mapStyleJsonLight from "../../assets/map_gsc.json";
-import mapStyleJsonDark from "../../assets/map_gsc_dark.json";
+import { boundsOfSubregions } from "../../../shared/lib/mapBounds";
+import { WORLD_BOUNDS, useWorldMap } from "../../../shared/lib/useWorldMap";
+import { subregionOf } from "../../lib/jurisdictions";
 import { COLOR_INSUFFICIENT, COLOR_NO_DATA, SCORE_BANDS, SCORE_RAMP, scoreTextColor } from "../../lib/scoring";
 import { SunScore } from "../ui/Suns";
 import { qualifiedName } from "../../lib/jurisdictions";
@@ -40,28 +40,33 @@ const INITIAL_VIEW = { longitude: 0, latitude: 0, zoom: 1.4 };
  * whatever the container's actual pixel size is, so it always shows the
  * whole world regardless of the panel's shape.
  */
-const WORLD_BOUNDS: [[number, number], [number, number]] = [
-  [-170, -58],
-  [180, 78],
-];
+
+// The base style's own country- and continent-name labels compete with the choropleth and our own hover tooltip for the
+// same information, so they are hidden rather than removed outright - kept in the style array (not deleted) in case
+// anything ever needs to reference them by id via beforeId. Town, city and place labels are left alone; those still earn
+// their place once zoomed into a selected country. A module-level function so `useWorldMap` gets a stable reference.
+const HIDDEN_LABEL_LAYERS = new Set(["Country labels", "Country labels disputed", "Continent labels"]);
+
+function hideSomeLabels(style: StyleSpecification): void {
+  for (const layer of style.layers) {
+    if (HIDDEN_LABEL_LAYERS.has(layer.id)) {
+      layer.layout = { ...layer.layout, visibility: "none" };
+    }
+  }
+}
 
 interface Props {
   scores: CountryScore[];
   /** Which measure to paint. Completeness ignores the ranking threshold. */
   metric: "score" | "completeness";
   selectedCountry: string | null;
+  /** The region filter's selection (at most one UN sub-region): with no country selected the map frames it. */
+  subregions?: string[];
   onCountryClick: (code: string | null) => void;
   /** Suppresses the legend even with nothing selected - the tour's opening scene wants an unobstructed view of the choropleth colours themselves, matching the sibling gridsim-frontend project's own clean opening globe. */
   hideLegend?: boolean;
   /** Swaps the choropleth for the "solar bloom" intro animation - see INTRO_* below. */
   introBloom?: boolean;
-  /**
-   * Set while a policy area is open on the selected country's page - `scores`
-   * are then that one area's scores. The map zooms back out to the world (so
-   * every jurisdiction's colour is in view, the selected one still outlined)
-   * and shows a legend titled after the section.
-   */
-  sectionTitle?: string;
 }
 
 /**
@@ -176,15 +181,13 @@ export function boundsOf(
   ];
 }
 
-export default function PolicyMap({ scores, metric, selectedCountry, onCountryClick, hideLegend, introBloom, sectionTitle }: Props) {
+export default function PolicyMap({ scores, metric, selectedCountry, subregions = [], onCountryClick, hideLegend, introBloom }: Props) {
   const { t, i18n } = useTranslation();
-  const mapRef = useRef<MapRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef(selectedCountry);
   selectedRef.current = selectedCountry;
-  const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
-  const [sourceReady, setSourceReady] = useState(false);
-  const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
+  // The latest region frame, for the resize re-fit below (which must not be re-created on every filter change).
+  const regionFrameRef = useRef<ReturnType<typeof boundsOfSubregions>>(null);
 
   // MapLegend switches to a full-width banner pinned across the top of the
   // map on the same breakpoint. The zoom buttons' own fixed top:16 sits
@@ -194,62 +197,14 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
   // banner's height avoids the two ever sharing the same strip of the map.
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const showLegend = (!selectedCountry || Boolean(sectionTitle)) && !hideLegend;
+  const showLegend = !selectedCountry && !hideLegend;
   const showingLegendBanner = isMobile && showLegend;
 
-  // The base style's own country- and continent-name labels compete with the
-  // choropleth and our own hover tooltip for the same information, so they
-  // are hidden rather than removed outright - kept in the style array (not
-  // deleted) in case anything ever needs to reference them by id via
-  // beforeId. Town, city and place labels are left alone; those still earn
-  // their place once zoomed into a selected country.
-  const HIDDEN_LABEL_LAYERS = new Set([
-    "Country labels",
-    "Country labels disputed",
-    "Continent labels",
-  ]);
-
-  const mapStyle = useMemo(() => {
-    const base = theme.palette.mode === "dark" ? mapStyleJsonDark : mapStyleJsonLight;
-    const style = structuredClone(base) as unknown as StyleSpecification;
-    const key = import.meta.env.VITE_MAPTILER_KEY;
-    const source = (style.sources as Record<string, { url?: string }>)?.maptiler_planet_v4;
-    if (source?.url) source.url = source.url.replace("placeholder", key);
-    if (style.glyphs) style.glyphs = style.glyphs.replace("placeholder", key);
-
-    for (const layer of style.layers) {
-      if (HIDDEN_LABEL_LAYERS.has(layer.id)) {
-        layer.layout = { ...layer.layout, visibility: "none" };
-      }
-    }
-
-    return style;
-  }, [theme.palette.mode]);
-
-  // Switching `mapStyle` (light/dark) makes MapLibre re-style the whole
-  // map, which recreates the "countries" GeoJSON source from scratch and
-  // wipes every feature-state previously set on it via setFeatureState -
-  // bug found 2026-09-11 (colours vanished on toggling dark mode, same bug
-  // fixed the same day in Deployment Explorer's own DeploymentMap.tsx).
-  // Nothing in the score-painting effect below re-runs on its own when
-  // only the theme mode changes (its deps are scores/sourceReady/metric),
-  // so resetting `sourceReady` here forces it through "not ready" and back
-  // to "ready" once `onSourceData` fires again for the freshly-recreated
-  // source - that retrigger is what gets the colours re-applied.
-  useEffect(() => {
-    setSourceReady(false);
-  }, [mapStyle]);
-
-  useEffect(() => {
-    let mounted = true;
-    fetch(World)
-      .then((r) => r.json())
-      .then((data) => mounted && setWorldData(data))
-      .catch((err) => console.error("failed to load world geometry", err));
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const { mapRef, worldData, mapStyle, sourceReady, onSourceData: handleSourceData, hover, setHover } = useWorldMap(
+    World,
+    theme.palette.mode,
+    hideSomeLabels,
+  );
 
   const scoreByCode = useMemo(() => new Map(scores.map((s) => [s.code, s])), [scores]);
 
@@ -344,10 +299,6 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     };
   }, [introBloom, sourceReady, worldData]);
 
-  const handleSourceData = useCallback((e: { sourceId?: string; isSourceLoaded?: boolean }) => {
-    if (e.sourceId === "countries" && e.isSourceLoaded) setSourceReady(true);
-  }, []);
-
   // The panel is a flex sibling rather than an overlay, so opening it shrinks
   // the map's container. MapLibre sizes its canvas from the container, and will
   // keep rendering at the old width until told otherwise.
@@ -366,7 +317,11 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
       map.resize();
       if (selectedRef.current) return;
       clearTimeout(settle);
-      settle = setTimeout(() => map.fitBounds(WORLD_BOUNDS, { padding: 24, duration: 300 }), 150);
+      settle = setTimeout(() => {
+        const region = regionFrameRef.current;
+        if (region) map.fitBounds(region, { padding: 40, duration: 300 });
+        else map.fitBounds(WORLD_BOUNDS, { padding: 24, duration: 300 });
+      }, 150);
     });
     observer.observe(container);
     return () => {
@@ -383,7 +338,10 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
     const map = mapRef.current?.getMap();
     if (!map || !worldData) return;
 
-    const bounds = selectedCountry && !sectionTitle ? boundsOf(worldData, selectedCountry) : null;
+    const bounds = selectedCountry ? boundsOf(worldData, selectedCountry) : null;
+    // With no country open, a chosen region frames the map on that region (as the Deployment Explorer's does).
+    const regionBounds = selectedCountry ? null : boundsOfSubregions(worldData, subregions, subregionOf);
+    regionFrameRef.current = regionBounds;
 
     const frame = requestAnimationFrame(() => {
       map.resize();
@@ -396,6 +354,8 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
           maxZoom: 6,
           duration: 900,
         });
+      } else if (regionBounds) {
+        map.fitBounds(regionBounds, { padding: 40, duration: 900 });
       } else {
         map.fitBounds(WORLD_BOUNDS, {
           padding: 24,
@@ -404,7 +364,9 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [selectedCountry, worldData, sectionTitle]);
+    // `subregions` is compared by its contents: the filter hands over a fresh array on every change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountry, worldData, subregions.join("|")]);
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
@@ -511,7 +473,7 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
             hovered && hovered.ranked ? (
               <>
                 <Typography variant="caption" sx={{ display: "block", color: "text.secondary" }}>
-                  {sectionTitle ?? t("map.policyScore")}
+                  {t("map.policyScore")}
                 </Typography>
                 <Typography variant="h5" sx={{ color: "text.primary" }}>
                   <SunScore score={hovered.score} color={scoreTextColor(hovered.score, theme.palette.mode)} size={16} />
@@ -528,21 +490,14 @@ export default function PolicyMap({ scores, metric, selectedCountry, onCountryCl
       {showLegend && (
         <MapLegend
           title={
-            sectionTitle
-              ? `${t("legend.sectionScore", { section: sectionTitle })} · ${t("legend.inSuns")}`
-              : metric === "score"
-                ? `${t("legend.protocolScore")} · ${t("legend.inSuns")}`
-                : t("legend.questionsAnswered")
+            metric === "score" ? t("legend.policyScore") : t("legend.questionsAnswered")
           }
           rampStops={SCORE_RAMP}
           tickLabels={["0%", "25%", "50%", "75%", "100%"]}
           bands={metric === "score" ? SCORE_BANDS.map((b, i) => ({ color: b.color, label: String(i + 1) })) : undefined}
-          // Completeness paints anything with an answer, so only the score
-          // view has a "not enough data" grey to explain.
-          extraKeys={[
-            ...(metric === "score" ? [{ color: COLOR_INSUFFICIENT, label: t("legend.notEnoughData") }] : []),
-            { color: COLOR_NO_DATA, label: t("legend.noData") },
-          ]}
+          // One grey, one label: a country with too few answers to score and one with no
+          // answers at all are painted the same and both read "not enough data".
+          extraKeys={[{ color: COLOR_NO_DATA, label: t("legend.notEnoughData") }]}
         />
       )}
     </Box>

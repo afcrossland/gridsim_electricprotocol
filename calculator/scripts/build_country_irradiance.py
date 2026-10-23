@@ -136,7 +136,7 @@ except ImportError:
     SSL_CONTEXT = ssl.create_default_context()
 
 ROOT = Path(__file__).resolve().parent.parent
-GEOJSON_PATH = ROOT / "src" / "assets" / "jurisdictions.geojson"
+GEOJSON_PATH = ROOT.parent / "shared" / "assets" / "jurisdictions.dissolved.geojson"
 OUT_PATH = ROOT / "src" / "data" / "country-irradiance.json"
 
 POPULATED_PLACES_URL = (

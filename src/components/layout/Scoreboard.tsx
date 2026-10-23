@@ -95,7 +95,7 @@ export default function Scoreboard({ scores, selectedCountry, onSelect, hideHead
         </>
       )}
 
-      <ScoreboardFilters groups={allGroups} />
+      <ScoreboardFilters />
 
       {grouped.length === 0 && (
         <Typography variant="body2" sx={{ mb: 2 }}>

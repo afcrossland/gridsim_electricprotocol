@@ -5,7 +5,7 @@
   },
   {
     "heading": "Las preguntas",
-    "body": "Las preguntas se agrupan en áreas temáticas. Cada pregunta tiene una puntuación de impacto (cuánto cuenta para el total) y un pequeño conjunto de respuestas posibles que describen lo que realmente está vigente. Las respuestas van de débil a sólida - algunas preguntas tienen dos, otras tres - y se etiquetan Débil, Desarrollada o Sólida, la mejor primero."
+    "body": "Las preguntas se agrupan en áreas temáticas. Cada pregunta tiene una puntuación de impacto (cuánto cuenta para el total) y un pequeño conjunto de respuestas posibles que describen lo que realmente está vigente. Las respuestas van de no a sí - algunas preguntas tienen dos, otras tres - y se etiquetan No, En parte o Sí, la mejor primero."
   },
   {
     "heading": "Puntuación",
@@ -29,6 +29,6 @@
   },
   {
     "heading": "Jurisdicciones",
-    "body": "La mayoría de las filas son países. Cuando la política varía mucho dentro de un país (como Estados Unidos, Australia o Canadá), se muestra por estados o provincias, ya que una sola puntuación nacional ocultaría demasiado. La Unión Europea se muestra como una fila consolidada en el ranking, aunque cada estado miembro sigue teniendo su propia página de jurisdicción."
+    "body": "La mayoría de las filas son países. Cuando la política varía mucho dentro de un país (como Estados Unidos, Australia o Canadá), se muestra por estados o provincias, ya que una sola puntuación nacional ocultaría demasiado."
   }
 ]

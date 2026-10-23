@@ -5,7 +5,7 @@
   },
   {
     "heading": "The questions",
-    "body": "Questions are grouped into topic groups. Each question has an impact score (how much it counts toward the total) and a small set of possible answers describing what is actually in place. Answers run from weak to strong - some questions have two, others three - and are labelled Weak, Developed or Strong, best first."
+    "body": "Questions are grouped into topic groups. Each question has an impact score (how much it counts toward the total) and a small set of possible answers describing what is actually in place. Answers run from no to yes - some questions have two, others three - and are labelled No, Somewhat or Yes, best first."
   },
   {
     "heading": "Score",
@@ -29,6 +29,6 @@
   },
   {
     "heading": "Jurisdictions",
-    "body": "Most rows are countries. Where policy varies a lot within a country (such as the US, Australia or Canada), it is shown as its states or provinces instead, since one national score would hide too much. The European Union is shown as one consolidated row on the scoreboard, though every member still has its own jurisdiction page."
+    "body": "Most rows are countries. Where policy varies a lot within a country (such as the US, Australia or Canada), it is shown as its states or provinces instead, since one national score would hide too much."
   }
 ]

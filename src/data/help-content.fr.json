@@ -5,7 +5,7 @@
   },
   {
     "heading": "Les questions",
-    "body": "Les questions sont regroupées par thèmes. Chaque question a un score d'impact (son poids dans le total) et un petit ensemble de réponses possibles décrivant ce qui est réellement en place. Les réponses vont de faible à solide - certaines questions en ont deux, d'autres trois - et sont étiquetées Faible, Développée ou Solide, la meilleure en premier."
+    "body": "Les questions sont regroupées par thèmes. Chaque question a un score d'impact (son poids dans le total) et un petit ensemble de réponses possibles décrivant ce qui est réellement en place. Les réponses vont de non à oui - certaines questions en ont deux, d'autres trois - et sont étiquetées Non, En partie ou Oui, la meilleure en premier."
   },
   {
     "heading": "Score",
@@ -29,6 +29,6 @@
   },
   {
     "heading": "Juridictions",
-    "body": "La plupart des lignes sont des pays. Lorsque la politique varie beaucoup au sein d'un pays (comme les États-Unis, l'Australie ou le Canada), elle est présentée par État ou province, car un seul score national masquerait trop de choses. L'Union européenne apparaît sur une ligne consolidée dans le classement, mais chaque État membre a toujours sa propre page de juridiction."
+    "body": "La plupart des lignes sont des pays. Lorsque la politique varie beaucoup au sein d'un pays (comme les États-Unis, l'Australie ou le Canada), elle est présentée par État ou province, car un seul score national masquerait trop de choses."
   }
 ]

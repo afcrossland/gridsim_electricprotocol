@@ -724,3 +724,39 @@ individual elements, under a line "Or explore the elements one at a time" - not 
 - **TODO: design and build the planner itself.** Open questions: what it optimises (cost, emissions, security of
   supply, policy readiness), which inputs it takes from each tool, what a "plan" contains, and how it is gated once
   real login exists (today's member gate is a shared client-side password - see `shared/lib/membership.ts`).
+
+## Filters (2026-10-23)
+
+All three apps use the Deployment Explorer's region filter: the UN geoscheme's sub-regions, one at a time, grouped under
+continent headings (`shared/components/ContinentFilter.tsx` with `options={SUBREGIONS}`), and choosing one zooms the map
+to it with nothing selected (`shared/lib/mapBounds.ts`, used by all three apps). Policy's country
+filter and its score-range slider were removed; its score-band filter (the sun chips, plus "Not enough data") is kept.
+The EU is no longer grouped on Policy.
+
+- A regional total row (Deployment adds one when a region is chosen) is **not** wanted yet for Policy or Homes.
+- A region with a country so large that framing it shows half the planet is clipped by longitude: Eastern Europe (which
+  includes Russia) stops at Volgograd's longitude, about 44.5 degrees east (`REGION_LNG_WINDOW` in `shared/lib/mapBounds.ts`).
+  All three apps share that one helper, Deployment included.
+
+## Shared code across the three apps (2026-10-23)
+
+Done (all in `shared/`): one map style, one country-lookup module (`lib/jurisdictionIndex.ts`), one set of region and continent
+names (`i18n/`), one i18next setup (`i18n/init.ts`), one map hook (`lib/useWorldMap.ts`: map handle, world shapes, style, source-ready,
+hover), one region-frame helper (`lib/mapBounds.ts`), and the shell pieces `components/MemberTopNavbar.tsx`,
+`MobileViewToggle.tsx`, `ThemedRoot.tsx` and `lib/useMembership.ts`. The country-level map shapes and country list that
+Deployment and the Calculator use are now one generated copy (`shared/assets|data/jurisdictions.dissolved.*`, made from
+Policy's by `deployment/scripts/dissolve_subdivided.py`).
+
+**Constraint: the policy database.** `src/data/jurisdictions.json` (and `protocol.seed.json`, `sourced-answers.json`,
+`indicator-answers.json`) are read by the database importer (`klute/gate/ep_db/import_json.py`, with an exact field check),
+served back by `/api/policy/data`, and read by `klute`, the spreadsheet import and `build_indicator_answers.py`. They stay where
+they are and are never edited by the shared-code work; anything shared is derived from them.
+
+Still duplicated (not done yet):
+- **TODO: the app frames** (`App.tsx` in each app: map and sidebar split, footer, help page, tour wiring). They differ in
+  real ways (Policy's compare and admin pages, the Calculator's tabs and locked teaser), so a shared frame needs slots; a
+  larger piece of work.
+- **TODO: compare picker and compare colours** (Policy and Deployment each have their own).
+- **TODO: summary tiles** (Policy's `StatTile`, Deployment's sidebar tile and the Calculator's `Stat`).
+- **TODO: Help pages and tour scenes** (thin per-app content; the engines are already shared).
+- Policy's top bar keeps its own (it has the admin console and editor sign-in).

@@ -1,9 +1,7 @@
 import type { PaletteMode } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 
-import AppHeader from "../../../shared/components/AppHeader";
-import AuthButton from "../../../shared/components/AuthButton";
-import NavItem from "../../../shared/components/NavItem";
+import MemberTopNavbar from "../../../shared/components/MemberTopNavbar";
 
 interface Props {
   mode: PaletteMode;
@@ -14,63 +12,29 @@ interface Props {
 }
 
 /**
- * Ported onto the shared `AppHeader`/`NavItem` (`shared/components/`)
- * 2026-09-19 - the identity block (logo/title/subtitle) and dark-mode
- * toggle are now the shared component. Tour and Help merged into one
- * button 2026-09-20 ("combine the tour and help... Click help, get the
- * welcome to screen and then have a new button which is 'read
- * documentation'") - clicking it opens the tour's own hero scene
- * (`onOpenHelp` is just `openTour` from `useTourState`), which now has a
- * "Read documentation" button of its own (`shared/tour/TourOverlay.tsx`'s
- * `onReadDocs`) for a visitor who wants the written docs instead of the
- * guided walkthrough.
+ * Deployment Explorer's top bar: the shared member top bar (shared/components/MemberTopNavbar.tsx) with this app's
+ * translated words. This app's own "Members only" charts (LockedMetricChart.tsx) stay locked regardless of `member`,
+ * since they are a teaser for metrics with no real data source at all, not real content behind a paywall; logging in here
+ * still contributes to the shared cross-app member flag other apps' own real gated content reads.
  */
 export default function TopNavbar({ mode, setMode, onOpenHelp, member, onOpenLogin }: Props) {
   const { t } = useTranslation();
-  // Same as ep_policymap's own TopNavbar.tsx: the logo leaves this app
-  // entirely, back to the Electric Futures Playbook splash at the site
-  // root - a real page navigation (this app's own React routing doesn't
-  // cover that page, it's a separate static file). BASE_URL rather than a
-  // hardcoded "/" so it still resolves under a GitHub Pages subpath.
-  const goHome = () => {
-    window.location.href = import.meta.env.BASE_URL;
-  };
-
   return (
-    <AppHeader
+    <MemberTopNavbar
       title={t("appName")}
-      byline={
-        <>
-          {t("byGsc")}&ensp;·&ensp;
-          <span style={{ color: "#FBB114", fontStyle: "italic", fontWeight: 600 }}>{t("tagline")}</span>
-        </>
-      }
+      bylineText={t("byGsc")}
+      tagline={t("tagline")}
+      helpLabel={t("nav.help")}
+      loginLabel={t("nav.login")}
+      memberLabel={t("nav.member")}
+      logInPromptTooltip={t("nav.logInPrompt")}
+      memberUnlockedTooltip={t("nav.memberUnlocked")}
       mode={mode}
       setMode={setMode}
-      onLogoClick={goHome}
+      onOpenHelp={onOpenHelp}
+      member={member}
+      onOpenLogin={onOpenLogin}
       darkModeTooltip={{ toLight: t("theme.switchToLight"), toDark: t("theme.switchToDark") }}
-    >
-      <NavItem active={false} onClick={onOpenHelp}>
-        {t("nav.help")}
-      </NavItem>
-
-      {/* Same filled-button treatment as Policy Explorer's "Admin
-          console" (ep_policymap/src/components/layout/TopNavbar.tsx) -
-          added 2026-09-11 per Andrew's instruction. Opens the shared
-          password popup 2026-09-28 (`onOpenLogin`, `App.tsx`'s own
-          `LoginModal`) - this app's own "Members only" charts
-          (LockedMetricChart.tsx) stay locked regardless of `member`, since
-          they're a teaser for metrics with no real data source at all, not
-          real content behind a paywall; logging in here still contributes
-          to the shared cross-app member flag other apps' own real gated
-          content reads. Once `member` is true the button becomes an inert
-          "Member" label instead. */}
-      <AuthButton
-        label={member ? t("nav.member") : t("nav.login")}
-        mode={mode}
-        tooltip={member ? t("nav.memberUnlocked") : t("nav.logInPrompt")}
-        onClick={member ? undefined : onOpenLogin}
-      />
-    </AppHeader>
+    />
   );
 }

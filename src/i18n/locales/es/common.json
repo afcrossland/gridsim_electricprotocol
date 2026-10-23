@@ -20,12 +20,10 @@
     "title": "Cómo funciona"
   },
   "legend": {
-    "protocolScore": "Puntuación del protocolo",
-    "questionsAnswered": "Preguntas respondidas, por peso",
+    "questionsAnswered": "Preguntas respondidas",
     "notEnoughData": "Datos insuficientes",
-    "noData": "Sin datos",
-    "sectionScore": "Puntuación: {{section}}",
-    "inSuns": "en soles"
+    "inSuns": "en soles",
+    "policyScore": "Puntuación de política"
   },
   "welcome": {
     "body": "Este sitio puntúa países, estados y provincias frente al Protocolo Eléctrico, el conjunto detallado de preguntas que sustenta la Carta. Elige una jurisdicción en el mapa para ver cómo le va, cuál es la evidencia y qué cambios elevarían más su puntuación.",
@@ -43,18 +41,9 @@
     "filterThisList": "Filtrar esta lista",
     "highToLow": "De mayor a menor",
     "lowToHigh": "De menor a mayor",
-    "continent": "Continente",
-    "allContinents": "Todos los continentes",
-    "countries": "Países",
-    "score": "Puntuación"
-  },
-  "continents": {
-    "Africa": "África",
-    "Asia": "Asia",
-    "Europe": "Europa",
-    "North America": "Norteamérica",
-    "South America": "Sudamérica",
-    "Oceania": "Oceanía"
+    "score": "Puntuación",
+    "region": "Región",
+    "allRegions": "Todas las regiones"
   },
   "map": {
     "policyScore": "Puntuación de política",
@@ -121,10 +110,12 @@
     "sendFailed": "No se pudo enviar: {{message}}. Inténtalo de nuevo."
   },
   "questionCard": {
-    "tierWeak": "Débil",
-    "tierPartial": "Desarrollado",
-    "tierStrong": "Sólido",
+    "tierWeak": "No",
+    "tierPartial": "En parte",
+    "tierStrong": "Sí",
     "notKnown": "No se sabe",
+    "showDetails": "Ver detalles",
+    "hideDetails": "Ocultar detalles",
     "evidence": "Evidencia",
     "clearResponse": "Borrar esta respuesta",
     "noEvidence": "Aún no se ha añadido evidencia.",
@@ -136,10 +127,8 @@
     "removeEvidence": "Eliminar esta evidencia",
     "addEvidence": "Añadir evidencia",
     "moreExemplars": "+{{count}} más",
-    "exemplars": "Ejemplos a seguir",
+    "exemplars": "Ejemplos",
     "viewProfile": "Ver perfil del país",
-    "showAllLevels": "Mostrar todos los niveles ({{count}} más)",
-    "showFewerLevels": "Mostrar menos niveles",
     "currentAnswer": "Respuesta de {{name}}"
   },
   "adminConsole": {
@@ -174,6 +163,8 @@
     "impactfullnessTitle": "Relevancia: {{label}} ({{weight}})",
     "impactfullness": "Relevancia",
     "question": "Pregunta",
+    "questionTitle": "Título breve",
+    "questionTitleHelp": "Unas pocas palabras que se muestran en la tarjeta; la pregunta completa se abre al hacer clic.",
     "revertQuestion": "Revertir esta pregunta a la versión publicada",
     "deleteQuestion": "Eliminar esta pregunta",
     "confirmDeleteQuestion": "¿Eliminar esta pregunta? Esto también elimina cualquier respuesta ya registrada para ella.",
@@ -221,9 +212,9 @@
     "intro": "Las preguntas nuevas se revisan antes de añadirse: una vez aceptada, una pregunta cuenta para la puntuación de todos los países.",
     "section": "Sección",
     "question": "Pregunta",
-    "strong": "Una respuesta sólida sería",
-    "developed": "Una respuesta desarrollada sería (opcional)",
-    "weak": "Una respuesta débil sería",
+    "strong": "Una respuesta «sí» sería",
+    "developed": "Una respuesta «en parte» sería (opcional)",
+    "weak": "Una respuesta «no» sería",
     "reason": "¿Por qué es importante?",
     "source": "Evidencia de apoyo",
     "sourceHint": "Enlace, o nombre de un informe o documento",
@@ -236,9 +227,9 @@
   "questionProposalsReview": {
     "questionProposals": "Preguntas propuestas",
     "section": "Sección",
-    "strong": "Sólido",
-    "developed": "Desarrollado",
-    "weak": "Débil",
+    "strong": "Sí",
+    "developed": "En parte",
+    "weak": "No",
     "reason": "Por qué",
     "source": "Evidencia",
     "weight": "Peso",

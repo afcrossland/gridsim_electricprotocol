@@ -130,6 +130,10 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "jsdom",
       globals: true,
+      // Several test files import the big policy data and the 10 MB irradiance dataset; under the whole suite running in
+      // parallel (or a slow CI runner) a first import can take longer than vitest's default 5 s and fail a test that
+      // passes alone.
+      testTimeout: 20_000,
     },
   };
 });

@@ -1,6 +1,4 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-
+import { initI18n, withSharedStrings } from "../../../shared/i18n/init";
 import enCommon from "./locales/en/common.json";
 import esCommon from "./locales/es/common.json";
 import frCommon from "./locales/fr/common.json";
@@ -28,23 +26,13 @@ export const DEFAULT_LANGUAGE: SupportedLanguage = "en";
 /** localStorage key a returning visitor's language choice is saved under - see main.tsx and LanguageSwitcher.tsx. */
 export const LANGUAGE_KEY = "deployment-language";
 
-export const resources = {
+// The continent and sub-region names are shared with the other apps (shared/i18n), merged in here.
+export const resources = withSharedStrings({
   en: { common: enCommon },
   es: { common: esCommon },
   fr: { common: frCommon },
-} as const;
-
-i18n.use(initReactI18next).init({
-  resources,
-  lng: DEFAULT_LANGUAGE,
-  fallbackLng: DEFAULT_LANGUAGE,
-  ns: ["common"],
-  defaultNS: "common",
-  interpolation: {
-    // React already escapes output, so i18next must not double-escape.
-    escapeValue: false,
-  },
-  returnNull: false,
 });
+
+const i18n = initI18n(resources, DEFAULT_LANGUAGE);
 
 export default i18n;

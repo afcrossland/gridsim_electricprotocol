@@ -83,38 +83,6 @@
   "comparePanel": {
     "remove": "Retirer de la comparaison"
   },
-  "subregions": {
-    "Northern Africa": "Afrique du Nord",
-    "Eastern Africa": "Afrique de l'Est",
-    "Middle Africa": "Afrique centrale",
-    "Southern Africa": "Afrique australe",
-    "Western Africa": "Afrique de l'Ouest",
-    "Central Asia": "Asie centrale",
-    "Eastern Asia": "Asie de l'Est",
-    "South-Eastern Asia": "Asie du Sud-Est",
-    "Southern Asia": "Asie du Sud",
-    "Western Asia": "Asie occidentale",
-    "Eastern Europe": "Europe de l'Est",
-    "Northern Europe": "Europe du Nord",
-    "Southern Europe": "Europe du Sud",
-    "Western Europe": "Europe de l'Ouest",
-    "Caribbean": "Caraïbes",
-    "Central America": "Amérique centrale",
-    "Northern America": "Amérique du Nord",
-    "South America": "Amérique du Sud",
-    "Australia and New Zealand": "Australie et Nouvelle-Zélande",
-    "Melanesia": "Mélanésie",
-    "Micronesia": "Micronésie",
-    "Polynesia": "Polynésie"
-  },
-  "continents": {
-    "Africa": "Afrique",
-    "Asia": "Asie",
-    "Europe": "Europe",
-    "North America": "Amérique du Nord",
-    "South America": "Amérique du Sud",
-    "Oceania": "Océanie"
-  },
   "map": {
     "noData": "Aucune donnée",
     "share": "{{value}} % de la production",

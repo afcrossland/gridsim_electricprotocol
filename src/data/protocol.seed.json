@@ -165,6 +165,7 @@
     {
       "id": "q010",
       "sourceRow": 10,
+      "title": "Low-interest loans and rebates",
       "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 0,
@@ -191,6 +192,7 @@
     {
       "id": "q011",
       "sourceRow": 11,
+      "title": "Affordable, accessible technology",
       "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 1,
@@ -217,6 +219,7 @@
     {
       "id": "q012",
       "sourceRow": 12,
+      "title": "Finance at scalable rates",
       "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 2,
@@ -243,6 +246,7 @@
     {
       "id": "q013",
       "sourceRow": 13,
+      "title": "Benefit calculation best practice",
       "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 3,
@@ -269,6 +273,7 @@
     {
       "id": "q014",
       "sourceRow": 14,
+      "title": "Network operator ownership",
       "sectionId": "access-to-behind-the-meter-technology",
       "subsection": null,
       "order": 4,
@@ -295,6 +300,7 @@
     {
       "id": "q016",
       "sourceRow": 16,
+      "title": "Time-of-day import pricing",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 5,
@@ -321,6 +327,7 @@
     {
       "id": "q017",
       "sourceRow": 17,
+      "title": "Time-of-day export pricing",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 6,
@@ -347,6 +354,7 @@
     {
       "id": "q018",
       "sourceRow": 18,
+      "title": "Itemised electricity bills",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 7,
@@ -373,6 +381,7 @@
     {
       "id": "q019",
       "sourceRow": 19,
+      "title": "Half-hourly meter data",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 8,
@@ -399,6 +408,7 @@
     {
       "id": "q020",
       "sourceRow": 20,
+      "title": "Market participation barriers",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 9,
@@ -425,6 +435,7 @@
     {
       "id": "q021",
       "sourceRow": 21,
+      "title": "Public market pricing",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 10,
@@ -451,6 +462,7 @@
     {
       "id": "q022",
       "sourceRow": 22,
+      "title": "Wholesale market access and VPPs",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": null,
       "order": 11,
@@ -477,6 +489,7 @@
     {
       "id": "q024",
       "sourceRow": 24,
+      "title": "Network reinforcement signals",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 12,
@@ -503,6 +516,7 @@
     {
       "id": "q025",
       "sourceRow": 25,
+      "title": "Voltage services compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 13,
@@ -529,6 +543,7 @@
     {
       "id": "q026",
       "sourceRow": 26,
+      "title": "Frequency services compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 14,
@@ -555,6 +570,7 @@
     {
       "id": "q027",
       "sourceRow": 27,
+      "title": "Peak demand reduction compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 15,
@@ -581,6 +597,7 @@
     {
       "id": "q028",
       "sourceRow": 28,
+      "title": "High-price period compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 16,
@@ -607,6 +624,7 @@
     {
       "id": "q029",
       "sourceRow": 29,
+      "title": "Black start compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 17,
@@ -633,6 +651,7 @@
     {
       "id": "q030",
       "sourceRow": 30,
+      "title": "Demand increase compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 18,
@@ -659,6 +678,7 @@
     {
       "id": "q031",
       "sourceRow": 31,
+      "title": "Demand response compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 19,
@@ -685,6 +705,7 @@
     {
       "id": "q032",
       "sourceRow": 32,
+      "title": "Carbon services compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 20,
@@ -711,6 +732,7 @@
     {
       "id": "q033",
       "sourceRow": 33,
+      "title": "Other non-wholesale compensation",
       "sectionId": "wholesale-and-ancillary-electricity-markets",
       "subsection": "Ancillary/Grid Service Markets Available",
       "order": 21,
@@ -737,6 +759,7 @@
     {
       "id": "q035",
       "sourceRow": 35,
+      "title": "Free self-consumption",
       "sectionId": "self-consumption",
       "subsection": null,
       "order": 22,
@@ -763,6 +786,7 @@
     {
       "id": "q036",
       "sourceRow": 36,
+      "title": "Barrier-free self-consumption connection",
       "sectionId": "self-consumption",
       "subsection": null,
       "order": 23,
@@ -789,6 +813,7 @@
     {
       "id": "q038",
       "sourceRow": 38,
+      "title": "Online registration and permitting",
       "sectionId": "planning-and-permitting",
       "subsection": null,
       "order": 24,
@@ -815,6 +840,7 @@
     {
       "id": "q039",
       "sourceRow": 39,
+      "title": "Planning rules and building codes",
       "sectionId": "planning-and-permitting",
       "subsection": null,
       "order": 25,
@@ -841,6 +867,7 @@
     {
       "id": "q041",
       "sourceRow": 41,
+      "title": "Zero-cost automated grid connection",
       "sectionId": "grid-connection",
       "subsection": null,
       "order": 26,
@@ -867,6 +894,7 @@
     {
       "id": "q042",
       "sourceRow": 42,
+      "title": "Public grid capacity map",
       "sectionId": "grid-connection",
       "subsection": null,
       "order": 27,
@@ -893,6 +921,7 @@
     {
       "id": "q043",
       "sourceRow": 43,
+      "title": "Transparent capacity upgrade costs",
       "sectionId": "grid-connection",
       "subsection": null,
       "order": 28,
@@ -919,6 +948,7 @@
     {
       "id": "q045",
       "sourceRow": 45,
+      "title": "Digital registration with utilities",
       "sectionId": "grid-connection",
       "subsection": null,
       "order": 29,
@@ -945,6 +975,7 @@
     {
       "id": "q047",
       "sourceRow": 47,
+      "title": "Operator incentives for grid-forming technology",
       "sectionId": "control-cybersecurity-and-interoperability",
       "subsection": null,
       "order": 30,
@@ -971,6 +1002,7 @@
     {
       "id": "q048",
       "sourceRow": 48,
+      "title": "Market protocols set nationally",
       "sectionId": "control-cybersecurity-and-interoperability",
       "subsection": null,
       "order": 31,
@@ -997,6 +1029,7 @@
     {
       "id": "q049",
       "sourceRow": 49,
+      "title": "Data exchange protocols",
       "sectionId": "control-cybersecurity-and-interoperability",
       "subsection": null,
       "order": 32,
@@ -1023,6 +1056,7 @@
     {
       "id": "q051",
       "sourceRow": 51,
+      "title": "Installation best practice",
       "sectionId": "standards",
       "subsection": null,
       "order": 33,
@@ -1049,6 +1083,7 @@
     {
       "id": "q052",
       "sourceRow": 52,
+      "title": "Safety best practice",
       "sectionId": "standards",
       "subsection": null,
       "order": 34,
@@ -1075,6 +1110,7 @@
     {
       "id": "q054",
       "sourceRow": 54,
+      "title": "Import tariff on technology",
       "sectionId": "tariffs",
       "subsection": null,
       "order": 35,
@@ -1101,6 +1137,7 @@
     {
       "id": "q055",
       "sourceRow": 55,
+      "title": "Tax rebates and subsidies",
       "sectionId": "tariffs",
       "subsection": null,
       "order": 36,
@@ -1127,6 +1164,7 @@
     {
       "id": "q057",
       "sourceRow": 57,
+      "title": "Installer curriculum and qualifications",
       "sectionId": "training",
       "subsection": null,
       "order": 37,
@@ -1153,6 +1191,7 @@
     {
       "id": "q058",
       "sourceRow": 58,
+      "title": "Access to installer training",
       "sectionId": "training",
       "subsection": null,
       "order": 38,

@@ -67,6 +67,7 @@ class QuestionIn(BaseModel):
     subsection: str | None = None
     order: int
     text: str = Field(min_length=1)
+    title: str | None = None
     weight: float = Field(ge=0)
     rubric: list[TierIn] = Field(min_length=1)
 
@@ -106,6 +107,7 @@ def _question_json(session: Session, q: Question | None) -> dict | None:
         "subsection": q.subsection,
         "order": q.sort_order,
         "text": q.text,
+        "title": q.title,
         "weight": q.weight,
         "rubric": [{"score": t.score, "label": t.label, "points": t.points} for t in tiers],
     }
@@ -224,6 +226,7 @@ def put_question(question_id: str, body: QuestionIn, email: str = Editor) -> JSO
         question.subsection = body.subsection
         question.sort_order = body.order
         question.text = body.text
+        question.title = (body.title or "").strip() or None
         question.weight = body.weight
         session.flush()
         session.execute(delete(RubricTier).where(RubricTier.question_id == question_id))

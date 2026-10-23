@@ -138,7 +138,7 @@ branch is a contained change there, not a rewrite of every call site.
 (free, no key, near-global coverage - PVGIS-SARAH2/SARAH3, PVGIS-NSRDB, or
 PVGIS-ERA5 depending on region) at each country's own biggest city (Natural
 Earth's own `ne_10m_populated_places`, falling back to a polygon
-`representative_point()` on `assets/jurisdictions.geojson` for the ~20
+`representative_point()` on `shared/assets/jurisdictions.dissolved.geojson` for the ~20
 countries missing from that dataset, or if the city's own exact coordinates
 fail PVGIS outright), with `mountingplace=building` (this is rooftop
 residential solar, not a ground-mounted array) and `usehorizon=0` (real

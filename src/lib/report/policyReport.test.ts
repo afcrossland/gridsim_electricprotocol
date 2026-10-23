@@ -96,8 +96,8 @@ describe("the Policy report PDF", () => {
     expect(all).toContain('"text":"Detail"');
     expect(all).not.toContain("every question");
     // Every answered question shows how it scores, in the ladder's words.
-    expect(all).toMatch(/Score: (Strong|Developed|Weak)"/);
-    expect(all).not.toMatch(/Score: (Strong|Developed|Weak) \(/);
+    expect(all).toMatch(/Score: (Yes|Somewhat|No)"/);
+    expect(all).not.toMatch(/Score: (Yes|Somewhat|No) \(/);
     // Renamed everywhere: no "data completeness" in the report.
     expect(all.toLowerCase()).not.toContain("completeness");
   });

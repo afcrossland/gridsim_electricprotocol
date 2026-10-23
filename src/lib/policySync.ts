@@ -152,7 +152,7 @@ export function requestFor(key: SyncKey, state: SyncSnapshot): { order: number; 
           request: {
             method: "PUT",
             url,
-            body: { sectionId: q.sectionId, subsection: q.subsection, order: q.order, text: q.text, weight: q.weight, rubric: q.rubric },
+            body: { sectionId: q.sectionId, subsection: q.subsection, order: q.order, text: q.text, title: q.title ?? null, weight: q.weight, rubric: q.rubric },
           },
         }
       : { order: 3, request: { method: "DELETE", url } };

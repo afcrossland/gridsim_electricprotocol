@@ -523,6 +523,7 @@ export default function AdminConsole({ onBack }: Props) {
                   isMobile={isMobile}
                   overridden={!savingToDatabase && Boolean(questionOverrides[question.id])}
                   onChangeText={(text) => updateQuestion(question.id, { text })}
+                  onChangeTitle={(title) => updateQuestion(question.id, { title })}
                   onChangeWeight={(weight) => updateQuestion(question.id, { weight })}
                   onResetQuestion={() => resetQuestion(question.id)}
                   onDeleteQuestion={() => deleteQuestion(question.id)}
@@ -644,6 +645,7 @@ function QuestionHeader({
   isMobile,
   overridden,
   onChangeText,
+  onChangeTitle,
   onChangeWeight,
   onResetQuestion,
   onDeleteQuestion,
@@ -652,6 +654,7 @@ function QuestionHeader({
   isMobile: boolean;
   overridden: boolean;
   onChangeText: (text: string) => void;
+  onChangeTitle: (title: string) => void;
   onChangeWeight: (weight: number) => void;
   onResetQuestion: () => void;
   onDeleteQuestion: () => void;
@@ -688,16 +691,26 @@ function QuestionHeader({
   );
 
   const questionField = (
-    <TextField
-      fullWidth
-      multiline
-      size="small"
-      variant="standard"
-      label={t("adminConsole.question")}
-      value={question.text}
-      onChange={(e) => onChangeText(e.target.value)}
-      sx={{ flex: 1 }}
-    />
+    <Stack spacing={1} sx={{ flex: 1 }}>
+      <TextField
+        fullWidth
+        size="small"
+        variant="standard"
+        label={t("adminConsole.questionTitle")}
+        helperText={t("adminConsole.questionTitleHelp")}
+        value={question.title ?? ""}
+        onChange={(e) => onChangeTitle(e.target.value)}
+      />
+      <TextField
+        fullWidth
+        multiline
+        size="small"
+        variant="standard"
+        label={t("adminConsole.question")}
+        value={question.text}
+        onChange={(e) => onChangeText(e.target.value)}
+      />
+    </Stack>
   );
 
   const actionIcons = (

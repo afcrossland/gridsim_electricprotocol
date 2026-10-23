@@ -90,9 +90,6 @@ const SELECTED_TINT = "action.selected";
 /** How many of a tier box's own qualifying exemplars show inline before the rest fold into a "+N more" dropdown - per Andrew's own instruction 2026-10-09 ("top 3 exemplars shown and a dropdown list for more"). */
 const EXEMPLAR_DISPLAY_LIMIT = 3;
 
-/** Width of the Strong/Developed/Weak label column on each answer tile - the exemplars block is indented by this (plus the 10px gap) so it lines up under the answer text. */
-const TIER_LABEL_WIDTH = 92;
-
 /**
  * An exemplar is only worth surfacing if there's something to actually show
  * in its evidence popup - per Andrew's own instruction 2026-10-09 ("only
@@ -157,11 +154,6 @@ export default function QuestionCard({
   const removeEvidence = useProtocolStore((s) => s.removeEvidence);
 
   const [showEvidence, setShowEvidence] = useState(false);
-  // Read-only answered cards fold away the tiers below the chosen answer -
-  // they're the least useful to a reader (no exemplars ever sit below the
-  // answer, see qualifyingExemplars) and stacking every tier made each card
-  // roughly 450px tall.
-  const [showAllTiers, setShowAllTiers] = useState(false);
   // Which tier's "+N more" dropdown is open, if any - one piece of state
   // for the whole card (not one per tier box) since at most one dropdown
   // is ever open at once; the Menu itself is rendered once, below the
@@ -174,6 +166,13 @@ export default function QuestionCard({
   // reasoning as `moreAnchor`.
   const [evidencePopup, setEvidencePopup] = useState<{ el: HTMLElement; exemplar: ExemplarEntry } | null>(null);
   const [correctionOpen, setCorrectionOpen] = useState(false);
+  // A question with a short title shows just that, the answer and any comparators until opened;
+  // the full sentence, the answer levels, exemplars and evidence follow. Edit mode and the guided
+  // tour (which spotlights what is inside) show everything.
+  const [open, setOpen] = useState(false);
+  const tourActive = useProtocolStore((s) => s.tourSectionId === question.sectionId);
+  const collapsible = Boolean(question.title) && !editMode;
+  const expanded = !collapsible || open || tourActive;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -192,9 +191,17 @@ export default function QuestionCard({
 
   const rubricAscending = [...question.rubric].sort((a, b) => a.score - b.score);
   const countryName = qualifiedName(code, i18n.language);
-  // Tiers below the chosen answer, folded away on read-only answered cards.
-  const foldedTierCount = !editMode && response ? question.rubric.filter((tier) => tier.score < response.score).length : 0;
-  const isFolded = (tierScore: number) => foldedTierCount > 0 && !showAllTiers && tierScore < response!.score;
+  const tierInfo = (score: number) => {
+    const index = rubricAscending.findIndex((t) => t.score === score);
+    const rank = rubricAscending.length > 1 ? index / (rubricAscending.length - 1) : 1;
+    return {
+      rank,
+      color: SCORE_BANDS[Math.round(rank * (SCORE_BANDS.length - 1))].color,
+      name: rank === 1 ? t("questionCard.tierStrong") : rank === 0 ? t("questionCard.tierWeak") : t("questionCard.tierPartial"),
+      // Amber for strong, teal for weak - the same way round as SCORE_BANDS, darkened a step for legibility as text.
+      textColor: rank === 1 ? "#B07A00" : rank === 0 ? "#008593" : "text.secondary",
+    };
+  };
 
   return (
     <Paper
@@ -211,16 +218,63 @@ export default function QuestionCard({
         scrollMarginTop: 16,
       }}
     >
-      <Box sx={{ mb: 1.5 }}>
+      <Box sx={{ mb: expanded ? 1.5 : 0 }}>
         {question.subsection && (
           <Typography variant="overline" sx={{ display: "block" }}>
             {question.subsection}
           </Typography>
         )}
-        <Typography variant="body1" sx={{ fontWeight: 700 }}>{question.text}</Typography>
+        {collapsible ? (
+          <ButtonBase
+            data-tour="question-rubric"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={expanded}
+            aria-label={`${question.title} - ${expanded ? t("questionCard.hideDetails") : t("questionCard.showDetails")}`}
+            sx={{ display: "flex", width: "100%", alignItems: "flex-start", justifyContent: "space-between", gap: 1, textAlign: "left", borderRadius: 1 }}
+          >
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="body1" sx={{ fontWeight: 700 }}>{question.title}</Typography>
+              {!expanded && (
+                <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1.25, mt: 0.5 }}>
+                  {(() => {
+                    const info = response ? tierInfo(response.score) : null;
+                    return (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                        <Box sx={{ width: 10, height: 10, borderRadius: "50%", flexShrink: 0, bgcolor: info ? info.color : "transparent", ...(info ? { boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.15)" } : { border: "1.5px dashed", borderColor: "text.disabled" }) }} />
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: info ? info.textColor : "text.disabled", fontStyle: info ? "normal" : "italic" }}>
+                          {info ? info.name : t("questionCard.notKnown")}
+                        </Typography>
+                      </Box>
+                    );
+                  })()}
+                  {compareEntries.map((entry) => {
+                    const entryName = entry.name ?? qualifiedName(entry.code, i18n.language);
+                    return (
+                      <Tooltip key={entry.code} title={`${entryName} - ${entry.response ? tierInfo(entry.response.score).name : t("questionCard.notKnown")}`}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, bgcolor: "background.paper", borderRadius: "10px", border: "1.5px solid", borderColor: entry.color, pl: "1px", pr: 0.75 }}>
+                          <FlagImg code={entry.code} size={14} />
+                          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                            {entry.response ? tierInfo(entry.response.score).name : "-"}
+                          </Typography>
+                        </Box>
+                      </Tooltip>
+                    );
+                  })}
+                </Box>
+              )}
+            </Box>
+            <ExpandMoreIcon fontSize="small" sx={{ mt: 0.25, flexShrink: 0, color: "text.secondary", transform: expanded ? "rotate(180deg)" : "none", transition: "transform 150ms" }} />
+          </ButtonBase>
+        ) : (
+          <Typography variant="body1" sx={{ fontWeight: 700 }}>{question.text}</Typography>
+        )}
+        {collapsible && expanded && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{question.text}</Typography>
+        )}
       </Box>
 
-      <Box data-tour="question-rubric" sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <Collapse in={expanded} unmountOnExit>
+      <Box data-tour={collapsible ? undefined : "question-rubric"} sx={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : `repeat(${question.rubric.length}, minmax(0, 1fr))`, gap: 1 }}>
         {/* Explicit fourth state, to the left of the real rubric tiers -
             per Andrew's own instruction 2026-10-09 ("all questions not
             answered need to be on the left with a box 'not known'"). An
@@ -236,6 +290,7 @@ export default function QuestionCard({
           onClick={editMode && response ? () => deleteResponse(code, question.id) : undefined}
           sx={{
             order: 99,
+            gridColumn: "1 / -1",
             px: 1.25,
             py: 0.75,
             borderRadius: 1.5,
@@ -262,11 +317,8 @@ export default function QuestionCard({
         </Box>
         )}
 
-        {[...question.rubric].sort((a, b) => b.score - a.score).filter((tier) => !isFolded(tier.score)).map((tier) => {
-          const tierIndex = rubricAscending.findIndex((t) => t.score === tier.score);
-          const tierRank = rubricAscending.length > 1 ? tierIndex / (rubricAscending.length - 1) : 1;
-          const tierColor = SCORE_BANDS[Math.round(tierRank * (SCORE_BANDS.length - 1))].color;
-          const tierName = tierRank === 1 ? t("questionCard.tierStrong") : tierRank === 0 ? t("questionCard.tierWeak") : t("questionCard.tierPartial");
+        {[...question.rubric].sort((a, b) => b.score - a.score).map((tier) => {
+          const { color: tierColor, name: tierName, textColor: tierTextColor } = tierInfo(tier.score);
           const selected = response?.score === tier.score;
           // Every comparator who picked this exact tier, clustered along the
           // tile's bottom edge rather than one badge each - up to
@@ -279,6 +331,79 @@ export default function QuestionCard({
           // exact tier, since an exemplar pins to whichever box *they*
           // actually picked, not every box that happens to qualify.
           const tierExemplars = qualifyingExemplars.filter((ex) => ex.response?.score === tier.score);
+          const examplesBlock = (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "text.secondary",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                      fontSize: "0.625rem",
+                    }}
+                  >
+                    {t("questionCard.exemplars")}
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px" }}>
+                    {tierExemplars.slice(0, EXEMPLAR_DISPLAY_LIMIT).map((exemplar) => {
+                      const evidenceTitles = exemplar.response?.evidence
+                        ?.map((e) => e.title)
+                        .filter(Boolean)
+                        .join(", ");
+                      const tooltip = evidenceTitles || undefined;
+                      const row = (
+                        <ButtonBase
+                          key={exemplar.code}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEvidencePopup({ el: e.currentTarget, exemplar });
+                          }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            flexShrink: 0,
+                            borderRadius: "4px",
+                            px: "2px",
+                          }}
+                        >
+                          <FlagImg code={exemplar.code} size={14} />
+                          <Typography
+                            variant="caption"
+                            noWrap
+                            sx={{ color: "text.primary", fontWeight: 600, textDecoration: "underline dotted", textUnderlineOffset: "3px" }}
+                          >
+                            {exemplar.name}
+                            
+                          </Typography>
+                        </ButtonBase>
+                      );
+                      return tooltip ? (
+                        <Tooltip key={exemplar.code} title={tooltip}>
+                          {row}
+                        </Tooltip>
+                      ) : (
+                        row
+                      );
+                    })}
+
+                    {tierExemplars.length > EXEMPLAR_DISPLAY_LIMIT && (
+                      <ButtonBase
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMoreAnchor({ el: e.currentTarget, tierScore: tier.score });
+                        }}
+                        sx={{ display: "flex", flexShrink: 0, borderRadius: "4px", px: "2px" }}
+                      >
+                        <Typography variant="caption" color="primary" noWrap sx={{ fontWeight: 600 }}>
+                          {t("questionCard.moreExemplars", { count: tierExemplars.length - EXEMPLAR_DISPLAY_LIMIT })}
+                        </Typography>
+                      </ButtonBase>
+                    )}
+                  </Box>
+                </Box>
+          );
           return (
             <Box
               key={tier.score}
@@ -291,59 +416,57 @@ export default function QuestionCard({
               }
               sx={{
                 position: "relative",
-                p: 1.25,
-                pb: tierComparators.length > 0 ? 3 : 1.25,
+                p: 1.5,
+                pb: tierComparators.length > 0 ? 4 : 1.5,
                 borderRadius: 1.5,
                 cursor: editMode ? "pointer" : "default",
                 border: "2px solid",
-                borderLeftWidth: 8,
-                borderColor: "divider",
-                borderLeftColor: tierColor,
+                borderTopWidth: 6,
+                // The country's own answer gets a bold dark frame (neutral, so it can't be read as a Yes or a No) (a ring on top of the border, so the tile
+                // doesn't change size); the tier's colour stays on the top edge so Yes and No still read as such.
+                borderColor: selected ? "text.primary" : "divider",
+                borderTopColor: tierColor,
                 bgcolor: selected ? SELECTED_TINT : "transparent",
-                boxShadow: selected ? 2 : "none",
+                boxShadow: selected ? (th) => `0 0 0 2px ${th.palette.text.primary}` : "none",
                 ...(editMode && { "&:hover": { borderColor: "primary.light" } }),
                 display: "flex",
                 flexDirection: "column",
-                gap: 0.75,
+                gap: 1,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.25 }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, minHeight: 36 }}>
                 <Typography
                   variant="caption"
                   sx={{
-                    flexShrink: 0,
-                    width: TIER_LABEL_WIDTH,
                     fontWeight: 800,
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
-                    fontSize: "0.65rem",
-                    // Amber for strong, teal for weak - the same way round as
-                    // SCORE_BANDS (and so the tile's own left edge), darkened
-                    // a step for legibility as text.
-                    color: tierRank === 1 ? "#B07A00" : tierRank === 0 ? "#008593" : "text.secondary",
+                    fontSize: "0.7rem",
+                    color: tierTextColor,
                   }}
                 >
                   {tierName}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: selected ? "text.primary" : undefined,
-                    fontWeight: selected ? 600 : 400,
-                  }}
-                >
-                  {capitalizeFirst(tier.label)}
-                </Typography>
+                {selected && (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary", textAlign: "right" }}>
+                      {t("questionCard.currentAnswer", { name: countryName })}
+                    </Typography>
+                    <FlagImg code={code} size={34} />
+                  </Box>
+                )}
               </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: selected ? "text.primary" : undefined,
+                  fontWeight: selected ? 600 : 400,
+                }}
+              >
+                {capitalizeFirst(tier.label)}
+              </Typography>
 
-              {selected && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: "6px", ml: `calc(${TIER_LABEL_WIDTH}px + 10px)` }}>
-                  <FlagImg code={code} size={14} />
-                  <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary" }}>
-                    {t("questionCard.currentAnswer", { name: countryName })}
-                  </Typography>
-                </Box>
-              )}
+              {tierExemplars.length > 0 && examplesBlock}
 
               {tierComparators.length > 0 && (
                 <Box sx={{ position: "absolute", left: 8, bottom: 6, display: "flex", gap: "3px" }}>
@@ -390,96 +513,10 @@ export default function QuestionCard({
                   reading as an unexplained second flag cluster next to the
                   Compare one, and a single nowrapping line reads as one
                   list rather than a stack of unrelated rows. */}
-              {tierExemplars.length > 0 && (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", ml: `calc(${TIER_LABEL_WIDTH}px + 10px)` }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: "text.secondary",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.04em",
-                      fontSize: "0.625rem",
-                    }}
-                  >
-                    {t("questionCard.exemplars")}
-                  </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", flexWrap: "nowrap", overflow: "hidden", gap: "4px" }}>
-                    {tierExemplars.slice(0, EXEMPLAR_DISPLAY_LIMIT).map((exemplar, i, visible) => {
-                      const evidenceTitles = exemplar.response?.evidence
-                        ?.map((e) => e.title)
-                        .filter(Boolean)
-                        .join(", ");
-                      const tooltip = evidenceTitles || undefined;
-                      const isLastOverall =
-                        tierExemplars.length <= EXEMPLAR_DISPLAY_LIMIT && i === visible.length - 1;
-                      const row = (
-                        <ButtonBase
-                          key={exemplar.code}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEvidencePopup({ el: e.currentTarget, exemplar });
-                          }}
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            flexShrink: 0,
-                            borderRadius: "4px",
-                            px: "2px",
-                          }}
-                        >
-                          <FlagImg code={exemplar.code} size={14} />
-                          <Typography
-                            variant="caption"
-                            noWrap
-                            sx={{ color: "text.primary", fontWeight: 600, textDecoration: "underline dotted", textUnderlineOffset: "3px" }}
-                          >
-                            {exemplar.name}
-                            {isLastOverall ? "" : ","}
-                          </Typography>
-                        </ButtonBase>
-                      );
-                      return tooltip ? (
-                        <Tooltip key={exemplar.code} title={tooltip}>
-                          {row}
-                        </Tooltip>
-                      ) : (
-                        row
-                      );
-                    })}
-
-                    {tierExemplars.length > EXEMPLAR_DISPLAY_LIMIT && (
-                      <ButtonBase
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setMoreAnchor({ el: e.currentTarget, tierScore: tier.score });
-                        }}
-                        sx={{ display: "flex", flexShrink: 0, borderRadius: "4px", px: "2px" }}
-                      >
-                        <Typography variant="caption" color="primary" noWrap sx={{ fontWeight: 600 }}>
-                          {t("questionCard.moreExemplars", { count: tierExemplars.length - EXEMPLAR_DISPLAY_LIMIT })}
-                        </Typography>
-                      </ButtonBase>
-                    )}
-                  </Box>
-                </Box>
-              )}
             </Box>
           );
         })}
       </Box>
-
-      {foldedTierCount > 0 && (
-        <Button
-          size="small"
-          onClick={() => setShowAllTiers((v) => !v)}
-          endIcon={<ExpandMoreIcon fontSize="small" sx={{ transform: showAllTiers ? "rotate(180deg)" : "none", transition: "transform 150ms" }} />}
-          sx={{ mt: 0.5 }}
-        >
-          {showAllTiers ? t("questionCard.showFewerLevels") : t("questionCard.showAllLevels", { count: foldedTierCount })}
-        </Button>
-      )}
 
       {/* One shared dropdown for the whole card (see `moreAnchor`'s own
           doc comment above) - looks its tier's exemplars back up by score
@@ -708,6 +745,7 @@ export default function QuestionCard({
           </Button>
         </Box>
       )}
+      </Collapse>
       <CorrectionDialog
         open={correctionOpen}
         onClose={() => setCorrectionOpen(false)}

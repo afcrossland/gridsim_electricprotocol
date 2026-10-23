@@ -24,12 +24,12 @@
   {
     "id": 7,
     "spotlightTag": "Paysage politique",
-    "spotlightCaption": "Score et questions répondues par domaine politique - cliquez sur une case pour voir ses propres exemples à suivre, ses questions, sa grille de notation et les preuves derrière chaque réponse, modifiable par tous."
+    "spotlightCaption": "Score et questions répondues par domaine politique - cliquez sur une case pour voir ses propres exemples, ses questions, sa grille de notation et les preuves derrière chaque réponse, modifiable par tous."
   },
   {
     "id": 11,
     "spotlightTag": "Voir les preuves",
-    "spotlightCaption": "Chaque réponse se situe sur une échelle de Faible à Solide, et la case en surbrillance indique où se trouve cette juridiction : ouvrez Preuves pour voir la citation qui l'étaye, ou cliquez sur un exemple à suivre pour voir la sienne."
+    "spotlightCaption": "Chaque réponse se situe sur une échelle de Non à Oui, et la case en surbrillance indique où se trouve cette juridiction : ouvrez Preuves pour voir la citation qui l'étaye, ou cliquez sur un exemple pour voir la sienne."
   },
   {
     "id": 12,

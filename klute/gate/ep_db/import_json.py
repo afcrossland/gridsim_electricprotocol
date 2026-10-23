@@ -172,7 +172,7 @@ def _import_structure(session: Session, protocol: dict) -> dict[str, int]:
     session.execute(delete(RubricTier).where(RubricTier.question_id.in_(question_ids)))
     for position, question in enumerate(protocol["questions"]):
         where = f"protocol.seed.json question {question.get('id', position)}"
-        _keys(question, {"id", "sectionId", "subsection", "order", "text", "weight", "rubric"}, {"sourceRow"}, where)
+        _keys(question, {"id", "sectionId", "subsection", "order", "text", "weight", "rubric"}, {"sourceRow", "title"}, where)
         session.merge(
             Question(
                 id=question["id"],
@@ -180,6 +180,7 @@ def _import_structure(session: Session, protocol: dict) -> dict[str, int]:
                 subsection=question["subsection"],
                 sort_order=question["order"],
                 text=question["text"],
+                title=question.get("title"),
                 weight=question["weight"],
                 source_row=question.get("sourceRow"),
                 position=position,
@@ -283,6 +284,7 @@ def export_all(session: Session) -> dict[str, Any]:
                         "subsection": q.subsection,
                         "order": q.sort_order,
                         "text": q.text,
+                        **({"title": q.title} if q.title else {}),
                         "weight": q.weight,
                         "rubric": tiers.get(q.id, []),
                     },
