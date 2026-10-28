@@ -8,8 +8,9 @@ Google (Firebase Auth) as an email on KLUTE_ALLOWED_EMAILS:
 - POST /klute/session: verifies the Firebase ID token from the sign-in page and, if the email is
   allowed, sets a signed `__session` cookie (the only cookie Firebase Hosting forwards).
 - signed in: /klute/** serves the klute build (the image bundles it; it is not on public
-  hosting), and /klute/api/** is proxied to the simulator backend with the backend's klute
-  password added here, so the password never reaches a browser.
+  hosting), and /klute/api/** is proxied to the simulator backend, which only answers this gate:
+  each request carries a Google-signed ID token for this service's account (audience: the
+  backend's URL), or, until every backend checks tokens, the backend's klute password.
 
 It also serves the public, read-only policy data at /api/policy/data (ep_db/api.py, ROADMAP.md
 Phase 1), which needs no sign-in.
@@ -22,6 +23,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
 import time
 from pathlib import Path
@@ -30,6 +32,7 @@ import httpx
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
+from starlette.concurrency import run_in_threadpool
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 
@@ -45,6 +48,8 @@ NO_STORE = {"Cache-Control": "private, no-store"}
 
 STATIC_DIR = Path(os.environ.get("KLUTE_STATIC_DIR", Path(__file__).parent / "static")).resolve()
 LOGIN_HTML = (Path(__file__).parent / "login.html").read_text()
+
+log = logging.getLogger(__name__)
 
 
 def _allowed_emails() -> set[str]:
@@ -90,6 +95,26 @@ def session_email(request: Request) -> str | None:
 def verify_firebase_token(token: str) -> dict:
     """Checks signature, expiry, issuer and audience against this Firebase project."""
     return id_token.verify_firebase_token(token, google_requests.Request(), audience=os.environ["FIREBASE_PROJECT_ID"])
+
+
+_backend_credentials = {}
+
+
+def backend_id_token(audience: str) -> str | None:
+    """A Google-signed ID token for this service's account, which the backend checks before
+    answering /coverage. Refreshed only when expired. None where there is no service account to
+    sign as (running locally on user credentials)."""
+    request = google_requests.Request()
+    try:
+        credentials = _backend_credentials.get(audience)
+        if credentials is None:
+            credentials = _backend_credentials[audience] = id_token.fetch_id_token_credentials(audience, request=request)
+        if not credentials.valid:
+            credentials.refresh(request)
+        return credentials.token
+    except Exception as exc:
+        log.warning("No ID token for the backend: %s", exc)
+        return None
 
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
@@ -154,7 +179,12 @@ async def proxy(path: str, request: Request) -> Response:
     backend = os.environ.get("FGS_API_BASE_URL", "").rstrip("/")
     if not backend:
         return JSONResponse({"error": "FGS_API_BASE_URL is not set."}, status_code=503, headers=NO_STORE)
-    headers = {"X-Klute-Password": os.environ.get("KLUTE_BACKEND_PASSWORD", "")}
+    headers = {}
+    token = await run_in_threadpool(backend_id_token, backend)
+    if token:
+        headers["X-Klute-Id-Token"] = token
+    if os.environ.get("KLUTE_BACKEND_PASSWORD"):
+        headers["X-Klute-Password"] = os.environ["KLUTE_BACKEND_PASSWORD"]
     async with httpx.AsyncClient(timeout=55) as client:
         upstream = await client.get(f"{backend}/{path}", params=request.query_params, headers=headers)
     return Response(upstream.content, status_code=upstream.status_code, media_type=upstream.headers.get("content-type"), headers=NO_STORE)
