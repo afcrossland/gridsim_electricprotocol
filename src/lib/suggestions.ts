@@ -23,10 +23,9 @@ export interface Suggestion {
 }
 
 /**
- * Only works within one visitor's own browser until a real backend exists -
- * see ROADMAP.md's "Known gaps flagged in code" section (closed by Phase 6).
- * Written so swapping the local `suggestions` array for real API calls later
- * should not need this shape to change.
+ * On database builds suggestions are filed with the server in this shape and
+ * every editor loads them (lib/reviewApi.ts, ROADMAP.md Phase 6); elsewhere
+ * they stay in the submitting browser.
  */
 export function diffResponses(
   before: Response[],

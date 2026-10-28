@@ -20,8 +20,10 @@
     "title": "Comment ça marche"
   },
   "legend": {
-    "protocolScore": "Score du protocole",
-    "questionsAnswered": "Questions répondues, pondérées"
+    "questionsAnswered": "Questions répondues",
+    "notEnoughData": "Données insuffisantes",
+    "inSuns": "en soleils",
+    "policyScore": "Score de politique"
   },
   "welcome": {
     "body": "Ce site note les pays, états et provinces selon le Protocole Électrique, l'ensemble détaillé de questions qui sous-tend la Charte. Choisissez une juridiction sur la carte pour voir son résultat, les preuves associées, et les changements qui feraient le plus progresser son score.",
@@ -39,18 +41,9 @@
     "filterThisList": "Filtrer cette liste",
     "highToLow": "Du plus élevé au plus bas",
     "lowToHigh": "Du plus bas au plus élevé",
-    "continent": "Continent",
-    "allContinents": "Tous les continents",
-    "countries": "Pays",
-    "score": "Score"
-  },
-  "continents": {
-    "Africa": "Afrique",
-    "Asia": "Asie",
-    "Europe": "Europe",
-    "North America": "Amérique du Nord",
-    "South America": "Amérique du Sud",
-    "Oceania": "Océanie"
+    "score": "Score",
+    "region": "Région",
+    "allRegions": "Toutes les régions"
   },
   "map": {
     "policyScore": "Score de politique",
@@ -70,7 +63,10 @@
     "exitEditMode": "Quitter le mode édition",
     "buildingReport": "Génération du rapport...",
     "downloadReport": "Télécharger le résumé des politiques",
-    "overviewIntro": "Comment {{name}} se positionne dans chaque domaine politique, et comment cela se compare au reste du groupe."
+    "overviewIntro": "Comment {{name}} se positionne dans chaque domaine politique, et comment cela se compare au reste du groupe.",
+    "notApplicableHint": "Pas encore assez de questions répondues dans ce domaine pour lui attribuer un score.",
+    "editAnswers": "Modifier les réponses",
+    "doneEditing": "Terminé"
   },
   "impactList": {
     "empty": "Rien à afficher pour l'instant - chaque question répondue est déjà notée au maximum, ou aucune n'a encore de réponse. Utilisez Paysage politique pour en ajouter.",
@@ -109,13 +105,17 @@
     "continue": "Continuer",
     "back": "Retour",
     "submit": "Soumettre",
-    "close": "Fermer"
+    "close": "Fermer",
+    "sending": "Envoi…",
+    "sendFailed": "Envoi impossible : {{message}}. Veuillez réessayer."
   },
   "questionCard": {
-    "tierWeak": "Faible",
-    "tierPartial": "Développé",
-    "tierStrong": "Solide",
+    "tierWeak": "Non",
+    "tierPartial": "En partie",
+    "tierStrong": "Oui",
     "notKnown": "Inconnu",
+    "showDetails": "Voir le détail",
+    "hideDetails": "Masquer le détail",
     "evidence": "Preuves",
     "clearResponse": "Effacer cette réponse",
     "noEvidence": "Aucune preuve ajoutée pour l'instant.",
@@ -127,8 +127,9 @@
     "removeEvidence": "Supprimer cette preuve",
     "addEvidence": "Ajouter une preuve",
     "moreExemplars": "+{{count}} de plus",
-    "exemplars": "Exemples à suivre",
-    "viewProfile": "Voir le profil du pays"
+    "exemplars": "Exemples",
+    "viewProfile": "Voir le profil du pays",
+    "currentAnswer": "Réponse : {{name}}"
   },
   "adminConsole": {
     "title": "Console d'administration",
@@ -162,9 +163,12 @@
     "impactfullnessTitle": "Impact : {{label}} ({{weight}})",
     "impactfullness": "Impact",
     "question": "Question",
+    "questionTitle": "Titre court",
+    "questionTitleHelp": "Quelques mots affichés sur la carte ; la question complète s'ouvre d'un clic.",
     "revertQuestion": "Revenir à la version publiée de cette question",
     "deleteQuestion": "Supprimer cette question",
-    "confirmDeleteQuestion": "Supprimer cette question ? Cela supprime aussi toute réponse déjà enregistrée pour elle."
+    "confirmDeleteQuestion": "Supprimer cette question ? Cela supprime aussi toute réponse déjà enregistrée pour elle.",
+    "reviewLoadFailed": "Impossible de charger les suggestions de tous : {{message}}. Rechargez pour réessayer."
   },
   "suggestionsReview": {
     "empty": "Aucun changement suggéré pour l'instant. Quand quelqu'un utilise « Soumettre des preuves révisées » sur la page d'un pays, cela apparaît ici pour relecture.",
@@ -208,9 +212,9 @@
     "intro": "Les nouvelles questions sont examinées avant d'être ajoutées : une fois acceptée, une question compte dans le score de tous les pays.",
     "section": "Section",
     "question": "Question",
-    "strong": "Une réponse solide ressemble à",
-    "developed": "Une réponse développée ressemble à (facultatif)",
-    "weak": "Une réponse faible ressemble à",
+    "strong": "Une réponse « oui » ressemble à",
+    "developed": "Une réponse « en partie » ressemble à (facultatif)",
+    "weak": "Une réponse « non » ressemble à",
     "reason": "Pourquoi est-ce important ?",
     "source": "Preuve à l'appui",
     "sourceHint": "Lien, ou nom d'un rapport ou document",
@@ -223,9 +227,9 @@
   "questionProposalsReview": {
     "questionProposals": "Questions proposées",
     "section": "Section",
-    "strong": "Solide",
-    "developed": "Développé",
-    "weak": "Faible",
+    "strong": "Oui",
+    "developed": "En partie",
+    "weak": "Non",
     "reason": "Pourquoi",
     "source": "Preuve",
     "weight": "Poids",
@@ -243,5 +247,23 @@
   },
   "sunRating": {
     "label": "{{count}} soleils sur 5"
+  },
+  "editor": {
+    "signInTitle": "Connectez-vous pour modifier",
+    "signInBody": "La console d'administration modifie les données politiques que tout le monde voit ; elle est donc réservée aux éditeurs autorisés. Connectez-vous avec le compte Google auquel l'accès a été accordé.",
+    "signInButton": "Se connecter avec Google",
+    "signingIn": "Connexion…",
+    "notEditor": "Ce compte ne peut pas modifier les données politiques.",
+    "error": "La connexion a échoué. Réessayez.",
+    "useAnotherAccount": "Utiliser un autre compte",
+    "cancel": "Annuler",
+    "signedInAs": "Connecté en tant que {{email}}",
+    "signOut": "Se déconnecter",
+    "databaseOffline": "Vous êtes connecté, mais cette page n'a pas pu joindre la base de données politiques ; la modification est donc désactivée. Rechargez pour réessayer."
+  },
+  "sync": {
+    "saving": "Enregistrement…",
+    "saved": "Toutes les modifications sont enregistrées",
+    "error": "Échec de l'enregistrement : {{message}}. Rechargez pour voir ce qui a été enregistré."
   }
 }

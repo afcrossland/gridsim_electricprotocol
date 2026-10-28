@@ -24,12 +24,12 @@
   {
     "id": 7,
     "spotlightTag": "Policy Landscape",
-    "spotlightCaption": "Score and questions answered per policy area - click a tile to see its own exemplars, questions, rubric, and the evidence behind each answer, editable by anyone."
+    "spotlightCaption": "Score and questions answered per policy area - click a tile to see its own examples, questions, rubric, and the evidence behind each answer, editable by anyone."
   },
   {
     "id": 11,
     "spotlightTag": "See the evidence",
-    "spotlightCaption": "Each answer sits on a ladder from Weak to Strong, and the highlighted tile is where this jurisdiction sits - open Evidence to see the citation behind it, or click an exemplar to see theirs."
+    "spotlightCaption": "Each answer sits on a ladder from No to Yes, and the highlighted tile is where this jurisdiction sits - open Evidence to see the citation behind it, or click an example to see theirs."
   },
   {
     "id": 12,

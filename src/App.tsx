@@ -14,13 +14,111 @@ import PolicyMap from "./components/map/PolicyMap";
 import JurisdictionSearch from "./components/map/JurisdictionSearch";
 import ScrollStory from "./scrollstory/ScrollStory";
 import FooterComposition from "../shared/components/FooterComposition";
+import MobileViewToggle from "../shared/components/MobileViewToggle";
 import SidebarShell from "../shared/components/SidebarShell";
 import { sourcedCountries } from "./data/sourcedAnswers";
+import { canEdit, editorFetch, editsSaveToDatabase, useEditorStore } from "./lib/editorAuth";
+import { sendWith, startPolicySync, useSyncStore } from "./lib/policySync";
 import { qualifiedName, resolveTargets } from "./lib/jurisdictions";
 import { scoreCountry } from "./lib/scoring";
 import { protocol, useProtocolStore } from "./stores/protocolStore";
 
 const PANEL_WIDTH = 460;
+
+/**
+ * Applies the three launch URL params once, at module load - before the
+ * first render, so the tour never mounts at all on a link that skips it.
+ * These used to be mount effects, which raced the tour: on a first visit the
+ * tour mounted alongside them, and its opening scene's own
+ * `selectCountry(null)` could land after `?country` had selected one. Under
+ * StrictMode's double effect run in dev it always did, since the re-run of
+ * App's effect found the param already stripped.
+ *
+ * - `?skipIntro` - a link from somewhere that already framed the app (e.g.
+ *   the Electric Futures Playbook) marks the tour as seen.
+ * - `?showTour` - the inverse, e.g. the playbook's "Show me how": opens the
+ *   tour even for a returning visitor.
+ * - `?country=CODE` (plus optional `&section=<section id>`) - opens
+ *   straight into that country's page, and that policy area if given (e.g.
+ *   the Deployment Explorer's cross-link tiles), implicitly skipping the
+ *   tour too: a reader who arrives already knowing which country they want
+ *   doesn't need the first-run framing.
+ *
+ * skipIntro/showTour are stripped right after, so a reload or reshare
+ * doesn't carry them along. country/section stay: they're the app's own
+ * shareable location, kept in step by useLocationSync below. Returns
+ * whether the intro was skipped, which also turns off the tour's "solar
+ * bloom" opening.
+ */
+function applyLaunchParams(): { skipsIntro: boolean } {
+  const url = new URL(window.location.href);
+  const params = url.searchParams;
+  const store = useProtocolStore.getState();
+  const country = params.get("country");
+  const skipsIntro = params.has("skipIntro") || Boolean(country);
+  if (skipsIntro) store.setTourSeen(true);
+  else if (params.has("showTour")) store.setTourSeen(false);
+  if (country) {
+    store.setPage("map");
+    applyLocation(params);
+  }
+  if (params.has("skipIntro") || params.has("showTour")) {
+    params.delete("skipIntro");
+    params.delete("showTour");
+    window.history.replaceState({}, "", url);
+  }
+  return { skipsIntro };
+}
+
+/** Selects the country (and section, if it's a real one) a URL's params name. */
+function applyLocation(params: URLSearchParams) {
+  const store = useProtocolStore.getState();
+  const country = params.get("country");
+  store.selectCountry(country ? country.toUpperCase() : null);
+  const section = params.get("section");
+  if (country && section && store.sections.some((s) => s.id === section)) store.setActiveSectionId(section);
+}
+
+/** The URL for a selection - the current one with only country/section changed. */
+function locationUrl(country: string | null, section: string): string {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("country");
+  url.searchParams.delete("section");
+  if (country) url.searchParams.set("country", country);
+  if (country && section) url.searchParams.set("section", section);
+  return url.toString();
+}
+
+const launch = applyLaunchParams();
+
+/**
+ * Keeps `?country=&section=` in step with what's open, so a country or
+ * policy area can be linked to and the browser's back button steps back
+ * through them. Each change pushes a history entry; Back/Forward re-apply
+ * the URL they land on. Off during the tour, which drives the selection
+ * itself and always ends back at the plain world view.
+ */
+function useLocationSync(enabled: boolean) {
+  const selectedCountry = useProtocolStore((s) => s.selectedCountry);
+  const activeSectionId = useProtocolStore((s) => s.activeSectionId);
+
+  // The first sync only normalises the URL the page opened with (e.g. a
+  // lowercase ?country=de) rather than adding a history entry for it.
+  const synced = useRef(false);
+  useEffect(() => {
+    if (!enabled) return;
+    const next = locationUrl(selectedCountry, activeSectionId);
+    if (next !== window.location.href) window.history[synced.current ? "pushState" : "replaceState"]({}, "", next);
+    synced.current = true;
+  }, [enabled, selectedCountry, activeSectionId]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const onPop = () => applyLocation(new URLSearchParams(window.location.search));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [enabled]);
+}
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -28,10 +126,13 @@ export default function App() {
   const responses = useProtocolStore((s) => s.responses);
   const threshold = useProtocolStore((s) => s.threshold);
   const mapMetric = useProtocolStore((s) => s.mapMetric);
+  // The region filter's selection: with no country open, the map frames it.
+  const scoreboardSubregions = useProtocolStore((s) => s.scoreboardFilters.subregions);
   const setMapMetric = useProtocolStore((s) => s.setMapMetric);
   const welcomeSeen = useProtocolStore((s) => s.welcomeSeen);
   const setWelcomeSeen = useProtocolStore((s) => s.setWelcomeSeen);
   const tourSeen = useProtocolStore((s) => s.tourSeen);
+  useLocationSync(tourSeen);
   const tourSectionId = useProtocolStore((s) => s.tourSectionId);
   const setTourSectionId = useProtocolStore((s) => s.setTourSectionId);
   const setTourSeen = useProtocolStore((s) => s.setTourSeen);
@@ -49,7 +150,7 @@ export default function App() {
   // has actually been dismissed for the first time, `bloomActive` turns off
   // for good, so "About" reopening the Charter later behaves normally
   // (chrome stays visible, no bloom).
-  const [bloomActive, setBloomActive] = useState(true);
+  const [bloomActive, setBloomActive] = useState(!launch.skipsIntro);
   // Edge-detected, not "is welcomeSeen true" as a static condition - that
   // would immediately re-latch bloomActive back off on every render once
   // welcomeSeen has ever been true, which defeats re-arming it below.
@@ -75,36 +176,6 @@ export default function App() {
   }, [tourSeen, welcomeSeen]);
   const onboardingHero = bloomActive && (heroScene || (!welcomeSeen && tourSeen));
 
-  // A link into the app (e.g. from the Electric Futures Playbook mockup)
-  // can skip the first-run tour with ?skipIntro - useful for anyone who's
-  // already seen an equivalent "welcome" framing on the page that sent them
-  // here. Once set, tourSeen persists as usual, so this only ever needs to
-  // fire on that first visit; the param is stripped right after so a reload
-  // or reshare of the resulting URL doesn't carry it along.
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("skipIntro")) return;
-    setTourSeen(true);
-    setBloomActive(false);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("skipIntro");
-    window.history.replaceState({}, "", url);
-    // Only ever meant to run once, against the URL the page loaded with.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // The inverse - a link that wants to open straight into the tour even if
-  // this visitor (or browser) has already seen it, e.g. the playbook's own
-  // "Show me how". Same trigger the nav's "Take the tour" uses (setTourSeen
-  // false); the bloom re-arm effect above already reacts to that transition,
-  // so there's nothing else to set here.
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("showTour")) return;
-    setTourSeen(false);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("showTour");
-    window.history.replaceState({}, "", url);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   // Desktop-only, view preference like `comparing` - not persisted, and
   // irrelevant on the mobile stacked layout, which has no side-by-side
   // sidebar to collapse in the first place.
@@ -117,6 +188,29 @@ export default function App() {
   const [listScrolled, setListScrolled] = useState(false);
   const page = useProtocolStore((s) => s.page);
   const setPage = useProtocolStore((s) => s.setPage);
+  // The admin console is only for editors (lib/editorAuth.ts) - leave it if
+  // they sign out, or if anything else lands here without a sign-in.
+  const mayEdit = useEditorStore((s) => canEdit(s));
+  useEffect(() => {
+    if (page === "admin" && !mayEdit) setPage("map");
+  }, [page, mayEdit, setPage]);
+
+  // While an editor is signed in on a database build, every change they make
+  // is saved there (lib/policySync.ts); leaving with saves still pending asks
+  // first.
+  const savesToDatabase = useEditorStore((s) => editsSaveToDatabase(s));
+  useEffect(() => {
+    if (!savesToDatabase) return;
+    const stop = startPolicySync(useProtocolStore.subscribe, useProtocolStore.getState, sendWith(editorFetch));
+    const warn = (e: BeforeUnloadEvent) => {
+      if (useSyncStore.getState().pending > 0) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => {
+      stop();
+      window.removeEventListener("beforeunload", warn);
+    };
+  }, [savesToDatabase]);
   const selectedCountry = useProtocolStore((s) => s.selectedCountry);
   const selectCountry = useProtocolStore((s) => s.selectCountry);
   const comparing = useProtocolStore((s) => s.comparing);
@@ -132,26 +226,6 @@ export default function App() {
     setPage("map");
     selectCountry(code);
   };
-
-  // A link into the app can open straight into a specific country's page -
-  // e.g. the Deployment Explorer's country detail panel linking back here
-  // for the same country. Same param-stripping pattern as skipIntro/showTour
-  // above, and combined with an implicit skip of the first-run tour: a
-  // reader arriving already knowing which country they want came from
-  // somewhere that already framed the app, so the onboarding tour would be
-  // redundant on top of it.
-  useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get("country");
-    if (!code) return;
-    setTourSeen(true);
-    setBloomActive(false);
-    handleSelectCountry(code.toUpperCase());
-    const url = new URL(window.location.href);
-    url.searchParams.delete("country");
-    window.history.replaceState({}, "", url);
-    // Only ever meant to run once, against the URL the page loaded with.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Every jurisdiction with an answer, plus the ones the spreadsheet shipped
   // with, so an empty Sri Lanka is still visible as something to fill in.
@@ -199,6 +273,7 @@ export default function App() {
       scores={scores}
       metric={mapMetric}
       selectedCountry={selectedCountry}
+      subregions={scoreboardSubregions}
       onCountryClick={handleSelectCountry}
       hideLegend={onboardingHero}
       introBloom={onboardingHero}
@@ -285,7 +360,7 @@ export default function App() {
         // Full takeover - there is nothing useful to keep the map visible
         // for while editing question definitions, settings, or reading help.
         <Box sx={{ flex: 1, overflow: "hidden" }}>
-          {page === "admin" ? (
+          {page === "admin" && mayEdit ? (
             <AdminConsole onBack={() => setPage("map")} />
           ) : (
             <HelpPage onBack={() => setPage("map")} />
@@ -365,19 +440,7 @@ export default function App() {
                   bgcolor: "background.paper",
                 }}
               >
-                <ToggleButtonGroup
-                  size="small"
-                  exclusive
-                  value={mobileView}
-                  onChange={(_, next) => next && setMobileView(next)}
-                >
-                  <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                    List
-                  </ToggleButton>
-                  <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                    Map
-                  </ToggleButton>
-                </ToggleButtonGroup>
+                <MobileViewToggle value={mobileView} onChange={setMobileView} />
               </Box>
               <Divider />
             </Collapse>

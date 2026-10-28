@@ -39,9 +39,10 @@ import { buildPdfBlob } from "../../shared/pdf/buildPdf";
 import { fetchFlagPng } from "./lib/report/flag";
 import { buildHomesReportModel, homesReportDate, homesReportFileName } from "./lib/report/homesReportModel";
 import FooterComposition from "../../shared/components/FooterComposition";
+import MobileViewToggle from "../../shared/components/MobileViewToggle";
 import LoginModal from "../../shared/components/LoginModal";
 import SidebarShell from "../../shared/components/SidebarShell";
-import { isMember } from "../../shared/lib/membership";
+import { useMembership } from "../../shared/lib/useMembership";
 import TourOverlay from "../../shared/tour/TourOverlay";
 import { useTourState } from "../../shared/tour/useTourState";
 
@@ -147,7 +148,7 @@ export default function App({ mode, setMode }: Props) {
   // exactly that ("after i click on a country... and then go back, the
   // filter needs to persist").
   const [leagueDesc, setLeagueDesc] = useState(true);
-  const [leagueContinents, setLeagueContinents] = useState<string[]>([]);
+  const [leagueSubregions, setLeagueSubregions] = useState<string[]>([]);
   const [leagueFiltersExpanded, setLeagueFiltersExpanded] = useState(false);
 
   // The "Login" header button + its password popup - a client-side gate,
@@ -158,8 +159,7 @@ export default function App({ mode, setMode }: Props) {
   // Unlocks the Design tab's own locked sliders (RefineForm.tsx) and turns
   // the map's own Global Simulator from a locked teaser into the real,
   // working thing (WorldMap.tsx's own `member` prop).
-  const [member, setMember] = useState(isMember);
-  const [loginOpen, setLoginOpen] = useState(false);
+  const { member, loginOpen, openLogin, closeLogin, onLoginSuccess } = useMembership();
 
   // The tour/Help/Login header buttons, and the tour itself, are all new
   // 2026-09-19 (this app had none before) - built on the same shared
@@ -278,6 +278,7 @@ export default function App({ mode, setMode }: Props) {
     <WorldMap
       selectedCode={location?.mapCode ?? null}
       selectedPoint={location && !location.mapCode ? { lat: location.lat, lon: location.lon } : null}
+      subregions={leagueSubregions}
       onSelect={handleSelect}
       metric={metric}
       globalSimulator={mapView === "globalSimulator"}
@@ -344,8 +345,8 @@ export default function App({ mode, setMode }: Props) {
               onSelect={handleSelect}
               desc={leagueDesc}
               onToggleSort={() => setLeagueDesc((d) => !d)}
-              continents={leagueContinents}
-              onContinentsChange={setLeagueContinents}
+              subregions={leagueSubregions}
+              onSubregionsChange={setLeagueSubregions}
               filtersExpanded={leagueFiltersExpanded}
               onToggleFiltersExpanded={() => setLeagueFiltersExpanded((v) => !v)}
             />
@@ -501,7 +502,7 @@ export default function App({ mode, setMode }: Props) {
           apps' own App.tsx hide their equivalent nav/footer there, for an
           unobstructed view of the map. */}
       {!heroScene && (
-        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} member={member} onOpenLogin={() => setLoginOpen(true)} />
+        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} member={member} onOpenLogin={openLogin} />
       )}
 
       {page === "help" ? (
@@ -555,14 +556,7 @@ export default function App({ mode, setMode }: Props) {
                   <Box data-tour="location-search" sx={{ minWidth: 0, flexShrink: 1 }}>
                     <LocationSearchBar selectedCountryCode={undefined} onSelect={selectLocation} />
                   </Box>
-                  <ToggleButtonGroup size="small" exclusive value={mobileView} onChange={(_, next) => next && setMobileView(next)}>
-                    <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                      List
-                    </ToggleButton>
-                    <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                      Map
-                    </ToggleButton>
-                  </ToggleButtonGroup>
+                  <MobileViewToggle value={mobileView} onChange={setMobileView} />
                 </Box>
                 <Divider />
                 {mobileView === "map" ? (
@@ -645,7 +639,7 @@ export default function App({ mode, setMode }: Props) {
         </>
       )}
 
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setMember(true)} />
+      <LoginModal open={loginOpen} onClose={closeLogin} onSuccess={onLoginSuccess} />
     </Box>
   );
 }

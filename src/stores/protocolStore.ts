@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import seed from "../data/protocol.seed.json";
+import { readPolicyData, usingDatabase } from "../data/policyData";
 import { sourcedResponses } from "../data/sourcedAnswers";
 import i18n, { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "../i18n";
 import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
@@ -11,7 +11,7 @@ import { diffResponses, type QuestionProposal, type Suggestion } from "../lib/su
 import { getStoredMode, setStoredMode } from "../../shared/lib/darkMode";
 import { type EvidenceItem, type Protocol, type Question, type Response, type Section } from "../lib/types";
 
-const protocol = seed as unknown as Protocol;
+const protocol = readPolicyData().protocol as unknown as Protocol;
 
 /**
  * Everything mutable lives here behind a small set of actions. There is no
@@ -102,6 +102,14 @@ interface ProtocolState {
    * `selectedCountry` - a navigation aid, not user data.
    */
   tourSectionId: string | null;
+  /**
+   * Which policy area is open on the selected country's page ("" for the
+   * tile overview). Lives here rather than in CountryPanel so the map can
+   * recolour by that section and the URL can carry it. Reset on every
+   * selectCountry, so a newly opened country starts from its overview. Not
+   * persisted, same as `selectedCountry`.
+   */
+  activeSectionId: string;
 
   setThreshold: (threshold: number) => void;
   setMapMetric: (mapMetric: "score" | "completeness") => void;
@@ -112,6 +120,7 @@ interface ProtocolState {
   setLanguage: (language: string) => void;
   selectCountry: (code: string | null) => void;
   setTourSectionId: (id: string | null) => void;
+  setActiveSectionId: (id: string) => void;
   setComparing: (comparing: boolean) => void;
   /** No-ops past MAX_COMPARE_COUNTRIES or on a duplicate code. */
   addCompareCountry: (code: string) => void;
@@ -149,6 +158,8 @@ interface ProtocolState {
   /**
    * Files a single-question correction as a pending Suggestion without touching the live
    * responses - the proposed answer (and its evidence) only applies if a reviewer accepts it.
+   * Returns it (null if it changes nothing); on database builds it is not kept here, since the
+   * dialog files it with the server.
    */
   submitCorrection: (input: {
     countryCode: string;
@@ -159,9 +170,9 @@ interface ProtocolState {
     reason: string;
     submitterName: string;
     submitterOrganisation: string;
-  }) => void;
+  }) => Suggestion | null;
   /** Files a proposal for a new question as pending. Nothing is added to the question set until it is accepted. */
-  submitQuestionProposal: (input: Omit<QuestionProposal, "id" | "submittedAt" | "status" | "questionId">) => void;
+  submitQuestionProposal: (input: Omit<QuestionProposal, "id" | "submittedAt" | "status" | "questionId">) => QuestionProposal;
   /** Accepting adds the question (three rubric tiers, the given weight) so it counts toward scores straight away; rejecting a previously-accepted proposal removes it again. */
   reviewQuestionProposal: (id: string, decision: "accepted" | "rejected", weight?: number) => void;
   /** On "rejected", also restores every response the suggestion touched back to its pre-suggestion value. */
@@ -292,6 +303,26 @@ export function seedResponses(): Response[] {
     }
     byKey.set(key, r);
   }
+
+  // Answers editors set in the app (Phase 4) win over researched ones; a
+  // cleared one (score null) removes the researched answer too.
+  if (usingDatabase()) {
+    for (const e of readPolicyData().responses) {
+      const key = `${e.countryCode}|${e.questionId}`;
+      if (e.score === null) {
+        byKey.delete(key);
+        continue;
+      }
+      byKey.set(key, {
+        questionId: e.questionId,
+        countryCode: e.countryCode,
+        score: e.score,
+        evidence: e.evidence,
+        updatedAt: e.updatedAt,
+        ...(e.basis ? { basis: e.basis } : {}),
+      });
+    }
+  }
   return [...byKey.values()];
 }
 
@@ -321,6 +352,7 @@ function initialState() {
     responses: seedResponses(),
     selectedCountry: null,
     tourSectionId: null,
+    activeSectionId: "",
     comparing: false,
     compareCountries: [],
     scoreboardFilters: DEFAULT_SCOREBOARD_FILTERS,
@@ -365,8 +397,9 @@ export const useProtocolStore = create<ProtocolState>()(
       // always means "look at this one", which is not compatible with
       // whatever compare state was left over from a previous detail view.
       selectCountry: (code) =>
-        set({ selectedCountry: code, comparing: false, compareCountries: [], tourSectionId: null }),
+        set({ selectedCountry: code, comparing: false, compareCountries: [], tourSectionId: null, activeSectionId: "" }),
       setTourSectionId: (tourSectionId) => set({ tourSectionId }),
+      setActiveSectionId: (activeSectionId) => set({ activeSectionId }),
       setComparing: (comparing) => set({ comparing }),
       addCompareCountry: (code) =>
         set((state) =>
@@ -517,52 +550,54 @@ export const useProtocolStore = create<ProtocolState>()(
         reason,
         submitterName,
         submitterOrganisation,
-      }) =>
-        set((state) => {
-          const baseline = state.responses.filter((r) => r.countryCode === countryCode);
-          const existing = baseline.find((r) => r.questionId === questionId);
-          const evidence = [
-            ...(existing?.evidence ?? []),
-            { title: "Submitted correction", source: source.trim(), note: reason.trim() },
-          ];
-          const revised: Response = {
-            questionId,
-            countryCode,
-            score: proposedScore,
-            evidence,
-            updatedAt: new Date().toISOString(),
-          };
-          const proposed = [...baseline.filter((r) => r.questionId !== questionId), revised];
-          const changes = diffResponses(baseline, proposed, state.questions);
-          if (changes.length === 0) return state;
+      }) => {
+        const state = get();
+        const baseline = state.responses.filter((r) => r.countryCode === countryCode);
+        const existing = baseline.find((r) => r.questionId === questionId);
+        const evidence = [
+          ...(existing?.evidence ?? []),
+          { title: "Submitted correction", source: source.trim(), note: reason.trim() },
+        ];
+        const revised: Response = {
+          questionId,
+          countryCode,
+          score: proposedScore,
+          evidence,
+          updatedAt: new Date().toISOString(),
+        };
+        const proposed = [...baseline.filter((r) => r.questionId !== questionId), revised];
+        const changes = diffResponses(baseline, proposed, state.questions);
+        if (changes.length === 0) return null;
 
-          const suggestion: Suggestion = {
-            id: `sg-${Date.now().toString(36)}`,
-            countryCode,
-            countryName,
-            submitterName,
-            submitterOrganisation,
-            submittedAt: new Date().toISOString(),
-            status: "pending",
-            changes,
-            baseline,
-            proposed,
-          };
-          return { suggestions: [...state.suggestions, suggestion] };
-        }),
+        const suggestion: Suggestion = {
+          id: `sg-${Date.now().toString(36)}`,
+          countryCode,
+          countryName,
+          submitterName,
+          submitterOrganisation,
+          submittedAt: new Date().toISOString(),
+          status: "pending",
+          changes,
+          baseline,
+          proposed,
+        };
+        // On database builds the dialog files it with the server instead
+        // (lib/reviewApi.ts), and editors load everyone's from there.
+        if (!usingDatabase()) set({ suggestions: [...state.suggestions, suggestion] });
+        return suggestion;
+      },
 
-      submitQuestionProposal: (input) =>
-        set((state) => ({
-          questionProposals: [
-            ...state.questionProposals,
-            {
-              ...input,
-              id: `qp-${Date.now().toString(36)}`,
-              submittedAt: new Date().toISOString(),
-              status: "pending",
-            },
-          ],
-        })),
+      submitQuestionProposal: (input) => {
+        const proposal: QuestionProposal = {
+          ...input,
+          id: `qp-${Date.now().toString(36)}`,
+          submittedAt: new Date().toISOString(),
+          status: "pending",
+        };
+        // Filed with the server instead on database builds - see submitCorrection.
+        if (!usingDatabase()) set((state) => ({ questionProposals: [...state.questionProposals, proposal] }));
+        return proposal;
+      },
 
       reviewQuestionProposal: (id, decision, weight = 1) => {
         const proposal = get().questionProposals.find((p) => p.id === id);
@@ -857,7 +892,21 @@ export const useProtocolStore = create<ProtocolState>()(
        * every load removes that failure mode rather than relying on
        * remembering to bump the version every time the data changes.
        */
-      partialize: (state) => ({
+      partialize: (state) =>
+        usingDatabase()
+          ? // The policy database holds the data on these builds (see merge
+            // below), so only preferences and the browser-only suggestion
+            // queues (until Phase 6) are kept here.
+            {
+              mapMetric: state.mapMetric,
+              welcomeSeen: state.welcomeSeen,
+              tourSeen: state.tourSeen,
+              mode: state.mode,
+              language: state.language,
+              suggestions: state.suggestions,
+              questionProposals: state.questionProposals,
+            }
+          : {
         threshold: state.threshold,
         mapMetric: state.mapMetric,
         welcomeSeen: state.welcomeSeen,
@@ -873,7 +922,7 @@ export const useProtocolStore = create<ProtocolState>()(
         removedQuestionIds: state.removedQuestionIds,
         suggestions: state.suggestions,
         questionProposals: state.questionProposals,
-      }),
+            },
 
       /**
        * Rebuild the full response list on every load - current seed data,
@@ -886,6 +935,27 @@ export const useProtocolStore = create<ProtocolState>()(
       merge: (persisted, current) => {
         const state = persisted as Partial<ProtocolState> | undefined;
         if (!state) return current;
+
+        // On builds reading the policy database the database is the record:
+        // edits this browser saved before (or under an older build) must not
+        // hide it, so only preferences and the browser-only suggestion queues
+        // (until Phase 6) carry over. Sections, questions, answers and the
+        // threshold all come from the database, already in `current`.
+        if (usingDatabase()) {
+          if (state.language && (SUPPORTED_LANGUAGES as readonly string[]).includes(state.language)) {
+            i18n.changeLanguage(state.language);
+          }
+          return {
+            ...current,
+            mapMetric: state.mapMetric ?? current.mapMetric,
+            welcomeSeen: state.welcomeSeen ?? current.welcomeSeen,
+            tourSeen: state.tourSeen ?? current.tourSeen,
+            mode: getStoredMode() ?? state.mode ?? current.mode,
+            language: state.language ?? current.language,
+            suggestions: state.suggestions ?? current.suggestions,
+            questionProposals: state.questionProposals ?? current.questionProposals,
+          };
+        }
 
         // migrateResponseShape also runs here, not just in `migrate` below -
         // `migrate` only fires on an actual version bump, so a response

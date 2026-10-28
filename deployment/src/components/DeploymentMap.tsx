@@ -1,89 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect } from "react";
 import { Map as MapGL, Source, Layer } from "react-map-gl/maplibre";
-import type { LayerProps, MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
+import type { LayerProps, MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
-import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useTranslation } from "react-i18next";
 
-import World from "../assets/jurisdictions.geojson?url";
+import World from "../../../shared/assets/jurisdictions.dissolved.geojson?url";
 import FlagImg from "../../../shared/components/FlagImg";
 import MapHoverTooltip from "../../../shared/components/MapHoverTooltip";
 import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
 import { GSC_RAMP, COLOR_NO_DATA, logNormalize } from "../../../shared/lib/mapColor";
-import { loadMapStyle } from "../../../shared/lib/mapStyle";
+import { boundsOfCodes, regionFrameWindow } from "../../../shared/lib/mapBounds";
+import { WORLD_BOUNDS, useWorldMap } from "../../../shared/lib/useWorldMap";
 import { canonicalCode, jurisdictionName, resolveTargets, subregionOf } from "../lib/jurisdictions";
 import { codesForMetric, domainForMetric, valueForMap, type Metric } from "../lib/metrics";
 
 const INITIAL_VIEW = { longitude: 10, latitude: 20, zoom: 1.4 };
-const WORLD_BOUNDS: [[number, number], [number, number]] = [
-  [-170, -58],
-  [180, 78],
-];
-
-/**
- * Bounding box of a set of jurisdictions' own feature(s) - trimmed from
- * ep_policymap/src/components/map/PolicyMap.tsx's own `boundsOf` (which
- * takes a single code; this one a list, so a continent's own union of
- * countries can be framed the same way as one country's union of states).
- *
- * Handles territories that straddle the antimeridian, ported from that
- * same original 2026-10-14 after selecting the United States (Alaska's own
- * Aleutian chain crosses 180°, stored as positive longitudes around 172°E
- * for its western end) silently failed to zoom at all - a plain min/max
- * spanned nearly the full 360° of longitude and framed almost the entire
- * world instead of the country. This was wrongly assumed not to apply here
- * when the function was first trimmed down ("this app is a demo over ~40
- * placeholder countries, none of which hit that case") - the US was
- * already one of them. Fiji, Russia and NZ's Chathams have the same shape
- * of problem and are fixed by the same code.
- *
- * The fix measures the longitude span twice - once on [-180, 180] and once
- * with negative longitudes shifted into [0, 360) - and keeps whichever is
- * tighter. MapLibre accepts longitudes past 180 and wraps them, so the
- * shifted box can be handed straight to `fitBounds`.
- *
- * Takes the already-`resolveTargets`-expanded code list, not raw codes - a
- * subdivided country (Australia, the US, Canada) has no feature of its
- * own, only its states/provinces, so framing "AU" means framing the union
- * of every AU-* feature instead.
- */
-function boundsOf(data: FeatureCollection, codes: string[]): [[number, number], [number, number]] | null {
-  const codeSet = new Set(codes);
-  const lngs: number[] = [];
-  let minLat = Infinity;
-  let maxLat = -Infinity;
-
-  const visit = (coords: unknown): void => {
-    if (!Array.isArray(coords)) return;
-    if (typeof coords[0] === "number" && typeof coords[1] === "number") {
-      const [lng, lat] = coords as [number, number];
-      lngs.push(lng);
-      if (lat < minLat) minLat = lat;
-      if (lat > maxLat) maxLat = lat;
-      return;
-    }
-    for (const part of coords) visit(part);
-  };
-
-  for (const feature of data.features) {
-    if (!codeSet.has(feature.properties?.code)) continue;
-    if (feature.geometry && "coordinates" in feature.geometry) visit(feature.geometry.coordinates);
-  }
-
-  if (lngs.length === 0) return null;
-
-  const plain = { min: Math.min(...lngs), max: Math.max(...lngs) };
-  const shiftedLngs = lngs.map((lng) => (lng < 0 ? lng + 360 : lng));
-  const shifted = { min: Math.min(...shiftedLngs), max: Math.max(...shiftedLngs) };
-  const best = shifted.max - shifted.min < plain.max - plain.min ? shifted : plain;
-
-  return [
-    [best.min, minLat],
-    [best.max, maxLat],
-  ];
-}
 
 // MapLibre expression, not a plain value - react-map-gl's LayerProps types
 // don't model expressions precisely, same reasoning as the policy tool's
@@ -124,10 +57,9 @@ interface Props {
 
 export default function DeploymentMap({ metric, selectedCountry, onCountryClick, subregions, hideLegend }: Props) {
   const { t, i18n } = useTranslation();
-  const mapRef = useRef<MapRef>(null);
-  const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
-  const [sourceReady, setSourceReady] = useState(false);
-  const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { mapRef, worldData, mapStyle, sourceReady, onSourceData, hover, setHover } = useWorldMap(World, theme.palette.mode);
 
   const selectedLayer: LayerProps = {
     id: "deployment-selected",
@@ -139,34 +71,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
     paint: { "line-color": "#ffffff", "line-width": 2 },
   };
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const mapStyle = useMemo(() => loadMapStyle(theme.palette.mode), [theme.palette.mode]);
-
-  // Switching `mapStyle` (light/dark) makes MapLibre re-style the whole
-  // map, which recreates the "countries" GeoJSON source from scratch and
-  // wipes every feature-state previously set on it via setFeatureState -
-  // bug found 2026-09-11 (colours vanished on toggling dark mode). Nothing
-  // in the colouring effect below re-runs on its own when only the theme
-  // mode changes (its deps are metric/sourceReady/worldData), so resetting
-  // `sourceReady` here forces it through "not ready" and back to "ready"
-  // once `onSourceData` fires again for the freshly-recreated source -
-  // that retrigger is what gets the colours re-applied.
-  useEffect(() => {
-    setSourceReady(false);
-  }, [mapStyle]);
-
-  useEffect(() => {
-    let mounted = true;
-    fetch(World)
-      .then((r) => r.json())
-      .then((data) => mounted && setWorldData(data))
-      .catch((err) => console.error("failed to load world geometry", err));
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     const map = mapRef.current?.getMap();
@@ -217,7 +122,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
     const map = mapRef.current?.getMap();
     if (!map || !worldData) return;
     if (selectedCountry) {
-      const bounds = boundsOf(worldData, resolveTargets(selectedCountry));
+      const bounds = boundsOfCodes(worldData, resolveTargets(selectedCountry));
       if (bounds) map.fitBounds(bounds, { padding: 80, duration: 600, maxZoom: 5 });
       return;
     }
@@ -229,7 +134,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
         const subregion = subregionOf(code);
         return subregion !== null && subregions.includes(subregion);
       });
-      const bounds = boundsOf(worldData, codes.flatMap((code) => resolveTargets(code)));
+      const bounds = boundsOfCodes(worldData, codes.flatMap((code) => resolveTargets(code)), regionFrameWindow(subregions));
       if (bounds) {
         map.fitBounds(bounds, { padding: 40, duration: 600 });
         return;
@@ -265,9 +170,7 @@ export default function DeploymentMap({ metric, selectedCountry, onCountryClick,
         onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseOut={() => setHover(null)}
-        onSourceData={(e) => {
-          if (e.sourceId === "countries" && e.isSourceLoaded) setSourceReady(true);
-        }}
+        onSourceData={onSourceData}
         cursor={hover ? "pointer" : "grab"}
       >
         {worldData && (

@@ -10,12 +10,19 @@ interface Props {
   tooltip?: string;
   /**
    * Policy's own "Admin console" button is NOT a placeholder like the
-   * other two apps' "Login" - it actually navigates to a real (if
-   * unauthenticated - "stands in for auth... open to anyone until sign-in
-   * exists") editing page, so it needs a real `onClick`. Omit for the
-   * true placeholder case (deployment's/calculator's own "Login").
+   * other two apps' "Login" - it opens a real editing page (behind an
+   * editor's Google sign-in on builds that edit the shared database - see
+   * policy's `lib/editorAuth.ts`), so it needs a real `onClick`. Omit for
+   * the true placeholder case (deployment's/calculator's own "Login").
    */
   onClick?: () => void;
+  /**
+   * "contained" (default) is the filled brand button. "text" is a quiet nav
+   * link - policy's own Admin console, which is for the few people editing
+   * answers, not the public reading them, so it shouldn't be the most
+   * prominent control in the header.
+   */
+  variant?: "contained" | "text";
 }
 
 /**
@@ -28,19 +35,24 @@ interface Props {
  * for auth" callout), not a dead click; the tooltip is what tells a
  * visitor that.
  */
-export default function AuthButton({ label, mode, tooltip = "Coming soon", onClick }: Props) {
+export default function AuthButton({ label, mode, tooltip = "Coming soon", onClick, variant = "contained" }: Props) {
+  const quiet = variant === "text";
   return (
     <>
       <Tooltip title={tooltip}>
         <IconButton
           onClick={onClick}
-          sx={{
-            display: { xs: "inline-flex", sm: "none" },
-            ml: 1.5,
-            bgcolor: mode === "dark" ? "#4B5563" : "primary.main",
-            color: "primary.contrastText",
-            "&:hover": { bgcolor: mode === "dark" ? "#5B6570" : "primary.dark" },
-          }}
+          sx={
+            quiet
+              ? { display: { xs: "inline-flex", sm: "none" }, ml: 1.5, color: "text.secondary" }
+              : {
+                  display: { xs: "inline-flex", sm: "none" },
+                  ml: 1.5,
+                  bgcolor: mode === "dark" ? "#4B5563" : "primary.main",
+                  color: "primary.contrastText",
+                  "&:hover": { bgcolor: mode === "dark" ? "#5B6570" : "primary.dark" },
+                }
+          }
         >
           <LockOutlinedIcon fontSize="small" />
         </IconButton>
@@ -48,10 +60,10 @@ export default function AuthButton({ label, mode, tooltip = "Coming soon", onCli
       <Tooltip title={tooltip}>
         <Button
           size="small"
-          variant="contained"
+          variant={variant}
           startIcon={<LockOutlinedIcon fontSize="small" />}
           onClick={onClick}
-          sx={{ display: { xs: "none", sm: "inline-flex" }, ml: 1.5 }}
+          sx={{ display: { xs: "none", sm: "inline-flex" }, ml: 1.5, ...(quiet && { color: "text.secondary" }) }}
         >
           {label}
         </Button>

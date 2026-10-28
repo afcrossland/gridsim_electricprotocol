@@ -6,7 +6,7 @@ and a scoreboard.
 
 Built on the same foundations as `gridsim-frontend` - React 19 + TypeScript +
 Vite, MUI 7 with the GSC theme and Eastman Grotesque, MapLibre via
-`react-map-gl`, Zustand for state, GitHub Pages for deploys.
+`react-map-gl`, Zustand for state, Firebase Hosting + Cloud Run for deploys.
 
 ## Site structure
 
@@ -34,7 +34,7 @@ The built site has four HTML entries, not one - see `vite.config.ts`'s
   index.html` mounts its own `calculator/src/main.tsx`, a third separate
   source tree. See `calculator/README.md`.
 
-- **`/klute/`** - the password-protected Data explorer (added 2026-10-12): what data
+- **`/klute/`** - the sign-in-protected Data explorer (added 2026-10-12): what data
   sits behind each explorer and where it has gaps. One tab per explorer - Future Grid
   Simulator (coverage heatmaps for generation, demand, installed capacity and weather,
   plus a per-region generation chart), Policy Explorer (answers and evidence per
@@ -42,9 +42,10 @@ The built site has four HTML entries, not one - see `vite.config.ts`'s
   Calculator (irradiance and self-sufficiency tables). It has its own `klute/src/` tree
   and is not linked from the splash page. See "The /klute data explorer" below.
 
-All four entries share the same `base` (see Deployment below), so asset
-URLs resolve correctly under either the GitHub Pages subpath or a custom
-domain regardless of which entry references them. All three apps (policy,
+The four public entries share the same `base` (`VITE_BASE`, default `/`), so
+asset URLs resolve the same whichever entry references them. `/klute/` is not
+part of that build: it has its own (`npm run build:klute`) and ships inside its
+sign-in gate, never on public hosting. All three apps (policy,
 deployment, calculator) also share one common UI toolkit at `shared/` -
 see "Shared UI" below.
 
@@ -55,8 +56,11 @@ returning visitor, and `?country=CODE` (added 2026-09-10, for the
 Deployment Explorer's own cross-link tiles - see its README) opens straight
 into that country's page, implicitly behaving like `skipIntro` too (a
 reader arriving already knowing which country they want doesn't need the
-first-run tour). All three strip themselves from the URL after taking
-effect - see the mount-time effects near the top of `App.tsx`.
+first-run tour). `&section=<section id>` (e.g. `grid-connection`) can be added
+to open a policy area too. `skipIntro`/`showTour` strip themselves from the
+URL after taking effect; `country`/`section` stay, since the app keeps them in
+step with whatever is open (so any view is linkable and Back/Forward work) -
+see `applyLaunchParams` and `useLocationSync` near the top of `App.tsx`.
 
 ## Running it
 
@@ -83,51 +87,94 @@ wired into `package.json` (they're one-time reads run by hand, not part of
 this project's regular workflow) - `python3 deployment/scripts/build_ember_solar.py`
 etc. See `deployment/README.md`.
 
-## Deployment
+## Branches and deployment
 
-Pushing to `main` builds and publishes to GitHub Pages via
-`.github/workflows/deploy.yml`. The workflow typechecks and runs the tests
-before building, so a failing test blocks the deploy.
+- **`Development`** is the working branch (and should be the default branch): feature branches
+  merge into it by pull request, and every push to it deploys the **dev** site,
+  `https://electricfutures-dev.web.app`.
+- **`main`** is production: merge `Development` into it by pull request when dev looks
+  right, and the push deploys `https://electricfutures-prod.web.app`.
 
-Two pieces of setup are needed once, in the repository settings:
+`.github/workflows/ci.yml` typechecks, tests and builds every pull request into either
+branch, and tests the /klute gate. `.github/workflows/deploy.yml` does the deploy on
+push: it re-runs the checks, builds the public site to Firebase Hosting, and builds the
+/klute gate image (`klute/gate/Dockerfile`, with the klute build inside) and rolls it out
+to Cloud Run as `klute-gate-<env>`. `firebase.json` rewrites `/klute/**` to that service.
+GCP access is keyless (Workload Identity Federation); GCP accepts dev deploys only from
+`Development` and prod deploys only from `main`.
 
-1. **Settings → Pages → Source: GitHub Actions.**
-2. **Settings → Secrets and variables → Actions → new repository secret
-   `VITE_MAPTILER_KEY`.**
+The infrastructure (hosting sites, gate service, its secrets, the WIF pool and the deploy
+service account) is Terraform in this repo, `infra/terraform/`; its README has the
+one-time setup. Nothing needs setting on the GitHub side: the project, identity pool and
+deploy service account are plain identifiers written into `deploy.yml` (GCP's pool only
+accepts this repo's `Development`/`main`, so they are useless elsewhere), and so is the
+MapTiler key, which is gridsim-frontend's.
 
-The key is compiled into the client bundle and is therefore readable by anyone
-who views the site - that is inherent to a browser-based map, not a mistake.
-Restrict it by domain in the MapTiler console (the Pages origin plus
-`localhost` for development), and use a key dedicated to this project so that
-revoking it never affects anything else.
+The MapTiler key is compiled into the client bundle and is therefore readable by anyone
+who views the site - that is inherent to a browser-based map, not a mistake. Restrict it
+by domain in the MapTiler console (`electricfutures-dev.web.app`,
+`electricfutures-prod.web.app` and `localhost` for development), and note that it is shared with gridsim-frontend, so revoking or re-restricting it
+affects both sites.
 
-`VITE_BASE` sets the asset path prefix. The workflow derives it from the
-repository name, because a GitHub Pages project site is served from a subpath.
-Pointing a custom domain at the site later means setting `VITE_BASE=/` rather
-than changing any code.
+To deploy by hand instead (with `firebase login` and `gcloud` set up), build and run
+`npx firebase-tools deploy --only hosting:electricfutures-dev`; the gate needs its image
+pushed and `gcloud run deploy klute-gate-dev --image ...` as in the workflow.
 
 ## The /klute data explorer
 
 `klute/` is a fifth entry: `klute/index.html` mounts `klute/src/main.tsx`. It reads the
 other explorers' own data files directly (policy answers via `seedResponses()`, the Ember
 JSON in `deployment/src/data/`, the calculator tables), so those tabs need no backend. The
-Future Grid Simulator tab calls the simulator's API (`VITE_FGS_API_BASE_URL`, default
-`http://localhost:8000`): `/coverage/*` for the date-coverage grids and `/historic/*` for the
-region chart.
+Future Grid Simulator tab calls the simulator's API through `/klute/api/` (see below):
+`/coverage/*` for the date-coverage grids and `/historic/*` for the region chart.
 
-**The password is a deterrent here, not security.** This site is static, so the gate
-(`klute/src/lib/gate.ts`) compares a SHA-256 of what you type with `VITE_KLUTE_PASSWORD_HASH`,
-baked in at build time. The data files for the policy, deployment and calculator tabs are
-ordinary bundle assets that anyone can fetch. What the password does protect is the
-simulator tab: the same password is sent as `X-Klute-Password` and the backend (env
-`KLUTE_PASSWORD`, fails closed when unset) checks it on every `/coverage` request.
+**Access is checked on the server.** On the deployed site Firebase Hosting hands every
+`/klute/**` request to the sign-in gate (`klute/gate/main.py`, on Cloud Run). Until you sign
+in with a Google account on the allowlist (Firebase Auth), it serves only a sign-in page:
+the explorer's HTML, JS and data files are not on public hosting at all, they are inside the
+gate's image. Signing in sets a signed, HttpOnly session cookie for 12 hours, and the
+allowlist is re-checked on every request. The simulator tab's calls go to `/klute/api/*`,
+which the gate proxies to the backend, adding the backend's `KLUTE_PASSWORD` itself, so no
+password is ever in the browser.
 
-To set it up: pick a password, put it in the backend's `KLUTE_PASSWORD`, and set repository
-secret `KLUTE_PASSWORD_HASH` to `printf '%s' "<password>" | sha256sum` plus repository
-variable `FGS_API_BASE_URL` to the simulator's API URL. For local use run
-`VITE_KLUTE_PASSWORD_HASH=<hash> npm run dev` and open `/klute/`.
+The allowlist is `klute_allowed_emails` in
+`infra/terraform/environments/<env>/terraform.tfvars`; adding or removing someone is a change there plus
+`terraform apply`.
+
+Locally there is no gate: `npm run dev` serves `/klute/` directly, and the dev server proxies
+`/klute/api/*` to `FGS_API_BASE_URL` (default `http://localhost:8000`), adding
+`KLUTE_PASSWORD` from your shell - e.g. `KLUTE_PASSWORD=<backend's password> npm run dev`.
+The gate's own tests: `cd klute/gate && pip install -r requirements.txt pytest && python -m pytest`.
+The policy-database tests in the same folder (`test_ep_db.py`) also need a throwaway Postgres in
+`EP_TEST_DATABASE_URL` (they drop and recreate its `policy` schema) and are skipped without one.
+
+**Policy database (ROADMAP.md Phases 0-1).** `klute/gate/ep_db/` holds the schema
+(SQLAlchemy models, Alembic migrations in `klute/gate/migrations/`) and
+`python -m ep_db.import_json`, which loads `src/data/`'s JSON into it; `--check` compares the
+database with the files without writing. Both read `DATABASE_URL`
+(`postgresql+psycopg://user:pass@host/electricfutures`).
+
+The gate also serves that data, public and read-only, at `GET /api/policy/data`
+(`klute/gate/ep_db/api.py`; Firebase Hosting rewrites `/api/policy/**` to the gate) in the four
+files' shapes. The Policy Explorer reads it only when built with `VITE_POLICY_API` set - dev
+deploys only, see `deploy.yml` - and falls back to its bundled JSON on any failure, logging a
+console warning. `src/data/policyData.ts` holds the data and `src/main.tsx` loads it before
+importing the app, because several modules build lookup tables from it as they load. Prod
+builds don't make the request at all. Locally: run the gate with a `DATABASE_URL`
+(`uvicorn main:app --port 8080` in `klute/gate/`) and `VITE_POLICY_API=1 npm run dev`; the dev
+server proxies `/api/policy` to `EP_API_BASE_URL` (default `http://localhost:8080`).
+
+**Editing needs a sign-in on those builds (ROADMAP.md Phase 2).** The admin console opens only for
+a Google account on `policy_editor_emails` (`infra/terraform/environments/<env>/terraform.tfvars`);
+adding or removing an editor is a change there plus `terraform apply`. Builds without
+`VITE_POLICY_API` (prod, for now) keep the open admin console whose edits stay in the browser.
 
 ## How data gets updated
+
+**Dev (database builds) works differently - see "Policy database" above and
+ROADMAP.md Phases 1-4:** the policy database is the record there, signed-in
+editors' changes save to it for everyone, and the spreadsheet import updates its
+researched answers. What follows describes builds without it (prod, for now).
 
 The shared dataset lives in git: `protocol.seed.json`, `sourced-answers.json`,
 `indicator-answers.json` and `jurisdictions.json`. **The only way to change what
@@ -237,12 +284,15 @@ Chile (Easter Island) is the one case left unsplit - revisit if answers
 ever get written for it specifically. Re-running `npm run build:geometry`
 after an `EXCLAVES` change reuses the cached Natural Earth download in
 `.cache/`, so it doesn't need network access unless that cache is cleared.
-**Remember to also refresh the Deployment Explorer's own geometry copy**
-after any change here - `deployment/src/assets/jurisdictions.geojson` and
-`deployment/src/data/jurisdictions.json` are copies of this project's own
-`src/assets/`/`src/data/` files, not symlinks, and then need
-`python3 deployment/scripts/dissolve_subdivided.py` re-run on top to
-restore that app's own AU/US/CA country-level dissolution.
+**Remember to also regenerate the shared country-level copies** after any
+change here: the Deployment Explorer and the Solar Homes Calculator share
+`shared/assets/jurisdictions.dissolved.geojson` and
+`shared/data/jurisdictions.dissolved.json`, which are *generated* from this
+project's own `src/assets/jurisdictions.geojson` and `src/data/jurisdictions.json`
+(AU/US/CA dissolved to one country shape) by
+`python3 deployment/scripts/dissolve_subdivided.py`. Re-run it. (This project's
+`src/data/jurisdictions.json` is also what the policy database imports - see
+`klute/gate/ep_db/import_json.py` - so it is never edited by that script.)
 
 ### Answer inheritance
 
@@ -387,6 +437,20 @@ control all gate on this. It resets to read-only on every jurisdiction
 switch, so browsing a new country never silently inherits an edit session
 left open on the last one.
 
+A country's page is one scrolling list: the section tiles at the top, then every
+section's questions under its group heading. Clicking a tile (or opening a
+`?section=` link) scrolls to that heading, pins the tiles as a compact strip;
+"Back to overview" clears it. The tiles also pin themselves as a strip once the
+full grid has scrolled out of view. The map always shows the overall score.
+
+Each question has a short `title` (a few words, edited in the Admin console
+beside the full question). The question card shows just that, the current
+answer (Yes / Somewhat / No, or Not known) and any comparators; clicking
+it opens the full question, the answer levels, exemplars and evidence. Edit
+mode and the guided tour show everything. A question with no title (a newly
+added one) shows its full text, as before. `title` is optional in
+`protocol.seed.json` and stored in `policy.questions.title` (migration 0003).
+
 Editing itself is still live and immediate, not held back for approval - what
 *is* held back is attribution and review. **Submit revised evidence** (in the
 section rail, once something has actually changed this session) bundles
@@ -395,9 +459,10 @@ every edit made to that country since its page was opened into one
 organisation, and files it under Admin console → Suggestions. An admin
 Accepts it (no-op - the data's already live) or Rejects it, which reverts
 exactly the responses that suggestion touched back to their pre-edit
-baseline, nothing more. This only lives in the submitter's own browser today
-- there's no backend to make a suggestion visible to anyone else's browser
-yet, tracked as a known gap rather than a bug.
+baseline, nothing more. On builds without the policy database this only lives
+in the submitter's own browser; on database builds (dev) suggestions and
+question proposals are filed with the server and every editor sees them (ROADMAP.md
+Phase 6).
 
 State persists to `localStorage` behind the actions in
 `src/stores/protocolStore.ts`. Nothing above that layer knows where data lives,
@@ -555,10 +620,10 @@ mount and write to it on every toggle; this app's own `setMode` action
 over whatever this app's own persisted `mode` field says, so a more recent
 choice made in a sibling app is never shadowed by a stale local one.
 
-The live map gets its own dark variant too - `src/assets/map_gsc_dark.json`
+The live map gets its own dark variant too - `shared/assets/map_gsc_dark.json`
 is a transformed copy of the base MapTiler style (`map_gsc.json`: dark
 background/water, light label text, dark label halos), picked by
-`PolicyMap.tsx` based on `theme.palette.mode`. The country-score choropleth
+`shared/lib/mapStyle.ts` (used by all three maps) based on `theme.palette.mode`. The country-score choropleth
 colours themselves (`SCORE_RAMP`) are unchanged in both modes, since that's
 the actual data being visualised, not UI chrome.
 
@@ -646,9 +711,8 @@ A few mechanisms worth knowing about, beyond plain `t("key")` lookups:
   halves of Saint Martin). The ~80 ISO 3166-2-style subdivision codes (US
   states, Canadian provinces, Australian states/territories, France's
   overseas exclaves, the Canary Islands, Svalbard/Jan Mayen) have no such
-  browser API, so those are hand-translated in `data/subdivision-names.json`
-  (identical file, copied between both apps - their subdivision code sets
-  match).
+  browser API, so those are hand-translated in `shared/data/subdivision-names.json`
+  (one file, used by both apps).
 - **Month abbreviations** (Deployment Explorer's total-capacity tile and
   country-detail charts) go through the same idea - `monthAbbrev()`
   (`deployment/src/lib/formatMonth.ts`) wraps a cached
@@ -663,9 +727,8 @@ A few mechanisms worth knowing about, beyond plain `t("key")` lookups:
   language)` in `lib/scoring.ts` are the display-only translation for
   wherever a band's name is actually shown to a reader (same "raw value
   for logic, translated label for display" split as the continent
-  filters). The EU political-bloc row on Policy Explorer's Scoreboard -
-  not a real jurisdiction, so it doesn't go through `jurisdictionName` -
-  has its own tiny `BLOC_NAMES` map next to `POLITICAL_BLOCS`.
+  filters).  (There is no EU row on Policy Explorer's Scoreboard any more -
+  removed 2026-10-23 so the three apps group countries the same way.)
 - **The Citizens Electrification Charter** moved from a single English
   `CHARTER` export (`data/charter.ts`, deleted) to the same structured
   per-language JSON pattern as the Help page - `data/charter.json` +

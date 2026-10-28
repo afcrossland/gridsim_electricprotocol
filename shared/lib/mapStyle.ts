@@ -14,12 +14,9 @@ import mapStyleJsonDark from "../assets/map_gsc_dark.json";
  * in place would leak the substituted key (or a previous render's) into
  * every future call.
  *
- * `map_gsc.json`/`map_gsc_dark.json` themselves are byte-identical to the
- * three apps' own per-app copies (confirmed via `md5` before this file was
- * written) - this is the one shared copy going forward for anything newly
- * built against `shared/`; the three existing per-app copies stay in
- * place until each app is actually ported over (not done yet - see
- * ROADMAP.md).
+ * `map_gsc.json`/`map_gsc_dark.json` here are the one copy of the style: all three
+ * apps load it through this function (the per-app copies were deleted
+ * 2026-10-23, once Policy was the last to switch over).
  */
 export function loadMapStyle(mode: "light" | "dark"): StyleSpecification {
   const base = mode === "dark" ? mapStyleJsonDark : mapStyleJsonLight;

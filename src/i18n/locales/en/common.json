@@ -20,8 +20,10 @@
     "title": "How this works"
   },
   "legend": {
-    "protocolScore": "Protocol score",
-    "questionsAnswered": "Questions answered, by weight"
+    "questionsAnswered": "Questions answered",
+    "notEnoughData": "Not enough data",
+    "inSuns": "in suns",
+    "policyScore": "Policy Score"
   },
   "welcome": {
     "body": "This site scores countries, states and provinces against the Electric Protocol - the detailed question set behind the Charter. Pick a jurisdiction on the map to see how it does, what the evidence is, and which changes would raise its score the most.",
@@ -39,21 +41,12 @@
     "filterThisList": "Filter this list",
     "highToLow": "High to low",
     "lowToHigh": "Low to high",
-    "continent": "Continent",
-    "allContinents": "All continents",
-    "countries": "Countries",
-    "score": "Score"
-  },
-  "continents": {
-    "Africa": "Africa",
-    "Asia": "Asia",
-    "Europe": "Europe",
-    "North America": "North America",
-    "South America": "South America",
-    "Oceania": "Oceania"
+    "score": "Score",
+    "region": "Region",
+    "allRegions": "All regions"
   },
   "map": {
-    "policyScore": "Policy score",
+    "policyScore": "Policy Score",
     "moreDataNeeded": "More data needed",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
@@ -70,7 +63,10 @@
     "exitEditMode": "Exit edit mode",
     "buildingReport": "Building report...",
     "downloadReport": "Download Policy Summary Report",
-    "overviewIntro": "How {{name}} scores in each policy area, and how that compares to the rest of the field."
+    "overviewIntro": "How {{name}} scores in each policy area, and how that compares to the rest of the field.",
+    "notApplicableHint": "Not enough of this area's questions are answered yet to give it a score.",
+    "editAnswers": "Edit answers",
+    "doneEditing": "Done"
   },
   "impactList": {
     "empty": "Nothing to show yet - every answered question is already at full marks, or none have been answered. Use Policy Landscape to add some.",
@@ -109,13 +105,17 @@
     "continue": "Continue",
     "back": "Back",
     "submit": "Submit",
-    "close": "Close"
+    "close": "Close",
+    "sending": "Sending…",
+    "sendFailed": "Couldn't send it: {{message}}. Please try again."
   },
   "questionCard": {
-    "tierWeak": "Weak",
-    "tierPartial": "Developed",
-    "tierStrong": "Strong",
+    "tierWeak": "No",
+    "tierPartial": "Somewhat",
+    "tierStrong": "Yes",
     "notKnown": "Not known",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
     "evidence": "Evidence",
     "clearResponse": "Clear this response",
     "noEvidence": "No evidence added yet.",
@@ -127,8 +127,9 @@
     "removeEvidence": "Remove this evidence",
     "addEvidence": "Add evidence",
     "moreExemplars": "+{{count}} more",
-    "exemplars": "Exemplars",
-    "viewProfile": "View country profile"
+    "exemplars": "Examples",
+    "viewProfile": "View country profile",
+    "currentAnswer": "{{name}}'s answer"
   },
   "adminConsole": {
     "title": "Admin console",
@@ -162,9 +163,12 @@
     "impactfullnessTitle": "Impactfullness: {{label}} ({{weight}})",
     "impactfullness": "Impactfullness",
     "question": "Question",
+    "questionTitle": "Short title",
+    "questionTitleHelp": "A few words shown on the question card; the full question opens on click.",
     "revertQuestion": "Revert this question to the shipped version",
     "deleteQuestion": "Delete this question",
-    "confirmDeleteQuestion": "Delete this question? This also removes any answers already recorded against it."
+    "confirmDeleteQuestion": "Delete this question? This also removes any answers already recorded against it.",
+    "reviewLoadFailed": "Couldn't load everyone's suggestions: {{message}}. Reload to try again."
   },
   "suggestionsReview": {
     "empty": "No suggested changes yet. When someone uses \"Submit revised evidence\" on a country's page, it shows up here for review.",
@@ -208,9 +212,9 @@
     "intro": "New questions are reviewed before they are added - once accepted, a question counts toward every country's score.",
     "section": "Section",
     "question": "Question",
-    "strong": "Strong answer looks like",
-    "developed": "Developed answer looks like (optional)",
-    "weak": "Weak answer looks like",
+    "strong": "A \"yes\" answer looks like",
+    "developed": "A \"somewhat\" answer looks like (optional)",
+    "weak": "A \"no\" answer looks like",
     "reason": "Why does this matter?",
     "source": "Supporting evidence",
     "sourceHint": "Link, or the name of a report or document",
@@ -223,9 +227,9 @@
   "questionProposalsReview": {
     "questionProposals": "Proposed questions",
     "section": "Section",
-    "strong": "Strong",
-    "developed": "Developed",
-    "weak": "Weak",
+    "strong": "Yes",
+    "developed": "Somewhat",
+    "weak": "No",
     "reason": "Why",
     "source": "Evidence",
     "weight": "Weight",
@@ -243,5 +247,23 @@
   },
   "sunRating": {
     "label": "{{count}} out of 5 suns"
+  },
+  "editor": {
+    "signInTitle": "Sign in to edit",
+    "signInBody": "The admin console changes the policy data everyone sees, so it's for named editors only. Sign in with the Google account you were given access with.",
+    "signInButton": "Sign in with Google",
+    "signingIn": "Signing in…",
+    "notEditor": "This account can't edit the policy data.",
+    "error": "Sign-in didn't work - try again.",
+    "useAnotherAccount": "Use another account",
+    "cancel": "Cancel",
+    "signedInAs": "Signed in as {{email}}",
+    "signOut": "Sign out",
+    "databaseOffline": "You're signed in, but this page couldn't reach the policy database, so editing is off. Reload to try again."
+  },
+  "sync": {
+    "saving": "Saving…",
+    "saved": "All changes saved",
+    "error": "Couldn't save: {{message}}. Reload to see what was saved."
   }
 }

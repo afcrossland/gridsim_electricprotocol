@@ -1,145 +1,25 @@
-import index from "../data/jurisdictions.json";
-import subdivisionNames from "../data/subdivision-names.json";
-import { SUBREGIONS, subregionOverrideFor } from "../../../shared/lib/continents";
-
-export interface Jurisdiction {
-  code: string;
-  name: string;
-  level: "country" | "subnational";
-  parent: string | null;
-  region: string | null;
-  mappable: boolean;
-}
-
-export const jurisdictions = index as Jurisdiction[];
-
-const byCode = new Map(jurisdictions.map((j) => [j.code, j]));
-
-const childrenByParent = new Map<string, string[]>();
-for (const j of jurisdictions) {
-  if (!j.parent) continue;
-  const list = childrenByParent.get(j.parent) ?? [];
-  list.push(j.code);
-  childrenByParent.set(j.parent, list);
-}
-
-export function getJurisdiction(code: string): Jurisdiction | undefined {
-  return byCode.get(code);
-}
+import index from "../../../shared/data/jurisdictions.dissolved.json";
+import { SUBREGIONS } from "../../../shared/lib/continents";
+import { createJurisdictionIndex, type Jurisdiction } from "../../../shared/lib/jurisdictionIndex";
 
 /**
- * Cache of one Intl.DisplayNames instance per language - constructing one
- * isn't free, and every jurisdiction lookup for a given render would
- * otherwise build a fresh one.
+ * The Deployment Explorer's jurisdictions: the shared country-level list, in which Australia, the US and Canada are
+ * single shapes (generated from the Policy Explorer's list by `scripts/dissolve_subdivided.py`). The lookups are the
+ * shared ones every app uses (`shared/lib/jurisdictionIndex.ts`). `resolveTargets`/`canonicalCode` are kept for a
+ * future dataset that reintroduces a genuinely subdivided country; for these three they are now a no-op.
  */
-const regionDisplayNamesCache = new Map<string, Intl.DisplayNames | null>();
+export type { Jurisdiction };
 
-/**
- * A plain country code's own localised name, straight from the browser's
- * ICU data - covers every ISO 3166-1-ish code in jurisdictions.json
- * (confirmed directly against this app's own dataset, including the non-
- * obvious ones: XK "Kosovo", TW, EH, VA, PS, MF, SX, CW, BQ, AX, BL all
- * resolve correctly in es/fr). Returns null on any miss or unsupported
- * language/code, so callers can fall back to the English name.
- */
-function regionDisplayName(code: string, language: string): string | null {
-  let dn = regionDisplayNamesCache.get(language);
-  if (dn === undefined) {
-    try {
-      dn = new Intl.DisplayNames([language], { type: "region" });
-    } catch {
-      dn = null;
-    }
-    regionDisplayNamesCache.set(language, dn);
-  }
-  if (!dn) return null;
-  try {
-    const name = dn.of(code);
-    return name && name !== code ? name : null;
-  } catch {
-    return null;
-  }
-}
+export const {
+  jurisdictions,
+  getJurisdiction,
+  jurisdictionName,
+  childrenOf,
+  isSubdivided,
+  resolveTargets,
+  canonicalCode,
+  subregionOf,
+} = createJurisdictionIndex(index as Jurisdiction[]);
 
-/**
- * `code`'s name in `language` - defaults to "en" (this jurisdiction's own
- * stored name, unchanged from before this had a language argument at all,
- * so every pre-existing call site keeps working exactly as it did).
- *
- * A plain country code is translated through Intl.DisplayNames (see
- * regionDisplayName above) - no translation data to maintain, and it
- * covers every non-subdivision entry in jurisdictions.json. A subdivision
- * code (US-CA, AU-NSW, ...) has no such API, so those 80 are hand-
- * translated in data/subdivision-names.json instead (same file as
- * ep_policymap's own src/lib/jurisdictions.ts - both apps' subdivision
- * code sets are identical). Either path falls back to the English name on
- * a miss, never to the bare code.
- */
-export function jurisdictionName(code: string, language = "en"): string {
-  const j = byCode.get(code);
-  if (!j) return code;
-  if (language === "en") return j.name;
-
-  if (code.includes("-")) {
-    const translations = (subdivisionNames as Record<string, Record<string, string>>)[code];
-    return translations?.[language] ?? j.name;
-  }
-  return regionDisplayName(code, language) ?? j.name;
-}
-
-export function childrenOf(code: string): string[] {
-  return childrenByParent.get(code) ?? [];
-}
-
-/**
- * True only for a country with no shape of its own on the map - Australia
- * and the US, drawn entirely as their states. Ported from
- * ep_policymap/src/lib/jurisdictions.ts - this app's placeholder dataset
- * uses "AU"/"US" as plain country codes, but the shared geometry has no
- * "AU"/"US" polygon at all (only its states/provinces do), so a click or a
- * fitBounds against the bare code silently does nothing without this - see
- * the bug this was written to fix.
- */
-export function isSubdivided(code: string): boolean {
-  const j = byCode.get(code);
-  return j != null && !j.mappable && childrenByParent.has(code);
-}
-
-/** The codes a value written against `code` actually applies to on the map - see isSubdivided. */
-export function resolveTargets(code: string): string[] {
-  return isSubdivided(code) ? childrenOf(code) : [code];
-}
-
-/**
- * The inverse of resolveTargets - given a code straight off a clicked map
- * feature (which, for a subdivided country, is a state/province like
- * "US-CA"), what should actually get selected/highlighted/ranked: the
- * parent country if that parent is subdivided, otherwise the feature's own
- * code unchanged. Without this, clicking anywhere in the US/AU/CA would
- * select a state code the ranking list and dummy dataset don't know about,
- * instead of the country the placeholder data is actually keyed by.
- */
-export function canonicalCode(featureCode: string): string {
-  const j = byCode.get(featureCode);
-  if (j?.parent && isSubdivided(j.parent)) return j.parent;
-  return featureCode;
-}
-
-// Moved to shared/lib/continents.ts 2026-09-28 - confirmed byte-identical
-// to ep_policymap's own copy before that, per this file's own history.
+// Moved to shared/lib/continents.ts 2026-09-28.
 export { SUBREGIONS };
-
-/**
- * The jurisdiction's own UN geoscheme sub-region (Northern Africa,
- * Caribbean, ...) rather than the coarser six-continent grouping -
- * replaces this file's own `continentOf` 2026-10-14 per Andrew's own
- * instruction ("implement a filter not on continent but on United Nations
- * geoscheme"); `continentOf`/`CONTINENTS` had no other callers in this app,
- * so both are removed outright rather than left unused alongside this.
- */
-export function subregionOf(code: string): string | null {
-  const override = subregionOverrideFor(code);
-  if (override) return override;
-  const j = byCode.get(code);
-  return j?.region ?? null;
-}

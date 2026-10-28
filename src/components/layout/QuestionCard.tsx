@@ -26,7 +26,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTranslation } from "react-i18next";
 
 import type { Question, Response } from "../../lib/types";
-import { SCORE_BANDS, SECTION_STANDING_COLORS } from "../../lib/scoring";
+import { SCORE_BANDS } from "../../lib/scoring";
 import { qualifiedName } from "../../lib/jurisdictions";
 import { capitalizeFirst } from "../../lib/text";
 import { useProtocolStore } from "../../stores/protocolStore";
@@ -77,35 +77,18 @@ interface Props {
 }
 
 /**
- * GSC Citrus, used for the chosen rubric tier.
- *
- * Aqua was too close to the card's own border and to the unselected outline to
- * read at a glance. Citrus is reserved for this one meaning - "this is the
- * answer" - so the unanswered marker below uses a neutral dashed edge rather
- * than competing for the same colour.
- *
- * Mode-aware since 2026-10-09 ("the colour of the tiles and sidebar more
- * generally does not work in light or dark mode") - the light-mode values
- * (solid citrus border over a 12%-opacity tint) blended down to a muddy
- * brown-olive wash on a dark surface, reading as a smudge rather than a
- * highlight. Dark mode keeps the same two building blocks - a solid border,
- * a translucent tint of it - but moves to the theme's own lighter citrus
- * step (`secondary.light`, already used for this purpose in mui-theme.tsx's
- * own dark-mode chip/toggle fills) and a higher tint opacity, which holds
- * up against a dark surface the same way the light version does against a
- * white one.
+ * The chosen rubric tier is marked by a soft neutral fill, a slight lift and
+ * a labelled "<Country>'s answer" badge, not a colour. (A solid text-colour
+ * outline was tried first and read as too heavy, 2026-10-21.) It used to be GSC Citrus, but
+ * since the score ramp was inverted (2026-10-21) amber also means "strong",
+ * so a highlighted Weak answer read as a good one, and the citrus exemplar
+ * names beside it blurred the two further. Colour on a tier now only ever
+ * means how strong that tier is (its left edge and label).
  */
-function selectedTierColors(mode: "light" | "dark") {
-  return mode === "dark"
-    ? { border: "#FCCA4A", tint: "rgba(252, 202, 74, 0.2)" }
-    : { border: "#FBB114", tint: "rgba(251, 177, 20, 0.12)" };
-}
+const SELECTED_TINT = "action.selected";
 
 /** How many of a tier box's own qualifying exemplars show inline before the rest fold into a "+N more" dropdown - per Andrew's own instruction 2026-10-09 ("top 3 exemplars shown and a dropdown list for more"). */
 const EXEMPLAR_DISPLAY_LIMIT = 3;
-
-/** Width of the Strong/Developed/Weak label column on each answer tile - the exemplars block is indented by this (plus the 10px gap) so it lines up under the answer text. */
-const TIER_LABEL_WIDTH = 92;
 
 /**
  * An exemplar is only worth surfacing if there's something to actually show
@@ -183,6 +166,13 @@ export default function QuestionCard({
   // reasoning as `moreAnchor`.
   const [evidencePopup, setEvidencePopup] = useState<{ el: HTMLElement; exemplar: ExemplarEntry } | null>(null);
   const [correctionOpen, setCorrectionOpen] = useState(false);
+  // A question with a short title shows just that, the answer and any comparators until opened;
+  // the full sentence, the answer levels, exemplars and evidence follow. Edit mode and the guided
+  // tour (which spotlights what is inside) show everything.
+  const [open, setOpen] = useState(false);
+  const tourActive = useProtocolStore((s) => s.tourSectionId === question.sectionId);
+  const collapsible = Boolean(question.title) && !editMode;
+  const expanded = !collapsible || open || tourActive;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -200,7 +190,18 @@ export default function QuestionCard({
   );
 
   const rubricAscending = [...question.rubric].sort((a, b) => a.score - b.score);
-  const { border: selectedBorder, tint: selectedTint } = selectedTierColors(theme.palette.mode);
+  const countryName = qualifiedName(code, i18n.language);
+  const tierInfo = (score: number) => {
+    const index = rubricAscending.findIndex((t) => t.score === score);
+    const rank = rubricAscending.length > 1 ? index / (rubricAscending.length - 1) : 1;
+    return {
+      rank,
+      color: SCORE_BANDS[Math.round(rank * (SCORE_BANDS.length - 1))].color,
+      name: rank === 1 ? t("questionCard.tierStrong") : rank === 0 ? t("questionCard.tierWeak") : t("questionCard.tierPartial"),
+      // Amber for strong, teal for weak - the same way round as SCORE_BANDS, darkened a step for legibility as text.
+      textColor: rank === 1 ? "#B07A00" : rank === 0 ? "#008593" : "text.secondary",
+    };
+  };
 
   return (
     <Paper
@@ -217,16 +218,63 @@ export default function QuestionCard({
         scrollMarginTop: 16,
       }}
     >
-      <Box sx={{ mb: 1.5 }}>
+      <Box sx={{ mb: expanded ? 1.5 : 0 }}>
         {question.subsection && (
           <Typography variant="overline" sx={{ display: "block" }}>
             {question.subsection}
           </Typography>
         )}
-        <Typography variant="body1" sx={{ fontWeight: 700 }}>{question.text}</Typography>
+        {collapsible ? (
+          <ButtonBase
+            data-tour="question-rubric"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={expanded}
+            aria-label={`${question.title} - ${expanded ? t("questionCard.hideDetails") : t("questionCard.showDetails")}`}
+            sx={{ display: "flex", width: "100%", alignItems: "flex-start", justifyContent: "space-between", gap: 1, textAlign: "left", borderRadius: 1 }}
+          >
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="body1" sx={{ fontWeight: 700 }}>{question.title}</Typography>
+              {!expanded && (
+                <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1.25, mt: 0.5 }}>
+                  {(() => {
+                    const info = response ? tierInfo(response.score) : null;
+                    return (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                        <Box sx={{ width: 10, height: 10, borderRadius: "50%", flexShrink: 0, bgcolor: info ? info.color : "transparent", ...(info ? { boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.15)" } : { border: "1.5px dashed", borderColor: "text.disabled" }) }} />
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: info ? info.textColor : "text.disabled", fontStyle: info ? "normal" : "italic" }}>
+                          {info ? info.name : t("questionCard.notKnown")}
+                        </Typography>
+                      </Box>
+                    );
+                  })()}
+                  {compareEntries.map((entry) => {
+                    const entryName = entry.name ?? qualifiedName(entry.code, i18n.language);
+                    return (
+                      <Tooltip key={entry.code} title={`${entryName} - ${entry.response ? tierInfo(entry.response.score).name : t("questionCard.notKnown")}`}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, bgcolor: "background.paper", borderRadius: "10px", border: "1.5px solid", borderColor: entry.color, pl: "1px", pr: 0.75 }}>
+                          <FlagImg code={entry.code} size={14} />
+                          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                            {entry.response ? tierInfo(entry.response.score).name : "-"}
+                          </Typography>
+                        </Box>
+                      </Tooltip>
+                    );
+                  })}
+                </Box>
+              )}
+            </Box>
+            <ExpandMoreIcon fontSize="small" sx={{ mt: 0.25, flexShrink: 0, color: "text.secondary", transform: expanded ? "rotate(180deg)" : "none", transition: "transform 150ms" }} />
+          </ButtonBase>
+        ) : (
+          <Typography variant="body1" sx={{ fontWeight: 700 }}>{question.text}</Typography>
+        )}
+        {collapsible && expanded && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{question.text}</Typography>
+        )}
       </Box>
 
-      <Box data-tour="question-rubric" sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <Collapse in={expanded} unmountOnExit>
+      <Box data-tour={collapsible ? undefined : "question-rubric"} sx={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : `repeat(${question.rubric.length}, minmax(0, 1fr))`, gap: 1 }}>
         {/* Explicit fourth state, to the left of the real rubric tiers -
             per Andrew's own instruction 2026-10-09 ("all questions not
             answered need to be on the left with a box 'not known'"). An
@@ -234,11 +282,15 @@ export default function QuestionCard({
             unhighlighted, which reads the same as "not yet loaded" rather
             than "deliberately nothing to report here" - this box makes the
             absence of an answer a first-class, clickable state rather than
-            an implicit one. */}
+            an implicit one. Only shown when it *is* the state (or in edit
+            mode, where it's the way to clear an answer) - on an answered
+            card it was just one more row of noise. */}
+        {(!response || editMode) && (
         <Box
           onClick={editMode && response ? () => deleteResponse(code, question.id) : undefined}
           sx={{
             order: 99,
+            gridColumn: "1 / -1",
             px: 1.25,
             py: 0.75,
             borderRadius: 1.5,
@@ -263,12 +315,10 @@ export default function QuestionCard({
             {t("questionCard.notKnown")}
           </Typography>
         </Box>
+        )}
 
         {[...question.rubric].sort((a, b) => b.score - a.score).map((tier) => {
-          const tierIndex = rubricAscending.findIndex((t) => t.score === tier.score);
-          const tierRank = rubricAscending.length > 1 ? tierIndex / (rubricAscending.length - 1) : 1;
-          const tierColor = SCORE_BANDS[Math.round(tierRank * (SCORE_BANDS.length - 1))].color;
-          const tierName = tierRank === 1 ? t("questionCard.tierStrong") : tierRank === 0 ? t("questionCard.tierWeak") : t("questionCard.tierPartial");
+          const { color: tierColor, name: tierName, textColor: tierTextColor } = tierInfo(tier.score);
           const selected = response?.score === tier.score;
           // Every comparator who picked this exact tier, clustered along the
           // tile's bottom edge rather than one badge each - up to
@@ -281,6 +331,79 @@ export default function QuestionCard({
           // exact tier, since an exemplar pins to whichever box *they*
           // actually picked, not every box that happens to qualify.
           const tierExemplars = qualifyingExemplars.filter((ex) => ex.response?.score === tier.score);
+          const examplesBlock = (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "text.secondary",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                      fontSize: "0.625rem",
+                    }}
+                  >
+                    {t("questionCard.exemplars")}
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px" }}>
+                    {tierExemplars.slice(0, EXEMPLAR_DISPLAY_LIMIT).map((exemplar) => {
+                      const evidenceTitles = exemplar.response?.evidence
+                        ?.map((e) => e.title)
+                        .filter(Boolean)
+                        .join(", ");
+                      const tooltip = evidenceTitles || undefined;
+                      const row = (
+                        <ButtonBase
+                          key={exemplar.code}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEvidencePopup({ el: e.currentTarget, exemplar });
+                          }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            flexShrink: 0,
+                            borderRadius: "4px",
+                            px: "2px",
+                          }}
+                        >
+                          <FlagImg code={exemplar.code} size={14} />
+                          <Typography
+                            variant="caption"
+                            noWrap
+                            sx={{ color: "text.primary", fontWeight: 600, textDecoration: "underline dotted", textUnderlineOffset: "3px" }}
+                          >
+                            {exemplar.name}
+                            
+                          </Typography>
+                        </ButtonBase>
+                      );
+                      return tooltip ? (
+                        <Tooltip key={exemplar.code} title={tooltip}>
+                          {row}
+                        </Tooltip>
+                      ) : (
+                        row
+                      );
+                    })}
+
+                    {tierExemplars.length > EXEMPLAR_DISPLAY_LIMIT && (
+                      <ButtonBase
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMoreAnchor({ el: e.currentTarget, tierScore: tier.score });
+                        }}
+                        sx={{ display: "flex", flexShrink: 0, borderRadius: "4px", px: "2px" }}
+                      >
+                        <Typography variant="caption" color="primary" noWrap sx={{ fontWeight: 600 }}>
+                          {t("questionCard.moreExemplars", { count: tierExemplars.length - EXEMPLAR_DISPLAY_LIMIT })}
+                        </Typography>
+                      </ButtonBase>
+                    )}
+                  </Box>
+                </Box>
+          );
           return (
             <Box
               key={tier.score}
@@ -293,46 +416,57 @@ export default function QuestionCard({
               }
               sx={{
                 position: "relative",
-                p: 1.25,
-                pb: tierComparators.length > 0 ? 3 : 1.25,
+                p: 1.5,
+                pb: tierComparators.length > 0 ? 4 : 1.5,
                 borderRadius: 1.5,
                 cursor: editMode ? "pointer" : "default",
                 border: "2px solid",
-                borderLeftWidth: 8,
-                borderColor: selected ? selectedBorder : "divider",
-                borderLeftColor: tierColor,
-                bgcolor: selected ? selectedTint : "transparent",
-                ...(editMode && { "&:hover": { borderColor: selected ? selectedBorder : "primary.light" } }),
+                borderTopWidth: 6,
+                // The country's own answer gets a bold dark frame (neutral, so it can't be read as a Yes or a No) (a ring on top of the border, so the tile
+                // doesn't change size); the tier's colour stays on the top edge so Yes and No still read as such.
+                borderColor: selected ? "text.primary" : "divider",
+                borderTopColor: tierColor,
+                bgcolor: selected ? SELECTED_TINT : "transparent",
+                boxShadow: selected ? (th) => `0 0 0 2px ${th.palette.text.primary}` : "none",
+                ...(editMode && { "&:hover": { borderColor: "primary.light" } }),
                 display: "flex",
                 flexDirection: "column",
-                gap: 0.75,
+                gap: 1,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.25 }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, minHeight: 36 }}>
                 <Typography
                   variant="caption"
                   sx={{
-                    flexShrink: 0,
-                    width: TIER_LABEL_WIDTH,
                     fontWeight: 800,
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
-                    fontSize: "0.65rem",
-                    color: tierRank === 0 ? "#B07A00" : tierRank === 1 ? "#008593" : "text.secondary",
+                    fontSize: "0.7rem",
+                    color: tierTextColor,
                   }}
                 >
                   {tierName}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: selected ? "text.primary" : undefined,
-                    fontWeight: selected ? 600 : 400,
-                  }}
-                >
-                  {capitalizeFirst(tier.label)}
-                </Typography>
+                {selected && (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary", textAlign: "right" }}>
+                      {t("questionCard.currentAnswer", { name: countryName })}
+                    </Typography>
+                    <FlagImg code={code} size={34} />
+                  </Box>
+                )}
               </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: selected ? "text.primary" : undefined,
+                  fontWeight: selected ? 600 : 400,
+                }}
+              >
+                {capitalizeFirst(tier.label)}
+              </Typography>
+
+              {tierExemplars.length > 0 && examplesBlock}
 
               {tierComparators.length > 0 && (
                 <Box sx={{ position: "absolute", left: 8, bottom: 6, display: "flex", gap: "3px" }}>
@@ -379,81 +513,6 @@ export default function QuestionCard({
                   reading as an unexplained second flag cluster next to the
                   Compare one, and a single nowrapping line reads as one
                   list rather than a stack of unrelated rows. */}
-              {tierExemplars.length > 0 && (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: "2px", ml: `calc(${TIER_LABEL_WIDTH}px + 10px)` }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: "text.secondary",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.04em",
-                      fontSize: "0.625rem",
-                    }}
-                  >
-                    {t("questionCard.exemplars")}
-                  </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", flexWrap: "nowrap", overflow: "hidden", gap: "4px" }}>
-                    {tierExemplars.slice(0, EXEMPLAR_DISPLAY_LIMIT).map((exemplar, i, visible) => {
-                      const evidenceTitles = exemplar.response?.evidence
-                        ?.map((e) => e.title)
-                        .filter(Boolean)
-                        .join(", ");
-                      const tooltip = evidenceTitles || undefined;
-                      const isLastOverall =
-                        tierExemplars.length <= EXEMPLAR_DISPLAY_LIMIT && i === visible.length - 1;
-                      const row = (
-                        <ButtonBase
-                          key={exemplar.code}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEvidencePopup({ el: e.currentTarget, exemplar });
-                          }}
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            flexShrink: 0,
-                            borderRadius: "4px",
-                            px: "2px",
-                          }}
-                        >
-                          <FlagImg code={exemplar.code} size={14} />
-                          <Typography
-                            variant="caption"
-                            noWrap
-                            sx={{ color: SECTION_STANDING_COLORS.leading, fontWeight: 600 }}
-                          >
-                            {exemplar.name}
-                            {isLastOverall ? "" : ","}
-                          </Typography>
-                        </ButtonBase>
-                      );
-                      return tooltip ? (
-                        <Tooltip key={exemplar.code} title={tooltip}>
-                          {row}
-                        </Tooltip>
-                      ) : (
-                        row
-                      );
-                    })}
-
-                    {tierExemplars.length > EXEMPLAR_DISPLAY_LIMIT && (
-                      <ButtonBase
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setMoreAnchor({ el: e.currentTarget, tierScore: tier.score });
-                        }}
-                        sx={{ display: "flex", flexShrink: 0, borderRadius: "4px", px: "2px" }}
-                      >
-                        <Typography variant="caption" color="primary" noWrap sx={{ fontWeight: 600 }}>
-                          {t("questionCard.moreExemplars", { count: tierExemplars.length - EXEMPLAR_DISPLAY_LIMIT })}
-                        </Typography>
-                      </ButtonBase>
-                    )}
-                  </Box>
-                </Box>
-              )}
             </Box>
           );
         })}
@@ -562,7 +621,7 @@ export default function QuestionCard({
 
             <Box sx={{ flex: 1 }} />
             {!editMode && (
-              <Button data-tour="suggest-correction" size="small" variant="outlined" startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
+              <Button data-tour="suggest-correction" size="small" variant="text" color="inherit" sx={{ color: "text.secondary" }} startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
                 {t("correctionDialog.link")}
               </Button>
             )}
@@ -598,65 +657,57 @@ export default function QuestionCard({
                 >
                   {/* title/note are free text, not translated - see
                       EvidenceItem's doc comment in lib/types.ts and
-                      ROADMAP.md's "Known gaps flagged in code". */}
-                  <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label={t("questionCard.title")}
-                      placeholder={t("questionCard.titlePlaceholder")}
-                      value={item.title}
-                      slotProps={{ input: { readOnly: !editMode } }}
-                      onChange={(e) =>
-                        updateEvidence(code, question.id, i, { title: e.target.value })
-                      }
-                    />
-                    {!editMode && item.source ? (
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                          {t("questionCard.source")}
+                      ROADMAP.md's "Known gaps flagged in code". Read-only,
+                      each item reads as a citation (title, source link,
+                      note) - the same layout as an exemplar's evidence
+                      popup - rather than a form of disabled text fields. */}
+                  {editMode ? (
+                    <Stack spacing={1} sx={{ flex: 1, minWidth: 0 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label={t("questionCard.title")}
+                        placeholder={t("questionCard.titlePlaceholder")}
+                        value={item.title}
+                        onChange={(e) => updateEvidence(code, question.id, i, { title: e.target.value })}
+                      />
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label={t("questionCard.source")}
+                        placeholder={t("questionCard.sourcePlaceholder")}
+                        value={item.source}
+                        onChange={(e) => updateEvidence(code, question.id, i, { source: e.target.value })}
+                      />
+                      <TextField
+                        fullWidth
+                        multiline
+                        minRows={2}
+                        size="small"
+                        label={t("questionCard.notes")}
+                        value={item.note}
+                        onChange={(e) => updateEvidence(code, question.id, i, { note: e.target.value })}
+                      />
+                    </Stack>
+                  ) : (
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      {item.title && (
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {item.title}
                         </Typography>
-                        <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
+                      )}
+                      {item.source && (
+                        <Typography variant="caption" sx={{ display: "block", color: "primary.main", wordBreak: "break-word" }}>
                           <Linkified text={item.source} />
                         </Typography>
-                      </Box>
-                    ) : (
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label={t("questionCard.source")}
-                      placeholder={t("questionCard.sourcePlaceholder")}
-                      value={item.source}
-                      slotProps={{ input: { readOnly: !editMode } }}
-                      onChange={(e) =>
-                        updateEvidence(code, question.id, i, { source: e.target.value })
-                      }
-                    />
-                    )}
-                    {!editMode && item.note ? (
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                          {t("questionCard.notes")}
-                        </Typography>
-                        <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                      )}
+                      {item.note && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                           <Linkified text={item.note} />
                         </Typography>
-                      </Box>
-                    ) : (
-                    <TextField
-                      fullWidth
-                      multiline
-                      minRows={2}
-                      size="small"
-                      label={t("questionCard.notes")}
-                      value={item.note}
-                      slotProps={{ input: { readOnly: !editMode } }}
-                      onChange={(e) =>
-                        updateEvidence(code, question.id, i, { note: e.target.value })
-                      }
-                    />
-                    )}
-                  </Stack>
+                      )}
+                    </Box>
+                  )}
                   {editMode && (
                     <Tooltip title={t("questionCard.removeEvidence")}>
                       <IconButton size="small" onClick={() => removeEvidence(code, question.id, i)}>
@@ -689,11 +740,12 @@ export default function QuestionCard({
           edit workflow applies. */}
       {!editMode && !response && (
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
-          <Button data-tour="suggest-correction" size="small" variant="outlined" startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
+          <Button data-tour="suggest-correction" size="small" variant="text" color="inherit" sx={{ color: "text.secondary" }} startIcon={<EditOutlinedIcon fontSize="small" />} onClick={() => setCorrectionOpen(true)}>
             {t("correctionDialog.link")}
           </Button>
         </Box>
       )}
+      </Collapse>
       <CorrectionDialog
         open={correctionOpen}
         onClose={() => setCorrectionOpen(false)}

@@ -3,11 +3,13 @@ import { Box, Button, Collapse, Divider, Stack, Typography, useMediaQuery, useTh
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import FactCheckIcon from "@mui/icons-material/FactCheckOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { useTranslation } from "react-i18next";
 
 import { MAX_COMPARE_COUNTRIES, compareColorFor } from "../../lib/compareColors";
+import { editsSaveToDatabase, useEditorStore } from "../../lib/editorAuth";
 import { rankImpact, scoreSections, scoreTextColor, sectionLeaderboard } from "../../lib/scoring";
 import { SunScore } from "../ui/Suns";
 import type { CountryScore } from "../../lib/types";
@@ -21,6 +23,7 @@ import ProposeQuestionDialog from "./ProposeQuestionDialog";
 import QuestionCard from "./QuestionCard";
 import SectionOverview from "./SectionOverview";
 import FlagImg from "../ui/FlagImg";
+import SaveStatus from "../ui/SaveStatus";
 import StatTile from "../ui/StatTile";
 import DetailHeader from "../../../shared/components/DetailHeader";
 
@@ -147,7 +150,10 @@ export default function CountryPanel({
   // sees first, with the narrow/expanded state only kicking in once
   // they've actually picked one (see `handleSelectSection` below and
   // SectionOverview.tsx's own `compact` prop).
-  const [uncontrolledSectionId, setUncontrolledSectionId] = useState<string>("");
+  // The "uncontrolled" case lives in the store (not local state) so the URL
+  // can carry it.
+  const uncontrolledSectionId = useProtocolStore((s) => s.activeSectionId);
+  const setUncontrolledSectionId = useProtocolStore((s) => s.setActiveSectionId);
   const activeSectionId = controlledSectionId ?? uncontrolledSectionId;
   const setActiveSectionId = onSectionChange ?? setUncontrolledSectionId;
 
@@ -172,12 +178,36 @@ export default function CountryPanel({
   // fixes a real bug flagged the same day ("we cannot return to the
   // summary view of each country after we click the tiles"): once a
   // section was open there had been no way back to the overview at all.
+  // All sections' questions now sit in one scrolling list under their group heading,
+  // so picking a section (a tile, or ?section= in the link) scrolls to its heading
+  // and marks it. Picking the marked one again just
+  // scrolls back to it; "Back to overview" clears it.
+  const scrollToSection = (id: string) =>
+    requestAnimationFrame(() => document.getElementById(`section-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
   const handleSelectSection = (id: string) => {
-    setActiveSectionId(id === activeSectionId ? "" : id);
+    if (id === activeSectionId) scrollToSection(id);
+    else setActiveSectionId(id);
+  };
+  // Runs once the tiles have shrunk to their pinned strip, so the heading lands under it.
+  useEffect(() => {
+    if (activeSectionId) scrollToSection(activeSectionId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSectionId, code]);
+  const handleBackToOverview = () => {
+    setActiveSectionId("");
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
   const [reportOpen, setReportOpen] = useState(false);
   const [proposeOpen, setProposeOpen] = useState(false);
+
+  // Edit mode (ROADMAP.md Phase 4): only for a signed-in editor whose changes
+  // save to the policy database - QuestionCard's `editMode` unlocks its rubric
+  // tiles, evidence fields and clear control. Read-only again on every country
+  // switch, so browsing never inherits an edit session left open elsewhere.
+  const mayEditAnswers = useEditorStore((s) => editsSaveToDatabase(s));
+  const [editMode, setEditMode] = useState(false);
+  useEffect(() => setEditMode(false), [code]);
+  const editing = editMode && mayEditAnswers;
 
   // Collapses the stat tiles and the Compare row once the content below is
   // scrolled, so shrinking the header buys back the most visible content.
@@ -186,9 +216,15 @@ export default function CountryPanel({
   const [contentScrolled, setContentScrolled] = useState(false);
   useEffect(() => setContentScrolled(false), [code]);
   const headerShrunk = isMobile && contentScrolled;
+  const tileGridRef = useRef<HTMLDivElement>(null);
+  const [gridOut, setGridOut] = useState(false);
+  useEffect(() => setGridOut(false), [code]);
   const handleContentScroll = (e: UIEvent<HTMLDivElement>) => {
     onContentScroll?.(e);
     setContentScrolled(e.currentTarget.scrollTop > 8);
+    // The full tile grid has scrolled out of view - time for the pinned strip.
+    const grid = tileGridRef.current;
+    setGridOut(Boolean(grid) && grid!.getBoundingClientRect().bottom < e.currentTarget.getBoundingClientRect().top + 8);
   };
 
   const compareCodes = COMPARE_ENABLED && inlineCompare ? compareCountries : [];
@@ -278,12 +314,11 @@ export default function CountryPanel({
   // decides per question (not here) whether a given exemplar's answer is
   // actually worth showing.
   const exemplarResponsesByCode = useMemo(() => {
-    const overview = sectionOverview.find((e) => e.section.id === activeSectionId);
-    const exemplarCodes = overview?.exemplars.map((ex) => ex.code) ?? [];
-    return new Map(
-      exemplarCodes.map((c) => [c, new Map(responses.filter((r) => r.countryCode === c).map((r) => [r.questionId, r]))]),
-    );
-  }, [sectionOverview, activeSectionId, responses]);
+    const exemplarCodes = new Set(sectionOverview.flatMap((e) => e.exemplars.map((ex) => ex.code)));
+    const byCode = new Map<string, Map<string, (typeof responses)[number]>>([...exemplarCodes].map((c) => [c, new Map()]));
+    for (const r of responses) byCode.get(r.countryCode)?.set(r.questionId, r);
+    return byCode;
+  }, [sectionOverview, responses]);
 
   // Per-comparator section scores, feeding the PDF report's compare table
   // (the live UI dropped its own windrose 2026-10-09 in favour of
@@ -336,54 +371,31 @@ export default function CountryPanel({
     return buildPdfBlob(model, assets);
   };
 
-  const activeSection = sections.find((s) => s.id === activeSectionId) ?? null;
-  const sectionQuestions = useMemo(
+  const questionGroups = useMemo(
     () =>
-      activeSection
-        ? questions
-            .filter((q) => q.sectionId === activeSection.id)
-            .sort((a, b) => a.order - b.order)
-        : [],
-    [questions, activeSection],
+      sections.map((section) => ({
+        section,
+        questions: questions.filter((q) => q.sectionId === section.id).sort((a, b) => a.order - b.order),
+      })),
+    [sections, questions],
   );
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
       <Box sx={{ px: 3, pt: 2, pb: 1 }}>
-        {/* Name row and stat-tile row are separate on mobile - one shared
-            row squeezed the country name toward nothing on a narrow screen,
-            since the tiles and headerAction refused to shrink and nothing
-            wrapped. Desktop keeps them on one line, where there's room. */}
+        {/* Name row and stat-tile row are separate at every width - one
+            shared row squeezed the country name to nothing, since the tiles
+            and the report button refused to shrink and nothing wrapped. That
+            happened on desktop too once the detail panel became half the
+            screen (2026-10-16): at 1440px "Germany" vanished entirely and
+            the report button was clipped. */}
         <DetailHeader
           onBack={onBack}
           backTooltip={t("countryPanel.backToScoreboard")}
           flag={<FlagImg code={code} size={28} />}
           name={score.name}
-          sx={{ p: 0, gap: 1.5, mb: isMobile ? 1 : 1.5, flexWrap: isMobile ? "wrap" : "nowrap" }}
+          sx={{ p: 0, gap: 1.5, mb: 1, flexWrap: isMobile ? "wrap" : "nowrap" }}
         >
-          {!isMobile && (
-            <>
-              <Box sx={{ flexShrink: 0 }}>
-                <StatTile
-                  size="small"
-                  icon={<TrendingUpIcon fontSize="small" />}
-                  color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
-                  label={t("countryPanel.score")}
-                  value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
-                />
-              </Box>
-              <Box sx={{ flexShrink: 0 }}>
-                <StatTile
-                  size="small"
-                  icon={<FactCheckIcon fontSize="small" />}
-                  color={theme.palette.primary.main}
-                  label={t("countryPanel.dataCompleteness")}
-                  value={`${Math.round(score.completeness * 100)}%`}
-                />
-              </Box>
-            </>
-          )}
-
           <Button
             size="small"
             variant="contained"
@@ -394,29 +406,42 @@ export default function CountryPanel({
             {t("countryPanel.downloadReport")}
           </Button>
 
+          {mayEditAnswers && (
+            <Button
+              size="small"
+              variant={editing ? "contained" : "outlined"}
+              color={editing ? "secondary" : "primary"}
+              startIcon={editing ? undefined : <EditOutlinedIcon fontSize="small" />}
+              onClick={() => setEditMode(!editing)}
+              sx={{ flexShrink: 0 }}
+            >
+              {editing ? t("countryPanel.doneEditing") : t("countryPanel.editAnswers")}
+            </Button>
+          )}
+          {editing && <SaveStatus />}
+
           {headerAction}
         </DetailHeader>
 
-        {isMobile && (
-          <Collapse in={!headerShrunk}>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
-              <StatTile
-                size="small"
-                icon={<TrendingUpIcon fontSize="small" />}
-                color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
-                label={t("countryPanel.score")}
-                value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
-              />
-              <StatTile
-                size="small"
-                icon={<FactCheckIcon fontSize="small" />}
-                color={theme.palette.primary.main}
-                label={t("countryPanel.dataCompleteness")}
-                value={`${Math.round(score.completeness * 100)}%`}
-              />
-            </Box>
-          </Collapse>
-        )}
+        {/* headerShrunk is mobile-only, so on desktop this always stays open. */}
+        <Collapse in={!headerShrunk}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
+            <StatTile
+              size="small"
+              icon={<TrendingUpIcon fontSize="small" />}
+              color={score.ranked ? scoreTextColor(score.score, theme.palette.mode) : theme.palette.text.disabled}
+              label={t("countryPanel.score")}
+              value={score.ranked ? <SunScore score={score.score} color={scoreTextColor(score.score, theme.palette.mode)} size={12} /> : t("countryPanel.notApplicable")}
+            />
+            <StatTile
+              size="small"
+              icon={<FactCheckIcon fontSize="small" />}
+              color={theme.palette.primary.main}
+              label={t("countryPanel.dataCompleteness")}
+              value={`${Math.round(score.completeness * 100)}%`}
+            />
+          </Box>
+        </Collapse>
       </Box>
 
       {/* Matches the sibling gridsim-frontend project's own sidebar - a grey
@@ -504,19 +529,58 @@ export default function CountryPanel({
               view... after we click the tiles"). */}
           {activeSectionId && (
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
-              <Button size="small" startIcon={<ArrowBackIcon fontSize="small" />} onClick={() => handleSelectSection(activeSectionId)}>
+              <Button size="small" startIcon={<ArrowBackIcon fontSize="small" />} onClick={handleBackToOverview}>
                 {t("countryPanel.backToOverview")}
               </Button>
               <ProposePrompt onClick={() => setProposeOpen(true)} />
             </Box>
           )}
 
-          <SectionOverview
-            entries={sectionOverview}
-            selectedId={activeSectionId}
-            onSelect={handleSelectSection}
-            compact={Boolean(activeSectionId)}
-          />
+          {/* Once a section is open the pills become one pinned row, so
+              switching areas never means scrolling back up past a long
+              question list - a wrapped strip used to take ~200px above
+              the questions. Negative top/margins cancel the scroll
+              container's own padding so the row pins flush to its edge. */}
+          {!activeSectionId && gridOut && (
+            <Box sx={{ position: "sticky", top: isMobile ? -12 : -24, height: 0, zIndex: 2, mx: isMobile ? -1.5 : -3 }}>
+              <Box
+                sx={{
+                  px: isMobile ? 1.5 : 3,
+                  py: 1,
+                  bgcolor: "background.paper",
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <SectionOverview entries={sectionOverview} selectedId="" onSelect={handleSelectSection} compact />
+              </Box>
+            </Box>
+          )}
+          <Box
+            ref={activeSectionId ? undefined : tileGridRef}
+            sx={
+              activeSectionId
+                ? {
+                    position: "sticky",
+                    top: isMobile ? -12 : -24,
+                    zIndex: 2,
+                    mx: isMobile ? -1.5 : -3,
+                    px: isMobile ? 1.5 : 3,
+                    py: 1,
+                    bgcolor: "background.paper",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }
+                : undefined
+            }
+          >
+            <SectionOverview
+              entries={sectionOverview}
+              selectedId={activeSectionId}
+              onSelect={handleSelectSection}
+              compact={Boolean(activeSectionId)}
+            />
+          </Box>
 
           {/* The expanded panel for whichever tile is active - that
               section's own questions, each now carrying its own exemplar
@@ -526,30 +590,41 @@ export default function CountryPanel({
               2026-10-09, "exemplars should be by question not category" -
               see QuestionCard.tsx's own `exemplars` prop for the filtering
               logic). */}
-          {activeSection && (
-            <Stack spacing={2} sx={{ mt: 3 }}>
-              {sectionQuestions.map((q) => (
-                <QuestionCard
-                  key={q.id}
-                  question={q}
-                  response={byQuestion.get(q.id)}
-                  code={code}
-                  compareEntries={compareEntries.map((entry) => ({
-                    code: entry.code,
-                    color: entry.color,
-                    name: entry.score?.name,
-                    response: compareByQuestionByCode.get(entry.code)?.get(q.id),
-                  }))}
-                  exemplars={(sectionOverview.find((e) => e.section.id === activeSection.id)?.exemplars ?? []).map((ex) => ({
-                    code: ex.code,
-                    name: ex.name,
-                    response: exemplarResponsesByCode.get(ex.code)?.get(q.id),
-                  }))}
-                  onSelectCountry={onSelectCountry}
-                />
-              ))}
-            </Stack>
-          )}
+          {questionGroups.map(({ section, questions: groupQuestions }) => (
+            <Box key={section.id} sx={{ mt: 3 }}>
+              <Typography
+                id={`section-${section.id}`}
+                variant="h6"
+                component="h2"
+                sx={{ mb: 1.5, scrollMarginTop: isMobile ? 64 : 72 }}
+              >
+                {section.title}
+              </Typography>
+              <Stack spacing={2}>
+                {groupQuestions.map((q) => (
+                  <QuestionCard
+                    key={q.id}
+                    question={q}
+                    response={byQuestion.get(q.id)}
+                    code={code}
+                    compareEntries={compareEntries.map((entry) => ({
+                      code: entry.code,
+                      color: entry.color,
+                      name: entry.score?.name,
+                      response: compareByQuestionByCode.get(entry.code)?.get(q.id),
+                    }))}
+                    exemplars={(sectionOverview.find((e) => e.section.id === section.id)?.exemplars ?? []).map((ex) => ({
+                      code: ex.code,
+                      name: ex.name,
+                      response: exemplarResponsesByCode.get(ex.code)?.get(q.id),
+                    }))}
+                    onSelectCountry={onSelectCountry}
+                    editMode={editing}
+                  />
+                ))}
+              </Stack>
+            </Box>
+          ))}
         </Box>
       </Box>
 

@@ -1,4 +1,4 @@
-import { continentOf } from "./jurisdictions";
+import { subregionOf } from "./jurisdictions";
 import { scoreBand } from "./scoring";
 import type { GroupedScore } from "./types";
 
@@ -6,41 +6,25 @@ import type { GroupedScore } from "./types";
 export const NOT_ENOUGH_DATA_BAND = "Not enough data";
 
 export interface ScoreboardFilters {
-  /** Continents to restrict to. Empty = every continent. */
-  continents: string[];
-  /** Jurisdiction codes to restrict to. Empty = every jurisdiction. */
-  countries: string[];
+  /** UN geoscheme sub-regions to restrict to (the same region filter as the Deployment Explorer's - one at a time). Empty = every region. */
+  subregions: string[];
   /** Score band labels (including NOT_ENOUGH_DATA_BAND) to restrict to. Empty = every band. */
   bands: string[];
-  /** Percentage, 0-100 inclusive. */
-  minScore: number;
-  maxScore: number;
 }
 
 export const DEFAULT_SCOREBOARD_FILTERS: ScoreboardFilters = {
-  continents: [],
-  countries: [],
+  subregions: [],
   bands: [],
-  minScore: 0,
-  maxScore: 100,
 };
 
-/** The EU bloc has no jurisdiction index entry of its own to look a continent up from. */
-const BLOC_CONTINENTS: Record<string, string> = {
-  EU: "Europe",
-};
-
-export function continentOfGroup(group: GroupedScore): string | null {
-  return BLOC_CONTINENTS[group.code] ?? continentOf(group.code);
+export function subregionOfGroup(group: GroupedScore): string | null {
+  return subregionOf(group.code);
 }
 
 export function isDefaultFilters(filters: ScoreboardFilters): boolean {
   return (
-    filters.continents.length === 0 &&
-    filters.countries.length === 0 &&
-    filters.bands.length === 0 &&
-    filters.minScore === 0 &&
-    filters.maxScore === 100
+    filters.subregions.length === 0 &&
+    filters.bands.length === 0
   );
 }
 
@@ -95,29 +79,20 @@ export function compareGroups(
 
 /**
  * Whether a scoreboard row survives the current filters. A row with no score
- * (below the completeness threshold) has nothing for the score-range filter
- * to compare against, so it is excluded by a non-default range and only
- * included by the band filter if `NOT_ENOUGH_DATA_BAND` was explicitly
- * selected - a range slider left at its default does not silently hide it,
- * but touching it expresses an intent to filter by score, which an unscored
- * row cannot satisfy.
+ * (below the completeness threshold) has no band to match, so it only
+ * survives a band filter if `NOT_ENOUGH_DATA_BAND` was explicitly selected.
  */
 export function matchesFilters(group: GroupedScore, filters: ScoreboardFilters): boolean {
-  if (filters.continents.length > 0) {
-    const continent = continentOfGroup(group);
-    if (!continent || !filters.continents.includes(continent)) return false;
+  if (filters.subregions.length > 0) {
+    const subregion = subregionOfGroup(group);
+    if (!subregion || !filters.subregions.includes(subregion)) return false;
   }
-  if (filters.countries.length > 0 && !filters.countries.includes(group.code)) return false;
 
   if (!group.ranked) {
     if (filters.bands.length > 0) return filters.bands.includes(NOT_ENOUGH_DATA_BAND);
-    if (filters.minScore > 0 || filters.maxScore < 100) return false;
     return true;
   }
 
-  const pct = group.score * 100;
-  if (filters.minScore > 0 && pct < filters.minScore) return false;
-  if (filters.maxScore < 100 && pct > filters.maxScore) return false;
   if (filters.bands.length > 0 && !filters.bands.includes(scoreBand(group.score).label)) return false;
   return true;
 }

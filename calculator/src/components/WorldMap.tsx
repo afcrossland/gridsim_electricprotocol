@@ -1,30 +1,27 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Map as MapGL, Source, Layer } from "react-map-gl/maplibre";
-import type { LayerProps, MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
+import type { LayerProps, MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { Box, Button, CircularProgress, Typography, useTheme } from "@mui/material";
 import LockIcon from "@mui/icons-material/Lock";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import World from "../assets/jurisdictions.geojson?url";
+import World from "../../../shared/assets/jurisdictions.dissolved.geojson?url";
 import FlagImg from "../../../shared/components/FlagImg";
 import MapHoverTooltip from "../../../shared/components/MapHoverTooltip";
 import MapLegend from "../../../shared/components/MapLegend";
 import MapZoomControls from "../../../shared/components/MapZoomControls";
 import { GSC_RAMP, COLOR_NO_DATA } from "../../../shared/lib/mapColor";
-import { loadMapStyle } from "../../../shared/lib/mapStyle";
+import { WORLD_BOUNDS, useWorldMap } from "../../../shared/lib/useWorldMap";
 import { computeGlobalSelfSufficiency } from "../lib/globalSimulation";
-import { countryCodeOf, jurisdictionName } from "../lib/jurisdictions";
+import { boundsOfSubregions } from "../../../shared/lib/mapBounds";
+import { countryCodeOf, jurisdictionName, subregionOf } from "../lib/jurisdictions";
 import { METRIC_LEGEND_TITLES, formatMetricValue, loadMetricValues, normalizeForMetric } from "../lib/mapMetrics";
 import type { Metric } from "../lib/mapMetrics";
 import SliderField from "./SliderField";
 
 const INITIAL_VIEW = { longitude: 10, latitude: 20, zoom: 1.4 };
-const WORLD_BOUNDS: [[number, number], [number, number]] = [
-  [-170, -58],
-  [180, 78],
-];
 
 // Same amber-to-aqua ramp, "case + interpolate on feature-state" pattern as
 // Deployment Explorer's own DeploymentMap.tsx FILL_COLOR - per Andrew's own
@@ -88,6 +85,7 @@ function boundsOf(data: FeatureCollection, code: string): [[number, number], [nu
 export default function WorldMap({
   selectedCode,
   selectedPoint,
+  subregions = [],
   onSelect,
   metric,
   globalSimulator = false,
@@ -96,6 +94,8 @@ export default function WorldMap({
   selectedCode: string | null;
   /** A lat/lon to fly to when there's no map feature to fit bounds to - a search-picked (rather than map-clicked) location has no jurisdictions.json code, so this is the only signal available for it. */
   selectedPoint: { lat: number; lon: number } | null;
+  /** The region filter's selection (at most one UN sub-region): with nothing selected the map frames it. */
+  subregions?: string[];
   onSelect: (params: { code: string; name: string; lat: number; lon: number }) => void;
   metric: Metric;
   /** True while the map metric toggle is set to "Global simulator" - added 2026-09-28. Combined with `member` below to decide whether this shows the real, working panel or just a locked teaser. */
@@ -111,12 +111,9 @@ export default function WorldMap({
    */
   member?: boolean;
 }) {
-  const mapRef = useRef<MapRef>(null);
-  const [worldData, setWorldData] = useState<FeatureCollection | null>(null);
-  const [sourceReady, setSourceReady] = useState(false);
-  const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
-  const [metricValues, setMetricValues] = useState<Record<string, number> | null>(null);
   const theme = useTheme();
+  const { mapRef, worldData, mapStyle, sourceReady, onSourceData, hover, setHover } = useWorldMap(World, theme.palette.mode);
+  const [metricValues, setMetricValues] = useState<Record<string, number> | null>(null);
 
   // The Global simulator's own config/results - kept local to this
   // component (not lifted to App.tsx) since nothing outside the map needs
@@ -165,23 +162,6 @@ export default function WorldMap({
     filter: ["==", ["get", "code"], selectedCode ?? "__none__"],
     paint: { "line-color": "#008194", "line-width": 2.5 },
   };
-
-  const mapStyle = useMemo(() => loadMapStyle(theme.palette.mode), [theme.palette.mode]);
-
-  useEffect(() => {
-    setSourceReady(false);
-  }, [mapStyle]);
-
-  useEffect(() => {
-    let mounted = true;
-    fetch(World)
-      .then((r) => r.json())
-      .then((data) => mounted && setWorldData(data))
-      .catch((err) => console.error("failed to load world geometry", err));
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   // Reloads whenever the metric selector changes - generation's own values
   // come from the same dataset genericSource.ts's calculation reads from
@@ -255,10 +235,18 @@ export default function WorldMap({
         map.flyTo({ center: [selectedPoint.lon, selectedPoint.lat], zoom: 6, duration: 400 });
         return;
       }
+      // Nothing selected: a chosen region frames the map on it (as the Deployment Explorer's filter does).
+      const region = boundsOfSubregions(worldData, subregions, subregionOf);
+      if (region) {
+        map.fitBounds(region, { padding: 40, duration: 400 });
+        return;
+      }
       map.fitBounds(WORLD_BOUNDS, { padding: 24, duration: 400 });
     }, 240);
     return () => clearTimeout(timer);
-  }, [selectedCode, selectedPoint, worldData]);
+    // `subregions` is compared by its contents: the filter hands over a fresh array on every change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCode, selectedPoint, worldData, subregions.join("|")]);
 
   const handleMouseMove = (event: MapLayerMouseEvent) => {
     const code = event.features?.[0]?.properties?.code as string | undefined;
@@ -293,9 +281,7 @@ export default function WorldMap({
           onClick={handleClick}
           onMouseMove={handleMouseMove}
           onMouseOut={() => setHover(null)}
-          onSourceData={(e) => {
-            if (e.sourceId === "countries" && e.isSourceLoaded) setSourceReady(true);
-          }}
+          onSourceData={onSourceData}
           cursor={hover ? "pointer" : "grab"}
         >
           {worldData && (

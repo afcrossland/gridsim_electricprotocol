@@ -1,5 +1,5 @@
 /**
- * The amber-to-aqua choropleth ramp shared by all three apps' own maps -
+ * The aqua-to-amber choropleth (inverted 2026-10-21; low = aqua, high = amber) ramp shared by all three apps' own maps -
  * confirmed byte-identical (`calculator/src/lib/mapColor.ts`'s own
  * `RAMP_STOPS`, `deployment/src/lib/metrics.ts`'s own `RAMP_STOPS`, and
  * the root app's `src/lib/scoring.ts`'s own `SCORE_RAMP`) before this
@@ -8,11 +8,11 @@
  * app's own vocabulary (a "score," a "metric," a "self-sufficiency %").
  */
 export const GSC_RAMP: { stop: number; color: string }[] = [
-  { stop: 0, color: "#FBB114" },
-  { stop: 0.25, color: "#F8CB6E" },
+  { stop: 0, color: "#00ABBB" },
+  { stop: 0.25, color: "#7AC8C1" },
   { stop: 0.5, color: "#F5E6C8" },
-  { stop: 0.75, color: "#7AC8C1" },
-  { stop: 1, color: "#00ABBB" },
+  { stop: 0.75, color: "#F8CB6E" },
+  { stop: 1, color: "#FBB114" },
 ];
 
 /** Fill colour for a country with no value for the current metric - same grey across all three apps. */

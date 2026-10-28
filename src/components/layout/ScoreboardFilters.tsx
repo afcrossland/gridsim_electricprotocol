@@ -1,29 +1,20 @@
-import { useMemo, useState } from "react";
-import { Autocomplete, Box, Checkbox, Chip, Slider, TextField, Typography } from "@mui/material";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import { useState } from "react";
+import { Box, Chip, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import ContinentFilter from "../../../shared/components/ContinentFilter";
 import FilterBar from "../../../shared/components/FilterBar";
+import { SUBREGIONS, continentOfRegion } from "../../../shared/lib/continents";
 import { SCORE_BANDS, bandLabelText, bandSunCount } from "../../lib/scoring";
 import { Suns } from "../ui/Suns";
-import {
-  NOT_ENOUGH_DATA_BAND,
-  continentOfGroup,
-  isDefaultFilters,
-} from "../../lib/scoreboardFilters";
-import type { GroupedScore } from "../../lib/types";
+import { NOT_ENOUGH_DATA_BAND, isDefaultFilters } from "../../lib/scoreboardFilters";
 import { useProtocolStore } from "../../stores/protocolStore";
-
-interface Props {
-  groups: GroupedScore[];
-}
 
 const ALL_BANDS = [...SCORE_BANDS.map((b) => b.label), NOT_ENOUGH_DATA_BAND];
 
 /**
- * Continent, country and score filters for the Scoreboard list. Collapsed
+ * Region and score-band filters for the Scoreboard list. The region filter is the Deployment Explorer's own (the UN geoscheme's
+ * sub-regions, grouped under continent headings, one at a time) so the three apps filter the same way. Collapsed
  * behind a single icon by default - the controls are wide enough to crowd a
  * sidebar list that is mostly meant to be scrolled and clicked, not
  * configured, so they only take space once someone actually asks for them.
@@ -33,7 +24,7 @@ const ALL_BANDS = [...SCORE_BANDS.map((b) => b.label), NOT_ENOUGH_DATA_BAND];
  * filter state is a view preference shared across the whole app session, not
  * something Scoreboard owns.
  */
-export default function ScoreboardFilters({ groups }: Props) {
+export default function ScoreboardFilters() {
   const { t, i18n } = useTranslation();
   const filters = useProtocolStore((s) => s.scoreboardFilters);
   const setFilters = useProtocolStore((s) => s.setScoreboardFilters);
@@ -43,27 +34,6 @@ export default function ScoreboardFilters({ groups }: Props) {
   const active = !isDefaultFilters(filters);
 
   const [expanded, setExpanded] = useState(false);
-
-  // The slider is dragged continuously but should not spam the store (and
-  // therefore every consumer of it) on every pixel of movement - local state
-  // tracks the drag, and the store only updates once the user lets go.
-  const [rangeDraft, setRangeDraft] = useState<[number, number]>([
-    filters.minScore,
-    filters.maxScore,
-  ]);
-
-  const countryOptions = useMemo(
-    () =>
-      [...groups]
-        // Narrowed to the selected continent(s), if any - picking Europe
-        // first means the country picker only offers European countries to
-        // pick from next, rather than the whole world.
-        .filter((g) => filters.continents.length === 0 || filters.continents.includes(continentOfGroup(g) ?? ""))
-        .map((g) => ({ code: g.code, name: g.name }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    [groups, filters.continents],
-  );
-  const selectedCountries = countryOptions.filter((c) => filters.countries.includes(c.code));
 
   const toggleBand = (band: string) => {
     const bands = filters.bands.includes(band)
@@ -86,7 +56,6 @@ export default function ScoreboardFilters({ groups }: Props) {
         onToggleExpanded={() => setExpanded((v) => !v)}
         onClear={() => {
           resetFilters();
-          setRangeDraft([0, 100]);
         }}
         sortDesc={sortDirection === "desc"}
         onToggleSort={() => setSortDirection(sortDirection === "desc" ? "asc" : "desc")}
@@ -98,45 +67,23 @@ export default function ScoreboardFilters({ groups }: Props) {
           sortDescending: t("scoreboard.highToLow"),
         }}
       >
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 1.5 }}>
+        <Box sx={{ mb: 1.5 }}>
           <ContinentFilter
-            value={filters.continents}
-            onChange={(continents) => setFilters({ continents })}
-            label={t("scoreboard.continent")}
-            allLabel={t("scoreboard.allContinents")}
-            // Selected values stay the raw English CONTINENTS strings
-            // (continentOfGroup()/matching logic depends on that), only
-            // the rendered label is translated.
-            translate={(c) => t(`continents.${c}`)}
-            sx={{ minWidth: 160, flex: 1 }}
-          />
-
-          <Autocomplete
-            multiple
-            disableCloseOnSelect
-            size="small"
-            options={countryOptions}
-            value={selectedCountries}
-            getOptionLabel={(o) => o.name}
-            isOptionEqualToValue={(a, b) => a.code === b.code}
-            onChange={(_, next) => setFilters({ countries: next.map((o) => o.code) })}
-            sx={{ minWidth: 220, flex: 2 }}
-            renderOption={(props, option, { selected }) => {
-              const { key, ...optionProps } = props;
-              return (
-                <li key={key} {...optionProps}>
-                  <Checkbox
-                    icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                    checkedIcon={<CheckBoxIcon fontSize="small" />}
-                    checked={selected}
-                    size="small"
-                    sx={{ mr: 1 }}
-                  />
-                  {option.name}
-                </li>
-              );
+            value={filters.subregions}
+            onChange={(subregions) => setFilters({ subregions })}
+            label={t("scoreboard.region")}
+            allLabel={t("scoreboard.allRegions")}
+            // The UN geoscheme's own 22 sub-regions, one at a time, grouped under their continent - exactly as the
+            // Deployment Explorer's filter is. Selected values stay the raw English sub-region names (the matching
+            // logic depends on that); only the label is translated.
+            options={SUBREGIONS}
+            translate={(c) => t(`subregions.${c}`)}
+            multiple={false}
+            groupLabel={(subregion) => {
+              const continent = continentOfRegion(subregion);
+              return continent ? t(`continents.${continent}`) : "";
             }}
-            renderInput={(params) => <TextField {...params} label={t("scoreboard.countries")} />}
+            sx={{ width: "100%" }}
           />
         </Box>
 
@@ -154,30 +101,6 @@ export default function ScoreboardFilters({ groups }: Props) {
               variant={filters.bands.includes(band) ? "filled" : "outlined"}
             />
           ))}
-        </Box>
-
-        <Box sx={{ px: 0.5, pt: 2 }}>
-          <Slider
-            size="small"
-            value={rangeDraft}
-            min={0}
-            max={100}
-            onChange={(_, next) => setRangeDraft(next as [number, number])}
-            onChangeCommitted={(_, next) => {
-              const [minScore, maxScore] = next as [number, number];
-              setFilters({ minScore, maxScore });
-            }}
-            valueLabelDisplay="on"
-            valueLabelFormat={(v) => `${v}%`}
-          />
-          <Box sx={{ display: "flex", justifyContent: "space-between", mt: -0.5 }}>
-            <Typography variant="caption" color="text.secondary">
-              0%
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              100%
-            </Typography>
-          </Box>
         </Box>
       </FilterBar>
     </Box>

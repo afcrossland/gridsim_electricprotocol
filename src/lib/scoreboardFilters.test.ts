@@ -31,39 +31,21 @@ describe("matchesFilters", () => {
     expect(isDefaultFilters(DEFAULT_SCOREBOARD_FILTERS)).toBe(true);
   });
 
-  it("filters by continent", () => {
-    const gb = group({ code: "GB" }); // Northern Europe -> Europe
-    expect(
-      matchesFilters(gb, { ...DEFAULT_SCOREBOARD_FILTERS, continents: ["Europe"] }),
-    ).toBe(true);
-    expect(
-      matchesFilters(gb, { ...DEFAULT_SCOREBOARD_FILTERS, continents: ["Asia"] }),
-    ).toBe(false);
+  it("filters by UN sub-region", () => {
+    const gb = group({ code: "GB" }); // Northern Europe
+    expect(matchesFilters(gb, { ...DEFAULT_SCOREBOARD_FILTERS, subregions: ["Northern Europe"] })).toBe(true);
+    expect(matchesFilters(gb, { ...DEFAULT_SCOREBOARD_FILTERS, subregions: ["Western Europe"] })).toBe(false);
+    expect(matchesFilters(gb, { ...DEFAULT_SCOREBOARD_FILTERS, subregions: ["Eastern Asia"] })).toBe(false);
   });
 
-  it("matches any of several selected continents", () => {
-    const gb = group({ code: "GB" });
-    expect(
-      matchesFilters(gb, { ...DEFAULT_SCOREBOARD_FILTERS, continents: ["Asia", "Europe"] }),
-    ).toBe(true);
+  it("matches a subdivided country's group row by its country's sub-region", () => {
+    const us = group({ code: "US", isGroup: true, hasOwnScore: false }); // Northern America
+    expect(matchesFilters(us, { ...DEFAULT_SCOREBOARD_FILTERS, subregions: ["Northern America"] })).toBe(true);
+    expect(matchesFilters(us, { ...DEFAULT_SCOREBOARD_FILTERS, subregions: ["Caribbean"] })).toBe(false);
   });
 
-  it("resolves the EU bloc's continent without a jurisdiction index entry", () => {
-    const eu = group({ code: "EU", name: "European Union" });
-    expect(
-      matchesFilters(eu, { ...DEFAULT_SCOREBOARD_FILTERS, continents: ["Europe"] }),
-    ).toBe(true);
-    expect(
-      matchesFilters(eu, { ...DEFAULT_SCOREBOARD_FILTERS, continents: ["Africa"] }),
-    ).toBe(false);
-  });
-
-  it("filters by an explicit list of countries", () => {
-    const gb = group({ code: "GB" });
-    expect(
-      matchesFilters(gb, { ...DEFAULT_SCOREBOARD_FILTERS, countries: ["GB", "DE"] }),
-    ).toBe(true);
-    expect(matchesFilters(gb, { ...DEFAULT_SCOREBOARD_FILTERS, countries: ["DE"] })).toBe(false);
+  it("has only a region filter and a score-band filter: no country filter, no score range", () => {
+    expect(Object.keys(DEFAULT_SCOREBOARD_FILTERS).sort()).toEqual(["bands", "subregions"]);
   });
 
   it("filters by score band", () => {
@@ -76,22 +58,9 @@ describe("matchesFilters", () => {
     ).toBe(false);
   });
 
-  it("filters by percentage range", () => {
-    const mid = group({ score: 0.5, ranked: true });
-    expect(
-      matchesFilters(mid, { ...DEFAULT_SCOREBOARD_FILTERS, minScore: 40, maxScore: 60 }),
-    ).toBe(true);
-    expect(
-      matchesFilters(mid, { ...DEFAULT_SCOREBOARD_FILTERS, minScore: 60, maxScore: 100 }),
-    ).toBe(false);
-  });
-
-  it("excludes an unranked row from a non-default score filter unless 'not enough data' is selected", () => {
+  it("excludes an unranked row from a score-band filter unless 'not enough data' is selected", () => {
     const thin = group({ ranked: false, score: 0 });
     expect(matchesFilters(thin, DEFAULT_SCOREBOARD_FILTERS)).toBe(true);
-    expect(
-      matchesFilters(thin, { ...DEFAULT_SCOREBOARD_FILTERS, minScore: 10 }),
-    ).toBe(false);
     expect(
       matchesFilters(thin, { ...DEFAULT_SCOREBOARD_FILTERS, bands: ["Effective"] }),
     ).toBe(false);

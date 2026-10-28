@@ -20,8 +20,10 @@
     "title": "Cómo funciona"
   },
   "legend": {
-    "protocolScore": "Puntuación del protocolo",
-    "questionsAnswered": "Preguntas respondidas, por peso"
+    "questionsAnswered": "Preguntas respondidas",
+    "notEnoughData": "Datos insuficientes",
+    "inSuns": "en soles",
+    "policyScore": "Puntuación de política"
   },
   "welcome": {
     "body": "Este sitio puntúa países, estados y provincias frente al Protocolo Eléctrico, el conjunto detallado de preguntas que sustenta la Carta. Elige una jurisdicción en el mapa para ver cómo le va, cuál es la evidencia y qué cambios elevarían más su puntuación.",
@@ -39,18 +41,9 @@
     "filterThisList": "Filtrar esta lista",
     "highToLow": "De mayor a menor",
     "lowToHigh": "De menor a mayor",
-    "continent": "Continente",
-    "allContinents": "Todos los continentes",
-    "countries": "Países",
-    "score": "Puntuación"
-  },
-  "continents": {
-    "Africa": "África",
-    "Asia": "Asia",
-    "Europe": "Europa",
-    "North America": "Norteamérica",
-    "South America": "Sudamérica",
-    "Oceania": "Oceanía"
+    "score": "Puntuación",
+    "region": "Región",
+    "allRegions": "Todas las regiones"
   },
   "map": {
     "policyScore": "Puntuación de política",
@@ -70,7 +63,10 @@
     "exitEditMode": "Salir del modo de edición",
     "buildingReport": "Generando informe...",
     "downloadReport": "Descargar resumen de política",
-    "overviewIntro": "Cómo puntúa {{name}} en cada área de política, y cómo se compara con el resto del grupo."
+    "overviewIntro": "Cómo puntúa {{name}} en cada área de política, y cómo se compara con el resto del grupo.",
+    "notApplicableHint": "Aún no hay suficientes preguntas respondidas en esta área para puntuarla.",
+    "editAnswers": "Editar respuestas",
+    "doneEditing": "Listo"
   },
   "impactList": {
     "empty": "Nada que mostrar todavía - cada pregunta respondida ya tiene la puntuación máxima, o ninguna se ha respondido. Usa Panorama de política para añadir algunas.",
@@ -109,13 +105,17 @@
     "continue": "Continuar",
     "back": "Atrás",
     "submit": "Enviar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "sending": "Enviando…",
+    "sendFailed": "No se pudo enviar: {{message}}. Inténtalo de nuevo."
   },
   "questionCard": {
-    "tierWeak": "Débil",
-    "tierPartial": "Desarrollado",
-    "tierStrong": "Sólido",
+    "tierWeak": "No",
+    "tierPartial": "En parte",
+    "tierStrong": "Sí",
     "notKnown": "No se sabe",
+    "showDetails": "Ver detalles",
+    "hideDetails": "Ocultar detalles",
     "evidence": "Evidencia",
     "clearResponse": "Borrar esta respuesta",
     "noEvidence": "Aún no se ha añadido evidencia.",
@@ -127,8 +127,9 @@
     "removeEvidence": "Eliminar esta evidencia",
     "addEvidence": "Añadir evidencia",
     "moreExemplars": "+{{count}} más",
-    "exemplars": "Ejemplos a seguir",
-    "viewProfile": "Ver perfil del país"
+    "exemplars": "Ejemplos",
+    "viewProfile": "Ver perfil del país",
+    "currentAnswer": "Respuesta de {{name}}"
   },
   "adminConsole": {
     "title": "Consola de administración",
@@ -162,9 +163,12 @@
     "impactfullnessTitle": "Relevancia: {{label}} ({{weight}})",
     "impactfullness": "Relevancia",
     "question": "Pregunta",
+    "questionTitle": "Título breve",
+    "questionTitleHelp": "Unas pocas palabras que se muestran en la tarjeta; la pregunta completa se abre al hacer clic.",
     "revertQuestion": "Revertir esta pregunta a la versión publicada",
     "deleteQuestion": "Eliminar esta pregunta",
-    "confirmDeleteQuestion": "¿Eliminar esta pregunta? Esto también elimina cualquier respuesta ya registrada para ella."
+    "confirmDeleteQuestion": "¿Eliminar esta pregunta? Esto también elimina cualquier respuesta ya registrada para ella.",
+    "reviewLoadFailed": "No se pudieron cargar las sugerencias de todos: {{message}}. Recarga para volver a intentarlo."
   },
   "suggestionsReview": {
     "empty": "Aún no hay cambios sugeridos. Cuando alguien use \"Enviar evidencia revisada\" en la página de un país, aparecerá aquí para revisión.",
@@ -208,9 +212,9 @@
     "intro": "Las preguntas nuevas se revisan antes de añadirse: una vez aceptada, una pregunta cuenta para la puntuación de todos los países.",
     "section": "Sección",
     "question": "Pregunta",
-    "strong": "Una respuesta sólida sería",
-    "developed": "Una respuesta desarrollada sería (opcional)",
-    "weak": "Una respuesta débil sería",
+    "strong": "Una respuesta «sí» sería",
+    "developed": "Una respuesta «en parte» sería (opcional)",
+    "weak": "Una respuesta «no» sería",
     "reason": "¿Por qué es importante?",
     "source": "Evidencia de apoyo",
     "sourceHint": "Enlace, o nombre de un informe o documento",
@@ -223,9 +227,9 @@
   "questionProposalsReview": {
     "questionProposals": "Preguntas propuestas",
     "section": "Sección",
-    "strong": "Sólido",
-    "developed": "Desarrollado",
-    "weak": "Débil",
+    "strong": "Sí",
+    "developed": "En parte",
+    "weak": "No",
     "reason": "Por qué",
     "source": "Evidencia",
     "weight": "Peso",
@@ -243,5 +247,23 @@
   },
   "sunRating": {
     "label": "{{count}} de 5 soles"
+  },
+  "editor": {
+    "signInTitle": "Inicia sesión para editar",
+    "signInBody": "La consola de administración cambia los datos de políticas que ve todo el mundo, así que es solo para editores autorizados. Inicia sesión con la cuenta de Google a la que se dio acceso.",
+    "signInButton": "Iniciar sesión con Google",
+    "signingIn": "Iniciando sesión…",
+    "notEditor": "Esta cuenta no puede editar los datos de políticas.",
+    "error": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+    "useAnotherAccount": "Usar otra cuenta",
+    "cancel": "Cancelar",
+    "signedInAs": "Sesión iniciada como {{email}}",
+    "signOut": "Cerrar sesión",
+    "databaseOffline": "Has iniciado sesión, pero esta página no pudo conectar con la base de datos de políticas, así que la edición está desactivada. Recarga para volver a intentarlo."
+  },
+  "sync": {
+    "saving": "Guardando…",
+    "saved": "Todos los cambios guardados",
+    "error": "No se pudo guardar: {{message}}. Recarga para ver lo que se guardó."
   }
 }

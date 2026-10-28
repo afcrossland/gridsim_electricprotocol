@@ -417,17 +417,18 @@ real, honest number there, just not a colour the map's ramp can represent.
 - `components/TimeseriesChart.tsx` - the shared hand-drawn SVG line chart
   behind both `CountryDetail.tsx` (capacity) and `GenerationDetail.tsx`
   (generation mix).
-- `assets/jurisdictions.geojson`, `data/jurisdictions.json`,
-  `assets/map_gsc.json`, `assets/map_gsc_dark.json`, `assets/fonts/` -
-  copied directly from the Policy Explorer's own root `src/`, not
-  regenerated or symlinked - if the geometry pipeline or fonts ever
-  change, these copies go stale until manually re-copied.
+- The map shapes, country list, map style and subdivision names now live in `shared/`
+  (`shared/assets/jurisdictions.dissolved.geojson`, `shared/data/jurisdictions.dissolved.json`,
+  `shared/assets/map_gsc*.json`, `shared/data/subdivision-names.json`), shared with the
+  other apps. The two `jurisdictions.dissolved.*` files are generated from the Policy
+  Explorer's own files by `scripts/dissolve_subdivided.py`; fonts are in `shared/assets/fonts/`.
 - `public/ember-logo.svg` (at the repo root's `public/`, shared across all
   three HTML entries) - Ember's actual logo, downloaded from
   ember-energy.org for the header's attribution badge.
 - `scripts/dissolve_subdivided.py` - see the note on `lib/jurisdictions.ts`
-  above. Run once already; only needs re-running if the geometry gets
-  re-copied fresh from the Policy Explorer's own root `src/`.
+  above. It reads the Policy Explorer's `src/assets/jurisdictions.geojson` and
+  `src/data/jurisdictions.json` and writes the shared `*.dissolved.*` files; re-run it
+  whenever those change.
 
   **Bug found and fixed, 2026-09-10**: the script correctly dissolved
   AU/US/CA's states/provinces into one country-level shape each and

@@ -19,6 +19,8 @@ export interface Question {
   subsection: string | null;
   order: number;
   text: string;
+  /** A few words standing in for `text` where space is short; the full sentence opens on click. Absent until one is written - the card then shows `text` as before. */
+  title?: string;
   weight: number;
   rubric: RubricTier[];
   sourceRow?: number;

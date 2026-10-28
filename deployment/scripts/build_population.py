@@ -42,7 +42,7 @@ SOURCE_URL = (
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-JURISDICTIONS_PATH = ROOT / "src" / "data" / "jurisdictions.json"
+JURISDICTIONS_PATH = ROOT.parent / "shared" / "data" / "jurisdictions.dissolved.json"
 OUT_PATH = ROOT / "src" / "data" / "population.json"
 
 # See docstring - not in the World Bank's own SP.POP.TOTL response.

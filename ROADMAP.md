@@ -47,11 +47,10 @@ comment(s) together.
   time, or an on-demand "translate" action in the review UI, are both
   plausible later options; neither is built. Flagged 2026-09-11, not an
   oversight.
-- **Suggestions only ever show up in the browser that submitted them.**
-  `diffResponses` (`src/lib/suggestions.ts`) and `SuggestionsReview.tsx` are
-  written so the local `suggestions` array can be swapped for real API calls
-  without changing shape, but there is no backend yet to carry a submitted
-  suggestion to an admin on a different device. Closed by **Phase 6** below.
+- **Suggestions only ever show up in the browser that submitted them** -
+  on builds without the policy database (prod, for now). On database builds
+  (dev) Phase 6's first part closes this: they're filed with the server and
+  every editor sees them (see Phase 6 below).
 - **Admin console has no real authentication.** Open to anyone who finds the
   URL - no password, no login, no record of who changed what (`grep -rn
   "Stands in for auth" src/` to find the UI's own callout in
@@ -216,17 +215,17 @@ Requests Andrew has flagged for later, recorded here so they don't get
 lost - not yet started.
 
 - **TODO: deliver submitted corrections to the team (backend).** Flagged
-  2026-10-15. A correction submitted through "Suggest an edit" is still only
-  saved in the submitter's own browser (see "Suggestions only ever show up in
-  the browser that submitted them" above), so nobody on the team receives it.
-  Deliberately deferred - the page is still a mockup - and closed properly by
-  Phase 6. Until then no interim delivery (email / GitHub issue / form
-  service) is wired up either.
+  2026-10-15. Done on database builds (dev) by Phase 6's first part: a
+  correction or question proposal is filed with the server and every editor
+  sees it in the admin console. Still browser-only on prod until prod moves
+  to the database. Nothing notifies editors that something new arrived - they
+  see it when they open the console.
 - **TODO: wire login to the edit screen.** Flagged 2026-10-15. The suggestion
   dialog asks for a free-text name (required) and organisation; once login
   exists, "who sent it" should come from the signed-in account instead of
-  being typed, and edit mode should require being signed in. Depends on
-  Phase 2 (auth).
+  being typed, and edit mode should require being signed in. Phase 2 makes
+  editing need an editor's sign-in; the public suggestion dialog still asks
+  for a typed name until suggestions move to the database (Phase 6).
 - **TODO: add a categorical badge to the map hover tooltip.** Flagged
   2026-09-29, when the tooltip's design was lifted from the sibling
   gridsim-frontend project's own map hover card (`shared/components/
@@ -415,22 +414,26 @@ lost - not yet started.
 
 ## Decisions already made
 
-Settled 26 August 2026. Each of these changed the shape of the plan below
-enough to be worth recording rather than assuming.
+Settled 26 August 2026; decisions 1, 2 and 5 revised 21 October 2026 (the
+originals are kept in each entry for the record). Each of these changed the
+shape of the plan below enough to be worth recording rather than assuming.
 
-1. **Backend platform: `gridsim-backend`.** Build on the Global Solar
-   Council's existing FastAPI + SQLAlchemy + Postgres service
-   (`github.com/afcrossland/gridsim-backend`, private repo) rather than a
-   new managed platform or a hand-built API. Already deployed via Docker to
-   Google Cloud with Terraform-managed infra. New policy-tool tables live in
-   their own schema (or database) in the same Postgres instance, kept
-   separate from gridsim's own simulation tables - shared infrastructure and
-   deploy pipeline only. Two gaps to fill in that repo before this starts:
-   no migration tooling (add Alembic or similar) and no auth system yet.
-2. **Admin auth: one shared password.** No individual accounts. Simple to
-   build; the accepted trade-off is that the future change log (below) can
-   only ever say "an admin" made a change, not which one. Upgradable to
-   named accounts later without a schema rewrite.
+1. **Backend platform: a FastAPI service in this repo, grown from the
+   `/klute` gate.** *Revised 2026-10-21.* The gate (`klute/gate/`) is
+   already a FastAPI service on Cloud Run with Firebase Auth, deployed by
+   this repo's own Terraform (`infra/terraform/`) and workflows, so the
+   policy API grows out of it rather than going into `gridsim-backend`.
+   Data lives in **its own Postgres database (`electricfutures`, schema
+   `policy`) on the existing gridsim Cloud SQL instance** - shared instance,
+   nothing else shared with gridsim's simulation tables. Schema changes go
+   through Alembic in `klute/gate/`. *Was:* build on `gridsim-backend`; set
+   aside because Electric Futures infrastructure now deliberately lives in
+   this repo, not in `gridsim-deploy`, and it would tie policy releases to
+   the simulator's.
+2. **Admin auth: Google sign-in (Firebase Auth) with an allowlist.**
+   *Revised 2026-10-21.* Reuses what the `/klute` gate already does. Every
+   write is attributable to a named email, so the change log (Phase 6) can
+   say who made a change. *Was:* one shared admin password.
 3. **Publish model: stays instant.** An edit is live for every visitor the
    moment it is made, no draft or review step - matches today's UX exactly,
    just now shared globally instead of trapped in one browser.
@@ -439,11 +442,12 @@ enough to be worth recording rather than assuming.
    style bloc membership) on jurisdictions Natural Earth already provides
    shapes for. Drawing or importing genuinely new custom shapes is out of
    scope.
-5. **Frontend hosting: moves to Google Cloud.** The frontend leaves GitHub
-   Pages and moves onto the same Google Cloud infrastructure as the
-   backend, rather than staying static on GitHub Pages and calling the API
-   remotely. This replaces the `.github/workflows/deploy.yml` pipeline
-   described in `README.md`.
+5. **Frontend hosting: Firebase Hosting.** *Done 2026-10-21* (the
+   Firebase hosting work, afcrossland/gridsim_electricprotocol#5): the
+   public site is on Firebase Hosting, which rewrites `/klute/**` to the
+   Cloud Run gate. The API's routes get the same kind of rewrite, so the
+   frontend calls it on its own origin. *Was:* "moves to Google Cloud" with
+   no specific product chosen.
 
 ## The phases
 
@@ -455,23 +459,70 @@ requires a big-bang cutover.
 Nothing else can start until there is a database and an API for the
 frontend to talk to.
 
-- Add the policy tool's schema to `gridsim-backend`: jurisdictions,
-  sections, questions, rubric tiers, responses, evidence, suggestions,
-  audit log.
-- Introduce migration tooling (Alembic) in that repo - it has none today.
-- Stand up the new router group alongside the existing `historic.py`,
-  `irradiance.py`, `simulate.py` routers.
+- **Schema (done, #11).** SQLAlchemy
+  models in `klute/gate/ep_db/models.py`, Alembic migrations in
+  `klute/gate/migrations/`. Two kinds of data are kept apart:
+  - *Imported research*: `sources`, `jurisdiction_groups`, and
+    `researched_answers` (one row per entry of `sourced-answers.json` /
+    `indicator-answers.json`, unresolved). The spreadsheet import owns
+    these and replaces them wholesale, so a re-import never touches
+    anything a person entered.
+  - *Things people do*: `responses` + `response_evidence` (an edit made in
+    the app; a row with no score records that someone cleared a researched
+    answer), `suggestions`, `question_proposals`, `audit_log`.
+  - The protocol's structure (`protocol`, `sections`, `questions`,
+    `rubric_tiers`) and `jurisdictions` sit in between: seeded from JSON
+    once, then edited by admins (Phases 4-5).
+- **Import script (done, #11).** `python -m ep_db.import_json` loads
+  today's four JSON files. `--check` exports the database back into those
+  files' shapes and fails on any difference - the evidence that Phase 1 can
+  serve identical data.
+- **Terraform (done, #13)** (`infra/terraform/modules/electricfutures/database.tf`):
+  the `electricfutures` database and login on each environment's gridsim Cloud SQL instance,
+  and a Secret Manager `DATABASE_URL`. Apply steps and a permissions caveat in
+  `infra/terraform/README.md`.
+- **Dev: applied and loaded (2026-10-21).** Terraform applied on `gridsim-dev-db`, migration
+  `0001` run, and the import loaded today's JSON (821 researched answers, 657 sources, 39
+  questions, 317 jurisdictions); `--check` matches the files exactly. Nothing reads from it
+  yet, and spreadsheet uploads still only update the JSON, so it falls behind until the
+  import workflow writes to the database (Phase 1) - re-run the import by hand meanwhile.
+- **Prod: not applied.** Same steps on `gridsim-prod-db`, each with its own go-ahead.
+- **Not done:** the `REVOKE CONNECT ... FROM PUBLIC` grants from the Terraform README, which
+  need the gridsim instance owner.
+- Rename `klute/gate/` (e.g. to `api/`) once it serves more than `/klute`;
+  left alone for now so Terraform and the workflows don't change in Phase 0.
 
 ### Phase 1 - Serve the protocol from the database
 
 Lowest-risk first step: move today's static JSON into the database, keep
 behaviour identical. A read-only migration, no new features yet.
 
-- One-time import of `protocol.seed.json` and `src/data/jurisdictions.json`
-  into the new schema.
-- Add read endpoints; the frontend fetches on load instead of importing a
-  JSON file at build time (`src/stores/protocolStore.ts`'s `initialState()`
-  and `seedResponses()` are the two places that currently do this).
+- Apply Phase 0 on prod and load it the same way (dev is done).
+- **Read endpoint (done, #16) - live on dev since 2026-10-21; prod still
+  uses the bundled JSON.** `GET /api/policy/data` on the gate returns the
+  four files' shapes from the database (503 on any problem); Firebase
+  Hosting rewrites `/api/policy/**` to it; the gate's Cloud Run service
+  mounts the Cloud SQL socket and gets `DATABASE_URL` (Terraform, applied
+  on dev only). On dev the response matched the committed JSON with no
+  differences, and the Policy Explorer loads from it without falling back.
+  The import workflow keeps the dev database in step (next item). The Policy Explorer fetches it before loading the app
+  (`src/data/policyData.ts`, `src/main.tsx`) on **dev builds only**
+  (`VITE_POLICY_API`), falling back to the bundled JSON on any failure.
+  Answer resolution (specificity and basis precedence in
+  `src/data/sourcedAnswers.ts`) stays in the frontend for this phase. The
+  `/klute` explorer still imports `protocol.seed.json` directly
+  (`klute/src/panels/PolicyPanel.tsx`, `klute/src/lib/countryStatus.ts`).
+- Turn it on for prod (set `VITE_POLICY_API` for prod builds) once prod is
+  applied and loaded and dev has run on it for a while; then the bundled
+  JSON can stop shipping.
+- **Spreadsheet import also updates the dev database (in progress, branch
+  `feature/import-writes-dev-db`).** After committing the regenerated
+  `src/data`, `import-input.yml` runs `import_json --overwrite-structure`
+  and `--check` against the dev database through the Cloud SQL Auth Proxy,
+  as its own service account `ef-import-<env>` (database access only;
+  Terraform needs applying), then starts the deploy. It still commits the
+  JSON, which stays the source of truth until Phase 4 - when admins edit
+  questions in the database, `--overwrite-structure` must go.
 - Ship this alone and confirm the app looks and behaves exactly as it does
   today, just from a live source.
 
@@ -480,11 +531,22 @@ behaviour identical. A read-only migration, no new features yet.
 Has to land before Phase 4's write path opens up - an authenticated-looking
 screen backed by unauthenticated write endpoints is not actually locked.
 
-- Shared password login in front of `AdminConsole.tsx`.
-- Every write endpoint checks the same session server-side, not just the
-  page route on the frontend.
-- Retire the `stands in for auth` comments in `TopNavbar.tsx`,
-  `SuggestionsReview.tsx` and `lib/suggestions.ts` once this ships.
+- **In progress, branch `feature/ep-phase2-admin-signin`.** On builds that
+  read the database (`VITE_POLICY_API`, dev), the admin console needs a
+  Google sign-in (Firebase Auth, same project as `/klute`) whose email is
+  on `policy_editor_emails` (Terraform; the gate's `POLICY_EDITOR_EMAILS`).
+  `src/lib/editorAuth.ts` loads Firebase only when someone signs in (or
+  had before); `EditorSignInDialog.tsx` is the gate; `App.tsx` won't
+  render the console for a non-editor. Other builds keep the open,
+  browser-only console until they move to the database.
+- Server side: `klute/gate/ep_db/auth.py`'s `require_editor` checks the
+  Firebase ID token (`Authorization: Bearer`) and the allowlist; every
+  Phase 4 write endpoint depends on it. `GET /api/policy/me` exposes the
+  same check, `GET /api/policy/auth-config` the public Firebase web config.
+- The country page's Edit mode was removed on 2026-10-15; it comes back in
+  Phase 4, for signed-in editors only (decided 2026-10-21). The public
+  "Suggest an edit" and "Propose a question" flows stay open and
+  browser-only until Phase 6.
 
 ### Phase 3 - (reserved)
 
@@ -493,13 +555,33 @@ below rather than renumbering everything.
 
 ### Phase 4 - Admin edits become real, shared writes
 
-- Question and section create/edit/delete goes through the authenticated
-  API instead of `questionOverrides`/`sectionOverrides`/`customSections`/
-  `customQuestions` sparse-override state in `protocolStore.ts`.
-- Country answers and evidence write straight through too - editing stays
-  live and immediate, matching today's UX, just shared globally instead of
-  trapped in one browser.
-- No draft/publish step (decision 3 above).
+- **In progress, branch `feature/ep-phase4-writes` (stacked on Phase 2).**
+  On database builds, a signed-in editor's changes save to the policy
+  database: questions, sections, rubric, the completeness threshold, and
+  country answers and evidence. Each write is audit-logged with before and
+  after under the editor's email (`klute/gate/ep_db/writes.py`; all
+  endpoints need `require_editor`). Last write wins; no draft/publish step
+  (decision 3).
+- `src/lib/policySync.ts` watches the store and saves whatever changed -
+  by reference, so every action (admin console, Edit mode, accepting a
+  suggestion or question proposal) is covered without touching the
+  actions - once it has been still for 0.8 s, parents before children. A
+  removed answer is saved as cleared (score null), which also hides the
+  researched answer under it. `SaveStatus` shows saving/saved/failed.
+- The country page's **Edit answers** button is back, for signed-in
+  editors on database builds only (decided 2026-10-21).
+- On database builds the browser's saved overlays (`questionOverrides`
+  etc., edited responses, threshold) are ignored and no longer saved; only
+  preferences and the browser-only suggestion queues are. "Reset
+  everything" and per-question "revert to shipped" are hidden there:
+  either would write the bundled JSON over the database.
+- `import-input.yml` no longer passes `--overwrite-structure` and checks
+  `--research-only`: editors own questions and sections now, so a question
+  the spreadsheets reword has to be changed in the admin console too.
+- **Not covered:** suggestions and question proposals still live only in
+  the submitting browser, so accepting one works, but an editor only sees
+  those filed in their own browser - moving them to the database is
+  Phase 6.
 
 ### Phase 5 - Territory management
 
@@ -518,16 +600,26 @@ Not possible at all today - there is no shared record to log against until
 Phase 4 lands. This is what finally closes the cross-device gap already
 called out as a `TODO` in `lib/suggestions.ts`.
 
-- Every write (a question edit, an answer change, a territory toggle, a
-  suggestion decision) records what changed, before/after, and when.
-- A history view in the admin console, filterable by country or question.
-- Suggestions become real database rows any admin can review from any
-  device.
+- **Done (Phase 4):** every editor write records what changed, before and
+  after, who and when, in `audit_log` - including suggestion decisions and
+  public submissions (actor `public`).
+- **Suggestions in the database - in progress, branch
+  `feature/ep-suggestions-db`.** "Suggest a correction" and "Propose a new
+  policy question" file with the server on database builds
+  (`klute/gate/ep_db/review.py`: public `POST`s, no sign-in; size limits,
+  a hidden honeypot field, 10 per visitor per hour per gate instance).
+  Editors' admin console loads everyone's (`GET /api/policy/review`);
+  accept/reject is saved by `policySync` like any edit (`PUT .../status`),
+  after any question an accepted proposal adds. Migration `0002` lets a
+  proposal go with a deleted section and come unlinked from a deleted
+  question (both deletes failed on its foreign keys before).
+- **Not started:** a history view in the admin console over `audit_log`,
+  filterable by country or question; telling editors when something new is
+  filed.
 
 ### Phase 7 - Cutover and cleanup
 
-- Move the frontend off GitHub Pages onto the same Google Cloud
-  infrastructure as the backend (decision 5).
+- Frontend hosting already moved to Firebase (decision 5).
 - Edits already sitting in visitors' browser storage were always
   provisional - no migration needed, they are simply superseded by the
   database.
@@ -595,7 +687,7 @@ paragraph, metrics, table, list, bar chart).
 
 Added 2026-10-16. Tim uploads country spreadsheets to `input/` through the GitHub website (see `input/README.md`).
 `.github/workflows/import-input.yml` then runs `scripts/import_output_sheets.py`, commits the regenerated
-`src/data/` files to `main`, and starts the site deploy. No review step (Tim is trusted); a sheet that cannot be read
+`src/data/` files to `Development`, updates the dev policy database to match, and starts the site deploy. No review step (Tim is trusted); a sheet that cannot be read
 fails the run, commits nothing, and the run summary says what to fix. Country sheets are named
 `<Country> Output Rev 8.xlsx`; spelling, case and a suffix after the rev are tolerated, and the country is looked up
 in `src/data/jurisdictions.json`, so a new country needs no code change.
@@ -632,3 +724,39 @@ individual elements, under a line "Or explore the elements one at a time" - not 
 - **TODO: design and build the planner itself.** Open questions: what it optimises (cost, emissions, security of
   supply, policy readiness), which inputs it takes from each tool, what a "plan" contains, and how it is gated once
   real login exists (today's member gate is a shared client-side password - see `shared/lib/membership.ts`).
+
+## Filters (2026-10-23)
+
+All three apps use the Deployment Explorer's region filter: the UN geoscheme's sub-regions, one at a time, grouped under
+continent headings (`shared/components/ContinentFilter.tsx` with `options={SUBREGIONS}`), and choosing one zooms the map
+to it with nothing selected (`shared/lib/mapBounds.ts`, used by all three apps). Policy's country
+filter and its score-range slider were removed; its score-band filter (the sun chips, plus "Not enough data") is kept.
+The EU is no longer grouped on Policy.
+
+- A regional total row (Deployment adds one when a region is chosen) is **not** wanted yet for Policy or Homes.
+- A region with a country so large that framing it shows half the planet is clipped by longitude: Eastern Europe (which
+  includes Russia) stops at Volgograd's longitude, about 44.5 degrees east (`REGION_LNG_WINDOW` in `shared/lib/mapBounds.ts`).
+  All three apps share that one helper, Deployment included.
+
+## Shared code across the three apps (2026-10-23)
+
+Done (all in `shared/`): one map style, one country-lookup module (`lib/jurisdictionIndex.ts`), one set of region and continent
+names (`i18n/`), one i18next setup (`i18n/init.ts`), one map hook (`lib/useWorldMap.ts`: map handle, world shapes, style, source-ready,
+hover), one region-frame helper (`lib/mapBounds.ts`), and the shell pieces `components/MemberTopNavbar.tsx`,
+`MobileViewToggle.tsx`, `ThemedRoot.tsx` and `lib/useMembership.ts`. The country-level map shapes and country list that
+Deployment and the Calculator use are now one generated copy (`shared/assets|data/jurisdictions.dissolved.*`, made from
+Policy's by `deployment/scripts/dissolve_subdivided.py`).
+
+**Constraint: the policy database.** `src/data/jurisdictions.json` (and `protocol.seed.json`, `sourced-answers.json`,
+`indicator-answers.json`) are read by the database importer (`klute/gate/ep_db/import_json.py`, with an exact field check),
+served back by `/api/policy/data`, and read by `klute`, the spreadsheet import and `build_indicator_answers.py`. They stay where
+they are and are never edited by the shared-code work; anything shared is derived from them.
+
+Still duplicated (not done yet):
+- **TODO: the app frames** (`App.tsx` in each app: map and sidebar split, footer, help page, tour wiring). They differ in
+  real ways (Policy's compare and admin pages, the Calculator's tabs and locked teaser), so a shared frame needs slots; a
+  larger piece of work.
+- **TODO: compare picker and compare colours** (Policy and Deployment each have their own).
+- **TODO: summary tiles** (Policy's `StatTile`, Deployment's sidebar tile and the Calculator's `Stat`).
+- **TODO: Help pages and tour scenes** (thin per-app content; the engines are already shared).
+- Policy's top bar keeps its own (it has the admin console and editor sign-in).

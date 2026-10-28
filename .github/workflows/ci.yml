@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [Development, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck and test
+        run: |
+          npx tsc -b
+          npx vitest run
+
+      - name: Build public site and /klute
+        run: |
+          npm run build:prod
+          npm run build:klute
+
+  klute-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Throwaway database for the policy-database tests (test_ep_db.py); same major version as
+    # the gridsim Cloud SQL instance it will run on.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: electricfutures
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Test the /klute sign-in gate and the policy database
+        working-directory: klute/gate
+        env:
+          EP_TEST_DATABASE_URL: postgresql+psycopg://postgres:test@localhost:5432/electricfutures
+        run: |
+          pip install -r requirements.txt pytest
+          python -m pytest -q
+
+  terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        environment: [dev, prod]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.15.8"
+
+      - name: Format check
+        run: terraform fmt -check -recursive infra/terraform
+
+      # -backend=false: syntax/types only. Not a substitute for `terraform plan`.
+      - name: Validate
+        working-directory: infra/terraform/environments/${{ matrix.environment }}
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate

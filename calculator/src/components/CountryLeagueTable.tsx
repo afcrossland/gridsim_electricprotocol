@@ -6,7 +6,8 @@ import FilterBar from "../../../shared/components/FilterBar";
 import FlagImg from "../../../shared/components/FlagImg";
 import RankedRow from "../../../shared/components/RankedRow";
 import { loadCountryIrradiance } from "../lib/countryIrradiance";
-import { continentOf, countryCodeOf, jurisdictionName } from "../lib/jurisdictions";
+import { SUBREGIONS, continentOfRegion } from "../../../shared/lib/continents";
+import { countryCodeOf, jurisdictionName, subregionOf } from "../lib/jurisdictions";
 import { METRIC_LABELS, formatMetricValue, loadMetricValues, loadSelfSufficiencyTiers } from "../lib/mapMetrics";
 import type { Metric } from "../lib/mapMetrics";
 
@@ -70,8 +71,8 @@ export default function CountryLeagueTable({
   onSelect,
   desc,
   onToggleSort,
-  continents,
-  onContinentsChange,
+  subregions,
+  onSubregionsChange,
   filtersExpanded,
   onToggleFiltersExpanded,
 }: {
@@ -79,13 +80,14 @@ export default function CountryLeagueTable({
   onSelect: (params: { code: string; name: string; lat: number; lon: number }) => void;
   desc: boolean;
   onToggleSort: () => void;
-  continents: string[];
-  onContinentsChange: (continents: string[]) => void;
+  /** The selected UN sub-region (at most one - the same region filter as the Deployment Explorer's). */
+  subregions: string[];
+  onSubregionsChange: (subregions: string[]) => void;
   filtersExpanded: boolean;
   onToggleFiltersExpanded: () => void;
 }) {
   const [rows, setRows] = useState<Row[] | null>(null);
-  const filtersActive = continents.length > 0;
+  const filtersActive = subregions.length > 0;
 
   useEffect(() => {
     let mounted = true;
@@ -114,9 +116,9 @@ export default function CountryLeagueTable({
   const sorted = useMemo(() => {
     if (!rows) return null;
     const filtered =
-      continents.length === 0 ? rows : rows.filter((r) => continents.includes(continentOf(r.code) ?? ""));
+      subregions.length === 0 ? rows : rows.filter((r) => subregions.includes(subregionOf(r.code) ?? ""));
     return [...filtered].sort((a, b) => (desc ? b.value - a.value : a.value - b.value));
-  }, [rows, continents, desc]);
+  }, [rows, subregions, desc]);
 
   return (
     <Box data-tour="ranking-list" sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
@@ -134,11 +136,21 @@ export default function CountryLeagueTable({
           active={filtersActive}
           expanded={filtersExpanded}
           onToggleExpanded={onToggleFiltersExpanded}
-          onClear={() => onContinentsChange([])}
+          onClear={() => onSubregionsChange([])}
           sortDesc={desc}
           onToggleSort={onToggleSort}
         >
-          <ContinentFilter value={continents} onChange={onContinentsChange} />
+          <ContinentFilter
+            value={subregions}
+            onChange={onSubregionsChange}
+            label="Region"
+            allLabel="All regions"
+            // The UN geoscheme's sub-regions, one at a time, grouped under their continent - the Deployment
+            // Explorer's own region filter, so the three apps filter the same way.
+            options={SUBREGIONS}
+            multiple={false}
+            groupLabel={(subregion) => continentOfRegion(subregion) ?? ""}
+          />
         </FilterBar>
       </Box>
 

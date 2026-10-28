@@ -1,10 +1,13 @@
+import { useCallback, useState } from "react";
 import { Box } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import AppHeader from "../../../shared/components/AppHeader";
 import AuthButton from "../../../shared/components/AuthButton";
 import NavItem from "../../../shared/components/NavItem";
+import { canEdit, useEditorStore } from "../../lib/editorAuth";
 import { useProtocolStore } from "../../stores/protocolStore";
+import EditorSignInDialog from "./EditorSignInDialog";
 
 /**
  * Ported onto the shared `AppHeader`/`NavItem`/`AuthButton`
@@ -24,6 +27,20 @@ export default function TopNavbar() {
   const setPage = useProtocolStore((s) => s.setPage);
   const mode = useProtocolStore((s) => s.mode);
   const setMode = useProtocolStore((s) => s.setMode);
+  const editorStatus = useEditorStore((s) => s.status);
+  const [signInOpen, setSignInOpen] = useState(false);
+
+  // On builds that edit the shared database the console needs an editor's
+  // sign-in first (lib/editorAuth.ts); elsewhere it opens straight away.
+  const toggleAdmin = () => {
+    if (page === "admin") setPage("map");
+    else if (canEdit({ status: editorStatus })) setPage("admin");
+    else setSignInOpen(true);
+  };
+  const onSignedIn = useCallback(() => {
+    setSignInOpen(false);
+    setPage("admin");
+  }, [setPage]);
 
   // The logo leaves this app entirely, back to the Electric Futures
   // Playbook splash - the site root now (this app itself moved to
@@ -67,13 +84,15 @@ export default function TopNavbar() {
             </NavItem>
           )}
 
-          {/* Stands in for auth: open to anyone until sign-in exists. Not a
-              placeholder like the other two apps' own "Login" - this really
-              navigates to the admin console, just with no auth gate yet -
-              see AuthButton's own `onClick` doc comment. */}
-          <AuthButton label={t("nav.adminConsole")} mode={mode} tooltip={t("nav.adminConsole")} onClick={() => setPage(page === "admin" ? "map" : "admin")} />
+          {/* Opens the admin console - behind an editor's Google sign-in on
+              builds that edit the shared database (EditorSignInDialog), open
+              to anyone on builds that only keep edits in this browser. A
+              quiet text link rather than the filled button: it's for the
+              few people editing answers, not the public reading them. */}
+          <AuthButton label={t("nav.adminConsole")} mode={mode} variant="text" tooltip={t("nav.adminConsole")} onClick={toggleAdmin} />
         </Box>
       </Box>
+      <EditorSignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} onSignedIn={onSignedIn} />
     </AppHeader>
   );
 }

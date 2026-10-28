@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -25,6 +26,10 @@ import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
+import { editsSaveToDatabase, signOutEditor, useEditorStore } from "../../lib/editorAuth";
+import { withoutSaving } from "../../lib/policySync";
+import { loadReviewQueue } from "../../lib/reviewApi";
+import SaveStatus from "../ui/SaveStatus";
 import type { Question, RubricTier } from "../../lib/types";
 import { impactColor, impactLabel, MAX_IMPACT } from "../../lib/scoring";
 import { protocol, useProtocolStore } from "../../stores/protocolStore";
@@ -55,6 +60,30 @@ const POINTS_OPTIONS = [0, 1, 2, 3, 4];
  */
 export default function AdminConsole({ onBack }: Props) {
   const { t } = useTranslation();
+  // Set only on builds where editing needs a sign-in (lib/editorAuth.ts).
+  const editorEmail = useEditorStore((s) => (s.status === "editor" ? s.email : null));
+  // Resetting to the shipped JSON would, once saved, overwrite the database -
+  // so neither reset is offered while edits save there.
+  const savingToDatabase = useEditorStore((s) => editsSaveToDatabase(s));
+
+  // Everyone's suggestions and question proposals, filed with the server on
+  // database builds (lib/reviewApi.ts). Loaded as they are - nothing in them
+  // is saved back except an editor's own decisions (lib/policySync.ts).
+  const [reviewLoadError, setReviewLoadError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!savingToDatabase) return;
+    let cancelled = false;
+    loadReviewQueue()
+      .then((queue) => {
+        if (!cancelled) withoutSaving(() => useProtocolStore.setState(queue));
+      })
+      .catch((e) => {
+        if (!cancelled) setReviewLoadError(e instanceof Error ? e.message : String(e));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [savingToDatabase]);
   const sections = useProtocolStore((s) => s.sections);
   const questions = useProtocolStore((s) => s.questions);
   const questionOverrides = useProtocolStore((s) => s.questionOverrides);
@@ -155,6 +184,17 @@ export default function AdminConsole({ onBack }: Props) {
             {t("adminConsole.description")}
           </Typography>
         </Box>
+        {editorEmail && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+            <SaveStatus />
+            <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" } }}>
+              {t("editor.signedInAs", { email: editorEmail })}
+            </Typography>
+            <Button size="small" onClick={() => void signOutEditor()}>
+              {t("editor.signOut")}
+            </Button>
+          </Box>
+        )}
       </Box>
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: isMobile ? "column" : "row", overflow: "hidden" }}>
@@ -430,6 +470,7 @@ export default function AdminConsole({ onBack }: Props) {
               />
             </Paper>
 
+            {!savingToDatabase && (
             <Paper variant="outlined" sx={{ p: 2.5, flex: "1 1 380px", borderColor: "error.main" }}>
               <Typography variant="h6" color="error.main" gutterBottom>
                 {t("adminConsole.dangerZone")}
@@ -450,9 +491,17 @@ export default function AdminConsole({ onBack }: Props) {
                 {t("adminConsole.resetEverything")}
               </Button>
             </Paper>
+            )}
             </Box>
           ) : showingSuggestions ? (
-            <SuggestionsReview />
+            <>
+              {reviewLoadError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {t("adminConsole.reviewLoadFailed", { message: reviewLoadError })}
+                </Alert>
+              )}
+              <SuggestionsReview />
+            </>
           ) : (
           <Stack spacing={2}>
             {activeSection && (
@@ -472,8 +521,9 @@ export default function AdminConsole({ onBack }: Props) {
                 <QuestionHeader
                   question={question}
                   isMobile={isMobile}
-                  overridden={Boolean(questionOverrides[question.id])}
+                  overridden={!savingToDatabase && Boolean(questionOverrides[question.id])}
                   onChangeText={(text) => updateQuestion(question.id, { text })}
+                  onChangeTitle={(title) => updateQuestion(question.id, { title })}
                   onChangeWeight={(weight) => updateQuestion(question.id, { weight })}
                   onResetQuestion={() => resetQuestion(question.id)}
                   onDeleteQuestion={() => deleteQuestion(question.id)}
@@ -554,7 +604,7 @@ export default function AdminConsole({ onBack }: Props) {
                   {t("adminConsole.addAnswer")}
                 </Button>
 
-                {questionOverrides[question.id] && (
+                {!savingToDatabase && questionOverrides[question.id] && (
                   <Chip
                     size="small"
                     sx={{ mt: 1, bgcolor: "secondary.main", color: "secondary.contrastText", fontWeight: 600 }}
@@ -595,6 +645,7 @@ function QuestionHeader({
   isMobile,
   overridden,
   onChangeText,
+  onChangeTitle,
   onChangeWeight,
   onResetQuestion,
   onDeleteQuestion,
@@ -603,6 +654,7 @@ function QuestionHeader({
   isMobile: boolean;
   overridden: boolean;
   onChangeText: (text: string) => void;
+  onChangeTitle: (title: string) => void;
   onChangeWeight: (weight: number) => void;
   onResetQuestion: () => void;
   onDeleteQuestion: () => void;
@@ -639,16 +691,26 @@ function QuestionHeader({
   );
 
   const questionField = (
-    <TextField
-      fullWidth
-      multiline
-      size="small"
-      variant="standard"
-      label={t("adminConsole.question")}
-      value={question.text}
-      onChange={(e) => onChangeText(e.target.value)}
-      sx={{ flex: 1 }}
-    />
+    <Stack spacing={1} sx={{ flex: 1 }}>
+      <TextField
+        fullWidth
+        size="small"
+        variant="standard"
+        label={t("adminConsole.questionTitle")}
+        helperText={t("adminConsole.questionTitleHelp")}
+        value={question.title ?? ""}
+        onChange={(e) => onChangeTitle(e.target.value)}
+      />
+      <TextField
+        fullWidth
+        multiline
+        size="small"
+        variant="standard"
+        label={t("adminConsole.question")}
+        value={question.text}
+        onChange={(e) => onChangeText(e.target.value)}
+      />
+    </Stack>
   );
 
   const actionIcons = (

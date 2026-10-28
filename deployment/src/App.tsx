@@ -14,9 +14,10 @@ import { getScenes } from "./i18n/scenes";
 import { MAX_COMPARE_COUNTRIES } from "./lib/compareColors";
 import { type Metric } from "./lib/metrics";
 import FooterComposition from "../../shared/components/FooterComposition";
+import MobileViewToggle from "../../shared/components/MobileViewToggle";
 import LoginModal from "../../shared/components/LoginModal";
 import SidebarShell from "../../shared/components/SidebarShell";
-import { isMember } from "../../shared/lib/membership";
+import { useMembership } from "../../shared/lib/useMembership";
 import TourOverlay from "../../shared/tour/TourOverlay";
 import { useTourState } from "../../shared/tour/useTourState";
 
@@ -92,8 +93,7 @@ export default function App({ mode, setMode }: Props) {
   // own "Members only" charts (LockedMetricsSection.tsx) advertise metrics
   // with no real data source at all, not real content behind a paywall, so
   // they stay locked regardless (see TopNavbar.tsx's own doc comment).
-  const [member, setMember] = useState(isMember);
-  const [loginOpen, setLoginOpen] = useState(false);
+  const { member, loginOpen, openLogin, closeLogin, onLoginSuccess } = useMembership();
 
   // Mobile layout, added 2026-09-10 - ported from Policy Explorer's own
   // App.tsx, which already handles this well: below `md`, the map and
@@ -162,7 +162,7 @@ export default function App({ mode, setMode }: Props) {
   return (
     <Box sx={{ height: "100dvh", width: "100%", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
       {!heroScene && (
-        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} member={member} onOpenLogin={() => setLoginOpen(true)} />
+        <TopNavbar mode={mode} setMode={setMode} onOpenHelp={openTour} member={member} onOpenLogin={openLogin} />
       )}
 
       {page === "help" ? (
@@ -196,19 +196,7 @@ export default function App({ mode, setMode }: Props) {
                   }}
                 >
                   <CountrySearch selected={selectedCountry} onSelect={handleSelectCountry} />
-                  <ToggleButtonGroup
-                    size="small"
-                    exclusive
-                    value={mobileView}
-                    onChange={(_, next) => next && setMobileView(next)}
-                  >
-                    <ToggleButton value="list" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                      {t("toggle.list")}
-                    </ToggleButton>
-                    <ToggleButton value="map" sx={{ py: 0.25, px: 1.5, fontSize: "0.75rem" }}>
-                      {t("toggle.map")}
-                    </ToggleButton>
-                  </ToggleButtonGroup>
+                  <MobileViewToggle value={mobileView} onChange={setMobileView} listLabel={t("toggle.list")} mapLabel={t("toggle.map")} />
                 </Box>
                 <Divider />
                 {mobileView === "map" ? (
@@ -346,7 +334,7 @@ export default function App({ mode, setMode }: Props) {
         </>
       )}
 
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={() => setMember(true)} />
+      <LoginModal open={loginOpen} onClose={closeLogin} onSuccess={onLoginSuccess} />
     </Box>
   );
 }

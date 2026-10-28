@@ -12,11 +12,13 @@ correctly. A real country-level shape removes the need for that workaround
 entirely (though the code is left in place, now a no-op for these three, in
 case a future dataset reintroduces a genuinely subdivided country).
 
-This rewrites src/assets/jurisdictions.geojson (dissolves each country's
-child features into one, via shapely's union) and src/data/jurisdictions.json
-(flips `mappable` to true for AU/US/CA) **in place** - re-run only if the
-geometry is ever re-copied fresh from ep_policymap and needs the same
-treatment again.
+This READS the Policy Explorer's own files (src/assets/jurisdictions.geojson and
+src/data/jurisdictions.json at the repo root - the latter is also what the policy database
+imports, so it is never edited here) and WRITES the country-level versions the
+Deployment Explorer and the Solar Homes Calculator share:
+shared/assets/jurisdictions.dissolved.geojson (each country's child features dissolved into
+one, via shapely's union) and shared/data/jurisdictions.dissolved.json (`mappable` flipped
+to true for AU/US/CA and false for their states). Re-run it whenever the Policy files change.
 
     python3 scripts/dissolve_subdivided.py
 """
@@ -27,9 +29,11 @@ from pathlib import Path
 from shapely.geometry import mapping, shape
 from shapely.ops import unary_union
 
-ROOT = Path(__file__).resolve().parent.parent
-GEOJSON_PATH = ROOT / "src" / "assets" / "jurisdictions.geojson"
-INDEX_PATH = ROOT / "src" / "data" / "jurisdictions.json"
+ROOT = Path(__file__).resolve().parents[2]  # the repo root
+GEOJSON_PATH = ROOT / "src" / "assets" / "jurisdictions.geojson"  # read
+INDEX_PATH = ROOT / "src" / "data" / "jurisdictions.json"  # read
+OUT_GEOJSON = ROOT / "shared" / "assets" / "jurisdictions.dissolved.geojson"
+OUT_INDEX = ROOT / "shared" / "data" / "jurisdictions.dissolved.json"
 
 TO_DISSOLVE = ["AU", "US", "CA"]
 
@@ -80,9 +84,9 @@ def main() -> None:
                 # 2026-09-10.
                 entry["mappable"] = False
 
-    GEOJSON_PATH.write_text(json.dumps(geojson, separators=(",", ":")))
-    INDEX_PATH.write_text(json.dumps(index, separators=(",", ":"), ensure_ascii=False))
-    print(f"Wrote {GEOJSON_PATH} and {INDEX_PATH}")
+    OUT_GEOJSON.write_text(json.dumps(geojson, separators=(",", ":")))
+    OUT_INDEX.write_text(json.dumps(index, separators=(",", ":"), ensure_ascii=False))
+    print(f"Wrote {OUT_GEOJSON} and {OUT_INDEX}")
 
 
 if __name__ == "__main__":

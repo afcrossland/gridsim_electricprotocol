@@ -1,4 +1,5 @@
-import { Box, ButtonBase, Typography, useTheme } from "@mui/material";
+import { useEffect, useRef } from "react";
+import { Box, ButtonBase, Tooltip, Typography, useTheme } from "@mui/material";
 import { lighten } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 
@@ -17,7 +18,7 @@ interface Props {
   selectedId: string;
   onSelect: (sectionId: string) => void;
   /**
-   * Narrow horizontal strip instead of the full card grid - switched on as
+   * Narrow single-row pill strip (scrolls sideways) instead of the full card grid - switched on as
    * soon as a section is picked (per Andrew's own instruction 2026-10-09,
    * "when we click a tile, make them narrow and go to the top to make it
    * obvious"): shrinking every tile down to a thin pill, together with
@@ -88,14 +89,30 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
   // would be a no-op anyway, but the ternary keeps it explicit.
   const tileBg = theme.palette.mode === "dark" ? lighten(theme.palette.background.paper, 0.12) : "background.paper";
 
+  // "N/A" on its own doesn't say why - the area hasn't enough answers to clear
+  // the completeness threshold yet.
+  const notApplicable = (
+    <Tooltip title={t("countryPanel.notApplicableHint")}>
+      <span>{t("countryPanel.notApplicable")}</span>
+    </Tooltip>
+  );
+
+  // The compact strip is one sideways-scrolling row, so the open pill can
+  // start out of view - bring it in whenever the selection changes.
+  const selectedPillRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (compact) selectedPillRef.current?.scrollIntoView({ block: "nearest", inline: "center" });
+  }, [compact, selectedId]);
+
   if (compact) {
     return (
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+      <Box sx={{ display: "flex", flexWrap: "nowrap", gap: 1, overflowX: "auto", py: 0.5, px: 0.25, scrollbarWidth: "thin" }}>
         {entries.map(({ section, score }) => {
           const selected = section.id === selectedId;
           return (
             <ButtonBase
               key={section.id}
+              ref={selected ? selectedPillRef : undefined}
               onClick={() => onSelect(section.id)}
               sx={{
                 display: "inline-flex",
@@ -108,6 +125,7 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
                 borderColor: selected ? "primary.main" : "divider",
                 bgcolor: tileBg,
                 boxShadow: 1,
+                flexShrink: 0,
                 "&:hover": { bgcolor: "action.hover" },
                 transition: "background-color 120ms ease, border-color 120ms ease",
               }}
@@ -123,7 +141,7 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
                   color: score.ranked ? scoreTextColor(score.score, theme.palette.mode) : "text.disabled",
                 }}
               >
-                {score.ranked ? <Suns count={scoreSuns(score.score)} size={14} /> : t("countryPanel.notApplicable")}
+                {score.ranked ? <Suns count={scoreSuns(score.score)} size={14} /> : notApplicable}
               </Typography>
             </ButtonBase>
           );
@@ -184,7 +202,7 @@ export default function SectionOverview({ entries, selectedId, onSelect, compact
                 color: score.ranked ? scoreTextColor(score.score, theme.palette.mode) : "text.disabled",
               }}
             >
-              {score.ranked ? <Suns count={scoreSuns(score.score)} size={22} /> : t("countryPanel.notApplicable")}
+              {score.ranked ? <Suns count={scoreSuns(score.score)} size={22} /> : notApplicable}
             </Typography>
           </ButtonBase>
         );
