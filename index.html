@@ -37,6 +37,8 @@
     --peach-dark: #B85C2E;
     --moss: #7FB08A;
     --moss-dark: #3F7A5C;
+    --violet: #6A5CE0;
+    --violet-dark: #4A3FC9;
     --ink: #0F1B22;
     --muted: #6B7280;
   }
@@ -250,6 +252,7 @@
   .tile.grid h2 { color: var(--citrus-dark); }
   .tile.policy h2 { color: var(--aqua-dark); }
   .tile.savings h2 { color: var(--moss-dark); }
+  .tile.city h2 { color: var(--violet-dark); }
   .tile.disabled h2 { color: #6B7280; }
 
   .tile p.body {
@@ -285,6 +288,7 @@
   .tile.grid .cta { background: var(--citrus-dark); }
   .tile.policy .cta { background: var(--aqua); }
   .tile.savings .cta { background: var(--moss-dark); }
+  .tile.city .cta { background: var(--violet-dark); }
   a.cta:hover { filter: brightness(1.08); transform: translateX(2px); }
 
   .cta svg { width: 15px; height: 15px; flex-shrink: 0; }
@@ -300,6 +304,7 @@
   .tile.grid .secondary { color: var(--citrus-dark); }
   .tile.policy .secondary { color: var(--aqua-dark); }
   .tile.savings .secondary { color: var(--moss-dark); }
+  .tile.city .secondary { color: var(--violet-dark); }
   .secondary:hover { text-decoration: underline; }
 
   /* Not open yet - greyed out, static, no hover affordance or working link.
@@ -418,6 +423,23 @@
       <p class="body">Estimate the benefits from solar and storage in any jurisdiction.</p>
       <div class="actions">
         <a class="cta" href="calculator/" aria-label="Explore the Solar Homes Calculator">
+          Explore
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <span class="secondary">Take the tour</span>
+      </div>
+    </div>
+
+    <!-- The Future Grid Simulator opened in city mode (?mode=city): pick a
+         country, it zooms in and shows that country's cities. City
+         simulation is on the dev Future Grid Simulator only so far, hence the
+         dev link - switch to the public address once it ships there. -->
+    <div class="tile city">
+      <span class="beta-badge">Beta</span>
+      <h2>Future City<br />Simulator</h2>
+      <p class="body">Pick a country, then one of its cities, and simulate how solar, storage and EVs could change its electricity.</p>
+      <div class="actions">
+        <a class="cta" href="https://gridsim-frontend-dev.web.app/?mode=city" aria-label="Explore the Future City Simulator">
           Explore
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
         </a>
