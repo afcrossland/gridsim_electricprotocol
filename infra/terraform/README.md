@@ -44,10 +44,11 @@ stay in gridsim-deploy. They are passed in here as plain values in `terraform.tf
 Adding or removing someone from /klute means changing `klute_allowed_emails` and running
 `terraform apply`.
 
-The prod backend has no klute password yet (gridsim-deploy's `enable_klute_password` is off
-there), so prod `/klute` signs in but its simulator tab says it isn't configured. To fix that,
-enable it in gridsim-deploy, add the secret's value, and set
-`klute_backend_password_secret_id = "gridsim-backend-prod-klute-password"` here.
+Both environments' backends have a klute password (gridsim-deploy's `enable_klute_password`;
+prod since 2026-10-28), and `klute_backend_password_secret_id` points the gate at it. To rotate
+it, add a new version of `gridsim-backend-<env>-klute-password` and deploy a new revision of both
+the backend and the gate: both read it as an environment variable when an instance starts, so
+running instances keep the old value.
 
 ## Policy database
 
