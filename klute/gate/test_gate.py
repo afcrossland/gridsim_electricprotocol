@@ -21,7 +21,6 @@ def client(monkeypatch, tmp_path):
     monkeypatch.setenv("KLUTE_ALLOWED_EMAILS", "Ally@Example.org, bo@example.org")
     monkeypatch.setenv("FIREBASE_PROJECT_ID", "proj")
     monkeypatch.setenv("FGS_API_BASE_URL", "https://backend.test")
-    monkeypatch.setenv("KLUTE_BACKEND_PASSWORD", "pw")
     # TestClient talks plain http; the real cookie is Secure.
     return TestClient(main.app, base_url="https://testserver")
 
@@ -108,33 +107,31 @@ def _mock_backend(monkeypatch, seen):
     def handler(request: httpx.Request) -> httpx.Response:
         seen["url"] = str(request.url)
         seen["token"] = request.headers.get("x-klute-id-token")
-        seen["password"] = request.headers.get("x-klute-password")
         return httpx.Response(200, json={"ok": True})
 
     real_client = httpx.AsyncClient
     monkeypatch.setattr(main.httpx, "AsyncClient", lambda **kw: real_client(transport=httpx.MockTransport(handler), **kw))
 
 
-def test_proxy_adds_id_token_and_password_server_side(client, monkeypatch):
+def test_proxy_adds_id_token_server_side(client, monkeypatch):
     seen, audiences = {}, []
     _mock_backend(monkeypatch, seen)
     monkeypatch.setattr(main, "backend_id_token", lambda audience: audiences.append(audience) or "tok")
     sign_in(client)
     r = client.get("/klute/api/coverage/generation", params={"refresh": "1"})
     assert r.json() == {"ok": True}
-    assert seen == {"url": "https://backend.test/coverage/generation?refresh=1", "token": "tok", "password": "pw"}
+    assert seen == {"url": "https://backend.test/coverage/generation?refresh=1", "token": "tok"}
     assert audiences == ["https://backend.test"]
     assert r.headers["cache-control"] == "private, no-store"
 
 
-def test_proxy_sends_neither_when_it_has_neither(client, monkeypatch):
+def test_proxy_sends_no_token_when_it_has_none(client, monkeypatch):
     seen = {}
     _mock_backend(monkeypatch, seen)
     monkeypatch.setattr(main, "backend_id_token", lambda audience: None)
-    monkeypatch.delenv("KLUTE_BACKEND_PASSWORD")
     sign_in(client)
     client.get("/klute/api/coverage/generation")
-    assert seen["token"] is None and seen["password"] is None
+    assert seen["token"] is None
 
 
 def test_backend_id_token_is_cached_until_expiry(monkeypatch):
