@@ -104,22 +104,65 @@ def test_logout_clears_cookie(client):
     assert 'Max-Age=0' in r.headers["set-cookie"] or "expires=" in r.headers["set-cookie"].lower()
 
 
-def test_proxy_adds_password_server_side(client, monkeypatch):
-    seen = {}
-
+def _mock_backend(monkeypatch, seen):
     def handler(request: httpx.Request) -> httpx.Response:
         seen["url"] = str(request.url)
+        seen["token"] = request.headers.get("x-klute-id-token")
         seen["password"] = request.headers.get("x-klute-password")
         return httpx.Response(200, json={"ok": True})
 
     real_client = httpx.AsyncClient
     monkeypatch.setattr(main.httpx, "AsyncClient", lambda **kw: real_client(transport=httpx.MockTransport(handler), **kw))
+
+
+def test_proxy_adds_id_token_and_password_server_side(client, monkeypatch):
+    seen, audiences = {}, []
+    _mock_backend(monkeypatch, seen)
+    monkeypatch.setattr(main, "backend_id_token", lambda audience: audiences.append(audience) or "tok")
     sign_in(client)
     r = client.get("/klute/api/coverage/generation", params={"refresh": "1"})
     assert r.json() == {"ok": True}
-    assert seen == {"url": "https://backend.test/coverage/generation?refresh=1", "password": "pw"}
+    assert seen == {"url": "https://backend.test/coverage/generation?refresh=1", "token": "tok", "password": "pw"}
+    assert audiences == ["https://backend.test"]
     assert r.headers["cache-control"] == "private, no-store"
 
+
+def test_proxy_sends_neither_when_it_has_neither(client, monkeypatch):
+    seen = {}
+    _mock_backend(monkeypatch, seen)
+    monkeypatch.setattr(main, "backend_id_token", lambda audience: None)
+    monkeypatch.delenv("KLUTE_BACKEND_PASSWORD")
+    sign_in(client)
+    client.get("/klute/api/coverage/generation")
+    assert seen["token"] is None and seen["password"] is None
+
+
+def test_backend_id_token_is_cached_until_expiry(monkeypatch):
+    class Credentials:
+        def __init__(self):
+            self.valid, self.token, self.refreshes = False, None, 0
+
+        def refresh(self, request):
+            self.refreshes += 1
+            self.valid, self.token = True, f"tok{self.refreshes}"
+
+    made = []
+    monkeypatch.setattr(main, "_backend_credentials", {})
+    monkeypatch.setattr(main.id_token, "fetch_id_token_credentials", lambda audience, request: made.append(audience) or Credentials())
+    assert main.backend_id_token("https://backend.test") == "tok1"
+    assert main.backend_id_token("https://backend.test") == "tok1"
+    main._backend_credentials["https://backend.test"].valid = False
+    assert main.backend_id_token("https://backend.test") == "tok2"
+    assert made == ["https://backend.test"]
+
+
+def test_backend_id_token_is_none_without_a_service_account(monkeypatch):
+    def no_account(audience, request):
+        raise RuntimeError("no metadata server")
+
+    monkeypatch.setattr(main, "_backend_credentials", {})
+    monkeypatch.setattr(main.id_token, "fetch_id_token_credentials", no_account)
+    assert main.backend_id_token("https://backend.test") is None
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([os.path.dirname(__file__)]))
