@@ -106,9 +106,10 @@ export default defineConfig(({ mode }) => {
 
     /**
      * The dev server still serves /klute/ (any HTML file under the root works in dev). In
-     * production the sign-in gate proxies /klute/api/* to the simulator and adds the klute
-     * password; locally this does the same, reading the password from the shell
-     * (KLUTE_PASSWORD - not VITE_-prefixed, so it never reaches the bundle).
+     * production the sign-in gate proxies /klute/api/* to the simulator with a Google ID token
+     * for its own service account. Locally there is no gate account, so this proxy adds a local
+     * backend's klute password from the shell instead (KLUTE_PASSWORD - not VITE_-prefixed, so
+     * it never reaches the bundle); deployed backends have no password and accept only the gate.
      */
     server: {
       proxy: {
