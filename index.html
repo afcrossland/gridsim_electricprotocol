@@ -417,7 +417,7 @@
       </div>
     </div>
 
-    <div class="tile savings">
+    <div class="tile savings" data-prelaunch>
       <span class="beta-badge">Beta</span>
       <h2>Solar Homes<br />Calculator</h2>
       <p class="body">Estimate the benefits from solar and storage in any jurisdiction.</p>
@@ -434,7 +434,7 @@
          country, it zooms in and shows that country's cities. City
          simulation is on the dev Future Grid Simulator only so far, hence the
          dev link - switch to the public address once it ships there. -->
-    <div class="tile city">
+    <div class="tile city" data-prelaunch>
       <span class="beta-badge">Beta</span>
       <h2>Future City<br />Simulator</h2>
       <p class="body">Pick a country, then one of its cities, and simulate how solar, storage and EVs could change its electricity.</p>
@@ -446,6 +446,23 @@
         <span class="secondary">Take the tour</span>
       </div>
     </div>
+
+    <!-- Prod shows the [data-prelaunch] tiles as "Coming soon" (greyed out, no links) while dev
+         keeps them live for testing. deploy.yml sets VITE_PRELAUNCH_COMING_SOON=1 on prod builds
+         only; Vite substitutes it here, and it stays unsubstituted (so the tiles stay live) in
+         dev builds and `npm run dev`. Runs before first paint, so there is no flash of links. -->
+    <script>
+      if ('%VITE_PRELAUNCH_COMING_SOON%' === '1') {
+        document.querySelectorAll('.tile[data-prelaunch]').forEach(function (tile) {
+          tile.classList.add('disabled');
+          tile.setAttribute('aria-disabled', 'true');
+          var badge = tile.querySelector('.beta-badge');
+          if (badge) badge.remove();
+          tile.querySelector('.actions').innerHTML =
+            '<span class="cta">Coming soon</span><span class="secondary">Take the tour</span>';
+        });
+      }
+    </script>
 
   </main>
 
