@@ -47,12 +47,6 @@ variable "fgs_api_base_url" {
   description = "Future Grid Simulator backend URL that the /klute gate proxies /klute/api/* to"
 }
 
-variable "klute_backend_password_secret_id" {
-  type        = string
-  description = "Secret Manager ID of the backend's /klute password (gridsim-deploy's backend module creates it as <service>-klute-password). \"\" when that backend has none: /klute then loads but its simulator tab says it isn't configured."
-  default     = ""
-}
-
 variable "custom_domain" {
   type        = string
   description = "Optional custom domain to attach to the Firebase Hosting site"

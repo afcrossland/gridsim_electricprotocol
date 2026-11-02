@@ -62,6 +62,9 @@ jobs:
           # The Policy Explorer reads its data from /api/policy/data (the policy database) on dev
           # only, falling back to its bundled JSON; prod keeps the bundled JSON (ROADMAP.md Phase 1).
           if [ "$ENV" = dev ]; then echo "VITE_POLICY_API=1" >> .env.prod; fi
+          # Splash tiles marked data-prelaunch (Solar Homes Calculator, Future City Simulator) show
+          # as "Coming soon" on prod only; dev keeps them live (index.html).
+          if [ "$ENV" = prod ]; then echo "VITE_PRELAUNCH_COMING_SOON=1" >> .env.prod; fi
           npm run build:prod
 
       - uses: google-github-actions/auth@v3

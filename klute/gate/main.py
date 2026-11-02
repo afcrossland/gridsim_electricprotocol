@@ -10,7 +10,7 @@ Google (Firebase Auth) as an email on KLUTE_ALLOWED_EMAILS:
 - signed in: /klute/** serves the klute build (the image bundles it; it is not on public
   hosting), and /klute/api/** is proxied to the simulator backend, which only answers this gate:
   each request carries a Google-signed ID token for this service's account (audience: the
-  backend's URL), or, until every backend checks tokens, the backend's klute password.
+  backend's URL).
 
 It also serves the public, read-only policy data at /api/policy/data (ep_db/api.py, ROADMAP.md
 Phase 1), which needs no sign-in.
@@ -183,8 +183,6 @@ async def proxy(path: str, request: Request) -> Response:
     token = await run_in_threadpool(backend_id_token, backend)
     if token:
         headers["X-Klute-Id-Token"] = token
-    if os.environ.get("KLUTE_BACKEND_PASSWORD"):
-        headers["X-Klute-Password"] = os.environ["KLUTE_BACKEND_PASSWORD"]
     async with httpx.AsyncClient(timeout=55) as client:
         upstream = await client.get(f"{backend}/{path}", params=request.query_params, headers=headers)
     return Response(upstream.content, status_code=upstream.status_code, media_type=upstream.headers.get("content-type"), headers=NO_STORE)

@@ -2,7 +2,7 @@
 # - a Firebase Hosting site for the public explorers;
 # - the /klute sign-in gate on Cloud Run, which the site rewrites /klute/** to. It only serves the
 #   data explorer to the Google accounts in klute_allowed_emails (Firebase Auth), and proxies the
-#   explorer's simulator calls to the backend with the backend's klute password added;
+#   explorer's simulator calls to the backend with a Google ID token for its own account;
 # - keyless deploys from GitHub Actions through Workload Identity Federation, trusting only
 #   deploy_branch of github_repository.
 #
@@ -98,14 +98,6 @@ resource "google_secret_manager_secret_version" "session_key" {
 resource "google_secret_manager_secret_iam_member" "gate_session_key" {
   project   = var.project_id
   secret_id = google_secret_manager_secret.session_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.gate.email}"
-}
-
-resource "google_secret_manager_secret_iam_member" "gate_backend_password" {
-  count     = var.klute_backend_password_secret_id != "" ? 1 : 0
-  project   = var.project_id
-  secret_id = var.klute_backend_password_secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.gate.email}"
 }
@@ -207,19 +199,6 @@ resource "google_cloud_run_v2_service" "klute_gate" {
         name       = "cloudsql"
         mount_path = "/cloudsql"
       }
-
-      dynamic "env" {
-        for_each = var.klute_backend_password_secret_id != "" ? [1] : []
-        content {
-          name = "KLUTE_BACKEND_PASSWORD"
-          value_source {
-            secret_key_ref {
-              secret  = var.klute_backend_password_secret_id
-              version = "latest"
-            }
-          }
-        }
-      }
     }
   }
 
@@ -239,7 +218,6 @@ resource "google_cloud_run_v2_service" "klute_gate" {
   depends_on = [
     google_secret_manager_secret_version.session_key,
     google_secret_manager_secret_iam_member.gate_session_key,
-    google_secret_manager_secret_iam_member.gate_backend_password,
     google_secret_manager_secret_version.database_url,
     google_secret_manager_secret_iam_member.gate_database_url,
     google_project_iam_member.gate_cloudsql_client,

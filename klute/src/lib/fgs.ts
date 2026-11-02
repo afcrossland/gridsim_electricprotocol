@@ -1,6 +1,7 @@
 // The Future Grid Simulator backend, reached through the sign-in gate's proxy (the Vite dev
-// server's proxy locally). The gate adds the klute password that /coverage needs, so the
-// browser never sees it; /historic/* is the same public API the simulator's Explore tab uses.
+// server's proxy locally). The gate proves itself to the backend with a Google ID token, so
+// nothing in the browser can reach /coverage directly; /historic/* is the same public API the
+// simulator's Explore tab uses.
 export const FGS_API = "/klute/api/";
 
 export class AuthError extends Error {}
@@ -10,8 +11,8 @@ async function get<T>(path: string, params: Record<string, string> = {}): Promis
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   const res = await fetch(url);
   // 401: the gate's sign-in session ran out (reloading shows the sign-in page), or the backend
-  // rejected the password the gate sent. 503: the backend has no klute password configured.
-  if (res.status === 401 || res.status === 503) throw new AuthError(res.status === 503 ? "The simulator's data explorer is not configured on the server." : "Your sign-in has expired or the simulator rejected the gate's password. Reload the page to sign in again.");
+  // refused the gate. 503: the backend isn't configured to accept any caller.
+  if (res.status === 401 || res.status === 503) throw new AuthError(res.status === 503 ? "The simulator's data explorer is not configured on the server." : "Your sign-in has expired or the simulator refused the sign-in gate. Reload the page to sign in again.");
   if (!res.ok) throw new Error(`Simulator returned ${res.status}`);
   return res.json() as Promise<T>;
 }

@@ -134,16 +134,20 @@ in with a Google account on the allowlist (Firebase Auth), it serves only a sign
 the explorer's HTML, JS and data files are not on public hosting at all, they are inside the
 gate's image. Signing in sets a signed, HttpOnly session cookie for 12 hours, and the
 allowlist is re-checked on every request. The simulator tab's calls go to `/klute/api/*`,
-which the gate proxies to the backend, adding the backend's `KLUTE_PASSWORD` itself, so no
-password is ever in the browser.
+which the gate proxies to the backend with a Google-signed ID token for the gate's own Cloud
+Run service account. The backend only answers `/coverage` for that account
+(gridsim-deploy's `klute_allowed_callers`), so there is no shared secret, and nothing in the
+browser could call it directly.
 
 The allowlist is `klute_allowed_emails` in
 `infra/terraform/environments/<env>/terraform.tfvars`; adding or removing someone is a change there plus
 `terraform apply`.
 
 Locally there is no gate: `npm run dev` serves `/klute/` directly, and the dev server proxies
-`/klute/api/*` to `FGS_API_BASE_URL` (default `http://localhost:8000`), adding
-`KLUTE_PASSWORD` from your shell - e.g. `KLUTE_PASSWORD=<backend's password> npm run dev`.
+`/klute/api/*` to `FGS_API_BASE_URL` (default `http://localhost:8000`). There is no gate
+account to sign tokens locally, so run your local backend with a `KLUTE_PASSWORD` of your
+choosing and pass the same one here - e.g. `KLUTE_PASSWORD=local npm run dev`. Deployed
+backends have no password, so this only works against a local one.
 The gate's own tests: `cd klute/gate && pip install -r requirements.txt pytest && python -m pytest`.
 The policy-database tests in the same folder (`test_ep_db.py`) also need a throwaway Postgres in
 `EP_TEST_DATABASE_URL` (they drop and recreate its `policy` schema) and are skipped without one.
