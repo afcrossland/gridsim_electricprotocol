@@ -6,25 +6,26 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { LineChart } from "@mui/x-charts/LineChart";
-import generation from "../../../deployment/src/data/ember_generation.json";
-import solar from "../../../deployment/src/data/ember_solar.json";
 import { jurisdictionName } from "../../../src/lib/jurisdictions";
 import CoverageTable from "../components/CoverageTable";
 import { yearRow } from "../lib/coverage";
 import type { CoverageRow } from "../lib/coverage";
+import { sourceLabel, useExplorerData } from "../lib/explorerData";
+import type { GenCountry, SolarCountry } from "../lib/explorerData";
 
-type SolarCountry = { name: string; granularity: string; annualSeries?: { year: number; gw: number }[]; series?: { year: number; month: number; gw: number }[] };
-type GenCountry = { name: string; series: { year: number; solarTWh: number; totalTWh: number; sharePct: number }[] };
-
-const solarData = solar.countries as unknown as Record<string, SolarCountry>;
-const genData = generation.countries as unknown as Record<string, GenCountry>;
 const TEAL = "#01ADBF";
 
 // The Solar Deployment Explorer's data: Ember solar capacity (annual for most countries,
 // monthly for a few) and solar's share of generation. Pick a country to chart it; the grid
 // below shows which years/months each country actually has.
 export default function DeploymentPanel() {
-  const codes = useMemo(() => [...new Set([...Object.keys(solarData), ...Object.keys(genData)])].sort(), []);
+  const data = useExplorerData();
+  if (!data) return <Typography sx={{ my: 2 }}>Loading the Deployment Explorer&apos;s data…</Typography>;
+  return <DeploymentView solarData={data.deployment.solar} genData={data.deployment.generation} fetchedAt={data.deployment.solarFetchedAt} note={sourceLabel(data.deployment.source)} />;
+}
+
+function DeploymentView({ solarData, genData, fetchedAt, note }: { solarData: Record<string, SolarCountry>; genData: Record<string, GenCountry>; fetchedAt: string; note: string }) {
+  const codes = useMemo(() => [...new Set([...Object.keys(solarData), ...Object.keys(genData)])].sort(), [solarData, genData]);
   const [country, setCountry] = useState<string | null>("DE");
   const [dataset, setDataset] = useState<"capacity" | "share">("capacity");
 
@@ -35,7 +36,7 @@ export default function DeploymentPanel() {
       const years = v.granularity === "monthly" && v.series ? v.series.map((p) => p.year) : (v.annualSeries ?? []).map((p) => p.year);
       return yearRow(c, v.name, years, v.granularity === "monthly" ? "monthly source" : "annual source");
     });
-  }, [dataset]);
+  }, [dataset, solarData, genData]);
 
   const cap = country ? solarData[country] : undefined;
   const gen = country ? genData[country] : undefined;
@@ -53,7 +54,7 @@ export default function DeploymentPanel() {
   return (
     <Box>
       <Typography variant="body2" sx={{ color: "text.secondary", my: 2 }}>
-        Ember data as bundled with the Deployment Explorer (fetched {String((solar as { fetchedAt?: string }).fetchedAt ?? "").slice(0, 10)}).
+        Ember data {note} (fetched from Ember {fetchedAt.slice(0, 10)}).
       </Typography>
       <Autocomplete
         size="small"
