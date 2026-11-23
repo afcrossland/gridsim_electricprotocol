@@ -219,6 +219,22 @@ From the repo root (`ep_policymap`):
 npx tsc -b && npx vitest run && npm run build:dev
 ```
 
+## Where the app reads its data (2026-11-23)
+
+The three JSON files in `src/data/` stay the record in git. The Electric
+Futures database holds the same data in its `calculator` schema
+(migration 0005, loaded by `python -m ep_db.calculator_import` in
+`klute/gate`). On dev (`VITE_CALCULATOR_API`, set in deploy.yml), `main.tsx`
+loads `/api/calculator/summary` (about 9 KB gzipped) before importing the
+app. It holds every country's point and annual yield, the self-sufficiency
+tiers and the PC1 shape, so the map and league table need no profiles at
+all. A calculation then fetches only its own country's profile from
+`/api/calculator/irradiance/{code}` (about 11 KB). Only the members' global
+simulator asks for every profile (`/api/calculator/irradiance`). On prod, or
+if any of those requests fails, everything comes from the bundled files,
+exactly as before. A push to Development that changes the files re-imports
+them into the dev database (`.github/workflows/import-deployment.yml`).
+
 ## Regenerating the precomputed datasets
 
 Three one-off generator scripts under `scripts/`, each with its own doc

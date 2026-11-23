@@ -5,7 +5,7 @@ import ContinentFilter from "../../../shared/components/ContinentFilter";
 import FilterBar from "../../../shared/components/FilterBar";
 import FlagImg from "../../../shared/components/FlagImg";
 import RankedRow from "../../../shared/components/RankedRow";
-import { loadCountryIrradiance } from "../lib/countryIrradiance";
+import { loadIrradianceIndex } from "../lib/countryIrradiance";
 import { SUBREGIONS, continentOfRegion } from "../../../shared/lib/continents";
 import { countryCodeOf, jurisdictionName, subregionOf } from "../lib/jurisdictions";
 import { METRIC_LABELS, formatMetricValue, loadMetricValues, loadSelfSufficiencyTiers } from "../lib/mapMetrics";
@@ -91,7 +91,7 @@ export default function CountryLeagueTable({
 
   useEffect(() => {
     let mounted = true;
-    Promise.all([loadMetricValues(metric), loadCountryIrradiance()]).then(([values, irradiance]) => {
+    Promise.all([loadMetricValues(metric), loadIrradianceIndex()]).then(([values, irradiance]) => {
       if (!mounted) return;
       // Ranked (and coloured on the map) by the medium tier alone, but
       // each row also shows its own low-high range, per Andrew's own

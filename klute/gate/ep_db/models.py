@@ -395,3 +395,55 @@ class Population(Base):
     population_millions: Mapped[float] = mapped_column(Float)
     year: Mapped[int] = mapped_column(Integer)
     source: Mapped[str | None] = mapped_column(Text)
+
+
+# --- Solar Homes Calculator data (schema `calculator`) ------------------------------------------
+#
+# `calculator/src/data/country-irradiance.json`, `country-self-sufficiency.json` and
+# `pc1-demand-profile.json`, entry for entry, loaded by `ep_db.calculator_import` (which replaces
+# them wholesale - `calculator/scripts/` regenerates them; nobody edits them). The irradiance file
+# is 10.7 MB because each country carries 8760 hourly values; keeping them in rows lets the API
+# hand the browser one country's profile instead of all of them.
+
+CALCULATOR_SCHEMA = "calculator"
+
+
+class CountryIrradianceRow(Base):
+    """One country's representative point, panel orientation and 8760-hour W/Wp profile (UTC)."""
+
+    __tablename__ = "irradiance"
+    __table_args__ = {"schema": CALCULATOR_SCHEMA}
+
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, unique=True)
+    lat: Mapped[float] = mapped_column(Float)
+    lon: Mapped[float] = mapped_column(Float)
+    tilt_deg: Mapped[int] = mapped_column(Integer)
+    azimuth_deg: Mapped[int] = mapped_column(Integer)
+    # The profile's sum, worked out at import the same way the browser sums it (left to right, in
+    # float64), so the map and league table can show it without downloading the profile.
+    annual_kwh_per_kwp: Mapped[float] = mapped_column(Float)
+    profile_w_per_wp: Mapped[list[float]] = mapped_column(ARRAY(Float))
+
+
+class SelfSufficiencyRow(Base):
+    """Precomputed self-sufficiency (%) for the low/medium/high system tiers."""
+
+    __tablename__ = "self_sufficiency"
+    __table_args__ = {"schema": CALCULATOR_SCHEMA}
+
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, unique=True)
+    low: Mapped[int] = mapped_column(Integer)
+    medium: Mapped[int] = mapped_column(Integer)
+    high: Mapped[int] = mapped_column(Integer)
+
+
+class DemandProfileRow(Base):
+    """A normalised 8760-hour demand shape (fractions summing to 1). Only `pc1` today."""
+
+    __tablename__ = "demand_profiles"
+    __table_args__ = {"schema": CALCULATOR_SCHEMA}
+
+    name: Mapped[str] = mapped_column(Text, primary_key=True)
+    profile: Mapped[list[float]] = mapped_column(ARRAY(Float))

@@ -1,4 +1,4 @@
-import pc1Shape from "../data/pc1-demand-profile.json";
+import { readCalculatorData } from "../data/calculatorData";
 import type { DemandBand, HourlyProfile } from "./types";
 
 /**
@@ -26,7 +26,7 @@ export const DEMAND_BAND_KWH: Record<DemandBand, number> = {
  * flagged in code": no PC2/Economy 7 shape, no occupancy/house-size
  * variation, and the same GB shape is used for every country.
  */
-const PC1_SHAPE = pc1Shape as HourlyProfile;
+const PC1_SHAPE: HourlyProfile = readCalculatorData().pc1;
 
 // Half a (365-day) year, in days - shifting the shape by this rotates its
 // northern-hemisphere winter (Dec/Jan) onto the southern hemisphere's own

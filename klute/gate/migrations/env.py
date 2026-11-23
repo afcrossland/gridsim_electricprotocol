@@ -1,5 +1,5 @@
 """Alembic environment. Tables live in the `policy` schema (Alembic's own version table too) and,
-since 0004, the Deployment Explorer's data in `deployment`; the database's `public` schema is left
+since 0004, the Deployment Explorer's data in `deployment`, and since 0005 the calculator's in `calculator`; the database's `public` schema is left
 alone."""
 
 from logging.config import fileConfig
@@ -8,7 +8,7 @@ from alembic import context
 from sqlalchemy import create_engine, text
 
 from ep_db.db import database_url
-from ep_db.models import DEPLOYMENT_SCHEMA, SCHEMA, Base
+from ep_db.models import CALCULATOR_SCHEMA, DEPLOYMENT_SCHEMA, SCHEMA, Base
 
 if context.config.config_file_name:
     fileConfig(context.config.config_file_name)
@@ -23,7 +23,7 @@ def run_migrations_online() -> None:
             target_metadata=Base.metadata,
             version_table_schema=SCHEMA,
             include_schemas=True,
-            include_name=lambda name, type_, _: type_ != "schema" or name in (SCHEMA, DEPLOYMENT_SCHEMA),
+            include_name=lambda name, type_, _: type_ != "schema" or name in (SCHEMA, DEPLOYMENT_SCHEMA, CALCULATOR_SCHEMA),
         )
         with context.begin_transaction():
             context.run_migrations()
