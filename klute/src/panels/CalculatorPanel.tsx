@@ -2,19 +2,22 @@ import { useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import irradiance from "../../../calculator/src/data/country-irradiance.json";
-import selfSufficiency from "../../../calculator/src/data/country-self-sufficiency.json";
 import jurisdictions from "../../../src/data/jurisdictions.json";
 import { jurisdictionName } from "../../../src/lib/jurisdictions";
-
-type Irr = { lat: number; lon: number; tiltDeg: number; azimuthDeg: number; profileWPerWp?: number[] };
-type Self = { low: number; medium: number; high: number };
-const irr = irradiance as unknown as Record<string, Irr>;
-const self = selfSufficiency as unknown as Record<string, Self>;
+import { sourceLabel, useExplorerData } from "../lib/explorerData";
+import type { CalculatorPart } from "../lib/explorerData";
 
 // The Solar Homes Calculator's data: which countries have a representative-site irradiance
 // profile and a self-sufficiency table, and the values themselves.
 export default function CalculatorPanel() {
+  const data = useExplorerData();
+  if (!data) return <Typography sx={{ my: 2 }}>Loading the Solar Homes Calculator&apos;s data…</Typography>;
+  return <CalculatorView part={data.calculator} />;
+}
+
+function CalculatorView({ part }: { part: CalculatorPart }) {
+  const irr = part.irradiance;
+  const self = part.selfSufficiency;
   const countries = (jurisdictions as { code: string; level: string }[]).filter((j) => j.level === "country").map((j) => j.code);
   const rows = useMemo(
     () =>
@@ -22,7 +25,7 @@ export default function CalculatorPanel() {
         .map((code) => ({ code, name: jurisdictionName(code), irr: irr[code], self: self[code] }))
         .sort((a, b) => a.name.localeCompare(b.name)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [irr, self],
   );
   const [query, setQuery] = useState("");
   const [onlyMissing, setOnlyMissing] = useState(false);
@@ -35,7 +38,7 @@ export default function CalculatorPanel() {
     <Box>
       <Typography variant="body2" sx={{ color: "text.secondary", my: 2 }}>
         {haveBoth} of {rows.length} countries have both an irradiance profile and a self-sufficiency table. Self-sufficiency is the share of a household&apos;s demand met by solar plus
-        storage at low / medium / high sizing.
+        storage at low / medium / high sizing. Data {sourceLabel(part.source)}.
       </Typography>
       <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
         <TextField size="small" label="Filter" value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -50,7 +53,7 @@ export default function CalculatorPanel() {
         <Box component="table" sx={{ borderCollapse: "collapse", width: "100%", fontSize: 13 }}>
           <thead>
             <tr>
-              {["Country", "Irradiance", "Lat / lon", "Tilt / azimuth", "Self-sufficiency low", "medium", "high"].map((h) => (
+              {["Country", "Irradiance (kWh/kWp/yr)", "Lat / lon", "Tilt / azimuth", "Self-sufficiency low", "medium", "high"].map((h) => (
                 <Box component="th" key={h} sx={{ position: "sticky", top: 0, bgcolor: "background.paper", textAlign: "left", p: 1, borderBottom: 1, borderColor: "divider", whiteSpace: "nowrap" }}>
                   {h}
                 </Box>
@@ -63,7 +66,7 @@ export default function CalculatorPanel() {
                 <Td>
                   <strong>{r.code}</strong> {r.name}
                 </Td>
-                <Td bad={!r.irr}>{r.irr ? `${r.irr.profileWPerWp?.length ?? 0} values` : "none"}</Td>
+                <Td bad={!r.irr}>{r.irr ? Math.round(r.irr.annualKWhPerKWp).toLocaleString() : "none"}</Td>
                 <Td>{r.irr ? `${r.irr.lat.toFixed(2)}, ${r.irr.lon.toFixed(2)}` : "-"}</Td>
                 <Td>{r.irr ? `${r.irr.tiltDeg}° / ${r.irr.azimuthDeg}°` : "-"}</Td>
                 <Td bad={!r.self}>{r.self ? `${f(r.self.low)}%` : "none"}</Td>
