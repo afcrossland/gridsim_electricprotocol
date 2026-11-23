@@ -13,7 +13,8 @@ Google (Firebase Auth) as an email on KLUTE_ALLOWED_EMAILS:
   backend's URL).
 
 It also serves the public, read-only policy data at /api/policy/data (ep_db/api.py, ROADMAP.md
-Phase 1), which needs no sign-in.
+Phase 1), the Deployment Explorer's data at /api/deployment/data, and the Solar Homes Calculator's at
+/api/calculator/*; none of them needs a sign-in.
 
 The allowlist is re-checked on every request, so removing an email takes effect on the next
 deploy of this service even for an existing session.

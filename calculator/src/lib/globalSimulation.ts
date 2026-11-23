@@ -1,6 +1,6 @@
 import { getHourlyDemandKWh } from "./demandProfile";
 import { loadCountryIrradiance } from "./countryIrradiance";
-import { genericSource } from "./genericSource";
+import { generationFromEntry } from "./genericSource";
 import { simulateDispatch } from "./batteryDispatch";
 import type { PanelArray } from "./types";
 
@@ -36,12 +36,9 @@ export async function computeGlobalSelfSufficiency(config: GlobalSimConfig): Pro
   const result: Record<string, number> = {};
 
   for (const [code, entry] of Object.entries(countryIrradiance)) {
-    const generation = await genericSource.getHourlyGenerationKWh({
-      lat: entry.lat,
-      lon: entry.lon,
-      countryCode: code,
-      array,
-    });
+    // Straight from the loaded entry: going through genericSource would look each country up again
+    // (and, on the database path, fetch each profile on its own).
+    const generation = generationFromEntry(entry, array);
     const demand = getHourlyDemandKWh(config.annualKWh, entry.lat < 0);
     const { selfConsumedKWh } = simulateDispatch(generation, demand, config.batteryKWh);
     // Rounded DOWN (Math.floor) to a whole percent, same as

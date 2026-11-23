@@ -1,15 +1,12 @@
 import seed from "../../../src/data/protocol.seed.json";
 import jurisdictions from "../../../src/data/jurisdictions.json";
-import solar from "../../../deployment/src/data/ember_solar.json";
-import generation from "../../../deployment/src/data/ember_generation.json";
-import irradiance from "../../../calculator/src/data/country-irradiance.json";
-import selfSufficiency from "../../../calculator/src/data/country-self-sufficiency.json";
 import { seedResponses } from "../../../src/stores/protocolStore";
 import { scoreCountry } from "../../../src/lib/scoring";
 import { jurisdictionName } from "../../../src/lib/jurisdictions";
 import type { Protocol, Question } from "../../../src/lib/types";
 import { monthRow, yearRow } from "./coverage";
 import type { FgsCoverage } from "./fgs";
+import type { ExplorerData } from "./explorerData";
 
 export type LayerId = "fgsGen" | "fgsDem" | "fgsCap" | "policy" | "depCap" | "depShare" | "calcIrr" | "calcSelf";
 
@@ -131,7 +128,7 @@ function gridsFor(fgs: FgsInput, country: string): GridStatus[] {
     }));
 }
 
-export function buildCountryStatus(fgs: FgsInput): CountryStatus[] {
+export function buildCountryStatus(fgs: FgsInput, explorer: ExplorerData): CountryStatus[] {
   const responses = seedResponses();
   const answeredBy = new Map<string, string[]>();
   for (const r of responses) (answeredBy.get(r.countryCode) ?? answeredBy.set(r.countryCode, []).get(r.countryCode)!).push(r.questionId);
@@ -145,10 +142,10 @@ export function buildCountryStatus(fgs: FgsInput): CountryStatus[] {
     if (!cur || s.completeness > cur.completeness) policyBest.set(c, { completeness: s.completeness, answered: s.answered, via: code === c ? "" : ` (best: ${code})` });
   }
 
-  const solarData = solar.countries as unknown as Record<string, { annualSeries?: { year: number }[]; series?: { year: number }[] }>;
-  const genData = generation.countries as unknown as Record<string, { series: { year: number }[] }>;
-  const irr = irradiance as unknown as Record<string, unknown>;
-  const self = selfSufficiency as unknown as Record<string, unknown>;
+  const solarData = explorer.deployment.solar;
+  const genData = explorer.deployment.generation;
+  const irr = explorer.calculator.irradiance;
+  const self = explorer.calculator.selfSufficiency;
   // Share of the years between a series' first and last that it actually has.
   const yearsPct = (list?: { year: number }[]) => (list?.length ? yearRow("", "", list.map((p) => p.year)).completeness : undefined);
   const years = (list?: { year: number }[]) => (list?.length ? `${Math.min(...list.map((p) => p.year))} → ${Math.max(...list.map((p) => p.year))}` : "");

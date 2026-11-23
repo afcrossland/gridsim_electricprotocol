@@ -13,6 +13,7 @@ import { COMPLETE_FROM, LAYERS, buildCountryStatus, layerValue } from "../lib/co
 import type { CountryStatus, LayerId } from "../lib/countryStatus";
 import { downloadCsv } from "../lib/coverage";
 import { fetchCoverage, fetchRegionCountries } from "../lib/fgs";
+import { useExplorerData } from "../lib/explorerData";
 import type { FgsCoverage } from "../lib/fgs";
 
 const TEAL = "#01ADBF";
@@ -59,7 +60,8 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
     };
   }, []);
 
-  const countries = useMemo(() => (fgs ? buildCountryStatus(fgs) : []), [fgs]);
+  const explorer = useExplorerData();
+  const countries = useMemo(() => (fgs && explorer ? buildCountryStatus(fgs, explorer) : []), [fgs, explorer]);
   const byCode = useMemo(() => new Map(countries.map((c) => [c.code, c])), [countries]);
   const scores = useMemo(() => Object.fromEntries(countries.map((c) => [c.code, c.score])), [countries]);
 
@@ -85,7 +87,7 @@ export default function OverviewPanel({ onOpenExplorer }: Props) {
     setTimeout(() => rowRefs.current[code]?.scrollIntoView({ block: "center", behavior: "smooth" }), 50);
   };
 
-  if (!fgs) {
+  if (!fgs || !explorer) {
     return (
       <Box sx={{ display: "flex", gap: 2, alignItems: "center", mt: 4 }}>
         <CircularProgress size={22} />

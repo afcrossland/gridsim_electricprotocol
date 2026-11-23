@@ -292,3 +292,158 @@ class AuditLog(Base):
     action: Mapped[str] = mapped_column(Text)
     before: Mapped[dict | None] = mapped_column(JSONB)
     after: Mapped[dict | None] = mapped_column(JSONB)
+
+
+# --- Deployment Explorer data (schema `deployment`) ---------------------------------------------
+#
+# The Deployment Explorer's three datasets - `deployment/src/data/ember_solar.json`,
+# `ember_generation.json` and `population.json` - entry for entry. They are rebuilt from Ember and
+# the World Bank by `deployment/scripts/`, never edited by people, so `ep_db.deployment_import`
+# replaces every table here wholesale on each run. Their own schema keeps them apart from the
+# policy tables; Alembic's version table stays in `policy`.
+
+DEPLOYMENT_SCHEMA = "deployment"
+DEPLOYMENT_DATASETS = ("solar", "generation", "population")
+
+
+class DeploymentDataset(Base):
+    """Each file's own top-level fields: where it came from, when it was fetched, its note."""
+
+    __tablename__ = "datasets"
+    __table_args__ = (CheckConstraint(_in("name", DEPLOYMENT_DATASETS), name="name"), {"schema": DEPLOYMENT_SCHEMA})
+
+    name: Mapped[str] = mapped_column(Text, primary_key=True)
+    # A URL string, or (ember_solar.json) a {"monthly", "annual"} map of URLs.
+    source: Mapped[object] = mapped_column(JSONB)
+    fetched_at: Mapped[str] = mapped_column(Text)
+    note: Mapped[str] = mapped_column(Text)
+    imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    imported_by: Mapped[str] = mapped_column(Text)
+
+
+class SolarCountry(Base):
+    """A country in `ember_solar.json`; `position` keeps the file's key order."""
+
+    __tablename__ = "solar_countries"
+    __table_args__ = (
+        CheckConstraint(_in("granularity", ("monthly", "annual")), name="granularity"),
+        {"schema": DEPLOYMENT_SCHEMA},
+    )
+
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, unique=True)
+    name: Mapped[str] = mapped_column(Text)
+    granularity: Mapped[str] = mapped_column(Text)
+
+
+class SolarMonthly(Base):
+    """Installed solar capacity (GW) by month, for a `monthly` country."""
+
+    __tablename__ = "solar_monthly"
+    __table_args__ = (CheckConstraint("month BETWEEN 1 AND 12", name="month"), {"schema": DEPLOYMENT_SCHEMA})
+
+    code: Mapped[str] = mapped_column(ForeignKey("deployment.solar_countries.code", ondelete="CASCADE"), primary_key=True)
+    year: Mapped[int] = mapped_column(Integer, primary_key=True)
+    month: Mapped[int] = mapped_column(Integer, primary_key=True)
+    gw: Mapped[float] = mapped_column(Float)
+
+
+class SolarAnnual(Base):
+    """Installed solar capacity (GW) by year, for an `annual` country."""
+
+    __tablename__ = "solar_annual"
+    __table_args__ = {"schema": DEPLOYMENT_SCHEMA}
+
+    code: Mapped[str] = mapped_column(ForeignKey("deployment.solar_countries.code", ondelete="CASCADE"), primary_key=True)
+    year: Mapped[int] = mapped_column(Integer, primary_key=True)
+    gw: Mapped[float] = mapped_column(Float)
+
+
+class GenerationCountry(Base):
+    """A country in `ember_generation.json`."""
+
+    __tablename__ = "generation_countries"
+    __table_args__ = {"schema": DEPLOYMENT_SCHEMA}
+
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, unique=True)
+    name: Mapped[str] = mapped_column(Text)
+
+
+class GenerationYearly(Base):
+    """Solar and total generation (TWh) and solar's share (%) by year, as Ember reports them."""
+
+    __tablename__ = "generation_yearly"
+    __table_args__ = {"schema": DEPLOYMENT_SCHEMA}
+
+    code: Mapped[str] = mapped_column(ForeignKey("deployment.generation_countries.code", ondelete="CASCADE"), primary_key=True)
+    year: Mapped[int] = mapped_column(Integer, primary_key=True)
+    solar_twh: Mapped[float] = mapped_column(Float)
+    total_twh: Mapped[float] = mapped_column(Float)
+    share_pct: Mapped[float] = mapped_column(Float)
+
+
+class Population(Base):
+    """`population.json`: the latest population per country; `source` only where hand-added."""
+
+    __tablename__ = "population"
+    __table_args__ = {"schema": DEPLOYMENT_SCHEMA}
+
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, unique=True)
+    name: Mapped[str] = mapped_column(Text)
+    population_millions: Mapped[float] = mapped_column(Float)
+    year: Mapped[int] = mapped_column(Integer)
+    source: Mapped[str | None] = mapped_column(Text)
+
+
+# --- Solar Homes Calculator data (schema `calculator`) ------------------------------------------
+#
+# `calculator/src/data/country-irradiance.json`, `country-self-sufficiency.json` and
+# `pc1-demand-profile.json`, entry for entry, loaded by `ep_db.calculator_import` (which replaces
+# them wholesale - `calculator/scripts/` regenerates them; nobody edits them). The irradiance file
+# is 10.7 MB because each country carries 8760 hourly values; keeping them in rows lets the API
+# hand the browser one country's profile instead of all of them.
+
+CALCULATOR_SCHEMA = "calculator"
+
+
+class CountryIrradianceRow(Base):
+    """One country's representative point, panel orientation and 8760-hour W/Wp profile (UTC)."""
+
+    __tablename__ = "irradiance"
+    __table_args__ = {"schema": CALCULATOR_SCHEMA}
+
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, unique=True)
+    lat: Mapped[float] = mapped_column(Float)
+    lon: Mapped[float] = mapped_column(Float)
+    tilt_deg: Mapped[int] = mapped_column(Integer)
+    azimuth_deg: Mapped[int] = mapped_column(Integer)
+    # The profile's sum, worked out at import the same way the browser sums it (left to right, in
+    # float64), so the map and league table can show it without downloading the profile.
+    annual_kwh_per_kwp: Mapped[float] = mapped_column(Float)
+    profile_w_per_wp: Mapped[list[float]] = mapped_column(ARRAY(Float))
+
+
+class SelfSufficiencyRow(Base):
+    """Precomputed self-sufficiency (%) for the low/medium/high system tiers."""
+
+    __tablename__ = "self_sufficiency"
+    __table_args__ = {"schema": CALCULATOR_SCHEMA}
+
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, unique=True)
+    low: Mapped[int] = mapped_column(Integer)
+    medium: Mapped[int] = mapped_column(Integer)
+    high: Mapped[int] = mapped_column(Integer)
+
+
+class DemandProfileRow(Base):
+    """A normalised 8760-hour demand shape (fractions summing to 1). Only `pc1` today."""
+
+    __tablename__ = "demand_profiles"
+    __table_args__ = {"schema": CALCULATOR_SCHEMA}
+
+    name: Mapped[str] = mapped_column(Text, primary_key=True)
+    profile: Mapped[list[float]] = mapped_column(ARRAY(Float))

@@ -1,4 +1,5 @@
-import raw from "../data/ember_generation.json";
+// Settled by main.tsx before the app imports this - see data/deploymentData.ts.
+import { readDeploymentData } from "../data/deploymentData";
 
 export interface GenerationSeriesPoint {
   year: number;
@@ -19,7 +20,7 @@ export interface GenerationCountry {
  * 77 countries, wider coverage than ember_solar.json's 25 since generation
  * is reported from grid data even where a capacity register is thin.
  */
-export const EMBER_GENERATION = raw.countries as Record<string, GenerationCountry>;
+export const EMBER_GENERATION = readDeploymentData().generation.countries as Record<string, GenerationCountry>;
 
 export function generationCountry(code: string): GenerationCountry | undefined {
   return EMBER_GENERATION[code];
