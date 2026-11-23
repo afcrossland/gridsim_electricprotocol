@@ -8,6 +8,11 @@ here. It is public: it serves what the site's bundle already ships to every visi
 
 Any problem answers 503, never partial data: the frontend then falls back to its bundled JSON.
 
+GET /api/deployment/data does the same for the Deployment Explorer: its three
+`deployment/src/data/` files' shapes as {"solar", "generation", "population"}, rebuilt from the
+`deployment` schema by `ep_db.deployment_import.export_all`. Firebase Hosting rewrites
+/api/deployment/** here too.
+
 Sign-in (Phase 2): /api/policy/auth-config gives the browser the public Firebase web config it
 signs in with, and /api/policy/me says whether that sign-in may edit (ep_db/auth.py).
 """
@@ -22,6 +27,7 @@ from sqlalchemy import Engine, create_engine, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from ep_db import deployment_import
 from ep_db.auth import Editor
 from ep_db.import_json import DataError, export_all
 from ep_db.models import Response, ResponseEvidence
@@ -85,6 +91,22 @@ def policy_data() -> JSONResponse:
     except SQLAlchemyError:
         log.exception("policy database read failed")
         return _unavailable("The policy database couldn't be read.")
+    return JSONResponse(data, headers=CACHEABLE)
+
+
+@router.get("/api/deployment/data")
+def deployment_data() -> JSONResponse:
+    url = os.environ.get("DATABASE_URL", "")
+    if not url:
+        return _unavailable("The deployment database isn't configured here.")
+    try:
+        with Session(_engine(url)) as session:
+            data = deployment_import.export_all(session)
+    except DataError as e:
+        return _unavailable(str(e))
+    except SQLAlchemyError:
+        log.exception("deployment database read failed")
+        return _unavailable("The deployment database couldn't be read.")
     return JSONResponse(data, headers=CACHEABLE)
 
 

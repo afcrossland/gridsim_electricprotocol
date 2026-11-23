@@ -1,4 +1,5 @@
-import raw from "../data/population.json";
+// Settled by main.tsx before the app imports this - see data/deploymentData.ts.
+import { readDeploymentData } from "../data/deploymentData";
 
 export interface PopulationEntry {
   name: string;
@@ -7,7 +8,7 @@ export interface PopulationEntry {
 }
 
 /** Real population figures - see scripts/build_population.py for source (World Bank, Taiwan hand-added). */
-export const POPULATION = raw.countries as Record<string, PopulationEntry>;
+export const POPULATION = readDeploymentData().population.countries as Record<string, PopulationEntry>;
 
 export function populationMillions(code: string): number | null {
   return POPULATION[code]?.populationMillions ?? null;

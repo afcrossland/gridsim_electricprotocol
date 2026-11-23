@@ -191,6 +191,17 @@ All three are **one-time reads, not a live pipeline** - re-run the
 relevant script by hand to refresh; nothing calls any of them
 automatically.
 
+**Where the app reads them (2026-11-23).** The JSON files stay the record
+in git, and the Electric Futures database (schema `deployment`, migration
+0004) holds the same data. On dev (`VITE_DEPLOYMENT_API`, set in deploy.yml)
+`data/deploymentData.ts` loads it from `/api/deployment/data` before the app
+is imported. On prod, or if that request fails, it loads the bundled JSON,
+which is a separate chunk downloaded only in that case. A push to
+Development that changes any of the three files runs
+`.github/workflows/import-deployment.yml`, which re-imports them into the
+dev database with `python -m ep_db.deployment_import` and then runs
+`--check`. /klute's Deployment panel still imports the JSON directly.
+
 **Redistribution confirmed, 2026-09-10**: Ember publishes its data under a
 [Creative Commons Attribution 4.0 licence](https://creativecommons.org/licenses/by/4.0/)
 (World Bank population data is CC BY 4.0 too), which explicitly permits

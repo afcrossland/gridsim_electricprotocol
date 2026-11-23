@@ -1,7 +1,7 @@
 """Tests for the policy database schema and JSON import (ep_db/).
 
 The database tests need a disposable Postgres in EP_TEST_DATABASE_URL - they drop and recreate
-its `policy` schema - and are skipped without one. CI provides one (see .github/workflows/ci.yml).
+its `policy` and `deployment` schemas - and are skipped without one. CI provides one (see .github/workflows/ci.yml).
 """
 
 import copy
@@ -40,6 +40,7 @@ def db(monkeypatch):
     engine = create_engine(TEST_URL)
     with engine.begin() as conn:
         conn.execute(text("DROP SCHEMA IF EXISTS policy CASCADE"))
+        conn.execute(text("DROP SCHEMA IF EXISTS deployment CASCADE"))
     command.upgrade(Config(str(HERE / "alembic.ini")), "head")
     yield engine
     engine.dispose()

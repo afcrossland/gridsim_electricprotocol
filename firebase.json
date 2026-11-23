@@ -6,7 +6,8 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         { "source": "/klute{,/**}", "run": { "serviceId": "klute-gate-dev", "region": "us-central1" } },
-        { "source": "/api/policy/**", "run": { "serviceId": "klute-gate-dev", "region": "us-central1" } }
+        { "source": "/api/policy/**", "run": { "serviceId": "klute-gate-dev", "region": "us-central1" } },
+        { "source": "/api/deployment/**", "run": { "serviceId": "klute-gate-dev", "region": "us-central1" } }
       ]
     },
     {
@@ -15,7 +16,8 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         { "source": "/klute{,/**}", "run": { "serviceId": "klute-gate-prod", "region": "us-central1" } },
-        { "source": "/api/policy/**", "run": { "serviceId": "klute-gate-prod", "region": "us-central1" } }
+        { "source": "/api/policy/**", "run": { "serviceId": "klute-gate-prod", "region": "us-central1" } },
+        { "source": "/api/deployment/**", "run": { "serviceId": "klute-gate-prod", "region": "us-central1" } }
       ]
     }
   ]
