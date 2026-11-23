@@ -119,6 +119,11 @@ export default defineConfig(({ mode }) => {
           target: env.EP_API_BASE_URL || "http://localhost:8080",
           changeOrigin: true,
         },
+        // The Deployment Explorer's data API, only used when VITE_DEPLOYMENT_API is set. Same local gate.
+        "/api/deployment": {
+          target: env.EP_API_BASE_URL || "http://localhost:8080",
+          changeOrigin: true,
+        },
         "/klute/api": {
           target: env.FGS_API_BASE_URL || "http://localhost:8000",
           changeOrigin: true,

@@ -1,4 +1,5 @@
-import raw from "../data/ember_solar.json";
+// Settled by main.tsx before the app imports this - see data/deploymentData.ts.
+import { readDeploymentData } from "../data/deploymentData";
 
 export interface EmberMonthlyPoint {
   year: number;
@@ -39,7 +40,7 @@ export type EmberCountry = EmberCountryMonthly | EmberCountryAnnual;
  * battery), and why only the GWDC-rated figure is kept for the monthly
  * source. 206 countries as of the last build.
  */
-export const EMBER_SOLAR = raw.countries as Record<string, EmberCountry>;
+export const EMBER_SOLAR = readDeploymentData().solar.countries as Record<string, EmberCountry>;
 
 export function emberCountry(code: string): EmberCountry | undefined {
   return EMBER_SOLAR[code];

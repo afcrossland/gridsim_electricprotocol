@@ -1,0 +1,85 @@
+name: Import deployment data
+
+# Runs when the Deployment Explorer's Ember or population data changes on Development (deployment/scripts/build_*.py
+# rewrites these files; a data refresh PR merges them). It brings the dev database's `deployment` schema into step
+# with the files and checks the result. The site itself is published by deploy.yml as usual; until this finishes, the
+# dev explorer reads the previous import, and if the database can't be read it falls back to the bundled JSON.
+on:
+  push:
+    branches: [Development]
+    paths:
+      - "deployment/src/data/ember_solar.json"
+      - "deployment/src/data/ember_generation.json"
+      - "deployment/src/data/population.json"
+      - "klute/gate/ep_db/deployment_import.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # Workload Identity Federation, for the dev database
+
+concurrency:
+  group: import-deployment
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.ref == 'refs/heads/Development'
+    # Identifiers, not secrets (see deploy.yml). Only dev's database is updated; the github-ef-dev pool only trusts
+    # Development, and ef-import-dev can reach that database and nothing else.
+    env:
+      PROJECT_ID: project-08077ad6-f39e-4a3c-b19
+      PROJECT_NUMBER: "605425219883"
+      CLOUDSQL_INSTANCE: project-08077ad6-f39e-4a3c-b19:us-central1:gridsim-dev-db
+      CLOUD_SQL_PROXY_VERSION: v2.26.2
+      CLOUD_SQL_PROXY_SHA256: 787d23b4b396186f307b6b274c94099d25b15a81b7e60c91ceed18c07558e9d7
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r klute/gate/requirements.txt
+
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-ef-dev/providers/github
+          service_account: ef-import-dev@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Update the dev deployment data
+        run: |
+          set -euo pipefail
+          curl -sSfL -o cloud-sql-proxy \
+            "https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/$CLOUD_SQL_PROXY_VERSION/cloud-sql-proxy.linux.amd64"
+          echo "$CLOUD_SQL_PROXY_SHA256  cloud-sql-proxy" | sha256sum -c -
+          chmod +x cloud-sql-proxy
+          ./cloud-sql-proxy --address 127.0.0.1 --port 5432 "$CLOUDSQL_INSTANCE" > proxy.log 2>&1 &
+          for _ in $(seq 1 30); do (echo > /dev/tcp/127.0.0.1/5432) 2>/dev/null && break; sleep 1; done
+
+          # The secret holds the Cloud Run (socket) form of the URL; point it at the proxy instead. Masked first, so
+          # neither the URL nor its password can reach the log.
+          url="$(gcloud secrets versions access latest --secret electricfutures-dev-database-url --project "$PROJECT_ID")"
+          echo "::add-mask::$url"
+          echo "::add-mask::$(python3 -c 'import sys; from urllib.parse import urlsplit; print(urlsplit(sys.argv[1]).password)' "$url")"
+          DATABASE_URL="$(printf '%s' "$url" | sed -E 's#@/([^?]+)\?host=.*$#@127.0.0.1:5432/\1#')"
+          export DATABASE_URL
+
+          cd klute/gate
+          python -m ep_db.deployment_import --actor "import-deployment.yml run ${{ github.run_id }}" | tee ../../db-report.txt
+          python -m ep_db.deployment_import --check | tee -a ../../db-report.txt
+
+      - name: Show the database report
+        if: always()
+        run: |
+          {
+            echo "## Dev deployment data"
+            echo
+            echo '```'
+            cat db-report.txt 2>/dev/null || echo "The database was not updated - see the step's log."
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
