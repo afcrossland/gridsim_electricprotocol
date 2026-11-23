@@ -189,7 +189,7 @@ def main() -> None:
         "note": (
             "Solar installed capacity (GW). Each country takes whichever "
             "source's own latest point is more recent: Ember's Data API "
-            "(monthly cadence, 25 countries) or the yearly generation "
+            f"(monthly cadence, {monthly_n} countries) or the yearly generation "
             "CSV's own Capacity (GW) column (one point a year, wider "
             "coverage - no API equivalent exists for this one). A "
             'country\'s entry is either "granularity": "monthly" with a '
