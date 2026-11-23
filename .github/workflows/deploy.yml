@@ -65,6 +65,8 @@ jobs:
           # The Deployment Explorer likewise reads /api/deployment/data (the database's `deployment`
           # schema) on dev only; prod and any failure load its bundled JSON.
           if [ "$ENV" = dev ]; then echo "VITE_DEPLOYMENT_API=1" >> .env.prod; fi
+          # The Solar Homes Calculator too: /api/calculator/* (the `calculator` schema) on dev only.
+          if [ "$ENV" = dev ]; then echo "VITE_CALCULATOR_API=1" >> .env.prod; fi
           # Splash tiles marked data-prelaunch (Solar Homes Calculator, Future City Simulator) show
           # as "Coming soon" on prod only; dev keeps them live (index.html).
           if [ "$ENV" = prod ]; then echo "VITE_PRELAUNCH_COMING_SOON=1" >> .env.prod; fi

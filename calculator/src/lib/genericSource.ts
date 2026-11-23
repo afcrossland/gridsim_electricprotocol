@@ -1,4 +1,4 @@
-import { findCountryIrradiance, loadCountryIrradiance } from "./countryIrradiance";
+import { loadCountryEntry, type CountryIrradiance } from "./countryIrradiance";
 import type { HourlyProfile, PanelArray } from "./types";
 
 /**
@@ -39,19 +39,22 @@ export function toLocalSolarTime(profile: number[], lonDeg: number): number[] {
   return profile.map((_, i) => profile[(((i - offset) % n) + n) % n]);
 }
 
+/** One country's profile scaled to an array, in kWh per hour of local solar time. Pure: no loading. */
+export function generationFromEntry(entry: CountryIrradiance, array: PanelArray): HourlyProfile {
+  // TODO (tracked in ROADMAP.md's "Known gaps flagged in code"): every
+  // array in a system shares the same country-level profile regardless
+  // of its own `tilt`/`azimuth` - those inputs only affect kWp (via
+  // `panels`/`panelWatts`) for this source today, not orientation. A
+  // real per-orientation adjustment (like the removed GB path's own
+  // tilt/azimuth lookup) can come back once this is backed by a real
+  // irradiance dataset with more than one fixed angle per location.
+  const wp = array.panels * array.panelWatts;
+  // The profile is for the country's own representative point, so shift by that point's longitude.
+  return toLocalSolarTime(entry.profileWPerWp, entry.lon).map((wPerWp) => (wPerWp * wp) / 1000);
+}
+
 export const genericSource: GenerationSource = {
   async getHourlyGenerationKWh({ lat, lon, countryCode, array }) {
-    const countryIrradiance = await loadCountryIrradiance();
-    const entry = findCountryIrradiance(countryIrradiance, countryCode, lat, lon);
-    // TODO (tracked in ROADMAP.md's "Known gaps flagged in code"): every
-    // array in a system shares the same country-level profile regardless
-    // of its own `tilt`/`azimuth` - those inputs only affect kWp (via
-    // `panels`/`panelWatts`) for this source today, not orientation. A
-    // real per-orientation adjustment (like the removed GB path's own
-    // tilt/azimuth lookup) can come back once this is backed by a real
-    // irradiance dataset with more than one fixed angle per location.
-    const wp = array.panels * array.panelWatts;
-    // The profile is for the country's own representative point, so shift by that point's longitude.
-    return toLocalSolarTime(entry.profileWPerWp, entry.lon).map((wPerWp) => (wPerWp * wp) / 1000);
+    return generationFromEntry(await loadCountryEntry(countryCode, lat, lon), array);
   },
 };

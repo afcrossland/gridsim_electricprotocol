@@ -13,6 +13,12 @@ GET /api/deployment/data does the same for the Deployment Explorer: its three
 `deployment` schema by `ep_db.deployment_import.export_all`. Firebase Hosting rewrites
 /api/deployment/** here too.
 
+The Solar Homes Calculator's data (`calculator` schema, ep_db/calculator_import.py) comes in three
+sizes, so a visitor downloads only what they use: GET /api/calculator/summary (every country's
+point and annual yield, the self-sufficiency tiers and the demand shape), GET
+/api/calculator/irradiance/{code} (one country's 8760-hour profile), and GET
+/api/calculator/irradiance (every profile, for the members' global simulator).
+
 Sign-in (Phase 2): /api/policy/auth-config gives the browser the public Firebase web config it
 signs in with, and /api/policy/me says whether that sign-in may edit (ep_db/auth.py).
 """
@@ -27,7 +33,7 @@ from sqlalchemy import Engine, create_engine, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from ep_db import deployment_import
+from ep_db import calculator_import, deployment_import
 from ep_db.auth import Editor
 from ep_db.import_json import DataError, export_all
 from ep_db.models import Response, ResponseEvidence
@@ -108,6 +114,41 @@ def deployment_data() -> JSONResponse:
         log.exception("deployment database read failed")
         return _unavailable("The deployment database couldn't be read.")
     return JSONResponse(data, headers=CACHEABLE)
+
+
+def _read(what: str, read) -> JSONResponse:
+    """Run `read(session)` against the database, answering 503 (never partial data) on any problem."""
+    url = os.environ.get("DATABASE_URL", "")
+    if not url:
+        return _unavailable(f"The {what} database isn't configured here.")
+    try:
+        with Session(_engine(url)) as session:
+            data = read(session)
+    except DataError as e:
+        return _unavailable(str(e))
+    except SQLAlchemyError:
+        log.exception("%s database read failed", what)
+        return _unavailable(f"The {what} database couldn't be read.")
+    if data is None:
+        return JSONResponse({"error": "No such country."}, status_code=404, headers=CACHEABLE)
+    return JSONResponse(data, headers=CACHEABLE)
+
+
+@router.get("/api/calculator/summary")
+def calculator_summary() -> JSONResponse:
+    return _read("calculator", calculator_import.summary)
+
+
+@router.get("/api/calculator/irradiance")
+def calculator_irradiance_all() -> JSONResponse:
+    return _read("calculator", lambda session: calculator_import.export_all(session)["irradiance"])
+
+
+@router.get("/api/calculator/irradiance/{code}")
+def calculator_irradiance(code: str) -> JSONResponse:
+    if not code.isalnum() or len(code) > 16:
+        return JSONResponse({"error": "No such country."}, status_code=404, headers=CACHEABLE)
+    return _read("calculator", lambda session: calculator_import.country_entry(session, code))
 
 
 @router.get("/api/policy/auth-config")

@@ -1,5 +1,5 @@
-import selfSufficiencyByCode from "../data/country-self-sufficiency.json";
-import { annualKWhPerKWp, loadCountryIrradiance } from "./countryIrradiance";
+import { readCalculatorData } from "../data/calculatorData";
+import { loadIrradianceIndex } from "./countryIrradiance";
 import { logNormalize } from "../../../shared/lib/mapColor";
 
 /**
@@ -47,9 +47,9 @@ export async function loadMetricValues(metric: Metric): Promise<Record<string, n
     return byCode;
   }
 
-  const irradiance = await loadCountryIrradiance();
+  const index = await loadIrradianceIndex();
   const byCode: Record<string, number> = {};
-  for (const [code, entry] of Object.entries(irradiance)) byCode[code] = annualKWhPerKWp(entry);
+  for (const [code, entry] of Object.entries(index)) byCode[code] = entry.annualKWhPerKWp;
   return byCode;
 }
 
@@ -63,7 +63,7 @@ export async function loadMetricValues(metric: Metric): Promise<Record<string, n
  * low-high range instead of the single medium figure.
  */
 export function loadSelfSufficiencyTiers(): Record<string, { low: number; medium: number; high: number }> {
-  return selfSufficiencyByCode as Record<string, { low: number; medium: number; high: number }>;
+  return readCalculatorData().selfSufficiency;
 }
 
 /**
