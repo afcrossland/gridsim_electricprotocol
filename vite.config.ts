@@ -4,6 +4,7 @@ import { defineConfig } from "vitest/config";
 import { loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
+import { reports } from "./reports/build/plugin.ts";
 
 /**
  * The Policy Explorer's data-driven start (src/main.tsx) is a chain: entry script -> fetch the policy
@@ -60,7 +61,12 @@ export default defineConfig(({ mode }) => {
   const base = env.VITE_BASE || "/";
 
   return {
-    plugins: [react(), policyLoadHints(!!env.VITE_POLICY_API, base)],
+    plugins: [
+      react(),
+      policyLoadHints(!!env.VITE_POLICY_API, base),
+      // /reports/ - plain pages made from reports/content, not a fifth app.
+      reports({ base, url: env.VITE_SITE_URL ?? "", noindex: !!env.VITE_SITE_NOINDEX }),
+    ],
 
     // The report writer (shared/pdf/renderPdf.ts) is loaded on demand. Without this, the dev server only discovers
     // pdfkit and pdfjs-dist when the first report is requested, re-optimises, and that first request fails ("Failed to fetch

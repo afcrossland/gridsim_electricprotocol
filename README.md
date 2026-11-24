@@ -34,6 +34,10 @@ The built site has four HTML entries, not one - see `vite.config.ts`'s
   index.html` mounts its own `calculator/src/main.tsx`, a third separate
   source tree. See `calculator/README.md`.
 
+- **`/reports/`** - reports and blog posts: plain pages the build makes from the Markdown in
+  `reports/content/`, with no app or script of their own, so not a Vite entry. To add one,
+  see `reports/README.md`.
+
 - **`/klute/`** - the sign-in-protected Data explorer (added 2026-10-12): what data
   sits behind each explorer and where it has gaps. One tab per explorer - Future Grid
   Simulator (coverage heatmaps for generation, demand, installed capacity and weather,
