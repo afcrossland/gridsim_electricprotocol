@@ -9,8 +9,9 @@ import { usingDatabase } from "../data/policyData";
  * Only builds that read the policy database (VITE_POLICY_API - dev, see
  * deploy.yml) have editors at all: there, the admin console needs a Google
  * sign-in (Firebase Auth) whose email the server accepts (`/api/policy/me`,
- * klute/gate/ep_db/auth.py). Other builds keep the old open, browser-only
- * admin console until they move to the database too.
+ * klute/gate/ep_db/auth.py). Production builds without the database (prod, for
+ * now) have no console at all; only local development keeps the old open,
+ * browser-only one.
  *
  * Firebase is loaded on demand - when someone asks to sign in, or on load if
  * this browser signed in before - so ordinary visitors never download it.
@@ -19,9 +20,14 @@ import { usingDatabase } from "../data/policyData";
  */
 export const EDITING_NEEDS_SIGN_IN = Boolean(import.meta.env.VITE_POLICY_API);
 
+/** A public build with no database has nowhere to save and nobody to sign in as: no editing. */
+export const EDITING_CLOSED = import.meta.env.PROD && !EDITING_NEEDS_SIGN_IN;
+
 export type EditorStatus =
   /** This build has no sign-in (see EDITING_NEEDS_SIGN_IN). */
   | "not-required"
+  /** A public build without the database: the console doesn't exist (EDITING_CLOSED). */
+  | "closed"
   | "signed-out"
   | "checking"
   | "editor"
@@ -37,7 +43,7 @@ interface EditorState {
 }
 
 export const useEditorStore = create<EditorState>(() => ({
-  status: EDITING_NEEDS_SIGN_IN ? "signed-out" : "not-required",
+  status: EDITING_NEEDS_SIGN_IN ? "signed-out" : EDITING_CLOSED ? "closed" : "not-required",
   email: null,
   message: null,
 }));

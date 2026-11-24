@@ -178,7 +178,7 @@ export const SCENES: Scene[] = [
       spotlight: {
         selector: '[data-tour="nav-links"]',
         tag: "Read more",
-        caption: "The Charter is under About, how scoring works is in Help - or dig into the question set yourself in the Admin console.",
+        caption: "The Charter is under About, and how scoring works is in Help.",
         arrow: "up",
       },
     },
