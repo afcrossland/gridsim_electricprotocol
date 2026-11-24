@@ -5,6 +5,7 @@ import { readPolicyData, usingDatabase } from "../data/policyData";
 import { sourcedResponses } from "../data/sourcedAnswers";
 import i18n, { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "../i18n";
 import { MAX_COMPARE_COUNTRIES } from "../lib/compareColors";
+import { EDITING_CLOSED } from "../lib/editorAuth";
 import { resolveTargets } from "../lib/jurisdictions";
 import { DEFAULT_SCOREBOARD_FILTERS, type ScoreboardFilters } from "../lib/scoreboardFilters";
 import { diffResponses, type QuestionProposal, type Suggestion } from "../lib/suggestions";
@@ -199,6 +200,32 @@ interface ProtocolState {
  * than discarded, since it is real citation text someone typed in. Already-
  * current-shape responses pass through unchanged.
  */
+/** Where backUpBrowserEdits keeps a copy of edits an older open console left in this browser. */
+export const BROWSER_EDITS_BACKUP_KEY = "electric-protocol-policy-map-edits-backup";
+
+const EDIT_FIELDS = [
+  "responses", "questionOverrides", "sectionOverrides", "customSections",
+  "customQuestions", "removedSectionIds", "removedQuestionIds", "threshold",
+] as const;
+
+/**
+ * Closed builds stop saving these fields, so the next save drops them from this browser.
+ * Keep the first copy aside: they may be someone's work.
+ */
+function backUpBrowserEdits(state: Partial<ProtocolState>) {
+  const edits = EDIT_FIELDS.filter((k) => k !== "threshold" && Object.keys(state[k] ?? {}).length > 0);
+  if (!edits.length) return;
+  try {
+    if (localStorage.getItem(BROWSER_EDITS_BACKUP_KEY)) return;
+    localStorage.setItem(
+      BROWSER_EDITS_BACKUP_KEY,
+      JSON.stringify(Object.fromEntries(EDIT_FIELDS.map((k) => [k, state[k]]))),
+    );
+  } catch {
+    // Storage blocked or full - nothing more to do.
+  }
+}
+
 function migrateResponseShape(r: Response & { source?: string; note?: string }): Response {
   if (Array.isArray(r.evidence)) return r;
   const { source, note, ...rest } = r;
@@ -893,9 +920,9 @@ export const useProtocolStore = create<ProtocolState>()(
        * remembering to bump the version every time the data changes.
        */
       partialize: (state) =>
-        usingDatabase()
+        usingDatabase() || EDITING_CLOSED
           ? // The policy database holds the data on these builds (see merge
-            // below), so only preferences and the browser-only suggestion
+            // below), or there is no editing at all, so only preferences and the browser-only suggestion
             // queues (until Phase 6) are kept here.
             {
               mapMetric: state.mapMetric,
@@ -941,7 +968,10 @@ export const useProtocolStore = create<ProtocolState>()(
         // hide it, so only preferences and the browser-only suggestion queues
         // (until Phase 6) carry over. Sections, questions, answers and the
         // threshold all come from the database, already in `current`.
-        if (usingDatabase()) {
+        // The same goes for public builds with no editing: edits left over from
+        // when their console was open would otherwise stick, with no reset.
+        if (usingDatabase() || EDITING_CLOSED) {
+          if (EDITING_CLOSED) backUpBrowserEdits(state);
           if (state.language && (SUPPORTED_LANGUAGES as readonly string[]).includes(state.language)) {
             i18n.changeLanguage(state.language);
           }

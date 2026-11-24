@@ -171,7 +171,9 @@ server proxies `/api/policy` to `EP_API_BASE_URL` (default `http://localhost:808
 **Editing needs a sign-in on those builds (ROADMAP.md Phase 2).** The admin console opens only for
 a Google account on `policy_editor_emails` (`infra/terraform/environments/<env>/terraform.tfvars`);
 adding or removing an editor is a change there plus `terraform apply`. Builds without
-`VITE_POLICY_API` (prod, for now) keep the open admin console whose edits stay in the browser.
+`VITE_POLICY_API` have no admin console when built for production (prod, for now): the button is hidden
+and edits an older build left in the browser are ignored (a copy is kept in localStorage under
+`electric-protocol-policy-map-edits-backup`). `npm run dev` without the flag keeps the open console.
 
 ## How data gets updated
 
@@ -428,12 +430,11 @@ unknown is as much of an opportunity as a known zero.
 
 ## Editing and the Admin console
 
-There is no authentication - the padlock button in the nav opens the Admin
-console for anyone. It's a stand-in for auth rather than a real gate: it lets
+In local development there is no authentication - the nav button opens the Admin
+console. (Public builds: sign-in on database builds, no console otherwise.) It lets
 add/edit/delete on questions, weights and rubric wording, and it's where
 suggestions get reviewed (below). There is no separate "Registered" role or
-role toggle any more; the app just has questions anyone can answer and an
-Admin console anyone can open.
+role toggle any more.
 
 A country's own page is read-only until its **Edit** button (top right of the
 panel) is clicked - rubric tiles, evidence fields and the clear-response
