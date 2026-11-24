@@ -9,6 +9,7 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from ep_db import calculator_import
 from ep_db.calculator_import import annual_sum, check, country_entry, export_all, import_all, load_files, summary
 from ep_db.import_json import DataError, differences
 from ep_db.models import CountryIrradianceRow
@@ -115,3 +116,18 @@ def test_api_serves_the_files(db, files, api_client):  # noqa: F811
     assert api_client.get("/api/calculator/irradiance/ZZ").status_code == 404
     assert api_client.get("/api/calculator/irradiance/a.b").status_code == 404
     assert api_client.get("/api/calculator/summary").status_code == 200
+
+
+@needs_db
+def test_api_is_built_once_and_readable_without_gzip(db, files, api_client, monkeypatch):  # noqa: F811
+    run_import(db, files)
+    calls = []
+    real = calculator_import.irradiance_all
+    monkeypatch.setattr(calculator_import, "irradiance_all", lambda s: calls.append(1) or real(s))
+    for i in range(3):
+        r = api_client.get(f"/api/calculator/irradiance?x={i}")
+        assert r.status_code == 200 and list(r.json()) == list(files["irradiance"])
+        assert r.headers["content-encoding"] == "gzip"
+    plain = api_client.get("/api/calculator/irradiance", headers={"Accept-Encoding": "identity"})
+    assert "content-encoding" not in plain.headers and plain.json() == r.json()
+    assert len(calls) == 1

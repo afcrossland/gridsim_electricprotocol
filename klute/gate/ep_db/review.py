@@ -16,14 +16,24 @@ the Policy Explorer sends alongside it.
 The public endpoints are guarded against abuse in proportion to what they risk - nothing filed
 here is shown to anyone but editors, and nothing changes until an editor accepts it: every field
 has a size limit, a hidden form field (`website`) that people never see but form-filling bots do
-is quietly discarded, and each visitor can file at most RATE_LIMIT a RATE_WINDOW_S per gate
-instance (in memory - Cloud Run runs at most two).
+is quietly discarded, and how much can be filed is limited three ways, because the visitor's own
+address is easy to fake when the gate is called directly (its run.app address is public, and keeps
+whatever X-Forwarded-For the caller sends):
+
+- per visitor: RATE_LIMIT a RATE_WINDOW_S. Firebase Hosting puts the real visitor first in
+  X-Forwarded-For and drops one they send themselves;
+- per connecting address: PEER_RATE_LIMIT. Google's front end appends it last, so it can't be faked,
+  but Firebase Hosting's own few addresses are shared by every visitor, so it is looser;
+- in all: TOTAL_RATE_LIMIT, counted in the database, so it holds across instances and any addresses.
+
+The first two are in memory, per gate instance (Cloud Run runs at most two).
 """
 
 import json
 import time
 import uuid
-from collections import defaultdict, deque
+from collections import deque
+from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException, Request
@@ -39,10 +49,14 @@ from ep_db.models import AuditLog, Jurisdiction, Question, QuestionProposal, Sec
 router = APIRouter(prefix="/api/policy")
 
 RATE_LIMIT = 10
+PEER_RATE_LIMIT = 60
+TOTAL_RATE_LIMIT = 200
 RATE_WINDOW_S = 60 * 60
 MAX_JSON_BYTES = 200_000
+MAX_TRACKED = 10_000  # addresses remembered; past it the oldest are forgotten
 
-_recent: dict[str, deque[float]] = defaultdict(deque)
+_recent: dict[str, deque[float]] = {}
+_peers: dict[str, deque[float]] = {}
 
 Status = Literal["pending", "accepted", "rejected"]
 Name = Field(min_length=1, max_length=200)
@@ -82,20 +96,47 @@ class ProposalStatusIn(BaseModel):
     questionId: str | None = None
 
 
-def _client(request: Request) -> str:
-    # Firebase Hosting -> Cloud Run: the visitor is the first X-Forwarded-For entry.
-    forwarded = request.headers.get("x-forwarded-for", "")
-    return forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+def _addresses(request: Request) -> tuple[str, str]:
+    """(visitor, connecting address): the first and last X-Forwarded-For entries - see the module docstring."""
+    entries = [e for e in (e.strip() for e in request.headers.get("x-forwarded-for", "").split(",")) if e]
+    fallback = request.client.host if request.client else "unknown"
+    return (entries[0], entries[-1]) if entries else (fallback, fallback)
+
+
+def _recent_times(seen: dict[str, deque[float]], key: str, now: float) -> deque[float]:
+    """`key`'s submissions inside the window, forgetting addresses that have none (and, past MAX_TRACKED, the oldest)."""
+    cutoff = now - RATE_WINDOW_S
+    if len(seen) >= MAX_TRACKED:
+        for other in [k for k, times in seen.items() if not times or times[-1] <= cutoff]:
+            del seen[other]
+        while len(seen) >= MAX_TRACKED:
+            del seen[next(iter(seen))]
+    times = seen.get(key, deque())
+    while times and times[0] <= cutoff:
+        times.popleft()
+    return times
 
 
 def _rate_limit(request: Request) -> None:
     now = time.monotonic()
-    times = _recent[_client(request)]
-    while times and times[0] <= now - RATE_WINDOW_S:
-        times.popleft()
-    if len(times) >= RATE_LIMIT:
+    visitor, peer = _addresses(request)
+    mine, theirs = _recent_times(_recent, visitor, now), _recent_times(_peers, peer, now)
+    if len(mine) >= RATE_LIMIT or len(theirs) >= PEER_RATE_LIMIT:
         raise HTTPException(429, "Too many submissions from here - please try again later.")
-    times.append(now)
+    mine.append(now)
+    theirs.append(now)
+    _recent[visitor], _peers[peer] = mine, theirs
+
+
+def _total_limit(session: Session) -> None:
+    """Everyone's submissions in the window, whatever addresses they came from."""
+    since = datetime.now(UTC) - timedelta(seconds=RATE_WINDOW_S)
+    filed = sum(
+        session.scalar(select(func.count()).select_from(t).where(t.submitted_at > since)) or 0
+        for t in (Suggestion, QuestionProposal)
+    )
+    if filed >= TOTAL_RATE_LIMIT:
+        raise HTTPException(429, "Too many submissions right now - please try again later.")
 
 
 def _session() -> Session:
@@ -123,6 +164,7 @@ def submit_suggestion(body: SuggestionIn, request: Request) -> JSONResponse:
         raise HTTPException(413, "That suggestion is too large.")
     _rate_limit(request)
     with _session() as session, session.begin():
+        _total_limit(session)
         if session.get(Jurisdiction, body.countryCode) is None:
             raise HTTPException(404, f"No jurisdiction {body.countryCode}.")
         sid = _new_id("sg")
@@ -148,6 +190,7 @@ def submit_proposal(body: ProposalIn, request: Request) -> JSONResponse:
         return _filed(_new_id("qp"))
     _rate_limit(request)
     with _session() as session, session.begin():
+        _total_limit(session)
         if session.get(Section, body.sectionId) is None:
             raise HTTPException(404, f"No section {body.sectionId}.")
         pid = _new_id("qp")

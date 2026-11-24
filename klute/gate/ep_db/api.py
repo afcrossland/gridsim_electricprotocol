@@ -23,25 +23,28 @@ Sign-in (Phase 2): /api/policy/auth-config gives the browser the public Firebase
 signs in with, and /api/policy/me says whether that sign-in may edit (ep_db/auth.py).
 """
 
+import gzip
 import logging
 import os
 from functools import lru_cache
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import JSONResponse, Response as HttpResponse
 from sqlalchemy import Engine, create_engine, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ep_db import calculator_import, deployment_import
 from ep_db.auth import Editor
+from ep_db.cache import Busy, CachedPayload
 from ep_db.import_json import DataError, export_all
 from ep_db.models import Response, ResponseEvidence
 
 log = logging.getLogger(__name__)
 router = APIRouter()
 
-# Short enough that a re-import shows up within minutes; Firebase's CDN honours s-maxage.
+# Short enough that a re-import shows up within minutes (about ten for the copies in ep_db/cache.py);
+# Firebase's CDN honours s-maxage.
 CACHEABLE = {"Cache-Control": "public, max-age=60, s-maxage=300"}
 NO_STORE = {"Cache-Control": "no-store"}
 
@@ -83,6 +86,17 @@ def _unavailable(message: str) -> JSONResponse:
     return JSONResponse({"error": message}, status_code=503, headers=NO_STORE)
 
 
+# These change only when an import runs, so a copy a few minutes old is as good as a fresh read.
+_deployment = CachedPayload()
+_calculator_summary = CachedPayload()
+_calculator_irradiance = CachedPayload()
+
+
+def clear_cached_payloads() -> None:
+    for payload in (_deployment, _calculator_summary, _calculator_irradiance):
+        payload.clear()
+
+
 @router.get("/api/policy/data")
 def policy_data() -> JSONResponse:
     url = os.environ.get("DATABASE_URL", "")
@@ -101,19 +115,8 @@ def policy_data() -> JSONResponse:
 
 
 @router.get("/api/deployment/data")
-def deployment_data() -> JSONResponse:
-    url = os.environ.get("DATABASE_URL", "")
-    if not url:
-        return _unavailable("The deployment database isn't configured here.")
-    try:
-        with Session(_engine(url)) as session:
-            data = deployment_import.export_all(session)
-    except DataError as e:
-        return _unavailable(str(e))
-    except SQLAlchemyError:
-        log.exception("deployment database read failed")
-        return _unavailable("The deployment database couldn't be read.")
-    return JSONResponse(data, headers=CACHEABLE)
+def deployment_data(request: Request) -> HttpResponse:
+    return _read_cached(request, "deployment", _deployment, deployment_import.export_all)
 
 
 def _read(what: str, read) -> JSONResponse:
@@ -134,14 +137,40 @@ def _read(what: str, read) -> JSONResponse:
     return JSONResponse(data, headers=CACHEABLE)
 
 
+def _read_cached(request: Request, what: str, payload: CachedPayload, read) -> HttpResponse:
+    """`_read` through a CachedPayload, so however many requests come, one at a time builds the answer."""
+    url = os.environ.get("DATABASE_URL", "")
+    if not url:
+        return _unavailable(f"The {what} database isn't configured here.")
+
+    def build():
+        with Session(_engine(url)) as session:
+            return read(session)
+
+    try:
+        body = payload.get(url, build)
+    except Busy:
+        return JSONResponse({"error": f"The {what} data is being prepared - please try again shortly."},
+                            status_code=503, headers={**NO_STORE, "Retry-After": "15"})
+    except DataError as e:
+        return _unavailable(str(e))
+    except SQLAlchemyError:
+        log.exception("%s database read failed", what)
+        return _unavailable(f"The {what} database couldn't be read.")
+    headers = {**CACHEABLE, "Vary": "Accept-Encoding"}
+    if "gzip" in request.headers.get("accept-encoding", ""):
+        return HttpResponse(body, media_type="application/json", headers={**headers, "Content-Encoding": "gzip"})
+    return HttpResponse(gzip.decompress(body), media_type="application/json", headers=headers)
+
+
 @router.get("/api/calculator/summary")
-def calculator_summary() -> JSONResponse:
-    return _read("calculator", calculator_import.summary)
+def calculator_summary(request: Request) -> HttpResponse:
+    return _read_cached(request, "calculator", _calculator_summary, calculator_import.summary)
 
 
 @router.get("/api/calculator/irradiance")
-def calculator_irradiance_all() -> JSONResponse:
-    return _read("calculator", lambda session: calculator_import.export_all(session)["irradiance"])
+def calculator_irradiance_all(request: Request) -> HttpResponse:
+    return _read_cached(request, "calculator", _calculator_irradiance, calculator_import.irradiance_all)
 
 
 @router.get("/api/calculator/irradiance/{code}")

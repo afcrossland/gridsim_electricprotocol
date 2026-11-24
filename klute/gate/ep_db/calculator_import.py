@@ -163,6 +163,20 @@ def summary(session: Session) -> dict[str, Any]:
     return {"index": index, "selfSufficiency": _tiers(session), "pc1DemandProfile": pc1}
 
 
+def irradiance_all(session: Session) -> dict[str, Any]:
+    """Every country's entry. Plain columns: ORM rows for two million numbers cost far more memory."""
+    c = CountryIrradianceRow
+    columns = (c.code, c.lat, c.lon, c.tilt_deg, c.azimuth_deg, c.profile_w_per_wp)
+    rows = session.execute(select(*columns).order_by(c.position))
+    entries = {
+        code: {"lat": lat, "lon": lon, "tiltDeg": tilt, "azimuthDeg": az, "profileWPerWp": profile}
+        for code, lat, lon, tilt, az, profile in rows
+    }
+    if not entries:
+        raise _not_imported()
+    return entries
+
+
 def country_entry(session: Session, code: str) -> dict[str, Any] | None:
     row = session.get(CountryIrradianceRow, code.upper())
     return _entry(row) if row else None
