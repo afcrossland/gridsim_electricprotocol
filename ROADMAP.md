@@ -51,11 +51,8 @@ comment(s) together.
   on builds without the policy database (prod, for now). On database builds
   (dev) Phase 6's first part closes this: they're filed with the server and
   every editor sees them (see Phase 6 below).
-- **Admin console has no real authentication.** Open to anyone who finds the
-  URL - no password, no login, no record of who changed what (`grep -rn
-  "Stands in for auth" src/` to find the UI's own callout in
-  `TopNavbar.tsx`; the same gap is why `SuggestionsReview.tsx` is equally
-  open). Closed by **Phase 2** below.
+- **Admin console** on public builds: sign-in on database builds, removed on
+  builds without the database (2026-11-24). See **Phase 2** below.
 - **Solar Homes Calculator has no Great Britain-specific calculation any
   more.** A real MCS MGD003 lookup-table path (`calculateGB.ts`, ported
   from Andrew's own `mygridgb` repo, plus its `irradiance.json`/
@@ -537,8 +534,9 @@ screen backed by unauthenticated write endpoints is not actually locked.
   on `policy_editor_emails` (Terraform; the gate's `POLICY_EDITOR_EMAILS`).
   `src/lib/editorAuth.ts` loads Firebase only when someone signs in (or
   had before); `EditorSignInDialog.tsx` is the gate; `App.tsx` won't
-  render the console for a non-editor. Other builds keep the open,
-  browser-only console until they move to the database.
+  render the console for a non-editor. Production builds without the
+  database have no console (2026-11-24); local development keeps the open,
+  browser-only one.
 - Server side: `klute/gate/ep_db/auth.py`'s `require_editor` checks the
   Firebase ID token (`Authorization: Bearer`) and the allowlist; every
   Phase 4 write endpoint depends on it. `GET /api/policy/me` exposes the

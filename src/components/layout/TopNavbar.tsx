@@ -31,7 +31,7 @@ export default function TopNavbar() {
   const [signInOpen, setSignInOpen] = useState(false);
 
   // On builds that edit the shared database the console needs an editor's
-  // sign-in first (lib/editorAuth.ts); elsewhere it opens straight away.
+  // sign-in first (lib/editorAuth.ts); in local development it opens straight away.
   const toggleAdmin = () => {
     if (page === "admin") setPage("map");
     else if (canEdit({ status: editorStatus })) setPage("admin");
@@ -86,10 +86,12 @@ export default function TopNavbar() {
 
           {/* Opens the admin console - behind an editor's Google sign-in on
               builds that edit the shared database (EditorSignInDialog), open
-              to anyone on builds that only keep edits in this browser. A
-              quiet text link rather than the filled button: it's for the
+              in local development, and absent on public builds without the
+              database (lib/editorAuth.ts, EDITING_CLOSED). A quiet text link rather than the filled button: it's for the
               few people editing answers, not the public reading them. */}
-          <AuthButton label={t("nav.adminConsole")} mode={mode} variant="text" tooltip={t("nav.adminConsole")} onClick={toggleAdmin} />
+          {editorStatus !== "closed" && (
+            <AuthButton label={t("nav.adminConsole")} mode={mode} variant="text" tooltip={t("nav.adminConsole")} onClick={toggleAdmin} />
+          )}
         </Box>
       </Box>
       <EditorSignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} onSignedIn={onSignedIn} />
