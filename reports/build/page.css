@@ -1,0 +1,77 @@
+@font-face { font-family: 'Eastman Grotesque'; src: url('/fonts/Eastman-Grotesque-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('/fonts/Eastman-Grotesque-Demi-Bold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Eastman Grotesque'; src: url('/fonts/Eastman-Grotesque-Extrabold.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+:root { --ink: #0F1B22; --night: #0A141A; --aqua-dark: #007182; --citrus: #FBB114; --muted: #5B6570; --line: #DDE3E6; --gutter: max(20px, calc((100% - 960px) / 2)); }
+* { box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body { margin: 0; min-height: 100dvh; display: flex; flex-direction: column; font: 400 1.0625rem/1.62 'Eastman Grotesque', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink); background: #fff; }
+a { color: var(--aqua-dark); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--aqua-dark); outline-offset: 3px; }
+header.site :focus-visible, .masthead :focus-visible { outline-color: var(--citrus); }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 20px; top: 8px; background: #fff; padding: 8px 14px; z-index: 1; }
+
+header.site { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; padding: 16px var(--gutter); background: var(--night); font-size: 0.9375rem; }
+header.site a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 9px; font-weight: 600; }
+header.site a:hover { text-decoration: underline; }
+header.site img { width: 22px; height: 22px; }
+
+/* The splash page's night sky and faint grid, so a reader arriving from a link knows whose site this is. */
+.masthead { padding: clamp(32px, 6vw, 72px) var(--gutter) clamp(32px, 5vw, 60px); color: #fff; background:
+  linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px) 0 0 / 64px 64px,
+  linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px) 0 0 / 64px 64px,
+  radial-gradient(620px 380px at 88% 0%, rgba(251,177,20,0.22), transparent 65%),
+  radial-gradient(720px 460px at 8% 110%, rgba(0,171,187,0.34), transparent 65%), var(--night); }
+.masthead h1 { margin: 0; max-width: 22ch; font-size: clamp(2rem, 5.2vw, 3.5rem); font-weight: 800; line-height: 1.06; letter-spacing: -0.025em; text-wrap: balance; overflow-wrap: break-word; }
+.masthead p { margin: 16px 0 0; }
+.masthead .when { margin: 0 0 14px; }
+.masthead .summary { max-width: 58ch; font-size: 1.1875rem; line-height: 1.5; color: rgba(255,255,255,0.86); }
+.masthead .authors, .masthead time { color: rgba(255,255,255,0.74); }
+.when { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; font-size: 0.9375rem; }
+.kind { font-weight: 600; }
+.masthead .kind { color: var(--citrus); }
+.draft { background: var(--citrus); color: var(--ink); font-size: 0.8125rem; font-weight: 600; padding: 1px 9px; border-radius: 4px; letter-spacing: 0; vertical-align: middle; }
+.pdf { display: inline-block; margin-top: 6px; background: var(--citrus); color: var(--ink); font-weight: 600; text-decoration: none; padding: 10px 20px; border-radius: 6px; }
+.pdf:hover { background: #ffc445; }
+
+main { flex: 1; width: 100%; padding: clamp(28px, 4vw, 52px) var(--gutter) 72px; }
+.posts { list-style: none; margin: 0; padding: 0; }
+.posts li { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 8px 32px; padding: 28px 0; border-top: 1px solid var(--line); }
+.posts li:first-child { border-top: 0; padding-top: 0; }
+.posts .when { flex-direction: column; color: var(--muted); padding-top: 4px; }
+.posts .kind { color: var(--aqua-dark); }
+.posts h2 { margin: 0; font-size: 1.5rem; line-height: 1.2; font-weight: 800; letter-spacing: -0.015em; text-wrap: balance; }
+.posts h2 a { color: var(--ink); text-decoration: none; }
+.posts h2 a:hover { color: var(--aqua-dark); text-decoration: underline; }
+.posts p { margin: 8px 0 0; color: var(--muted); max-width: 60ch; }
+.posts img { width: 180px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 6px; }
+.empty { color: var(--muted); }
+
+.article > * { max-width: 68ch; }
+.article > .cover, .article > .table, .article > p:has(> img) { max-width: 100%; }
+.article img { display: block; max-width: 100%; height: auto; }
+.article .cover { margin-bottom: 36px; border-radius: 6px; }
+.article h2 { margin: 2.1em 0 0.5em; font-size: 1.625rem; line-height: 1.2; font-weight: 800; letter-spacing: -0.015em; }
+.article h3 { margin: 1.7em 0 0.4em; font-size: 1.1875rem; line-height: 1.3; font-weight: 600; }
+.article p, .article ul, .article ol { margin: 0 0 1.1em; }
+.article li { margin: 0.3em 0; }
+.article p:has(> img) { margin: 2em 0; }
+.article .caption { display: block; margin-top: 10px; font-size: 0.9375rem; color: var(--muted); max-width: 68ch; }
+.article blockquote { margin: 1.8em 0; padding-left: 22px; border-left: 4px solid var(--citrus); font-size: 1.1875rem; line-height: 1.5; }
+.article code { font-size: 0.9em; overflow-wrap: anywhere; }
+.article pre { overflow-x: auto; }
+.table { overflow-x: auto; margin: 2em 0; }
+table { border-collapse: collapse; font-size: 0.9375rem; line-height: 1.4; font-variant-numeric: tabular-nums; }
+th, td { padding: 9px 18px 9px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; border-bottom: 2px solid var(--ink); }
+.sources { margin-top: 3.5em; padding-top: 4px; border-top: 1px solid var(--line); font-size: 0.9375rem; overflow-wrap: anywhere; }
+.article .sources h2 { font-size: 1.1875rem; margin: 1em 0 0.5em; }
+
+footer.site { padding: 22px var(--gutter); border-top: 1px solid var(--line); font-size: 0.875rem; color: var(--muted); }
+
+@media (max-width: 720px) {
+  .posts li { grid-template-columns: minmax(0, 1fr); }
+  .posts .when { flex-direction: row; }
+  .posts img { grid-row: 1; width: 100%; }
+}
+@media print { header.site, footer.site, .skip, .pdf { display: none; } .masthead { background: none; color: #000; padding: 0; } .masthead p, .masthead time, .masthead .kind, .masthead .summary { color: #000; } }

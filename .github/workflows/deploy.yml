@@ -70,6 +70,9 @@ jobs:
           # Splash tiles marked data-prelaunch (Solar Homes Calculator, Future City Simulator) show
           # as "Coming soon" on prod only; dev keeps them live (index.html).
           if [ "$ENV" = prod ]; then echo "VITE_PRELAUNCH_COMING_SOON=1" >> .env.prod; fi
+          # /reports/ needs its own address for link previews; the dev copy stays out of search engines.
+          echo "VITE_SITE_URL=https://electricfutures-$ENV.web.app" >> .env.prod
+          if [ "$ENV" = dev ]; then echo "VITE_SITE_NOINDEX=1" >> .env.prod; fi
           npm run build:prod
 
       - uses: google-github-actions/auth@v3
