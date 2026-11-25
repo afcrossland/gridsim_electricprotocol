@@ -186,6 +186,8 @@ describe("pages", () => {
     expect(renderSplashLinks([1, 2, 3, 4].map((n) => post({}, "x", [], `p${n}`)), SITE).match(/<li>/g)).toHaveLength(3);
   });
 
+  const numbers = (text: string) => renderPost(post(SOURCES, "```numbers\n" + text + "\n```"), SITE);
+
   it("ends a post with the newest others and the tools, under the site's base", () => {
     const posts = ["a", "b", "c", "d", "e"].map((s) => post({ title: `<${s}>` }, "x", [], s));
     const html = renderPost(posts[1], { ...SITE, base: "/sub/" }, posts);
@@ -202,13 +204,21 @@ describe("pages", () => {
     expect(renderSplashTop([post({ title: "A & B", kind: "blog" })], SITE)).toContain('<a href="/reports/a-post/"><b>Latest post</b> A &amp; B</a>');
   });
 
+  it.each(["numbers foo", "Numbers", "chart line", "Chart"])("refuses a block marked %s, which would be shown as code", (info) => {
+    expect(() => renderBody(post({}, "```" + info + "\nx\n```"), SITE)).toThrow("should start with just");
+  });
+
+  it("makes room for wide values, and measures table cells by what readers see", () => {
+    expect(numbers("- value: 12.3 GW\n  label: a")).toContain('<dl class="numbers">');
+    expect(numbers("- value: WWWWWWWW\n  label: a")).toContain('class="numbers roomy"');
+    expect(renderBody(post({}, "| [a](https://a.test/a-long-address-to-a-page) |\n|---|\n| b |"), SITE)).not.toContain("wide");
+  });
+
   it("gives columns of sentences more room than columns of numbers", () => {
     const html = renderBody(post({}, "| N | GW |\n|---|--:|\n| A sentence that is long enough | 1 |\n\n| A |\n|---|\n| b |"), SITE);
     expect(html.match(/class="wide"/g)).toHaveLength(2);
     expect(html).toMatch(/<th class="wide">N/);
   });
-
-  const numbers = (text: string) => renderPost(post(SOURCES, "```numbers\n" + text + "\n```"), SITE);
 
   it("sets key numbers as they are written, with citations in the labels", () => {
     const html = numbers("- value: 1.20\n  label: a <b>[^2]\n- value: 8.8%\n  label: c");
@@ -221,6 +231,7 @@ describe("pages", () => {
     ["no label", "- value: 1", '"label"'],
     ["a misspelt detail", "- value: 1\n  lable: x", '"lable"'],
     ["five numbers", "- {value: 1, label: x}\n".repeat(5), "one to four"],
+    ["a citation in the value", "- value: 5[^1]\n  label: x", "in the label"],
     ["a sentence as a value", "- value: about a third of everything\n  label: x", "too long"],
     ["an unquoted colon", "- value: 1\n  label: a: b", "quotes"],
     ["text that is not a list", "hello", "one to four"],

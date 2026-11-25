@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import MarkdownIt from "markdown-it";
 import { parseChart, type Chart } from "./chart.ts";
-import { parseNumbers } from "./numbers.ts";
+import { isWide, parseNumbers } from "./numbers.ts";
 import type { Post } from "./posts.ts";
 
 const CSS = readFileSync(fileURLToPath(new URL("./page.css", import.meta.url)), "utf8");
@@ -140,12 +140,16 @@ function readBody(post: Post, site: Site): Body {
   let hasChart = false;
   const fence = md.renderer.rules.fence!;
   md.renderer.rules.fence = (tokens, i, options, env, self) => {
-    if (tokens[i].info.trim() === "numbers") {
+    const info = tokens[i].info.trim();
+    // Anything else would be shown to readers as code.
+    const block = /^(chart|numbers)\b/i.exec(info);
+    if (block && info !== block[1].toLowerCase()) fail(`a block that starts with "${info}" should start with just "${block[1].toLowerCase()}"`);
+    if (info === "numbers") {
       const numbers = parseNumbers(tokens[i].content, fail);
       const items = numbers.map((n) => `<div><dt>${withCitations(n.label)}</dt><dd>${esc(n.value)}</dd></div>`);
-      return `<dl class="numbers${numbers.some((n) => n.value.length > 8) ? " roomy" : ""}">${items.join("")}</dl>\n`;
+      return `<dl class="numbers${numbers.some((n) => isWide(n.value)) ? " roomy" : ""}">${items.join("")}</dl>\n`;
     }
-    if (tokens[i].info.trim() !== "chart") return fence(tokens, i, options, env, self);
+    if (info !== "chart") return fence(tokens, i, options, env, self);
     hasChart = true;
     const chart = parseChart(
       tokens[i].content,
@@ -181,7 +185,7 @@ function readBody(post: Post, site: Site): Body {
     state.tokens.forEach((token, i) => {
       if (token.type === "table_open") cells = [];
       if (token.type === "tr_open") column = 0;
-      if (token.type === "th_open" || token.type === "td_open") cells.push({ token, column: column++, length: state.tokens[i + 1].content.length });
+      if (token.type === "th_open" || token.type === "td_open") cells.push({ token, column: column++, length: (state.tokens[i + 1].children ?? []).reduce((sum, t) => sum + t.content.length, 0) });
       if (token.type === "table_close") {
         const wide = new Set(cells.filter((c) => c.length > 24).map((c) => c.column));
         cells.forEach((c) => wide.has(c.column) && c.token.attrSet("class", "wide"));

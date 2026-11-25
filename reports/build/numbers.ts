@@ -24,6 +24,10 @@ export function parseNumbers(source: string, fail: (message: string) => never): 
     };
     const value = text("value");
     if (value.length > 14) fail(`"${value}" is too long for a numbers block (14 characters): put the words in the label`);
+    if (value.includes("[^")) fail(`put the citation in the label of "${value}", not in its value`);
     return { value, label: text("label") };
   });
 }
+
+/** Whether a value needs a wider column than the usual: capitals, "m", "w" and "%" take up about half as much again. */
+export const isWide = (value: string): boolean => [...value].reduce((sum, c) => sum + (/[\p{Lu}mw%]/u.test(c) ? 1.5 : 1), 0) > 9;
