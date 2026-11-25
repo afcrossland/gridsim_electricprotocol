@@ -38,78 +38,28 @@
  * script - see `npm run calculator:build-datasets` - so re-running the
  * irradiance or demand-profile build always re-derives this file in the
  * same step, rather than relying on someone remembering to run this one
- * too. There's still no build-time or CI check that *forces* that command
- * to run, though - it's a manual step you choose to take, just no longer
- * one you have to remember to chain by hand. Flagged in ROADMAP.md's own
- * "Known gaps flagged in code".
+ * too. src/data/selfSufficiency.test.ts recomputes
+ * every figure and fails if this file no longer matches the model, so a
+ * forgotten run now shows up in CI.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { getHourlyDemandKWh } from "../src/lib/demandProfile";
-import { loadCountryIrradiance } from "../src/lib/countryIrradiance";
-import { genericSource } from "../src/lib/genericSource";
-import { simulateDispatch } from "../src/lib/batteryDispatch";
-import type { PanelArray } from "../src/lib/types";
-
-interface Tier {
-  label: "low" | "medium" | "high";
-  array: PanelArray;
-  batteryKWh: number;
-  annualKWh: number;
-}
-
-// "Medium" matches App.tsx's own DEFAULT_ARRAYS/DEFAULT_BATTERY_KWH/
-// DEFAULT_DEMAND - the same "normal house" default a real calculation
-// starts from. "Low" and "high" are the two other system sizes Andrew
-// asked about 2026-09-18 (a smaller system covering more demand, and a
-// bigger system covering less), not tied to any other part of the app.
-const TIERS: Tier[] = [
-  { label: "low", array: { panels: 8, panelWatts: 500, tilt: 35, azimuth: 0 }, batteryKWh: 5, annualKWh: 5000 },
-  { label: "medium", array: { panels: 10, panelWatts: 500, tilt: 35, azimuth: 0 }, batteryKWh: 10, annualKWh: 4000 },
-  { label: "high", array: { panels: 14, panelWatts: 500, tilt: 35, azimuth: 0 }, batteryKWh: 15, annualKWh: 3500 },
-];
-
-interface CountryResult {
-  low: number;
-  medium: number;
-  high: number;
-}
-
-async function selfSufficiencyFor(tier: Tier, lat: number, lon: number, countryCode: string): Promise<number> {
-  const generation = await genericSource.getHourlyGenerationKWh({ lat, lon, countryCode, array: tier.array });
-  const demand = getHourlyDemandKWh(tier.annualKWh, lat < 0);
-  const { selfConsumedKWh } = simulateDispatch(generation, demand, tier.batteryKWh);
-  // Rounded DOWN (Math.floor) to a whole percent per Andrew's own
-  // instruction 2026-09-18 - matches calculateGeneric.ts's own
-  // pctDemandMet.
-  return Math.min(100, Math.floor((selfConsumedKWh / tier.annualKWh) * 100));
-}
+import { computeSelfSufficiency } from "../src/lib/selfSufficiency";
 
 async function main() {
-  const countryIrradiance = await loadCountryIrradiance();
-  const codes = Object.keys(countryIrradiance);
-  const result: Record<string, CountryResult> = {};
-
-  for (const code of codes) {
-    const entry = countryIrradiance[code];
-    const row = {} as CountryResult;
-    for (const tier of TIERS) {
-      row[tier.label] = await selfSufficiencyFor(tier, entry.lat, entry.lon, code);
-    }
-    result[code] = row;
-  }
+  const result = await computeSelfSufficiency();
 
   const scriptDir = path.dirname(fileURLToPath(import.meta.url));
   const outPath = path.join(scriptDir, "../src/data/country-self-sufficiency.json");
   fs.writeFileSync(outPath, JSON.stringify(result));
 
-  console.log(`wrote ${outPath} (${codes.length} countries)`);
-  for (const tier of TIERS) {
-    const values = Object.values(result).map((r) => r[tier.label]);
+  console.log(`wrote ${outPath} (${Object.keys(result).length} countries)`);
+  for (const tier of ["low", "medium", "high"] as const) {
+    const values = Object.values(result).map((r) => r[tier]);
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
-    console.log(`  ${tier.label}: min ${Math.min(...values)}%, max ${Math.max(...values)}%, mean ${mean.toFixed(1)}%`);
+    console.log(`  ${tier}: min ${Math.min(...values)}%, max ${Math.max(...values)}%, mean ${mean.toFixed(1)}%`);
   }
 }
 

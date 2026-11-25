@@ -194,8 +194,9 @@ irradiance/demand-profile scripts). **It goes stale** the moment the
 irradiance database, the demand shape, or the dispatch model's own
 assumptions change - the chained npm script means one command now
 regenerates all three in the right order instead of someone having to
-remember to run this one too, but running that command is still a manual
-step, not wired into any build/CI check - see ROADMAP.md. The league
+remember to run this one too. Running it is still a manual step, but
+`src/data/selfSufficiency.test.ts` recomputes every figure and fails the
+build when the file no longer matches the model. The league
 table's own low-high range display (see "Layout" above) reads "low" and
 "high" straight from this file via `lib/mapMetrics.ts`'s own
 `loadSelfSufficiencyTiers()`.
