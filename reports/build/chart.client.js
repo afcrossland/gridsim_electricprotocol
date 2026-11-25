@@ -1,7 +1,11 @@
 /* Draws the charts on a report page (see chart.ts for the data). Inlined, only on pages that have one. */
 (function () {
   var NS = 'http://www.w3.org/2000/svg';
-  var FMT = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 });
+  function fixed(decimals) { return new Intl.NumberFormat('en-GB', { maximumFractionDigits: Math.max(0, Math.min(20, decimals)) }); }
+  /* A number as the author gave it. */
+  var EXACT = fixed(20);
+  /* A label on the chart: four figures, or all of a bigger whole number. Never rounds a small value away. */
+  function short(v) { return v ? fixed(3 - Math.floor(Math.log10(Math.abs(v)))).format(v) : '0'; }
 
   function el(parent, name, attrs, text) {
     var node = document.createElementNS(NS, name);
@@ -51,12 +55,20 @@
     var plot = figure.querySelector('.plot');
     var n = spec.labels.length;
     var all = [];
-    if (spec.stacked) spec.labels.forEach(function (_, i) { all.push(spec.series.reduce(function (sum, s) { return sum + s.values[i]; }, 0)); });
+    /* Without the stray digits that adding decimals leaves (0.1 + 0.2). */
+    function total(i) { return +spec.series.reduce(function (sum, s) { return sum + s.values[i]; }, 0).toPrecision(12); }
+    if (spec.stacked) spec.labels.forEach(function (_, i) { all.push(total(i)); });
     else spec.series.forEach(function (s) { s.values.forEach(function (v) { if (v !== null) all.push(v); }); });
     var low = Math.min.apply(null, [0].concat(all));
     var high = Math.max.apply(null, [0].concat(all));
-    var withUnit = function (v) { return FMT.format(v) + (spec.unit === '%' ? '%' : spec.unit ? ' ' + spec.unit : ''); };
-    var tick = function (v) { return FMT.format(v) + (spec.unit === '%' ? '%' : ''); };
+    var withUnit = function (v) { return EXACT.format(v) + (spec.unit === '%' ? '%' : spec.unit ? ' ' + spec.unit : ''); };
+    var percent = spec.unit === '%' ? '%' : '';
+    var valueText = function (v) { return short(v) + percent; };
+    /* Enough decimals for the step between ticks, so that each tick says where it really is. */
+    var tickText = function (marks) {
+      var format = fixed(1 - Math.floor(Math.log10(marks[1] - marks[0])));
+      return function (v) { return format.format(v) + percent; };
+    };
     var numeric = spec.type === 'line' && spec.labels.every(function (l) { return /^-?\d+(\.\d+)?$/.test(l); });
     var width = 0;
     var active = -1;
@@ -65,14 +77,19 @@
     function draw() {
       width = plot.clientWidth;
       if (!width) return;
+      /* Keeps its height while it is empty, or the page would shrink and scroll. */
+      plot.style.minHeight = plot.offsetHeight + 'px';
       plot.textContent = '';
       var svg = el(plot, 'svg', { 'aria-hidden': 'true' });
       tip = div(plot, 'tip');
       tip.hidden = true;
       live = div(plot, 'sr');
       live.setAttribute('aria-live', 'polite');
+      var was = active;
       active = -1;
       if (spec.type === 'bar') bars(svg); else upright(svg);
+      plot.style.minHeight = '';
+      if (was >= 0) show(was);
     }
     function size(svg, height) {
       svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
@@ -83,9 +100,10 @@
     function upright(svg) {
       var height = width < 480 ? 270 : 350;
       var marks = ticks(low, high, height < 300 ? 4 : 5);
+      var tick = tickText(marks);
       var left = Math.ceil(widest(svg, marks.map(tick))) + 10;
       var lastValues = spec.series.map(function (s) { return s.values[n - 1]; }).filter(function (v) { return v !== null; });
-      var right = spec.type === 'line' ? Math.ceil(widest(svg, lastValues.map(tick))) + 14 : 4;
+      var right = spec.type === 'line' ? Math.ceil(widest(svg, lastValues.map(valueText))) + 14 : 4;
       var top = 12;
       var bottom = height - 28;
       size(svg, height);
@@ -134,7 +152,7 @@
             el(svg, 'circle', { cx: positions[n - 1], cy: y(end), r: 4, class: 'dot s' + (k + 1) });
             if (ends.every(function (e) { return Math.abs(e - y(end)) > 15; })) {
               ends.push(y(end));
-              el(svg, 'text', { x: positions[n - 1] + 8, y: y(end), dy: '0.35em', class: 'value' }, tick(end));
+              el(svg, 'text', { x: positions[n - 1] + 8, y: y(end), dy: '0.35em', class: 'value' }, valueText(end));
             }
           }
         });
@@ -152,14 +170,15 @@
 
       marker = el(svg, 'rect', { y: top, width: band, height: bottom - top, class: 'hit', visibility: 'hidden' });
       var lanes = spec.stacked ? 1 : spec.series.length;
-      var thick = Math.max(1, Math.min(24 + (lanes === 1 ? 16 : 0), (band * 0.76 - 2 * (lanes - 1)) / lanes));
+      var gap = (band * 0.76 - 2 * (lanes - 1)) / lanes < 3 ? 0 : 2;
+      var thick = Math.min(24 + (lanes === 1 ? 16 : 0), (band * 0.76 - gap * (lanes - 1)) / lanes);
       spec.labels.forEach(function (_, i) {
         var from = 0;
         spec.series.forEach(function (s, k) {
           var v = s.values[i];
           if (!v) return;
           var lane = spec.stacked ? 0 : k;
-          var x = positions[i] - (thick * lanes + 2 * (lanes - 1)) / 2 + lane * (thick + 2);
+          var x = positions[i] - (thick * lanes + gap * (lanes - 1)) / 2 + lane * (thick + gap);
           var a = y(spec.stacked ? from : 0);
           var b = y(spec.stacked ? from + v : v);
           var above = spec.stacked && from > 0 ? 2 : 0;
@@ -177,6 +196,8 @@
 
     /* Bars: a label beside each, or above it where the screen is narrow. */
     function bars(svg) {
+      var marks = ticks(low, high, width < 480 ? 3 : 5);
+      var tick = tickText(marks);
       var lanes = spec.stacked ? 1 : spec.series.length;
       var labelWidth = widest(svg, spec.labels);
       var over = labelWidth > width * 0.36;
@@ -184,13 +205,12 @@
       var pitch = lanes * thick + 2 * (lanes - 1) + (over ? 36 : 14);
       var left = over ? 1 : Math.ceil(labelWidth) + 12;
       var single = lanes === 1 && (spec.stacked || spec.series.length === 1);
-      var totals = spec.labels.map(function (_, i) { return spec.stacked ? spec.series.reduce(function (sum, s) { return sum + s.values[i]; }, 0) : spec.series[0].values[i]; });
-      var right = single ? Math.ceil(widest(svg, totals.filter(function (v) { return v !== null; }).map(tick))) + 10 : 12;
+      var totals = spec.labels.map(function (_, i) { return spec.stacked ? total(i) : spec.series[0].values[i]; });
+      var right = single ? Math.ceil(widest(svg, totals.filter(function (v) { return v !== null; }).map(valueText))) + 10 : 12;
       var top = 4;
       var bottom = top + pitch * n;
       var height = bottom + 26;
       size(svg, height);
-      var marks = ticks(low, high, width < 480 ? 3 : 5);
       var pad = low < 0 && single ? right : 0;
       var x = function (v) { return left + pad + ((v - marks[0]) / (marks[marks.length - 1] - marks[0])) * (width - right - left - pad); };
       marker = el(svg, 'rect', { x: 0, width: width, height: pitch, class: 'hit', visibility: 'hidden' });
@@ -217,13 +237,13 @@
         });
         if (single && totals[i] !== null) {
           var below = totals[i] < 0;
-          el(svg, 'text', { x: x(totals[i]) + (below ? -6 : 6), y: y0 + inner / 2, dy: '0.35em', 'text-anchor': below ? 'end' : 'start', class: 'value' }, tick(totals[i]));
+          el(svg, 'text', { x: x(totals[i]) + (below ? -6 : 6), y: y0 + inner / 2, dy: '0.35em', 'text-anchor': below ? 'end' : 'start', class: 'value' }, valueText(totals[i]));
         }
       });
       watch(svg, function (i) {
         marker.setAttribute('visibility', i < 0 ? 'hidden' : 'visible');
         if (i >= 0) marker.setAttribute('y', positions[i] - pitch / 2);
-      }, function (i) { return [width * 0.6, positions[i] + pitch / 2]; }, function (_, py) { return nearest(py); });
+      }, function (i) { return [width * 0.6, positions[i] + pitch / 2, positions[i] - pitch / 2]; }, function (_, py) { return nearest(py); });
     }
 
     function nearest(at) {
@@ -256,7 +276,10 @@
         var w = tip.offsetWidth;
         var x = spec.type === 'bar' ? at[0] : at[0] + 14 + w > width ? at[0] - 14 - w : at[0] + 14;
         tip.style.left = Math.max(0, Math.min(width - w, x)) + 'px';
-        tip.style.top = at[1] + 4 + 'px';
+        /* Under the row, or over it where there is no room under. */
+        var under = at[1] + 4;
+        tip.style.top = (spec.type === 'bar' && under + tip.offsetHeight > plot.offsetHeight ? Math.max(0, at[2] - 4 - tip.offsetHeight) : under) + 'px';
+        if (speak && tip.scrollIntoView) tip.scrollIntoView({ block: 'nearest' });
       };
       var move = function (event) {
         var box = svg.getBoundingClientRect();
@@ -265,7 +288,9 @@
       svg.addEventListener('pointermove', move);
       svg.addEventListener('pointerdown', move);
     }
-    plot.addEventListener('pointerleave', function () { show(-1); });
+    /* A finger leaves as soon as it lifts: after a tap the values stay until the next tap somewhere else. */
+    plot.addEventListener('pointerleave', function (event) { if (event.pointerType === 'mouse') show(-1); });
+    document.addEventListener('pointerdown', function (event) { if (!plot.contains(event.target)) show(-1); });
     plot.addEventListener('blur', function () { show(-1); });
     plot.addEventListener('keydown', function (event) {
       var step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];

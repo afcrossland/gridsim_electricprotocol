@@ -22,7 +22,7 @@ export function esc(text: string): string {
 }
 
 const DATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-const NUMBER = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 10 });
+const NUMBER = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 20 });
 const dateText = (date: string) => DATE.format(new Date(`${date}T00:00:00Z`));
 const kindText = (post: Post) => (post.kind === "report" ? "Report" : "Blog post");
 

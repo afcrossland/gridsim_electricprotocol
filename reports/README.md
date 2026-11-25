@@ -49,7 +49,8 @@ data: |
 - `type` is `line`, `column` or `bar` (sideways: best for long names). Columns and bars can have `stacked: true`.
 - `data` is the numbers, as above, or the name of a CSV in the post's folder (`data: capacity.csv`), which readers can then
   download. The first column is the labels; up to four more are the numbers. A blank is a gap.
-- `title`, `description` (for people who can't see the chart), `type` and `data` are needed. Text with a colon needs quotes.
+- `title`, `description` (for people who can't see the chart), `type` and `data` are needed. Text with a colon, or
+  starting with a symbol such as `%`, needs quotes. Up to 60 columns fit; use a line or bars for more.
 - Axes always start at zero. For any other kind of chart, use an image.
 
 ## How it works

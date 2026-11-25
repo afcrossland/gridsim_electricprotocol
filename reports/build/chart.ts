@@ -20,6 +20,7 @@ export interface Chart {
 const KEYS = ["type", "stacked", "title", "description", "unit", "caption", "data"];
 /** Four colours can be told apart by colour-blind readers; a fifth could not (see --s1 to --s4 in page.css). */
 export const MAX_SERIES = 4;
+const MAX_COLUMNS = 60;
 
 /** `readFile` returns the text of a CSV in the post's folder, or fails the build. */
 export function parseChart(source: string, readFile: (name: string) => string, fail: (message: string) => never): Chart {
@@ -27,7 +28,7 @@ export function parseChart(source: string, readFile: (name: string) => string, f
   try {
     parsed = parseYaml(source);
   } catch (error) {
-    fail(`a chart block can't be read (text with a colon in it needs quotes): ${(error as Error).message}`);
+    fail(`a chart block can't be read (text with a colon in it, or starting with a symbol such as %, needs quotes): ${(error as Error).message}`);
   }
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) fail('a chart block must be a list of "name: value" lines');
   const meta = parsed as Record<string, unknown>;
@@ -64,11 +65,12 @@ export function parseChart(source: string, readFile: (name: string) => string, f
       const cell = row[i + 1];
       if (cell === "") return null;
       const value = Number(cell);
-      return /^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(cell) && Number.isFinite(value) ? value : bad(`"${cell}" is not a number (leave out units and thousands commas)`);
+      return /^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(cell) && Number.isFinite(value) ? value + 0 : bad(`"${cell}" is not a number (leave out units and thousands commas)`);
     }),
   }));
   series.forEach((s) => s.values.some((v) => v !== null) || bad(`"${s.name}" has no numbers`));
   if (stacked && series.some((s) => s.values.some((v) => v === null || v < 0))) bad("a stacked chart can't have gaps or numbers below zero");
+  if (type === "column" && labels.length * (stacked ? 1 : names.length) > MAX_COLUMNS) bad(`more than ${MAX_COLUMNS} columns won't fit a phone: use a line, or bars`);
   if (type === "line" && labels.every(isNumber) && labels.some((l, i) => i > 0 && Number(l) <= Number(labels[i - 1]))) {
     bad(`"${head[0]}" must go up from one row to the next`);
   }

@@ -44,6 +44,7 @@ describe("reading charts", () => {
     ["two columns with one name", {}, "Y,A,A\n1,5,5\n2,6,6", "own heading"],
     ["a column with no numbers", {}, "Y,A,B\n1,5,\n2,6,", "no numbers"],
     ["years out of order", {}, "Y,A\n2025,5\n2024,6", "go up"],
+    ["more columns than a phone can show", { type: "column" }, "Y,A,B\n" + Array.from({ length: 31 }, (_, i) => `${i},1,1`).join("\n"), "won't fit"],
     ["a negative in a stack", { type: "bar", stacked: true }, "Y,A\nx,-5\ny,6", "below zero"],
   ])("refuses %s", (_what, details, data, message) => {
     expect(() => chart(details, data)).toThrow(message);
@@ -51,6 +52,7 @@ describe("reading charts", () => {
 
   it("says how to fix an unquoted colon, and refuses a CSV that is not there", () => {
     expect(() => parseChart("title: a: b", () => "", fail)).toThrow("quotes");
+    expect(() => parseChart("unit: %", () => "", fail)).toThrow("such as %");
     expect(() => post(fenced(block({ data: "../x.csv" })))).toThrow("not in the folder");
   });
 });
@@ -88,6 +90,18 @@ describe("drawing charts", () => {
     const { plot } = draw(details, data);
     expect(plot.querySelectorAll(selector)).toHaveLength(count);
     expect(plot.innerHTML).not.toMatch(/NaN|Infinity|undefined/);
+  });
+
+  const texts = (plot: HTMLElement, selector: string) => Array.from(plot.querySelectorAll(selector)).map((e) => e.textContent);
+
+  it("labels ticks and small values as they are", () => {
+    expect(texts(draw({ type: "column" }, "Y,A\na,0.12\nb,0.05").plot, "text")).toEqual(expect.arrayContaining(["0", "0.025", "0.075", "0.125"]));
+    const { plot, press } = draw({ type: "column" }, "Y,A\na,-0.001\nb,0.004");
+    expect(new Set(texts(plot, "text")).size).toBe(texts(plot, "text").length);
+    press("Home");
+    expect(plot.querySelector(".sr")!.textContent).toBe("a: A -0.001");
+    expect(texts(draw({ type: "bar", stacked: true }, "Y,A,B\na,0.1,0.2\nb,1,2").plot, ".value")).toEqual(["0.3", "3"]);
+    expect(texts(draw({ type: "bar" }, "Y,A\na,0.0012345\nb,12345.6").plot, ".value")).toEqual(["0.001235", "12,346"]);
   });
 
   it("reads out values with the arrow keys", () => {
