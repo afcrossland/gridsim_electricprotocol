@@ -63,3 +63,15 @@ variable "policy_editor_emails" {
   description = "Google accounts that may edit the Policy Explorer's data (its admin console and Edit mode). Empty means nobody (fails closed)."
   default     = []
 }
+
+variable "alerts" {
+  type        = bool
+  description = "Whether to create the uptime check and alert policies"
+  default     = false
+}
+
+variable "alert_notification_channels" {
+  type        = list(string)
+  description = "Notification channel resource names (projects/.../notificationChannels/...), made outside Terraform so recipients' addresses stay out of this public repository. Empty: nobody is told."
+  default     = []
+}

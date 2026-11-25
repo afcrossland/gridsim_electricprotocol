@@ -11,6 +11,9 @@ module "electricfutures" {
   fgs_api_base_url       = var.fgs_api_base_url
   cloudsql_instance_name = var.cloudsql_instance_name
 
+  alerts                      = true
+  alert_notification_channels = ["projects/project-08077ad6-f39e-4a3c-b19/notificationChannels/14444410360785275114"] # made by hand; see the module's variables.tf
+
   labels = {
     project     = var.project_id
     environment = "prod"

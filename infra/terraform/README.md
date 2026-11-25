@@ -99,3 +99,10 @@ GRANT CONNECT ON DATABASE electricfutures TO electricfutures;
 ```
 
 That isn't done by Terraform: it changes gridsim's databases, which this repo doesn't own.
+
+## Alerts
+
+Prod has an uptime check on the site and an error count on the gate (`modules/electricfutures/alerts.tf`,
+`alerts = true`). The email channel they notify is made by hand in Cloud Monitoring, and its resource name
+goes in `alert_notification_channels`: never put an address in this public repository. The backend and
+database alerts are in gridsim-deploy.
