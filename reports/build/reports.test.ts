@@ -114,6 +114,60 @@ describe("pages", () => {
     expect(() => renderBody(post({}, body, ["chart.png"]), SITE)).toThrow(message);
   });
 
+  const SOURCES = { sources: [{ label: "One", url: "https://a.test/" }, { label: "Two" }, { label: "Three" }] };
+
+  it("numbers sources, links citations to them, and gives the first citation the way back", () => {
+    const html = renderPost(post(SOURCES, 'A.[^1] B.[^1, 3] `[^9]`\n\n![c](c.png "Source.[^2]")', ["c.png"]), SITE);
+    expect(html).toContain('A.<sup class="cite">[<a id="cite_1" href="#src_1" aria-label="Source 1">1</a>]</sup>');
+    expect(html).toContain('B.<sup class="cite">[<a href="#src_1" aria-label="Source 1">1</a>, <a id="cite_3"');
+    expect(html).toContain('Source.<sup class="cite">[<a id="cite_2"');
+    expect(html).toContain("<code>[^9]</code>");
+    expect(html.match(/<li id="src_\d">/g)).toHaveLength(3);
+    expect(html.match(/class="back"/g)).toHaveLength(3);
+    expect(renderPost(post(SOURCES, "No citations"), SITE)).not.toContain('class="back"');
+  });
+
+  it.each([
+    ["a source that is not listed", "x[^4]", "source 4"],
+    ["source 0", "x[^0]", "source 0"],
+    ["a citation that is not a number", "x[^ember]", "number"],
+    ["a citation inside a link", "[x [^1]](https://a.test/)", "after the link"],
+    ["a citation in a heading", "## x[^1]", "heading"],
+    ["a second citation inside a link", "[x [^1] [^2]](https://a.test/)", "after the link"],
+    ["a citation in an image's description", "![x [^1]](c.png)", "after the link or image"],
+    ["a citation touching a bare address", "https://a.test/data[^1]", "put a space"],
+    ["a citation in the caption of an image that is a link", '[![x](c.png "y[^1]")](https://a.test/)', "caption"],
+    ["a one-word footnote in the text", "x[^1]\n\n[^1]: Note", "details block"],
+    ["a footnote written in the text", "x[^1]\n\n[^1]: A note", "details block"],
+  ])("refuses %s", (_what, body, message) => {
+    expect(() => renderPost(post(SOURCES, body, ["c.png"]), SITE)).toThrow(message);
+  });
+
+  it("leaves brackets alone that only look like a link or a footnote", () => {
+    const html = renderPost(post(SOURCES, "```\n[^1]: note\n```\n\nx [^1](u) and a](b) and [y](https://a.test/)[^2]"), SITE);
+    expect(html).toContain("[^1]: note");
+    expect(html).toContain('<a href="https://a.test/">y</a><sup');
+  });
+
+  it("gives every heading its own address, whatever it says", () => {
+    const html = renderBody(post({}, "## Sources\n\n## Côte d'Ivoire & *more*\n\n## Same\n\n### Same\n\n## !!!\n\n## ガス\n\n## カス\n\n## हिन्दी\n\n## See [x](https://a.test/)"), SITE);
+    expect([...html.matchAll(/<h\d id="([^"]+)"/g)].map((m) => m[1])).toEqual(["sources-2", "cote-d-ivoire-more", "same", "same-2", "section", "ガス", "カス", "हिन्दी", "see-x"]);
+    expect(html).toContain('<h2 id="same"><a class="self" href="#same">Same</a></h2>');
+    expect(html).toContain('<h2 id="see-x">See <a href="https://a.test/">');
+  });
+
+  it("lists the contents of a long post only", () => {
+    const html = renderPost(post(SOURCES, "## A\n\n### Not this\n\n## B `code`\n\n## C & D"), SITE);
+    expect(html).toContain('<ul><li><a href="#a">A</a></li><li><a href="#b-code">B code</a></li><li><a href="#c-d">C &amp; D</a></li><li><a href="#sources">Sources</a></li></ul>');
+    expect(renderPost(post(SOURCES, "## A\n\n## B"), SITE)).not.toContain('class="contents"');
+  });
+
+  it("opens an image at full size, unless it is already a link", () => {
+    const html = renderBody(post({}, "![a](c.png)\n\n[![b](c.png)](https://a.test/)", ["c.png"]), SITE);
+    expect(html).toContain('<a class="zoom" href="/reports/a-post/c.png"><img');
+    expect(html.match(/class="zoom"/g)).toHaveLength(1);
+  });
+
   it("gives link previews a full address and cover, and hides drafts and dev from search engines", () => {
     const p = post({ cover: "c.jpg", coverAlt: "A cover" }, "x", ["c.jpg"]);
     const html = renderPost(p, SITE);

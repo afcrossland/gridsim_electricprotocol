@@ -12,7 +12,7 @@ const TYPES: Record<string, string> = {
 };
 
 /**
- * /reports/: turns reports/content into plain HTML pages, with no script of their own. A build writes
+ * /reports/: turns reports/content into plain HTML pages, with no script except the one that draws charts, on pages that have a chart. A build writes
  * published posts only; the dev server also shows drafts, and re-reads the files on every request.
  */
 export function reports(site: Site): Plugin {
