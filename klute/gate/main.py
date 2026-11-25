@@ -38,6 +38,7 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 
 from ep_db.api import router as policy_router
+from ep_db.limits import BodySizeLimit
 from ep_db.review import router as policy_review_router
 from ep_db.writes import router as policy_writes_router
 
@@ -122,6 +123,7 @@ app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 # Firebase Hosting passes a Cloud Run response through as it finds it; /api/policy/data is ~500KB of JSON that
 # shrinks about tenfold, and the Policy Explorer waits for it before it can start.
 app.add_middleware(GZipMiddleware, minimum_size=1024)
+app.add_middleware(BodySizeLimit)
 # Policy data: public reads (ep_db/api.py) and public suggestions (ep_db/review.py); everything
 # else needs an editor's sign-in (ep_db/writes.py, ep_db/auth.py) - unrelated to /klute's own.
 app.include_router(policy_router)
