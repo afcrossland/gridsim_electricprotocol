@@ -18,7 +18,7 @@ Opening paragraph. Leave a blank line between paragraphs.
 
 ## A heading
 
-Some **bold** and *italic* text, and [a link](https://example.org/).
+Some **bold** and *italic* text, and [a link](https://example.org/). Cite a source by its number in the list above.[^1]
 
 > A key point, set apart from the text.
 

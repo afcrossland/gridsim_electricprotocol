@@ -11,6 +11,10 @@ shows nothing until something is published). There is no CMS and no database.
 2. Edit `index.md`: the details between the `---` lines, then the text in Markdown. Start headings at `##`.
 3. Put its images and PDF in the same folder. Only png, jpg, webp, svg, pdf, csv and xlsx files are allowed.
    Images need a description, and can have a caption: `![What it shows](chart.png "Caption. Source: name, year")`.
+   Click an image on the page to open the full-size file.
+   Cite a source by its number in the `sources` list: `[^1]`, or `[^1, 3]` for two. Captions can cite too, headings can't.
+   Adding a source in the middle of the list changes the numbers after it, so add new ones at the end.
+   A post with three or more `##` headings gets a list of contents, and every heading has its own address to share.
 4. Run `npm run dev` and open `/reports/`. Drafts show there.
 5. Delete `draft: true`, then open a PR into `Development`. Merging puts it on the dev site; a release to `main` publishes it.
 
