@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Plugin } from "vite";
 import { loadPosts } from "./posts.ts";
-import { renderIndex, renderPost, renderSplashLinks, type Site } from "./render.ts";
+import { renderIndex, renderPost, renderSplashLinks, renderSplashTop, type Site } from "./render.ts";
 
 const CONTENT = fileURLToPath(new URL("../content", import.meta.url));
 const TYPES: Record<string, string> = {
@@ -12,7 +12,7 @@ const TYPES: Record<string, string> = {
 };
 
 /**
- * /reports/: turns reports/content into plain HTML pages, with no script of their own. A build writes
+ * /reports/: turns reports/content into plain HTML pages, with no script except the one that draws charts, on pages that have a chart. A build writes
  * published posts only; the dev server also shows drafts, and re-reads the files on every request.
  */
 export function reports(site: Site): Plugin {
@@ -36,7 +36,7 @@ export function reports(site: Site): Plugin {
           const html = (text: string) => void res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }).end(text);
           if (!slug && name === undefined) return html(renderIndex(posts, site));
           if (post && name === undefined) return void res.writeHead(302, { Location: `${url}/` }).end();
-          if (post && name === "") return html(renderPost(post, site));
+          if (post && name === "") return html(renderPost(post, site, posts));
           if (post && !rest.length && post.files.includes(name)) {
             const type = TYPES[path.extname(name).toLowerCase()];
             return void res.writeHead(200, { "Content-Type": type }).end(readFileSync(path.join(post.dir, name)));
@@ -50,8 +50,10 @@ export function reports(site: Site): Plugin {
     transformIndexHtml: {
       order: "pre",
       handler(html) {
-        // Only the splash page has the marker.
-        return html.includes("<!-- reports -->") ? html.replace("<!-- reports -->", () => renderSplashLinks(loadPosts(CONTENT, { drafts }), site)) : html;
+        // Only the splash page has the markers.
+        if (!html.includes("<!-- reports -->")) return html;
+        const posts = loadPosts(CONTENT, { drafts });
+        return html.replace("<!-- reports -->", () => renderSplashLinks(posts, site)).replace("<!-- newest report -->", () => renderSplashTop(posts, site));
       },
     },
     generateBundle() {
@@ -59,7 +61,7 @@ export function reports(site: Site): Plugin {
       const emit = (fileName: string, source: string | Uint8Array) => this.emitFile({ type: "asset", fileName: `reports/${fileName}`, source });
       emit("index.html", renderIndex(posts, site));
       for (const post of posts) {
-        emit(`${post.slug}/index.html`, renderPost(post, site));
+        emit(`${post.slug}/index.html`, renderPost(post, site, posts));
         for (const name of post.files) emit(`${post.slug}/${name}`, readFileSync(path.join(post.dir, name)));
       }
     },

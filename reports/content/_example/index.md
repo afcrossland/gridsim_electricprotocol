@@ -18,7 +18,7 @@ Opening paragraph. Leave a blank line between paragraphs.
 
 ## A heading
 
-Some **bold** and *italic* text, and [a link](https://example.org/).
+Some **bold** and *italic* text, and [a link](https://example.org/). Cite a source by its number in the list above.[^1]
 
 > A key point, set apart from the text.
 
@@ -32,3 +32,26 @@ Some **bold** and *italic* text, and [a link](https://example.org/).
 An image from this folder, with a description for people who can't see it, then a caption:
 
 `![Line chart: solar doubles by 2030](chart.png "Solar capacity, GW. Source: name, year")`
+
+A chart, drawn by the reader's browser (see reports/README.md):
+
+```chart
+type: column
+title: Placeholder chart
+description: A grows and B stays level.
+unit: GW
+caption: "Placeholder numbers. Source: name, year.[^1]"
+data: |
+  Year, A, B
+  2024, 4, 3
+  2025, 6, 3
+```
+
+Headline figures:
+
+```numbers
+- value: 12.3 GW
+  label: what it counts, with its source[^1]
+- value: 45%
+  label: something else
+```
