@@ -186,8 +186,9 @@ comment(s) together.
   demand profile/irradiance"): `npm run calculator:build-datasets` (root
   `package.json`) now chains all three generator scripts in the right
   order, so regenerating either upstream dataset regenerates this one too
-  in the same command - but running that command is still something a
-  person has to choose to do, not something a build/CI step forces. A full
+  in the same command. It still has to be run by a person, but since
+  2026-11-25 `calculator/src/data/selfSufficiency.test.ts` recomputes the figures and fails when the file is
+  stale (the local-solar-time fix of 2026-10-16 had left it so for five weeks). A full
   fix would wire it into whatever pipeline updates those upstream datasets
   automatically, with no human step at all.
 - **TODO: the Dispatch tab's charts need explainer text.** As of
