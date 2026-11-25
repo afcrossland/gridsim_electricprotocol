@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadPosts, parsePost, readPost } from "./posts.ts";
-import { renderBody, renderIndex, renderPost, renderSplashLinks, type Site } from "./render.ts";
+import { renderBody, renderIndex, renderPost, renderSplashLinks, renderSplashTop, type Site } from "./render.ts";
 
 const SITE: Site = { base: "/", url: "https://site.test", noindex: false };
 const DETAILS = { title: "A title", kind: "report", date: "2026-11-24", summary: "A summary" };
@@ -184,5 +184,47 @@ describe("pages", () => {
     expect(renderIndex([], SITE)).toContain("Nothing has been published yet.");
     expect(renderSplashLinks([], SITE)).toBe("");
     expect(renderSplashLinks([1, 2, 3, 4].map((n) => post({}, "x", [], `p${n}`)), SITE).match(/<li>/g)).toHaveLength(3);
+  });
+
+  it("ends a post with the newest others and the tools, under the site's base", () => {
+    const posts = ["a", "b", "c", "d", "e"].map((s) => post({ title: `<${s}>` }, "x", [], s));
+    const html = renderPost(posts[1], { ...SITE, base: "/sub/" }, posts);
+    const next = /<ul class="next">(.*?)<\/ul>/.exec(html)![1];
+    expect([...next.matchAll(/href="([^"]+)"/g)].map((m) => m[1])).toEqual(["/sub/reports/a/", "/sub/reports/c/", "/sub/reports/d/"]);
+    expect(next).toContain("&lt;a&gt;");
+    expect(html).toContain('href="/sub/deployment/?skipIntro=1"');
+    expect(html).toContain('href="https://futuregridsimulator.');
+    expect(renderPost(posts[0], SITE, [posts[0]])).not.toContain('class="next"');
+  });
+
+  it("names the newest post at the top of the splash page, once there is one", () => {
+    expect(renderSplashTop([], SITE)).toBe("");
+    expect(renderSplashTop([post({ title: "A & B", kind: "blog" })], SITE)).toContain('<a href="/reports/a-post/"><b>Latest post</b> A &amp; B</a>');
+  });
+
+  it("gives columns of sentences more room than columns of numbers", () => {
+    const html = renderBody(post({}, "| N | GW |\n|---|--:|\n| A sentence that is long enough | 1 |\n\n| A |\n|---|\n| b |"), SITE);
+    expect(html.match(/class="wide"/g)).toHaveLength(2);
+    expect(html).toMatch(/<th class="wide">N/);
+  });
+
+  const numbers = (text: string) => renderPost(post(SOURCES, "```numbers\n" + text + "\n```"), SITE);
+
+  it("sets key numbers as they are written, with citations in the labels", () => {
+    const html = numbers("- value: 1.20\n  label: a <b>[^2]\n- value: 8.8%\n  label: c");
+    expect(html).toContain('<dt>a &lt;b&gt;<sup class="cite">[<a id="cite_2"');
+    expect(html).toContain("<dd>1.20</dd>");
+    expect(html).toContain("<dd>8.8%</dd>");
+  });
+
+  it.each([
+    ["no label", "- value: 1", '"label"'],
+    ["a misspelt detail", "- value: 1\n  lable: x", '"lable"'],
+    ["five numbers", "- {value: 1, label: x}\n".repeat(5), "one to four"],
+    ["a sentence as a value", "- value: about a third of everything\n  label: x", "too long"],
+    ["an unquoted colon", "- value: 1\n  label: a: b", "quotes"],
+    ["text that is not a list", "hello", "one to four"],
+  ])("refuses key numbers with %s", (_what, text, message) => {
+    expect(() => numbers(text)).toThrow(message);
   });
 });

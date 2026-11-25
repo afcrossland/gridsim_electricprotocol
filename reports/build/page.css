@@ -39,7 +39,7 @@ header.site img { width: 22px; height: 22px; }
 .kind { font-weight: 600; }
 .masthead .kind { color: var(--citrus); }
 .draft { background: var(--citrus); color: var(--ink); font-size: 0.8125rem; font-weight: 600; padding: 1px 9px; border-radius: 4px; letter-spacing: 0; vertical-align: middle; }
-.pdf { display: inline-block; background: var(--citrus); color: var(--ink); font-weight: 600; text-decoration: none; padding: 10px 20px; border-radius: 6px; }
+.pdf { display: inline-block; background: var(--citrus); color: var(--ink); font-weight: 600; text-decoration: none; padding: 10px 22px; border-radius: 22px; }
 .pdf:hover { background: #ffc445; }
 
 main { flex: 1; width: 100%; padding: clamp(28px, 4vw, 52px) var(--gutter) 72px; }
@@ -54,6 +54,24 @@ main { flex: 1; width: 100%; padding: clamp(28px, 4vw, 52px) var(--gutter) 72px;
 .posts p { margin: 8px 0 0; color: var(--muted); max-width: 60ch; }
 .posts img { width: 180px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 6px; }
 .empty { color: var(--muted); }
+
+.numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 24px 32px; margin: 2em 0; padding: 22px 0; border-top: 3px solid var(--citrus); border-bottom: 1px solid var(--line); }
+.numbers.roomy { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.numbers div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 6px; }
+.numbers dd { margin: 0; font-size: 2.25rem; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; color: var(--aqua-dark); white-space: nowrap; }
+.numbers dt { font-size: 0.9375rem; line-height: 1.4; }
+
+.onward { grid-column: 1; max-width: 720px; margin-top: 56px; padding-top: 28px; border-top: 3px solid var(--aqua-dark); }
+.onward h2 { margin: 0 0 12px; font-size: 1.1875rem; line-height: 1.3; font-weight: 800; }
+.onward ul { list-style: none; margin: 0 0 16px; padding: 0; }
+.onward .next li { display: grid; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.onward .next a { font-weight: 600; line-height: 1.35; }
+.onward .when { color: var(--muted); }
+.onward .kind { color: var(--aqua-dark); }
+.onward p { margin: 0 0 32px; }
+.onward .tools { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; }
+.onward .tools a { display: inline-block; padding: 9px 18px; border: 1px solid var(--aqua-dark); border-radius: 22px; font-size: 0.9375rem; font-weight: 600; line-height: 1.3; text-decoration: none; }
+.onward .tools a:hover { background: var(--aqua-dark); color: #fff; }
 
 /* Charts. The four colours can be told apart by colour-blind readers, in any pairing. */
 .chart { --s1: #008FA0; --s2: #E09A00; --s3: #6A5CE0; --s4: #B85C2E; margin: 2.2em 0; }
@@ -132,6 +150,9 @@ main { flex: 1; width: 100%; padding: clamp(28px, 4vw, 52px) var(--gutter) 72px;
 table { border-collapse: collapse; font-size: 0.9375rem; line-height: 1.4; font-variant-numeric: tabular-nums; }
 th, td { padding: 9px 18px 9px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
 td:first-child { min-width: 5.5em; }
+/* A shadow at the side there is more of the table on. */
+.table { background: linear-gradient(90deg, #fff 30%, transparent) 0 0 / 36px 100% no-repeat local, linear-gradient(270deg, #fff 30%, transparent) 100% 0 / 36px 100% no-repeat local,
+  linear-gradient(90deg, rgba(15,27,34,0.16), transparent) 0 0 / 12px 100% no-repeat scroll, linear-gradient(270deg, rgba(15,27,34,0.16), transparent) 100% 0 / 12px 100% no-repeat scroll; }
 th { font-weight: 600; border-bottom: 2px solid var(--ink); }
 .sources { margin-top: 3.5em; padding-top: 4px; border-top: 1px solid var(--line); font-size: 0.9375rem; overflow-wrap: anywhere; }
 .article .sources h2 { font-size: 1.1875rem; margin: 1em 0 0.5em; }
@@ -141,8 +162,11 @@ footer.site { padding: 22px var(--gutter); border-top: 1px solid var(--line); fo
 @media (max-width: 720px) {
   .posts li { grid-template-columns: minmax(0, 1fr); }
   .posts .when { flex-direction: row; }
+  /* Wide tables scroll sideways instead of squashing every column. */
+  .article > .table :is(th, td) { min-width: 5.6em; }
+  .article > .table .wide { min-width: 14em; }
   .posts img { grid-row: 1; width: 100%; }
   .masthead.with-cover { grid-template-columns: minmax(0, 1fr); }
   .masthead .cover { max-width: 100%; max-height: 200px; }
 }
-@media print { header.site, footer.site, .skip, .pdf, .contents, .contents-fold, .back, .chart .data, .tip { display: none; } .long { display: block; } .chart { break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact; } .masthead.with-cover { display: block; } .article { max-width: none; } .masthead.post { padding: 0; } main { padding: 24px 0 0; } .masthead { background: none; color: #000; padding: 0; } .masthead p, .masthead time, .masthead .authors, .masthead .kind, .masthead .summary { color: #000; } }
+@media print { header.site, footer.site, .skip, .pdf, .contents, .contents-fold, .back, .chart .data, .tip, .onward { display: none; } .long { display: block; } .table { background: none; overflow: visible; } .numbers { break-inside: avoid; } .chart { break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact; } .masthead.with-cover { display: block; } .article { max-width: none; } .masthead.post { padding: 0; } main { padding: 24px 0 0; } .masthead { background: none; color: #000; padding: 0; } .masthead p, .masthead time, .masthead .authors, .masthead .kind, .masthead .summary { color: #000; } }

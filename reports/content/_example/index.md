@@ -46,3 +46,12 @@ data: |
   2024, 4, 3
   2025, 6, 3
 ```
+
+Headline figures:
+
+```numbers
+- value: 12.3 GW
+  label: what it counts, with its source[^1]
+- value: 45%
+  label: something else
+```
