@@ -55,6 +55,41 @@ main { flex: 1; width: 100%; padding: clamp(28px, 4vw, 52px) var(--gutter) 72px;
 .posts img { width: 180px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 6px; }
 .empty { color: var(--muted); }
 
+/* Charts. The four colours can be told apart by colour-blind readers, in any pairing. */
+.chart { --s1: #008FA0; --s2: #E09A00; --s3: #6A5CE0; --s4: #B85C2E; margin: 2.2em 0; }
+.chart .title { margin: 0; font-weight: 600; line-height: 1.35; }
+.chart .unit { margin: 2px 0 0; font-size: 0.9375rem; color: var(--muted); }
+.chart .key-list { display: flex; flex-wrap: wrap; gap: 4px 20px; list-style: none; margin: 8px 0 0; padding: 0; font-size: 0.9375rem; }
+.chart .key-list li { display: flex; align-items: center; gap: 8px; margin: 0; }
+.chart .s1 { --c: var(--s1); } .chart .s2 { --c: var(--s2); } .chart .s3 { --c: var(--s3); } .chart .s4 { --c: var(--s4); }
+.key { flex: none; background: var(--c); width: 12px; height: 12px; border-radius: 3px; forced-color-adjust: none; }
+.key.line, .tip .key { width: 16px; height: 3px; border-radius: 2px; }
+.plot { position: relative; margin-top: 12px; }
+.plot.line, .plot.column { min-height: 270px; }
+@media (scripting: none) { .plot, .chart .key-list { display: none; } }
+.plot svg { display: block; width: 100%; font-size: 13px; touch-action: pan-y; forced-color-adjust: none; }
+.plot text { fill: var(--muted); font-variant-numeric: tabular-nums; }
+.plot .label, .plot .value { fill: var(--ink); }
+.plot .value { font-weight: 600; }
+.plot .grid { stroke: #E7ECEE; }
+.plot .base { stroke: #9AA5AB; }
+.plot .cross { stroke: var(--muted); }
+.plot .line { fill: none; stroke: var(--c); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.plot .fill { fill: var(--c); }
+.plot .dot { fill: var(--c); stroke: #fff; stroke-width: 2; }
+.plot .hit { fill: #F1F5F6; }
+.tip { position: absolute; z-index: 1; pointer-events: none; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 4px 14px rgba(15,27,34,0.14); padding: 8px 12px; font-size: 0.875rem; line-height: 1.45; max-width: 260px; }
+.tip[hidden] { display: none; }
+.tip .at { color: var(--muted); }
+.tip .row { display: flex; align-items: center; gap: 8px; }
+.tip .num { font-weight: 600; white-space: nowrap; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.chart .data { margin-top: 8px; font-size: 0.9375rem; }
+.chart .data summary { cursor: pointer; color: var(--aqua-dark); padding: 4px 0; }
+.chart .data .table { margin: 0.6em 0; }
+.chart .data td, .chart .data thead th:not(:first-child) { text-align: right; }
+.chart .data tbody th { font-weight: 400; border-bottom: 1px solid var(--line); }
+
 /* One column, 720px, for text, charts and tables alike. A long post has its contents beside it. */
 .short { --gutter: max(20px, calc((100% - 720px) / 2)); }
 .article { font-size: 1.125rem; min-width: 0; max-width: 720px; overflow-wrap: break-word; }
@@ -110,4 +145,4 @@ footer.site { padding: 22px var(--gutter); border-top: 1px solid var(--line); fo
   .masthead.with-cover { grid-template-columns: minmax(0, 1fr); }
   .masthead .cover { max-width: 100%; max-height: 200px; }
 }
-@media print { header.site, footer.site, .skip, .pdf, .contents, .contents-fold, .back { display: none; } .long { display: block; } .masthead.with-cover { display: block; } .article { max-width: none; } .masthead.post { padding: 0; } main { padding: 24px 0 0; } .masthead { background: none; color: #000; padding: 0; } .masthead p, .masthead time, .masthead .authors, .masthead .kind, .masthead .summary { color: #000; } }
+@media print { header.site, footer.site, .skip, .pdf, .contents, .contents-fold, .back, .chart .data, .tip { display: none; } .long { display: block; } .chart { break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact; } .masthead.with-cover { display: block; } .article { max-width: none; } .masthead.post { padding: 0; } main { padding: 24px 0 0; } .masthead { background: none; color: #000; padding: 0; } .masthead p, .masthead time, .masthead .authors, .masthead .kind, .masthead .summary { color: #000; } }

@@ -26,10 +26,37 @@ unreleased or embargoed work, and its images, off GitHub until it can be public.
 `date` is only shown and used for ordering; a post is live as soon as it is released, whatever its date. Folders starting
 with `_` are ignored.
 
+## Charts
+
+Describe a chart in a `chart` block and the reader's browser draws it, to fit their screen, with the values on hover, touch
+or the arrow keys, and a table of the numbers underneath:
+
+````
+```chart
+type: line
+title: Solar capacity
+description: Rooftop solar overtakes large solar in 2025.
+unit: GW
+caption: "Source: name, year.[^1]"
+data: |
+  Year, Rooftop, Large
+  2023, 10, 14
+  2024, 14, 16
+  2025, 21, 18
+```
+````
+
+- `type` is `line`, `column` or `bar` (sideways: best for long names). Columns and bars can have `stacked: true`.
+- `data` is the numbers, as above, or the name of a CSV in the post's folder (`data: capacity.csv`), which readers can then
+  download. The first column is the labels; up to four more are the numbers. A blank is a gap.
+- `title`, `description` (for people who can't see the chart), `type` and `data` are needed. Text with a colon needs quotes.
+- Axes always start at zero. For any other kind of chart, use an image.
+
 ## How it works
 
 - `build/posts.ts` reads and checks the folders, `build/render.ts` makes the pages, `build/page.css` is their style, and
   `build/plugin.ts` adds them to the Vite build and the dev server.
-- HTML in a post's Markdown is shown as text, not run. The pages have no script.
+- HTML in a post's Markdown is shown as text, not run. The only script is
+  `build/chart.client.js`, on pages that have a chart; `build/chart.ts` reads and checks the chart blocks.
 - `VITE_SITE_URL` (set in `deploy.yml`) gives link previews a full address; `VITE_SITE_NOINDEX` keeps the dev copy out of
   search engines. If the site gets its own domain, change `VITE_SITE_URL`.

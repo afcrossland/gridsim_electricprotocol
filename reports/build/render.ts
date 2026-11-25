@@ -1,9 +1,12 @@
 import { readFileSync } from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import MarkdownIt from "markdown-it";
+import { parseChart, type Chart } from "./chart.ts";
 import type { Post } from "./posts.ts";
 
 const CSS = readFileSync(fileURLToPath(new URL("./page.css", import.meta.url)), "utf8");
+const CHART_SCRIPT = readFileSync(fileURLToPath(new URL("./chart.client.js", import.meta.url)), "utf8");
 
 export interface Site {
   /** Vite's base, with its trailing slash. */
@@ -19,6 +22,7 @@ export function esc(text: string): string {
 }
 
 const DATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const NUMBER = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 10 });
 const dateText = (date: string) => DATE.format(new Date(`${date}T00:00:00Z`));
 const kindText = (post: Post) => (post.kind === "report" ? "Report" : "Blog post");
 
@@ -36,6 +40,7 @@ interface Body {
   headings: { id: string; text: string }[];
   /** The sources the text cites, by number. */
   cited: Set<number>;
+  hasChart: boolean;
 }
 
 export const renderBody = (post: Post, site: Site): string => readBody(post, site).html;
@@ -116,12 +121,26 @@ function readBody(post: Post, site: Site): Body {
     const inLink = before.lastIndexOf("link_open") > before.lastIndexOf("link_close");
     if (!inLink) img = `<a class="zoom" href="${esc(local(src))}">${img}</a>`;
     if (inLink && caption && CITE.test(String(caption))) fail(`the caption of ${src} can't cite a source, because the image is a link`);
-    return caption ? `${img}<span class="caption">${esc(String(caption)).replace(new RegExp(CITE, "g"), (_, list) => cite(list))}</span>` : img;
+    return caption ? img + captionHtml(String(caption)) : img;
   };
   // The page's title is its only h1.
   md.core.ruler.push("no_h1", (state) => {
     if (state.tokens.some((t) => t.type === "heading_open" && t.tag === "h1")) fail('start headings at "##": the title is already the top heading');
   });
+  // A caption's text, with its citations. Anywhere but inside a link.
+  const captionHtml = (text: string): string => `<span class="caption">${esc(text).replace(new RegExp(CITE, "g"), (_, list) => cite(list))}</span>`;
+  let hasChart = false;
+  const fence = md.renderer.rules.fence!;
+  md.renderer.rules.fence = (tokens, i, options, env, self) => {
+    if (tokens[i].info.trim() !== "chart") return fence(tokens, i, options, env, self);
+    hasChart = true;
+    const chart = parseChart(
+      tokens[i].content,
+      (name) => (post.files.includes(name) ? readFileSync(path.join(post.dir, name), "utf8") : fail(`a chart uses ${name}, which is not in the folder`)),
+      fail,
+    );
+    return chartHtml(chart, chart.file && filePath(post, site, chart.file), chart.caption && captionHtml(chart.caption));
+  };
   const ids = new Set(OWN_IDS);
   md.core.ruler.push("heading_ids", (state) => {
     state.tokens.forEach((open, i) => {
@@ -147,7 +166,26 @@ function readBody(post: Post, site: Site): Body {
   const env: Parameters<typeof md.render>[1] = {};
   const html = md.render(post.markdown, env);
   if (Object.keys(env?.references ?? {}).some((name) => name.startsWith("^"))) footnote();
-  return { html, headings, cited };
+  return { html, headings, cited, hasChart };
+}
+
+/** A chart's frame, its numbers as a table, and the data the page's script draws it from. */
+function chartHtml(chart: Chart, href: string | undefined, caption: string): string {
+  const { type, stacked, unit, labels, series } = chart;
+  // "<" is escaped so that a label can't end the script element.
+  const data = JSON.stringify({ type, stacked, unit, labels, series }).replace(/</g, "\\u003c");
+  const shape = type === "line" ? "line" : "box";
+  const key = series.length > 1 ? `<ul class="key-list">${series.map((s, i) => `<li><span class="key ${shape} s${i + 1}"></span>${esc(s.name)}</li>`).join("")}</ul>` : "";
+  const head = [chart.axis, ...series.map((s) => s.name)].map((h) => `<th scope="col">${esc(h)}</th>`).join("");
+  const rows = labels.map((l, i) => `<tr><th scope="row">${esc(l)}</th>${series.map((s) => `<td>${s.values[i] === null ? "No data" : NUMBER.format(s.values[i])}</td>`).join("")}</tr>`).join("");
+  return `<figure class="chart">
+<p class="title">${esc(chart.title)}</p>
+${unit ? `<p class="unit">${esc(unit)}</p>` : ""}${key}
+<div class="plot ${type}" tabindex="0" role="group" aria-label="${esc(`Chart: ${chart.description} Use the arrow keys to read the values.`)}"></div>
+<script type="application/json">${data}</script>
+<details class="data"><summary>Show the numbers</summary><div class="table" role="region" aria-label="${esc(chart.title)}" tabindex="0"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>${href ? `<p><a href="${esc(href)}">Download as CSV</a></p>` : ""}</details>
+${caption}</figure>
+`;
 }
 
 interface Head {
@@ -159,7 +197,7 @@ interface Head {
   noindex: boolean;
 }
 
-function page(site: Site, head: Head, body: string): string {
+function page(site: Site, head: Head, body: string, script = ""): string {
   const meta = [
     `<meta name="description" content="${esc(head.description)}" />`,
     `<meta property="og:type" content="${head.type}" />`,
@@ -192,7 +230,7 @@ ${CSS.replaceAll("url('/fonts/", `url('${site.base}fonts/`)}</style>
 </header>
 ${body}
 <footer class="site">The Global Solar Council</footer>
-</body>
+${script && `<script>\n${script}</script>\n`}</body>
 </html>
 `;
 }
@@ -271,6 +309,7 @@ ${contents}<div class="article">
 ${body.html}${sources}
 </div>
 </main>`,
+    body.hasChart ? CHART_SCRIPT : "",
   );
 }
 
