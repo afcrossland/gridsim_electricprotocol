@@ -1,8 +1,9 @@
 # Reports and blog (`/reports/`)
 
 Every report or blog post is a folder in `reports/content/`. The build turns each one into a plain HTML page at
-`/reports/<folder name>/`, lists them newest first at `/reports/`, and links the newest three from the splash page (which
-shows nothing until something is published). There is no CMS and no database.
+`/reports/<folder name>/`, lists them newest first at `/reports/`, and links the newest three from the splash page, with
+the newest at its top too (it shows nothing until something is published). Every post ends with links to the newest others.
+There is no CMS and no database.
 
 ## Add one
 
@@ -52,6 +53,19 @@ data: |
 - `title`, `description` (for people who can't see the chart), `type` and `data` are needed. Text with a colon, or
   starting with a symbol such as `%`, needs quotes. Up to 60 columns fit; use a line or bars for more.
 - Axes always start at zero. For any other kind of chart, use an image.
+
+## Key numbers
+
+One to four headline figures, set large. Labels can cite sources; values are up to 14 characters.
+
+````
+```numbers
+- value: 8.8%
+  label: of the world's electricity came from solar[^1]
+- value: 2.4 TW
+  label: installed
+```
+````
 
 ## How it works
 

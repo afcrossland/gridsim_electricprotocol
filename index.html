@@ -340,6 +340,10 @@
   .tile.disabled .secondary:hover { text-decoration: none; }
 
   /* The newest reports and posts (reports/build/render.ts); absent until something is published. */
+  .newest { margin: 18px 0 0; }
+  .newest a { display: inline-block; max-width: 100%; overflow-wrap: anywhere; padding: 8px 18px; border: 1px solid rgba(255,255,255,0.28); border-radius: 22px; color: #fff; font-size: 0.9375rem; line-height: 1.35; text-decoration: none; }
+  .newest a:hover { border-color: var(--citrus); }
+  .newest b { margin-right: 8px; font-weight: 600; color: var(--citrus); }
   .reading {
     position: relative;
     z-index: 1;
@@ -351,14 +355,26 @@
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 10px 32px;
+    justify-content: space-between;
+    gap: 16px 28px;
   }
-  .reading h2 { margin: 0; font-size: 1.125rem; font-weight: 800; }
-  .reading ul { flex: 1 1 320px; margin: 0; padding: 0; list-style: none; }
-  .reading li { margin: 0 0 8px; }
+  .reading h2 { margin: 0; font-size: 1.375rem; font-weight: 800; letter-spacing: -0.01em; }
   .reading a { color: #fff; text-underline-offset: 0.18em; }
   .reading a:hover { color: var(--citrus); }
   .reading .all { font-weight: 600; }
+  .reading ul { flex: 1 0 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin: 0; padding: 0; list-style: none; }
+  .reading li { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 20px 22px; border: 1px solid rgba(255,255,255,0.18); border-radius: 16px; background: rgba(255,255,255,0.05); overflow-wrap: anywhere; }
+  .reading li:hover { border-color: rgba(251,177,20,0.7); }
+  .reading li a { font-size: 1.125rem; font-weight: 600; line-height: 1.25; text-decoration: none; }
+  .reading li a::after { content: ""; position: absolute; inset: 0; border-radius: 16px; }
+  .newest a:focus-visible, .reading a:focus-visible { outline: 3px solid var(--citrus); outline-offset: 2px; }
+  @supports selector(:has(a)) {
+    .reading li a:focus-visible { outline: none; }
+    .reading li:has(a:focus-visible) { outline: 3px solid var(--citrus); outline-offset: 2px; }
+  }
+  .reading .when { font-size: 0.8125rem; color: rgba(255,255,255,0.74); }
+  .reading .summary { font-size: 0.875rem; line-height: 1.5; color: rgba(255,255,255,0.78); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+  @media (max-width: 760px) { .reading ul { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
 </style>
 </head>
 <body>
@@ -369,6 +385,7 @@
       <h1>Electric Futures Playbook</h1>
     </div>
     <p>by The Global Solar Council &ensp;&middot;&ensp; <span class="tagline">Solar. Storage. Future Secured.</span></p>
+    <!-- newest report -->
   </header>
 
   <main>

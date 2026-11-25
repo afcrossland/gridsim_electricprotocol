@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import MarkdownIt from "markdown-it";
 import { parseChart, type Chart } from "./chart.ts";
+import { isWide, parseNumbers } from "./numbers.ts";
 import type { Post } from "./posts.ts";
 
 const CSS = readFileSync(fileURLToPath(new URL("./page.css", import.meta.url)), "utf8");
@@ -31,7 +32,13 @@ const filePath = (post: Post, site: Site, name: string) => postPath(post, site) 
 const EXTERNAL = /^(https?:|mailto:|tel:|\/\/|#)/i;
 
 /** Ids the page itself uses. A heading's id has no "_" in it, so it can't clash with src_1 or cite_1 either. */
-const OWN_IDS = ["content", "sources"];
+const OWN_IDS = ["content", "sources", "more", "tools"];
+/** As on the splash page; only the ones that are open on the public site. */
+const TOOLS = [
+  ["Solar Deployment Explorer", "deployment/?skipIntro=1"],
+  ["Solar Policy Explorer", "policy/?skipIntro=1"],
+  ["Future Grid Simulator", "https://futuregridsimulator.globalsolarcouncil.org/"],
+];
 const CITE = /\[\^(\d+(?:\s*,\s*\d+)*)\]/;
 
 interface Body {
@@ -128,11 +135,21 @@ function readBody(post: Post, site: Site): Body {
     if (state.tokens.some((t) => t.type === "heading_open" && t.tag === "h1")) fail('start headings at "##": the title is already the top heading');
   });
   // A caption's text, with its citations. Anywhere but inside a link.
-  const captionHtml = (text: string): string => `<span class="caption">${esc(text).replace(new RegExp(CITE, "g"), (_, list) => cite(list))}</span>`;
+  const withCitations = (text: string): string => esc(text).replace(new RegExp(CITE, "g"), (_, list) => cite(list));
+  const captionHtml = (text: string): string => `<span class="caption">${withCitations(text)}</span>`;
   let hasChart = false;
   const fence = md.renderer.rules.fence!;
   md.renderer.rules.fence = (tokens, i, options, env, self) => {
-    if (tokens[i].info.trim() !== "chart") return fence(tokens, i, options, env, self);
+    const info = tokens[i].info.trim();
+    // Anything else would be shown to readers as code.
+    const block = /^(chart|numbers)\b/i.exec(info);
+    if (block && info !== block[1].toLowerCase()) fail(`a block that starts with "${info}" should start with just "${block[1].toLowerCase()}"`);
+    if (info === "numbers") {
+      const numbers = parseNumbers(tokens[i].content, fail);
+      const items = numbers.map((n) => `<div><dt>${withCitations(n.label)}</dt><dd>${esc(n.value)}</dd></div>`);
+      return `<dl class="numbers${numbers.some((n) => isWide(n.value)) ? " roomy" : ""}">${items.join("")}</dl>\n`;
+    }
+    if (info !== "chart") return fence(tokens, i, options, env, self);
     hasChart = true;
     const chart = parseChart(
       tokens[i].content,
@@ -161,6 +178,20 @@ function readBody(post: Post, site: Site): Body {
   md.renderer.rules.heading_open = (tokens, i, options, _env, self) =>
     self.renderToken(tokens, i, options) + (tokens[i].meta?.self ? `<a class="self" href="#${esc(String(tokens[i].attrGet("id")))}">` : "");
   md.renderer.rules.heading_close = (tokens, i, options, _env, self) => (tokens[i].meta?.self ? "</a>" : "") + self.renderToken(tokens, i, options);
+  // A column with sentences in it gets more room on a phone than a column of numbers.
+  md.core.ruler.push("wide_columns", (state) => {
+    let cells: { token: (typeof state.tokens)[number]; column: number; length: number }[] = [];
+    let column = 0;
+    state.tokens.forEach((token, i) => {
+      if (token.type === "table_open") cells = [];
+      if (token.type === "tr_open") column = 0;
+      if (token.type === "th_open" || token.type === "td_open") cells.push({ token, column: column++, length: (state.tokens[i + 1].children ?? []).reduce((sum, t) => sum + t.content.length, 0) });
+      if (token.type === "table_close") {
+        const wide = new Set(cells.filter((c) => c.length > 24).map((c) => c.column));
+        cells.forEach((c) => wide.has(c.column) && c.token.attrSet("class", "wide"));
+      }
+    });
+  });
   md.renderer.rules.table_open = () => '<div class="table" role="region" aria-label="Table" tabindex="0"><table>\n';
   md.renderer.rules.table_close = () => "</table></div>\n";
   const env: Parameters<typeof md.render>[1] = {};
@@ -262,7 +293,25 @@ ${list}
   );
 }
 
-export function renderPost(post: Post, site: Site): string {
+/** The end of a post: the newest others, and the tools the reports draw on. */
+function onward(post: Post, site: Site, posts: Post[]): string {
+  const others = posts.filter((p) => p.slug !== post.slug).slice(0, 3);
+  const next = others.length
+    ? `<h2 id="more">More reports and posts</h2>
+<ul class="next">${others
+        .map((p) => `<li><span class="when"><span class="kind">${kindText(p)}</span><time datetime="${p.date}">${dateText(p.date)}</time></span><a href="${esc(postPath(p, site))}">${esc(p.title)}</a></li>`)
+        .join("")}</ul>
+`
+    : "";
+  return `<aside class="onward" aria-label="Where to go next">
+${next}<p><a href="${site.base}reports/">All reports and blog posts</a></p>
+<h2 id="tools">Explore the data yourself</h2>
+<ul class="tools">${TOOLS.map(([name, href]) => `<li><a href="${href.startsWith("http") ? href : site.base + href}">${name}</a></li>`).join("")}</ul>
+</aside>`;
+}
+
+/** `posts` is everything published, newest first, for the links at the end. */
+export function renderPost(post: Post, site: Site, posts: Post[] = []): string {
   const body = readBody(post, site);
   const pdf = post.pdf ? `\n    <a class="pdf" href="${esc(filePath(post, site, post.pdf))}">Download the PDF</a>` : "";
   const authors = post.authors.length ? `\n    <span class="authors">${esc(new Intl.ListFormat("en-GB").format(post.authors))}</span>` : "";
@@ -308,18 +357,30 @@ export function renderPost(post: Post, site: Site): string {
 ${contents}<div class="article">
 ${body.html}${sources}
 </div>
+${onward(post, site, posts)}
 </main>`,
     body.hasChart ? CHART_SCRIPT : "",
   );
 }
 
-/** The splash page's list of the newest posts; nothing at all until something is published. */
+/** The splash page's newest posts; nothing at all until something is published. */
 export function renderSplashLinks(posts: Post[], site: Site): string {
   if (!posts.length) return "";
-  const links = posts.slice(0, 3).map((post) => `<li><a href="${esc(postPath(post, site))}">${esc(post.title)}</a></li>`);
-  return `<nav class="reading" aria-labelledby="reading-title">
+  const cards = posts
+    .slice(0, 3)
+    .map(
+      (post) =>
+        `<li><span class="when">${kindText(post)} &middot; <time datetime="${post.date}">${dateText(post.date)}</time></span><a href="${esc(postPath(post, site))}">${esc(post.title)}</a><span class="summary">${esc(post.summary)}</span></li>`,
+    );
+  return `<section class="reading" id="reading" aria-labelledby="reading-title">
       <h2 id="reading-title">Reports and blog</h2>
-      <ul>${links.join("")}</ul>
       <a class="all" href="${site.base}reports/">See all</a>
-    </nav>`;
+      <ul>${cards.join("")}</ul>
+    </section>`;
+}
+
+/** A line near the top of the splash page, because the posts are below all the tiles. */
+export function renderSplashTop(posts: Post[], site: Site): string {
+  if (!posts.length) return "";
+  return `<p class="newest"><a href="${esc(postPath(posts[0], site))}"><b>Latest ${posts[0].kind === "report" ? "report" : "post"}</b> ${esc(posts[0].title)}</a></p>`;
 }
