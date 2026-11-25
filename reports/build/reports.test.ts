@@ -133,14 +133,25 @@ describe("pages", () => {
     ["a citation that is not a number", "x[^ember]", "number"],
     ["a citation inside a link", "[x [^1]](https://a.test/)", "after the link"],
     ["a citation in a heading", "## x[^1]", "heading"],
+    ["a second citation inside a link", "[x [^1] [^2]](https://a.test/)", "after the link"],
+    ["a citation in an image's description", "![x [^1]](c.png)", "after the link or image"],
+    ["a citation touching a bare address", "https://a.test/data[^1]", "put a space"],
+    ["a citation in the caption of an image that is a link", '[![x](c.png "y[^1]")](https://a.test/)', "caption"],
+    ["a one-word footnote in the text", "x[^1]\n\n[^1]: Note", "details block"],
     ["a footnote written in the text", "x[^1]\n\n[^1]: A note", "details block"],
   ])("refuses %s", (_what, body, message) => {
-    expect(() => renderPost(post(SOURCES, body), SITE)).toThrow(message);
+    expect(() => renderPost(post(SOURCES, body, ["c.png"]), SITE)).toThrow(message);
+  });
+
+  it("leaves brackets alone that only look like a link or a footnote", () => {
+    const html = renderPost(post(SOURCES, "```\n[^1]: note\n```\n\nx [^1](u) and a](b) and [y](https://a.test/)[^2]"), SITE);
+    expect(html).toContain("[^1]: note");
+    expect(html).toContain('<a href="https://a.test/">y</a><sup');
   });
 
   it("gives every heading its own address, whatever it says", () => {
-    const html = renderBody(post({}, "## Sources\n\n## Côte d'Ivoire & *more*\n\n## Same\n\n### Same\n\n## !!!\n\n## See [x](https://a.test/)"), SITE);
-    expect([...html.matchAll(/<h\d id="([^"]+)"/g)].map((m) => m[1])).toEqual(["sources-2", "cote-d-ivoire-more", "same", "same-2", "section", "see-x"]);
+    const html = renderBody(post({}, "## Sources\n\n## Côte d'Ivoire & *more*\n\n## Same\n\n### Same\n\n## !!!\n\n## ガス\n\n## カス\n\n## हिन्दी\n\n## See [x](https://a.test/)"), SITE);
+    expect([...html.matchAll(/<h\d id="([^"]+)"/g)].map((m) => m[1])).toEqual(["sources-2", "cote-d-ivoire-more", "same", "same-2", "section", "ガス", "カス", "हिन्दी", "see-x"]);
     expect(html).toContain('<h2 id="same"><a class="self" href="#same">Same</a></h2>');
     expect(html).toContain('<h2 id="see-x">See <a href="https://a.test/">');
   });

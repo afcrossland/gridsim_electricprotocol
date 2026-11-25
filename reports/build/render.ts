@@ -73,13 +73,22 @@ function readBody(post: Post, site: Site): Body {
         return `<a${id} href="#src_${n}" aria-label="Source ${n}">${n}</a>`;
       })
       .join(", ")}]</sup>`;
-  if (/^ {0,3}\[\^[^\]]*\]:/m.test(post.markdown)) fail('list the sources in the details block, under "sources", not in the text');
+  const footnote = () => fail('list the sources in the details block, under "sources", not in the text');
+  // Takes out every closed [...], leaving the brackets that are still open.
+  const unclosed = (text: string): string => {
+    let rest = text.replace(/\\[[\]]/g, "");
+    while (/\[[^[\]]*\]/.test(rest)) rest = rest.replace(/\[[^[\]]*\]/g, "");
+    return rest;
+  };
   md.inline.ruler.before("link", "cite", (state, silent) => {
     if (!state.src.startsWith("[^", state.pos)) return false;
     const match = CITE.exec(state.src.slice(state.pos));
     if (!match || match.index !== 0) return fail("a citation is a source's number: [^1], or [^1, 3] for two");
     // markdown-it won't nest these, so the outer link would come out as text.
-    if (/^[^[\]]*\]\(/.test(state.src.slice(state.pos + match[0].length))) return fail(`put ${match[0]} after the link, not inside it`);
+    const before = state.src.slice(0, state.pos);
+    const after = state.src.slice(state.pos + match[0].length);
+    if (unclosed(before).includes("[") && /^[^[\]]*\]\(/.test(unclosed(after))) return fail(`put ${match[0]} after the link or image, not inside its square brackets`);
+    if (/(^|\n)$/.test(before) && after.startsWith(":")) return footnote();
     if (!silent) state.push("cite", "", 0).content = match[1];
     state.pos += match[0].length;
     return true;
@@ -88,6 +97,7 @@ function readBody(post: Post, site: Site): Body {
 
   md.renderer.rules.link_open = (tokens, i, options, _env, self) => {
     const href = String(tokens[i].attrGet("href") ?? "");
+    if (tokens[i].markup === "linkify" && /\[\^|%5B%5E/i.test(href)) fail(`put a space between the address ${href.replace(/(\[\^|%5B%5E).*/i, "")} and the citation after it`);
     // An address from the top of the site (/policy/) has to allow for the site's base.
     if (/^\/(?!\/)/.test(href)) tokens[i].attrSet("href", site.base + href.slice(1));
     else if (!EXTERNAL.test(href)) tokens[i].attrSet("href", local(href));
@@ -105,6 +115,7 @@ function readBody(post: Post, site: Site): Body {
     const before = tokens.slice(0, i).map((t) => t.type);
     const inLink = before.lastIndexOf("link_open") > before.lastIndexOf("link_close");
     if (!inLink) img = `<a class="zoom" href="${esc(local(src))}">${img}</a>`;
+    if (inLink && caption && CITE.test(String(caption))) fail(`the caption of ${src} can't cite a source, because the image is a link`);
     return caption ? `${img}<span class="caption">${esc(String(caption)).replace(new RegExp(CITE, "g"), (_, list) => cite(list))}</span>` : img;
   };
   // The page's title is its only h1.
@@ -118,7 +129,7 @@ function readBody(post: Post, site: Site): Body {
       const children = state.tokens[i + 1].children ?? [];
       if (children.some((t) => t.type === "cite")) fail("cite sources in the text, not in a heading");
       const text = children.map((t) => (/break$/.test(t.type) ? " " : t.content)).join("").trim();
-      const slug = text.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "") || "section";
+      const slug = text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}\p{M}]+/gu, "-").replace(/^-|-$/g, "") || "section";
       let id = slug;
       for (let n = 2; ids.has(id); n++) id = `${slug}-${n}`;
       ids.add(id);
@@ -133,7 +144,10 @@ function readBody(post: Post, site: Site): Body {
   md.renderer.rules.heading_close = (tokens, i, options, _env, self) => (tokens[i].meta?.self ? "</a>" : "") + self.renderToken(tokens, i, options);
   md.renderer.rules.table_open = () => '<div class="table" role="region" aria-label="Table" tabindex="0"><table>\n';
   md.renderer.rules.table_close = () => "</table></div>\n";
-  return { html: md.render(post.markdown), headings, cited };
+  const env: Parameters<typeof md.render>[1] = {};
+  const html = md.render(post.markdown, env);
+  if (Object.keys(env?.references ?? {}).some((name) => name.startsWith("^"))) footnote();
+  return { html, headings, cited };
 }
 
 interface Head {
